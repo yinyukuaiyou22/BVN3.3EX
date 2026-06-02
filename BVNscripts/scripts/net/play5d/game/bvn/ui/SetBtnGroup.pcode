@@ -1,0 +1,1583 @@
+package net.play5d.game.bvn.ui
+{
+   import com.greensock.TweenLite;
+   import flash.display.Sprite;
+   import flash.events.MouseEvent;
+   import flash.events.TouchEvent;
+   import flash.geom.Rectangle;
+   import net.play5d.game.bvn.GameConfig;
+   import net.play5d.game.bvn.ctrl.GameRender;
+   import net.play5d.game.bvn.ctrl.SoundCtrl;
+   import net.play5d.game.bvn.data.ConfigVO;
+   import net.play5d.game.bvn.data.GameData;
+   import net.play5d.game.bvn.events.SetBtnEvent;
+   import net.play5d.game.bvn.input.GameInputer;
+   import net.play5d.game.bvn.interfaces.GameInterface;
+   import net.play5d.game.bvn.utils.ResUtils;
+
+   public class SetBtnGroup extends Sprite
+   {
+
+      method
+         name null
+         returns null
+
+         body
+            maxstack 0
+            localcount 1
+            initscopedepth 0
+            maxscopedepth 0
+
+            code
+               returnvoid
+            end ; code
+         end ; body
+      end ; method
+
+      public var keyEnable:Boolean = true;
+
+      public var startX:Number = 100;
+
+      public var startY:Number = 50;
+
+      public var endY:Number = 0;
+
+      public var gap:Number = 75;
+
+      public var direct:int = 1;
+
+      public var gameInputType:String = "MENU";
+
+      private var _btns:Vector.<SetBtn>;
+
+      private var _arrow:select_arrow_mc;
+
+      private var _arrowIndex:int = -1;
+
+      private var _scrollRect:Rectangle;
+
+      public function SetBtnGroup()
+      {
+         method
+            name "SetBtnGroup"
+            returns null
+
+            body
+               maxstack 4
+               localcount 2
+               initscopedepth 0
+               maxscopedepth 1
+
+               code
+                  getlocal0
+                  pushscope
+                  getlocal0
+                  constructsuper 0
+                  getlex QName(PackageNamespace("net.play5d.game.bvn"),"GameConfig")
+                  getproperty QName(PackageNamespace(""),"TOUCH_MODE")
+                  iffalse ofs0018
+                  getlocal0
+                  getlocal0
+                  pushdouble 1.0
+                  dup
+                  setlocal1
+                  setproperty QName(PackageNamespace(""),"scaleY")
+                  getlocal1
+                  setproperty QName(PackageNamespace(""),"scaleX")
+         ofs0018:
+                  returnvoid
+               end ; code
+            end ; body
+         end ; method
+      }
+
+      public function initScroll(param1:Number, param2:Number) : void
+      {
+         trait method QName(PackageNamespace(""),"initScroll")
+            dispid 0
+            method
+               name "initScroll"
+               flag HAS_PARAM_NAMES
+               param QName(PackageNamespace(""),"Number")
+               param QName(PackageNamespace(""),"Number")
+               paramname "W"
+               paramname "H"
+               returns QName(PackageNamespace(""),"void")
+
+               body
+                  maxstack 5
+                  localcount 3
+                  initscopedepth 0
+                  maxscopedepth 1
+
+                  code
+                     getlocal0
+                     pushscope
+                     findpropstrict QName(PackageNamespace("flash.geom"),"Rectangle")
+                     pushbyte 0
+                     pushbyte 0
+                     getlocal1
+                     getlocal2
+                     constructprop QName(PackageNamespace("flash.geom"),"Rectangle"), 4
+                     findproperty QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_scrollRect")
+                     swap
+                     setproperty QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_scrollRect")
+                     getlocal0
+                     getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_scrollRect")
+                     setproperty QName(PackageNamespace(""),"scrollRect")
+                     returnvoid
+                  end ; code
+               end ; body
+            end ; method
+         }
+
+         public function initMainSet() : void
+         {
+            trait method QName(PackageNamespace(""),"initMainSet")
+               dispid 0
+               method
+                  name "initMainSet"
+                  returns QName(PackageNamespace(""),"void")
+
+                  body
+                     maxstack 3
+                     localcount 1
+                     initscopedepth 0
+                     maxscopedepth 1
+
+                     code
+                        getlocal0
+                        pushscope
+                        findpropstrict QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"initMainBtns")
+                        callpropvoid QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"initMainBtns"), 0
+                        findpropstrict QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"initArrow")
+                        callpropvoid QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"initArrow"), 0
+                        getlex QName(PackageNamespace("net.play5d.game.bvn.ctrl"),"GameRender")
+                        getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"render")
+                        getlocal0
+                        callpropvoid QName(PackageNamespace(""),"add"), 2
+                        getlex QName(PackageNamespace("net.play5d.game.bvn.input"),"GameInputer")
+                        callpropvoid QName(PackageNamespace(""),"focus"), 0
+                        getlex QName(PackageNamespace("net.play5d.game.bvn.input"),"GameInputer")
+                        pushtrue
+                        setproperty QName(PackageNamespace(""),"enabled")
+                        returnvoid
+                     end ; code
+                  end ; body
+               end ; method
+            }
+
+            public function initKeySet() : void
+            {
+               trait method QName(PackageNamespace(""),"initKeySet")
+                  dispid 0
+                  method
+                     name "initKeySet"
+                     returns QName(PackageNamespace(""),"void")
+
+                     body
+                        maxstack 8
+                        localcount 1
+                        initscopedepth 0
+                        maxscopedepth 1
+
+                        code
+                           getlocal0
+                           pushscope
+                           findpropstrict QName(PackageNamespace(""),"setBtnData")
+                           pushstring "label"
+                           pushstring "SET ALL"
+                           pushstring "cn"
+                           pushstring "设置全部"
+                           newobject 2
+                           pushstring "label"
+                           pushstring "SET DEFAULT"
+                           pushstring "cn"
+                           pushstring "还原默认按键"
+                           newobject 2
+                           pushstring "label"
+                           pushstring "APPLY"
+                           pushstring "cn"
+                           pushstring "应用"
+                           newobject 2
+                           pushstring "label"
+                           pushstring "CANCEL"
+                           pushstring "cn"
+                           pushstring "取消"
+                           newobject 2
+                           newarray 4
+                           callpropvoid QName(PackageNamespace(""),"setBtnData"), 1
+                           returnvoid
+                        end ; code
+                     end ; body
+                  end ; method
+               }
+
+               public function setBtnData(param1:Array, param2:int = 0) : void
+               {
+                  trait method QName(PackageNamespace(""),"setBtnData")
+                     dispid 0
+                     method
+                        name "setBtnData"
+                        flag HAS_OPTIONAL
+                        flag HAS_PARAM_NAMES
+                        param QName(PackageNamespace(""),"Array")
+                        param QName(PackageNamespace(""),"int")
+                        paramname "v"
+                        paramname "defaultSelect"
+                        optional Integer(0)
+                        returns QName(PackageNamespace(""),"void")
+
+                        body
+                           maxstack 4
+                           localcount 6
+                           initscopedepth 0
+                           maxscopedepth 1
+
+                           code
+                              getlocal0
+                              pushscope
+                              pushnull
+                              setlocal3
+                              pushbyte 0
+                              setlocal 5
+                              pushnull
+                              setlocal 4
+                              getlex QName(PackageNamespace("__AS3__.vec"),"Vector")
+                              getlex QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                              applytype 1
+                              construct 0
+                              findproperty QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                              swap
+                              setproperty QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                              jump ofs006e
+                     ofs0020:
+                              label
+                              getlocal1
+                              getlocal 5
+                              getproperty MultinameL([PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                              coerce QName(PackageNamespace(""),"Object")
+                              setlocal 4
+                              findpropstrict QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"addBtn")
+                              getlocal 4
+                              getproperty Multiname("label",[PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                              getlocal 4
+                              getproperty Multiname("cn",[PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                              getlocal 4
+                              getproperty Multiname("options",[PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                              callproperty QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"addBtn"), 3
+                              coerce QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                              setlocal3
+                              getlocal 4
+                              getproperty Multiname("optoinKey",[PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                              pushundefined
+                              ifeq ofs0058
+                              getlocal3
+                              getlocal 4
+                              getproperty Multiname("optoinKey",[PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                              setproperty QName(PackageNamespace(""),"optionKey")
+                     ofs0058:
+                              getlocal 4
+                              getproperty Multiname("optionValue",[PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                              pushundefined
+                              ifeq ofs006c
+                              getlocal3
+                              getlocal 4
+                              getproperty Multiname("optionValue",[PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                              callpropvoid QName(PackageNamespace(""),"setOptionByValue"), 1
+                     ofs006c:
+                              inclocal_i 5
+                     ofs006e:
+                              getlocal 5
+                              getlocal1
+                              getproperty QName(PackageNamespace(""),"length")
+                              iflt ofs0020
+                              findpropstrict QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"initArrow")
+                              getlocal2
+                              callpropvoid QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"initArrow"), 1
+                              getlex QName(PackageNamespace("net.play5d.game.bvn.ctrl"),"GameRender")
+                              getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"render")
+                              getlocal0
+                              callpropvoid QName(PackageNamespace(""),"add"), 2
+                              getlex QName(PackageNamespace("net.play5d.game.bvn.input"),"GameInputer")
+                              callpropvoid QName(PackageNamespace(""),"focus"), 0
+                              getlex QName(PackageNamespace("net.play5d.game.bvn.input"),"GameInputer")
+                              pushtrue
+                              setproperty QName(PackageNamespace(""),"enabled")
+                              returnvoid
+                           end ; code
+                        end ; body
+                     end ; method
+                  }
+
+                  public function destory() : void
+                  {
+                     trait method QName(PackageNamespace(""),"destory")
+                        dispid 0
+                        method
+                           name "destory"
+                           returns QName(PackageNamespace(""),"void")
+
+                           body
+                              maxstack 3
+                              localcount 4
+                              initscopedepth 0
+                              maxscopedepth 1
+
+                              code
+                                 getlocal0
+                                 pushscope
+                                 getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                 iffalse ofs0061
+                                 pushbyte 0
+                                 setlocal3
+                                 getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                 setlocal2
+                                 jump ofs0052
+                        ofs0014:
+                                 label
+                                 getlocal2
+                                 getlocal3
+                                 nextvalue
+                                 coerce QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                                 setlocal1
+                                 getlocal1
+                                 callpropvoid QName(PackageNamespace(""),"destory"), 0
+                                 getlocal1
+                                 pushstring "touchTap"
+                                 getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"touchHandler")
+                                 callpropvoid QName(PackageNamespace(""),"removeEventListener"), 2
+                                 getlocal1
+                                 pushstring "mouseOver"
+                                 getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"mouseHandler")
+                                 callpropvoid QName(PackageNamespace(""),"removeEventListener"), 2
+                                 getlocal1
+                                 pushstring "click"
+                                 getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"mouseHandler")
+                                 callpropvoid QName(PackageNamespace(""),"removeEventListener"), 2
+                                 getlocal1
+                                 pushstring "OPTION_CHANGE"
+                                 getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"onChangeOption")
+                                 callpropvoid QName(PackageNamespace(""),"removeEventListener"), 2
+                                 getlocal1
+                                 pushstring "SELECT"
+                                 getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"onSelect")
+                                 callpropvoid QName(PackageNamespace(""),"removeEventListener"), 2
+                        ofs0052:
+                                 hasnext2 2, 3
+                                 iftrue ofs0014
+                                 pushnull
+                                 findproperty QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                 swap
+                                 setproperty QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                        ofs0061:
+                                 getlex QName(PackageNamespace("net.play5d.game.bvn.ctrl"),"GameRender")
+                                 getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"render")
+                                 getlocal0
+                                 callpropvoid QName(PackageNamespace(""),"remove"), 2
+                                 returnvoid
+                              end ; code
+                           end ; body
+                        end ; method
+                     }
+
+                     private function initMainBtns() : void
+                     {
+                        trait method QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"initMainBtns")
+                           dispid 0
+                           method
+                              name "initMainBtns"
+                              returns QName(PackageNamespace(""),"void")
+
+                              body
+                                 maxstack 23
+                                 localcount 6
+                                 initscopedepth 0
+                                 maxscopedepth 1
+
+                                 code
+                                    getlocal0
+                                    pushscope
+                                    pushnull
+                                    setlocal1
+                                    pushbyte 0
+                                    setlocal 5
+                                    pushnull
+                                    setlocal2
+                                    getlex QName(PackageNamespace("__AS3__.vec"),"Vector")
+                                    getlex QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                                    applytype 1
+                                    construct 0
+                                    findproperty QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                    swap
+                                    setproperty QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                    getlex QName(PackageNamespace("net.play5d.game.bvn.interfaces"),"GameInterface")
+                                    getproperty QName(PackageNamespace(""),"instance")
+                                    callproperty QName(Namespace("net.play5d.game.bvn.interfaces:IGameInterface"),"getSettingMenu"), 0
+                                    coerce QName(PackageNamespace(""),"Array")
+                                    dup
+                                    setlocal 4
+                                    iftrue ofs036f
+                                    pushstring "txt"
+                                    pushstring "P1 KEY SET"
+                                    pushstring "cn"
+                                    pushstring "玩家1 按键设置"
+                                    newobject 2
+                                    pushstring "txt"
+                                    pushstring "P2 KEY SET"
+                                    pushstring "cn"
+                                    pushstring "玩家2 按键设置"
+                                    newobject 2
+                                    pushstring "txt"
+                                    pushstring "COM LEVEL"
+                                    pushstring "cn"
+                                    pushstring "电脑等级"
+                                    pushstring "options"
+                                    pushstring "label"
+                                    pushstring "VERY EASY"
+                                    pushstring "cn"
+                                    pushstring "非常简单"
+                                    pushstring "value"
+                                    pushbyte 1
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "EASY"
+                                    pushstring "cn"
+                                    pushstring "简单"
+                                    pushstring "value"
+                                    pushbyte 2
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "NORMAL"
+                                    pushstring "cn"
+                                    pushstring "正常"
+                                    pushstring "value"
+                                    pushbyte 3
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "HARD"
+                                    pushstring "cn"
+                                    pushstring "困难"
+                                    pushstring "value"
+                                    pushbyte 4
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "VERY HARD"
+                                    pushstring "cn"
+                                    pushstring "非常困难"
+                                    pushstring "value"
+                                    pushbyte 5
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "HELL"
+                                    pushstring "cn"
+                                    pushstring "地狱"
+                                    pushstring "value"
+                                    pushbyte 6
+                                    newobject 3
+                                    newarray 6
+                                    pushstring "optoinKey"
+                                    pushstring "AI_level"
+                                    newobject 4
+                                    pushstring "txt"
+                                    pushstring "OPERATE MODE"
+                                    pushstring "cn"
+                                    pushstring "按键操作模式"
+                                    pushstring "options"
+                                    pushstring "label"
+                                    pushstring "NORMAL"
+                                    pushstring "cn"
+                                    pushstring "正常模式"
+                                    pushstring "value"
+                                    pushbyte 0
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "CLASSIC"
+                                    pushstring "cn"
+                                    pushstring "经典模式"
+                                    pushstring "value"
+                                    pushbyte 1
+                                    newobject 3
+                                    newarray 2
+                                    pushstring "optoinKey"
+                                    pushstring "keyInputMode"
+                                    newobject 4
+                                    pushstring "txt"
+                                    pushstring "LIFE"
+                                    pushstring "cn"
+                                    pushstring "生命值"
+                                    pushstring "options"
+                                    pushstring "label"
+                                    pushstring "50%"
+                                    pushstring "cn"
+                                    pushstring "50%"
+                                    pushstring "value"
+                                    pushdouble 0.5
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "100%"
+                                    pushstring "cn"
+                                    pushstring "100%"
+                                    pushstring "value"
+                                    pushbyte 1
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "200%"
+                                    pushstring "cn"
+                                    pushstring "200%"
+                                    pushstring "value"
+                                    pushbyte 2
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "300%"
+                                    pushstring "cn"
+                                    pushstring "300%"
+                                    pushstring "value"
+                                    pushbyte 3
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "500%"
+                                    pushstring "cn"
+                                    pushstring "500%"
+                                    pushstring "value"
+                                    pushbyte 5
+                                    newobject 3
+                                    newarray 5
+                                    pushstring "optoinKey"
+                                    pushstring "fighterHP"
+                                    newobject 4
+                                    pushstring "txt"
+                                    pushstring "TIME"
+                                    pushstring "cn"
+                                    pushstring "对战时间"
+                                    pushstring "options"
+                                    pushstring "label"
+                                    pushstring "30s"
+                                    pushstring "cn"
+                                    pushstring "30秒"
+                                    pushstring "value"
+                                    pushbyte 30
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "60s"
+                                    pushstring "cn"
+                                    pushstring "60秒"
+                                    pushstring "value"
+                                    pushbyte 60
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "90s"
+                                    pushstring "cn"
+                                    pushstring "90秒"
+                                    pushstring "value"
+                                    pushbyte 90
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "∞"
+                                    pushstring "cn"
+                                    pushstring "无限制"
+                                    pushstring "value"
+                                    pushbyte -1
+                                    newobject 3
+                                    newarray 4
+                                    pushstring "optoinKey"
+                                    pushstring "fightTime"
+                                    newobject 4
+                                    pushstring "txt"
+                                    pushstring "SOUND"
+                                    pushstring "cn"
+                                    pushstring "游戏音效"
+                                    pushstring "options"
+                                    pushstring "label"
+                                    pushstring "0%"
+                                    pushstring "cn"
+                                    pushstring "0%"
+                                    pushstring "value"
+                                    pushbyte 0
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "10%"
+                                    pushstring "cn"
+                                    pushstring "10%"
+                                    pushstring "value"
+                                    pushdouble 0.1
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "30%"
+                                    pushstring "cn"
+                                    pushstring "30%"
+                                    pushstring "value"
+                                    pushdouble 0.3
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "50%"
+                                    pushstring "cn"
+                                    pushstring "50%"
+                                    pushstring "value"
+                                    pushdouble 0.5
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "70%"
+                                    pushstring "cn"
+                                    pushstring "70%"
+                                    pushstring "value"
+                                    pushdouble 0.7
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "100%"
+                                    pushstring "cn"
+                                    pushstring "100%"
+                                    pushstring "value"
+                                    pushbyte 1
+                                    newobject 3
+                                    newarray 6
+                                    pushstring "optoinKey"
+                                    pushstring "soundVolume"
+                                    newobject 4
+                                    pushstring "txt"
+                                    pushstring "BGM"
+                                    pushstring "cn"
+                                    pushstring "背景音乐"
+                                    pushstring "options"
+                                    pushstring "label"
+                                    pushstring "0%"
+                                    pushstring "cn"
+                                    pushstring "0%"
+                                    pushstring "value"
+                                    pushbyte 0
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "10%"
+                                    pushstring "cn"
+                                    pushstring "10%"
+                                    pushstring "value"
+                                    pushdouble 0.1
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "30%"
+                                    pushstring "cn"
+                                    pushstring "30%"
+                                    pushstring "value"
+                                    pushdouble 0.3
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "50%"
+                                    pushstring "cn"
+                                    pushstring "50%"
+                                    pushstring "value"
+                                    pushdouble 0.5
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "70%"
+                                    pushstring "cn"
+                                    pushstring "70%"
+                                    pushstring "value"
+                                    pushdouble 0.7
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "100%"
+                                    pushstring "cn"
+                                    pushstring "100%"
+                                    pushstring "value"
+                                    pushbyte 1
+                                    newobject 3
+                                    newarray 6
+                                    pushstring "optoinKey"
+                                    pushstring "bgmVolume"
+                                    newobject 4
+                                    pushstring "txt"
+                                    pushstring "QUALITY"
+                                    pushstring "cn"
+                                    pushstring "画质等级"
+                                    pushstring "options"
+                                    pushstring "label"
+                                    pushstring "LOW"
+                                    pushstring "cn"
+                                    pushstring "低"
+                                    pushstring "value"
+                                    pushstring "low"
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "MEDIUM"
+                                    pushstring "cn"
+                                    pushstring "中"
+                                    pushstring "value"
+                                    pushstring "medium"
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "HIGH"
+                                    pushstring "cn"
+                                    pushstring "高"
+                                    pushstring "value"
+                                    pushstring "high"
+                                    newobject 3
+                                    pushstring "label"
+                                    pushstring "BEST"
+                                    pushstring "cn"
+                                    pushstring "最高"
+                                    pushstring "value"
+                                    pushstring "best"
+                                    newobject 3
+                                    newarray 4
+                                    pushstring "optoinKey"
+                                    pushstring "quality"
+                                    newobject 4
+                                    newarray 9
+                                    setlocal 4
+                           ofs036f:
+                                    getlex QName(PackageNamespace("net.play5d.game.bvn.data"),"GameData")
+                                    getproperty QName(PackageNamespace(""),"I")
+                                    getproperty QName(PackageNamespace(""),"config")
+                                    coerce QName(PackageNamespace("net.play5d.game.bvn.data"),"ConfigVO")
+                                    setlocal3
+                                    jump ofs03cf
+                           ofs037d:
+                                    label
+                                    getlocal 4
+                                    getlocal 5
+                                    getproperty MultinameL([PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                                    coerce QName(PackageNamespace(""),"Object")
+                                    setlocal2
+                                    findpropstrict QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"addBtn")
+                                    getlocal2
+                                    getproperty Multiname("txt",[PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                                    getlocal2
+                                    getproperty Multiname("cn",[PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                                    getlocal2
+                                    getproperty Multiname("options",[PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                                    callproperty QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"addBtn"), 3
+                                    coerce QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                                    setlocal1
+                                    getlocal2
+                                    getproperty Multiname("select",[PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                                    iffalse ofs03af
+                                    getlocal1
+                                    getlocal2
+                                    getproperty Multiname("select",[PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                                    setproperty QName(PackageNamespace(""),"onSelect")
+                           ofs03af:
+                                    getlocal1
+                                    getlocal2
+                                    getproperty Multiname("optoinKey",[PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                                    setproperty QName(PackageNamespace(""),"optionKey")
+                                    getlocal1
+                                    getproperty QName(PackageNamespace(""),"optionKey")
+                                    iffalse ofs03cd
+                                    getlocal1
+                                    getlocal3
+                                    getlocal1
+                                    getproperty QName(PackageNamespace(""),"optionKey")
+                                    callproperty QName(PackageNamespace(""),"getValueByKey"), 1
+                                    callpropvoid QName(PackageNamespace(""),"setOptionByValue"), 1
+                           ofs03cd:
+                                    inclocal_i 5
+                           ofs03cf:
+                                    getlocal 5
+                                    getlocal 4
+                                    getproperty QName(PackageNamespace(""),"length")
+                                    iflt ofs037d
+                                    findpropstrict QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"addBtn")
+                                    pushstring "APPLY"
+                                    pushstring "应用"
+                                    callpropvoid QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"addBtn"), 2
+                                    returnvoid
+                                 end ; code
+                              end ; body
+                           end ; method
+                        }
+
+                        private function addBtn(param1:String, param2:String, param3:Array = null) : SetBtn
+                        {
+                           trait method QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"addBtn")
+                              dispid 0
+                              method
+                                 name "addBtn"
+                                 flag HAS_OPTIONAL
+                                 flag HAS_PARAM_NAMES
+                                 param QName(PackageNamespace(""),"String")
+                                 param QName(PackageNamespace(""),"String")
+                                 param QName(PackageNamespace(""),"Array")
+                                 paramname "label"
+                                 paramname "cn"
+                                 paramname "options"
+                                 optional Null()
+                                 returns QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+
+                                 body
+                                    maxstack 4
+                                    localcount 5
+                                    initscopedepth 0
+                                    maxscopedepth 1
+
+                                    code
+                                       getlocal0
+                                       pushscope
+                                       findpropstrict QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                                       getlocal1
+                                       getlocal2
+                                       constructprop QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn"), 2
+                                       coerce QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                                       setlocal 4
+                                       getlex QName(PackageNamespace("net.play5d.game.bvn"),"GameConfig")
+                                       getproperty QName(PackageNamespace(""),"TOUCH_MODE")
+                                       iffalse ofs0027
+                                       getlocal 4
+                                       pushstring "touchTap"
+                                       getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"touchHandler")
+                                       callpropvoid QName(PackageNamespace(""),"addEventListener"), 2
+                                       jump ofs003d
+                              ofs0027:
+                                       getlocal 4
+                                       pushstring "mouseOver"
+                                       getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"mouseHandler")
+                                       callpropvoid QName(PackageNamespace(""),"addEventListener"), 2
+                                       getlocal 4
+                                       pushstring "click"
+                                       getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"mouseHandler")
+                                       callpropvoid QName(PackageNamespace(""),"addEventListener"), 2
+                              ofs003d:
+                                       getlex QName(PackageNamespace(""),"direct")
+                                       convert_i
+                                       lookupswitch ofs0082, [ofs004c, ofs0069]
+                              ofs004c:
+                                       getlocal 4
+                                       getlex QName(PackageNamespace(""),"startX")
+                                       getlex QName(PackageNamespace(""),"gap")
+                                       getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                       getproperty QName(PackageNamespace(""),"length")
+                                       multiply
+                                       add
+                                       setproperty QName(PackageNamespace(""),"x")
+                                       getlocal 4
+                                       getlex QName(PackageNamespace(""),"startY")
+                                       setproperty QName(PackageNamespace(""),"y")
+                                       jump ofs0082
+                              ofs0069:
+                                       getlocal 4
+                                       getlex QName(PackageNamespace(""),"startX")
+                                       setproperty QName(PackageNamespace(""),"x")
+                                       getlocal 4
+                                       getlex QName(PackageNamespace(""),"startY")
+                                       getlex QName(PackageNamespace(""),"gap")
+                                       getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                       getproperty QName(PackageNamespace(""),"length")
+                                       multiply
+                                       add
+                                       setproperty QName(PackageNamespace(""),"y")
+                              ofs0082:
+                                       findpropstrict QName(PackageNamespace(""),"addChild")
+                                       getlocal 4
+                                       callpropvoid QName(PackageNamespace(""),"addChild"), 1
+                                       getlocal3
+                                       iffalse ofs00a4
+                                       getlocal 4
+                                       getlocal3
+                                       callpropvoid QName(PackageNamespace(""),"setOption"), 1
+                                       getlocal 4
+                                       pushstring "OPTION_CHANGE"
+                                       getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"onChangeOption")
+                                       callpropvoid QName(PackageNamespace(""),"addEventListener"), 2
+                                       jump ofs00af
+                              ofs00a4:
+                                       getlocal 4
+                                       pushstring "SELECT"
+                                       getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"onSelect")
+                                       callpropvoid QName(PackageNamespace(""),"addEventListener"), 2
+                              ofs00af:
+                                       getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                       getlocal 4
+                                       callpropvoid QName(Namespace("http://adobe.com/AS3/2006/builtin"),"push"), 1
+                                       getlocal 4
+                                       returnvalue
+                                    end ; code
+                                 end ; body
+                              end ; method
+                           }
+
+                           private function touchHandler(param1:TouchEvent) : void
+                           {
+                              trait method QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"touchHandler")
+                                 dispid 0
+                                 method
+                                    name "touchHandler"
+                                    flag HAS_PARAM_NAMES
+                                    param QName(PackageNamespace("flash.events"),"TouchEvent")
+                                    paramname "e"
+                                    returns QName(PackageNamespace(""),"void")
+
+                                    body
+                                       maxstack 3
+                                       localcount 5
+                                       initscopedepth 0
+                                       maxscopedepth 1
+
+                                       code
+                                          getlocal0
+                                          pushscope
+                                          getlex QName(PackageNamespace(""),"keyEnable")
+                                          iftrue ofs000a
+                                          returnvoid
+                                 ofs000a:
+                                          getlocal1
+                                          getproperty QName(PackageNamespace(""),"currentTarget")
+                                          getlex QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                                          astypelate
+                                          coerce QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                                          setlocal3
+                                          getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                          getlocal3
+                                          callproperty QName(Namespace("http://adobe.com/AS3/2006/builtin"),"indexOf"), 1
+                                          convert_i
+                                          setlocal2
+                                          getlocal2
+                                          pushbyte -1
+                                          ifne ofs0028
+                                          returnvoid
+                                 ofs0028:
+                                          getlocal3
+                                          callproperty QName(PackageNamespace(""),"getOption"), 0
+                                          coerce QName(PackageNamespace(""),"Object")
+                                          setlocal 4
+                                          getlocal2
+                                          getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_arrowIndex")
+                                          ifne ofs004f
+                                          getlocal 4
+                                          pushnull
+                                          ifeq ofs0049
+                                          getlocal3
+                                          callpropvoid QName(PackageNamespace(""),"nextOption"), 0
+                                          jump ofs004e
+                                 ofs0049:
+                                          getlocal3
+                                          callpropvoid QName(PackageNamespace(""),"select"), 0
+                                 ofs004e:
+                                          returnvoid
+                                 ofs004f:
+                                          findpropstrict QName(PackageNamespace(""),"setArrowIndex")
+                                          getlocal2
+                                          pushtrue
+                                          callpropvoid QName(PackageNamespace(""),"setArrowIndex"), 2
+                                          returnvoid
+                                       end ; code
+                                    end ; body
+                                 end ; method
+                              }
+
+                              private function mouseHandler(param1:MouseEvent) : void
+                              {
+                                 trait method QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"mouseHandler")
+                                    dispid 0
+                                    method
+                                       name "mouseHandler"
+                                       flag HAS_PARAM_NAMES
+                                       param QName(PackageNamespace("flash.events"),"MouseEvent")
+                                       paramname "e"
+                                       returns QName(PackageNamespace(""),"void")
+
+                                       body
+                                          maxstack 2
+                                          localcount 5
+                                          initscopedepth 0
+                                          maxscopedepth 1
+
+                                          code
+                                             getlocal0
+                                             pushscope
+                                             pushbyte 0
+                                             setlocal2
+                                             getlex QName(PackageNamespace(""),"keyEnable")
+                                             iftrue ofs000d
+                                             returnvoid
+                                    ofs000d:
+                                             getlocal1
+                                             getproperty QName(PackageNamespace(""),"currentTarget")
+                                             getlex QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                                             astypelate
+                                             coerce QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                                             setlocal3
+                                             getlocal1
+                                             getproperty QName(PackageNamespace(""),"type")
+                                             setlocal 4
+                                             jump ofs0093
+                                    ofs0022:
+                                             label
+                                             getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                             getlocal3
+                                             callproperty QName(Namespace("http://adobe.com/AS3/2006/builtin"),"indexOf"), 1
+                                             convert_i
+                                             setlocal2
+                                             getlocal2
+                                             pushbyte -1
+                                             ifeq ofs003c
+                                             findpropstrict QName(PackageNamespace(""),"setArrowIndex")
+                                             getlocal2
+                                             callpropvoid QName(PackageNamespace(""),"setArrowIndex"), 1
+                                    ofs003c:
+                                             jump ofs00a5
+                                    ofs0040:
+                                             label
+                                             getlocal3
+                                             callproperty QName(PackageNamespace(""),"getOption"), 0
+                                             pushnull
+                                             ifne ofs0054
+                                             getlocal3
+                                             callpropvoid QName(PackageNamespace(""),"select"), 0
+                                             jump ofs008f
+                                    ofs0054:
+                                             getlocal1
+                                             getproperty QName(PackageNamespace(""),"target")
+                                             iffalse ofs008f
+                                             getlocal1
+                                             getproperty QName(PackageNamespace(""),"target")
+                                             getproperty Multiname("name",[PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                                             setlocal 4
+                                             jump ofs007d
+                                    ofs0069:
+                                             label
+                                             getlocal3
+                                             callpropvoid QName(PackageNamespace(""),"prevOption"), 0
+                                             jump ofs008f
+                                    ofs0073:
+                                             label
+                                             getlocal3
+                                             callpropvoid QName(PackageNamespace(""),"nextOption"), 0
+                                             jump ofs008f
+                                    ofs007d:
+                                             pushstring "prevArrow"
+                                             getlocal 4
+                                             ifstricteq ofs0069
+                                             pushstring "nextArrow"
+                                             getlocal 4
+                                             ifstricteq ofs0073
+                                    ofs008f:
+                                             jump ofs00a5
+                                    ofs0093:
+                                             pushstring "mouseOver"
+                                             getlocal 4
+                                             ifstricteq ofs0022
+                                             pushstring "click"
+                                             getlocal 4
+                                             ifstricteq ofs0040
+                                    ofs00a5:
+                                             returnvoid
+                                          end ; code
+                                       end ; body
+                                    end ; method
+                                 }
+
+                                 private function initArrow(param1:int = 0) : void
+                                 {
+                                    trait method QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"initArrow")
+                                       dispid 0
+                                       method
+                                          name "initArrow"
+                                          flag HAS_OPTIONAL
+                                          flag HAS_PARAM_NAMES
+                                          param QName(PackageNamespace(""),"int")
+                                          paramname "index"
+                                          optional Integer(0)
+                                          returns QName(PackageNamespace(""),"void")
+
+                                          body
+                                             maxstack 3
+                                             localcount 2
+                                             initscopedepth 0
+                                             maxscopedepth 1
+
+                                             code
+                                                getlocal0
+                                                pushscope
+                                                getlex QName(PackageNamespace("net.play5d.game.bvn.utils"),"ResUtils")
+                                                getproperty QName(PackageNamespace(""),"I")
+                                                getlex QName(PackageNamespace("net.play5d.game.bvn.utils"),"ResUtils")
+                                                getproperty QName(PackageNamespace(""),"I")
+                                                getproperty QName(PackageNamespace(""),"common_ui")
+                                                pushstring "select_arrow_mc"
+                                                callproperty QName(PackageNamespace(""),"createDisplayObject"), 2
+                                                findproperty QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_arrow")
+                                                swap
+                                                setproperty QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_arrow")
+                                                findpropstrict QName(PackageNamespace(""),"addChild")
+                                                getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_arrow")
+                                                callpropvoid QName(PackageNamespace(""),"addChild"), 1
+                                                findpropstrict QName(PackageNamespace(""),"setArrowIndex")
+                                                getlocal1
+                                                callpropvoid QName(PackageNamespace(""),"setArrowIndex"), 1
+                                                returnvoid
+                                             end ; code
+                                          end ; body
+                                       end ; method
+                                    }
+
+                                    public function setArrowIndex(param1:int, param2:Boolean = true) : void
+                                    {
+                                       trait method QName(PackageNamespace(""),"setArrowIndex")
+                                          dispid 0
+                                          method
+                                             name "setArrowIndex"
+                                             flag HAS_OPTIONAL
+                                             flag HAS_PARAM_NAMES
+                                             flag NEED_ACTIVATION
+                                             param QName(PackageNamespace(""),"int")
+                                             param QName(PackageNamespace(""),"Boolean")
+                                             paramname "id"
+                                             paramname "sound"
+                                             optional True()
+                                             returns QName(PackageNamespace(""),"void")
+
+                                             body
+                                                maxstack 3
+                                                localcount 4
+                                                initscopedepth 0
+                                                maxscopedepth 2
+                                                trait slot QName(PackageInternalNs("net.play5d.game.bvn.ui"),"id")
+                                                   slotid 1
+                                                   type QName(PackageNamespace(""),"int")
+                                                end ; trait
+                                                trait slot QName(PackageInternalNs("net.play5d.game.bvn.ui"),"sound")
+                                                   slotid 2
+                                                   type QName(PackageNamespace(""),"Boolean")
+                                                end ; trait
+                                                trait slot QName(PackageInternalNs("net.play5d.game.bvn.ui"),"btn")
+                                                   slotid 3
+                                                   type QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                                                end ; trait
+
+                                                code
+                                                   getlocal0
+                                                   pushscope
+                                                   newactivation
+                                                   dup
+                                                   setlocal3
+                                                   pushscope
+                                                   findpropstrict QName(PackageInternalNs("net.play5d.game.bvn.ui"),"id")
+                                                   getlocal1
+                                                   setproperty QName(PackageInternalNs("net.play5d.game.bvn.ui"),"id")
+                                                   findpropstrict QName(PackageInternalNs("net.play5d.game.bvn.ui"),"sound")
+                                                   getlocal2
+                                                   setproperty QName(PackageInternalNs("net.play5d.game.bvn.ui"),"sound")
+                                                   getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_arrowIndex")
+                                                   getlex QName(PackageInternalNs("net.play5d.game.bvn.ui"),"id")
+                                                   ifne ofs001f
+                                                   returnvoid
+                                          ofs001f:
+                                                   getlex QName(PackageInternalNs("net.play5d.game.bvn.ui"),"id")
+                                                   pushbyte 0
+                                                   ifnlt ofs0036
+                                                   getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                                   getproperty QName(PackageNamespace(""),"length")
+                                                   pushbyte 1
+                                                   subtract
+                                                   convert_i
+                                                   getlocal3
+                                                   swap
+                                                   setslot 1
+                                          ofs0036:
+                                                   getlex QName(PackageInternalNs("net.play5d.game.bvn.ui"),"id")
+                                                   getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                                   getproperty QName(PackageNamespace(""),"length")
+                                                   pushbyte 1
+                                                   subtract
+                                                   ifngt ofs004c
+                                                   pushbyte 0
+                                                   getlocal3
+                                                   swap
+                                                   setslot 1
+                                          ofs004c:
+                                                   getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                                   getlex QName(PackageInternalNs("net.play5d.game.bvn.ui"),"id")
+                                                   getproperty MultinameL([PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                                                   coerce QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                                                   getlocal3
+                                                   swap
+                                                   setslot 3
+                                                   getlex QName(PackageInternalNs("net.play5d.game.bvn.ui"),"id")
+                                                   findproperty QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_arrowIndex")
+                                                   swap
+                                                   setproperty QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_arrowIndex")
+                                                   getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_arrow")
+                                                   getlex QName(PackageInternalNs("net.play5d.game.bvn.ui"),"btn")
+                                                   getproperty QName(PackageNamespace(""),"x")
+                                                   pushbyte 10
+                                                   subtract
+                                                   setproperty QName(PackageNamespace(""),"x")
+                                                   getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_arrow")
+                                                   getlex QName(PackageInternalNs("net.play5d.game.bvn.ui"),"btn")
+                                                   getproperty QName(PackageNamespace(""),"y")
+                                                   pushbyte 15
+                                                   add
+                                                   setproperty QName(PackageNamespace(""),"y")
+                                                   getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                                   newfunction 2121
+                                                   callpropvoid QName(Namespace("http://adobe.com/AS3/2006/builtin"),"every"), 1
+                                                   getlex QName(PackageInternalNs("net.play5d.game.bvn.ui"),"sound")
+                                                   iffalse ofs009a
+                                                   getlex QName(PackageNamespace("net.play5d.game.bvn.ctrl"),"SoundCtrl")
+                                                   getproperty QName(PackageNamespace(""),"I")
+                                                   callpropvoid QName(PackageNamespace(""),"sndSelect"), 0
+                                          ofs009a:
+                                                   findpropstrict QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"moveScroll")
+                                                   callpropvoid QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"moveScroll"), 0
+                                                   returnvoid
+                                                end ; code
+                                             end ; body
+                                          end ; method
+                                       }
+
+                                       private function moveScroll() : void
+                                       {
+                                          trait method QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"moveScroll")
+                                             dispid 0
+                                             method
+                                                name "moveScroll"
+                                                returns QName(PackageNamespace(""),"void")
+
+                                                body
+                                                   maxstack 7
+                                                   localcount 6
+                                                   initscopedepth 0
+                                                   maxscopedepth 1
+
+                                                   code
+                                                      getlocal0
+                                                      pushscope
+                                                      pushnan
+                                                      setlocal 4
+                                                      pushnan
+                                                      setlocal3
+                                                      pushnan
+                                                      setlocal1
+                                                      pushnan
+                                                      setlocal 5
+                                                      pushnan
+                                                      setlocal2
+                                                      getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_scrollRect")
+                                                      iftrue ofs0016
+                                                      returnvoid
+                                             ofs0016:
+                                                      getlex QName(PackageNamespace(""),"direct")
+                                                      pushbyte 1
+                                                      ifne ofs0089
+                                                      getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                                      getproperty QName(PackageNamespace(""),"length")
+                                                      pushbyte 8
+                                                      ifnlt ofs002c
+                                                      returnvoid
+                                             ofs002c:
+                                                      getlex QName(PackageNamespace(""),"endY")
+                                                      pushbyte 0
+                                                      ifeq ofs003c
+                                                      getlex QName(PackageNamespace(""),"endY")
+                                                      jump ofs0042
+                                             ofs003c:
+                                                      getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_scrollRect")
+                                                      getproperty QName(PackageNamespace(""),"height")
+                                                      convert_d
+                                             ofs0042:
+                                                      convert_d
+                                                      setlocal 4
+                                                      getlocal0
+                                                      getproperty QName(PackageNamespace(""),"height")
+                                                      convert_d
+                                                      setlocal3
+                                                      getlocal3
+                                                      getlocal 4
+                                                      ifnlt ofs0052
+                                                      returnvoid
+                                             ofs0052:
+                                                      getlocal 4
+                                                      getlex QName(PackageNamespace(""),"startY")
+                                                      subtract
+                                                      convert_d
+                                                      setlocal1
+                                                      getlocal1
+                                                      getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                                      getproperty QName(PackageNamespace(""),"length")
+                                                      divide
+                                                      convert_d
+                                                      setlocal 5
+                                                      getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_arrowIndex")
+                                                      negate
+                                                      getlocal 5
+                                                      getlex QName(PackageNamespace(""),"gap")
+                                                      subtract
+                                                      multiply
+                                                      convert_d
+                                                      setlocal2
+                                                      getlex QName(PackageNamespace("com.greensock"),"TweenLite")
+                                                      getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_scrollRect")
+                                                      pushdouble 0.2
+                                                      pushstring "y"
+                                                      getlocal2
+                                                      pushstring "onUpdate"
+                                                      getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"updateScroll")
+                                                      newobject 2
+                                                      callpropvoid QName(PackageNamespace(""),"to"), 3
+                                             ofs0089:
+                                                      returnvoid
+                                                   end ; code
+                                                end ; body
+                                             end ; method
+                                          }
+
+                                          private function updateScroll() : void
+                                          {
+                                             trait method QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"updateScroll")
+                                                dispid 0
+                                                method
+                                                   name "updateScroll"
+                                                   returns QName(PackageNamespace(""),"void")
+
+                                                   body
+                                                      maxstack 2
+                                                      localcount 1
+                                                      initscopedepth 0
+                                                      maxscopedepth 1
+
+                                                      code
+                                                         getlocal0
+                                                         pushscope
+                                                         getlocal0
+                                                         getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_scrollRect")
+                                                         setproperty QName(PackageNamespace(""),"scrollRect")
+                                                         returnvoid
+                                                      end ; code
+                                                   end ; body
+                                                end ; method
+                                             }
+
+                                             private function render() : void
+                                             {
+                                                trait method QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"render")
+                                                   dispid 0
+                                                   method
+                                                      name "render"
+                                                      returns QName(PackageNamespace(""),"void")
+
+                                                      body
+                                                         maxstack 3
+                                                         localcount 2
+                                                         initscopedepth 0
+                                                         maxscopedepth 1
+
+                                                         code
+                                                            getlocal0
+                                                            pushscope
+                                                            getlex QName(PackageNamespace(""),"keyEnable")
+                                                            iftrue ofs000a
+                                                            returnvoid
+                                                   ofs000a:
+                                                            getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                                            not
+                                                            dup
+                                                            iftrue ofs001d
+                                                            pop
+                                                            getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                                            getproperty QName(PackageNamespace(""),"length")
+                                                            pushbyte 1
+                                                            lessthan
+                                                   ofs001d:
+                                                            iffalse ofs0022
+                                                            returnvoid
+                                                   ofs0022:
+                                                            getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_btns")
+                                                            getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_arrowIndex")
+                                                            getproperty MultinameL([PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),ProtectedNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("net.play5d.game.bvn.ui:SetBtnGroup"),StaticProtectedNs("flash.display:Sprite"),StaticProtectedNs("flash.display:DisplayObjectContainer"),StaticProtectedNs("flash.display:InteractiveObject"),StaticProtectedNs("flash.display:DisplayObject"),StaticProtectedNs("flash.events:EventDispatcher"),StaticProtectedNs("Object"),PackageNamespace("net.play5d.game.bvn.ui"),PackageInternalNs("net.play5d.game.bvn.ui"),PrivateNamespace("FilePrivateNS:SetBtnGroup"),PackageNamespace(""),Namespace("http://adobe.com/AS3/2006/builtin")])
+                                                            coerce QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                                                            setlocal1
+                                                            getlex QName(PackageNamespace("net.play5d.game.bvn.input"),"GameInputer")
+                                                            getlex QName(PackageNamespace(""),"gameInputType")
+                                                            pushbyte 1
+                                                            callproperty QName(PackageNamespace(""),"up"), 2
+                                                            iffalse ofs0055
+                                                            getlex QName(PackageNamespace(""),"direct")
+                                                            pushbyte 1
+                                                            ifne ofs0055
+                                                            findpropstrict QName(PackageNamespace(""),"setArrowIndex")
+                                                            getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_arrowIndex")
+                                                            pushbyte 1
+                                                            subtract
+                                                            callpropvoid QName(PackageNamespace(""),"setArrowIndex"), 1
+                                                   ofs0055:
+                                                            getlex QName(PackageNamespace("net.play5d.game.bvn.input"),"GameInputer")
+                                                            getlex QName(PackageNamespace(""),"gameInputType")
+                                                            pushbyte 1
+                                                            callproperty QName(PackageNamespace(""),"down"), 2
+                                                            iffalse ofs007b
+                                                            getlex QName(PackageNamespace(""),"direct")
+                                                            pushbyte 1
+                                                            ifne ofs007b
+                                                            findpropstrict QName(PackageNamespace(""),"setArrowIndex")
+                                                            getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_arrowIndex")
+                                                            pushbyte 1
+                                                            add
+                                                            callpropvoid QName(PackageNamespace(""),"setArrowIndex"), 1
+                                                   ofs007b:
+                                                            getlex QName(PackageNamespace("net.play5d.game.bvn.input"),"GameInputer")
+                                                            getlex QName(PackageNamespace(""),"gameInputType")
+                                                            pushbyte 1
+                                                            callproperty QName(PackageNamespace(""),"left"), 2
+                                                            iffalse ofs00af
+                                                            getlex QName(PackageNamespace(""),"direct")
+                                                            pushbyte 0
+                                                            ifne ofs00a1
+                                                            findpropstrict QName(PackageNamespace(""),"setArrowIndex")
+                                                            getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_arrowIndex")
+                                                            pushbyte 1
+                                                            subtract
+                                                            callpropvoid QName(PackageNamespace(""),"setArrowIndex"), 1
+                                                   ofs00a1:
+                                                            getlex QName(PackageNamespace(""),"direct")
+                                                            pushbyte 1
+                                                            ifne ofs00af
+                                                            getlocal1
+                                                            callpropvoid QName(PackageNamespace(""),"prevOption"), 0
+                                                   ofs00af:
+                                                            getlex QName(PackageNamespace("net.play5d.game.bvn.input"),"GameInputer")
+                                                            getlex QName(PackageNamespace(""),"gameInputType")
+                                                            pushbyte 1
+                                                            callproperty QName(PackageNamespace(""),"right"), 2
+                                                            iffalse ofs00e3
+                                                            getlex QName(PackageNamespace(""),"direct")
+                                                            pushbyte 0
+                                                            ifne ofs00d5
+                                                            findpropstrict QName(PackageNamespace(""),"setArrowIndex")
+                                                            getlex QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"_arrowIndex")
+                                                            pushbyte 1
+                                                            add
+                                                            callpropvoid QName(PackageNamespace(""),"setArrowIndex"), 1
+                                                   ofs00d5:
+                                                            getlex QName(PackageNamespace(""),"direct")
+                                                            pushbyte 1
+                                                            ifne ofs00e3
+                                                            getlocal1
+                                                            callpropvoid QName(PackageNamespace(""),"nextOption"), 0
+                                                   ofs00e3:
+                                                            getlex QName(PackageNamespace("net.play5d.game.bvn.input"),"GameInputer")
+                                                            getlex QName(PackageNamespace(""),"gameInputType")
+                                                            pushbyte 1
+                                                            callproperty QName(PackageNamespace(""),"select"), 2
+                                                            iffalse ofs00f8
+                                                            getlocal1
+                                                            callpropvoid QName(PackageNamespace(""),"select"), 0
+                                                   ofs00f8:
+                                                            returnvoid
+                                                         end ; code
+                                                      end ; body
+                                                   end ; method
+                                                }
+
+                                                private function onChangeOption(param1:SetBtnEvent) : void
+                                                {
+                                                   trait method QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"onChangeOption")
+                                                      dispid 0
+                                                      method
+                                                         name "onChangeOption"
+                                                         flag HAS_PARAM_NAMES
+                                                         param QName(PackageNamespace("net.play5d.game.bvn.events"),"SetBtnEvent")
+                                                         paramname "e"
+                                                         returns QName(PackageNamespace(""),"void")
+
+                                                         body
+                                                            maxstack 2
+                                                            localcount 2
+                                                            initscopedepth 0
+                                                            maxscopedepth 1
+
+                                                            code
+                                                               getlocal0
+                                                               pushscope
+                                                               findpropstrict QName(PackageNamespace(""),"dispatchEvent")
+                                                               getlocal1
+                                                               callproperty QName(PackageNamespace(""),"newEvent"), 0
+                                                               callpropvoid QName(PackageNamespace(""),"dispatchEvent"), 1
+                                                               returnvoid
+                                                            end ; code
+                                                         end ; body
+                                                      end ; method
+                                                   }
+
+                                                   private function onSelect(param1:SetBtnEvent) : void
+                                                   {
+                                                      trait method QName(PrivateNamespace("net.play5d.game.bvn.ui:SetBtnGroup"),"onSelect")
+                                                         dispid 0
+                                                         method
+                                                            name "onSelect"
+                                                            flag HAS_PARAM_NAMES
+                                                            param QName(PackageNamespace("net.play5d.game.bvn.events"),"SetBtnEvent")
+                                                            paramname "e"
+                                                            returns QName(PackageNamespace(""),"void")
+
+                                                            body
+                                                               maxstack 2
+                                                               localcount 3
+                                                               initscopedepth 0
+                                                               maxscopedepth 1
+
+                                                               code
+                                                                  getlocal0
+                                                                  pushscope
+                                                                  getlocal1
+                                                                  getproperty QName(PackageNamespace(""),"currentTarget")
+                                                                  getlex QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                                                                  astypelate
+                                                                  coerce QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtn")
+                                                                  setlocal2
+                                                                  getlocal2
+                                                                  getproperty QName(PackageNamespace(""),"onSelect")
+                                                                  pushnull
+                                                                  ifeq ofs001c
+                                                                  getlocal2
+                                                                  callpropvoid QName(PackageNamespace(""),"onSelect"), 0
+                                                         ofs001c:
+                                                                  findpropstrict QName(PackageNamespace(""),"dispatchEvent")
+                                                                  getlocal1
+                                                                  callproperty QName(PackageNamespace(""),"newEvent"), 0
+                                                                  callpropvoid QName(PackageNamespace(""),"dispatchEvent"), 1
+                                                                  returnvoid
+                                                               end ; code
+                                                            end ; body
+                                                         end ; method
+                                                      }
+                                                   }
+                                                }
+
+                                                method
+                                                   name null
+                                                   returns null
+
+                                                   body
+                                                      maxstack 3
+                                                      localcount 1
+                                                      initscopedepth 0
+                                                      maxscopedepth 7
+
+                                                      code
+                                                         getlocal0
+                                                         pushscope
+                                                         getscopeobject 0
+                                                         getlex QName(PackageNamespace(""),"Object")
+                                                         pushscope
+                                                         getlex QName(PackageNamespace("flash.events"),"EventDispatcher")
+                                                         pushscope
+                                                         getlex QName(PackageNamespace("flash.display"),"DisplayObject")
+                                                         pushscope
+                                                         getlex QName(PackageNamespace("flash.display"),"InteractiveObject")
+                                                         pushscope
+                                                         getlex QName(PackageNamespace("flash.display"),"DisplayObjectContainer")
+                                                         pushscope
+                                                         getlex QName(PackageNamespace("flash.display"),"Sprite")
+                                                         dup
+                                                         pushscope
+                                                         newclass 193
+                                                         popscope
+                                                         popscope
+                                                         popscope
+                                                         popscope
+                                                         popscope
+                                                         popscope
+                                                         initproperty QName(PackageNamespace("net.play5d.game.bvn.ui"),"SetBtnGroup")
+                                                         returnvoid
+                                                      end ; code
+                                                   end ; body
+                                                end ; method

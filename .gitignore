@@ -1,0 +1,19 @@
+# Temp & debug directories
+debug_export/
+fix_export/
+fix_stub/
+fix_verify/
+menu_fix_export/
+menu_verify/
+Outscripts/
+
+# Temp scripts
+fix_setbtngroup.py
+fix_setbtngroup_v2.py
+sync.py
+
+# FFDec source
+jpexs-decompiler-master/
+
+# Claude internal
+.claude/
