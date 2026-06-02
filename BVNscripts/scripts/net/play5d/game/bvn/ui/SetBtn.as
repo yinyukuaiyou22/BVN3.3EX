@@ -11,9 +11,11 @@ package net.play5d.game.bvn.ui
    {
       
       public var optionKey:String;
-      
+
       public var onSelect:Function;
-      
+
+      private static var _globalSelectGuard:Boolean;
+
       private var _label:BitmapFontText;
       
       private var _options:Array;
@@ -90,10 +92,16 @@ package net.play5d.game.bvn.ui
       
       public function select() : void
       {
+         if(_globalSelectGuard)
+         {
+            return;
+         }
+         _globalSelectGuard = true;
          var _loc1_:SetBtnEvent = new SetBtnEvent("SELECT");
          _loc1_.selectedLabel = label;
          dispatchEvent(_loc1_);
          SoundCtrl.I.sndConfrim();
+         _globalSelectGuard = false;
       }
       
       public function setOption(param1:Array) : void

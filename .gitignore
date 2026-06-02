@@ -15,5 +15,9 @@ sync.py
 # FFDec source
 jpexs-decompiler-master/
 
+# SWF backups
+launch_orig.swf
+launch_backup_*.swf
+
 # Claude internal
 .claude/
