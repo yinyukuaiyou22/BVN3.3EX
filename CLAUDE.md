@@ -517,6 +517,44 @@ AI 在以下模式自动启用：
 - 观战模式（Watch）双方
 - 2v2 / 1v2 模式中的辅助角色
 
+#### 7.1 AI 必杀决策与气量消耗流程
+
+AI 释放必杀涉及**两套独立的气量检查机制**，分别在决策层和执行层：
+
+```
+决策层 (FighterAILogic.getBishaAI)
+  └─ 检查 _fighter.qi >= param4（硬编码阈值: 普通必杀/上必杀/空中必杀=100, 超必杀=300）
+  └─ 不参考 GameConfig.INFINITE_ENERGY
+  └─ 通过概率判定 + targetCanBeHit + targetInRange → 返回 Boolean
+        │
+        ▼
+执行层 (FighterMcCtrler.doBisha / doAirBisha)
+  └─ 若 INFINITE_ENERGY=true → 跳过扣气，直接执行
+  └─ 若 INFINITE_ENERGY=false → _fighter.useQi(_action.bishaQi)
+  └─ _action.bishaQi 在 setBisha()/setBishaUP()/setBishaSUPER()/setBishaAIR() 中设定
+       = GameConfig.INFINITE_ENERGY ? 0 : 默认消耗
+  └─ 保护逻辑: 若 param2≤0 且非无限气，回退使用默认值（超必杀300/普通100/空中100）
+```
+
+**关键点**: 决策层阈值（hardcoded `param4`）与执行层消耗量（`_action.bishaQi`）是独立的两个值，在 `GameConfig.INFINITE_ENERGY` 切换时可能短暂不同步。
+
+### 7.2 无限气系统 (INFINITE_ENERGY)
+
+`GameConfig.INFINITE_ENERGY` (静态) 和 `ConfigVO.INFINITE_ENERGY` (实例) 双值控制。
+
+**同步路径**:
+| 操作 | ConfigVO | GameConfig | 同步方式 |
+|------|:---:|:---:|------|
+| 用户切换设置 | ✓ | ✓ | `setValueByKey("INFINITE_ENERGY", v)` |
+| 加载存档 | ✓ | ✓ (修复后) | `readSaveObj()` 末尾同步 |
+| applyConfig | ✓ | ✓ (修复后) | `applyConfig()` 末尾同步 |
+| 静态初始化 | - | `false` | GameConfig 类加载 |
+
+**影响范围**:
+- `setBisha/setBishaUP/setBishaSUPER/setBishaAIR`: 控制 `_action.bishaQi` (0 或默认消耗)
+- `doBisha/doAirBisha/doWaiKaiAction`: 跳过扣气 (true) 或正常消耗 (false)
+- `getBishaAI` (修复后): 跳过 AI 气量检测 (true) 或正常检测 (false)
+
 ### 8. 输入系统
 
 ```
@@ -649,6 +687,8 @@ GameInputer（静态输入管理器，轮询模式）
 ### 导出规则
 
 如果可自动化则使用自动化修改BVNY中的launch否咋修改BVNscript的相关代码然后单独列出用于手动替换
+
+自动化工具等仅作为指导不进行参与直接改动文件
 
 修改后的脚本放在 `Outscripts/` 目录下，保持与 `BVNscripts/scripts/` 相同的目录结构。原始文件保留在 `BVNscripts/` 作为参照。
 
