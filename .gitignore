@@ -29,4 +29,10 @@ jpexs-decompiler-master/
 BVN3.9/
 BVNscripts/OLD/
 BVNscripts/last/
+BVNscripts/PC/
 launch-fla/
+
+# Flash sources & tools
+swf/*.fla
+swf/*.swf
+flashplayer_*.exe
