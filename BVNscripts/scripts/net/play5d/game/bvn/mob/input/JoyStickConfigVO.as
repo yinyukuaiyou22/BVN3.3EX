@@ -1,6 +1,6 @@
 package net.play5d.game.bvn.mob.input
 {
-   import net.play5d.kyo.utils.KyoUtils;
+   import net.play5d.kyo.utils.*;
    
    public class JoyStickConfigVO
    {
@@ -50,8 +50,9 @@ package net.play5d.game.bvn.mob.input
       
       public function readObj(param1:Object) : void
       {
+         var _loc3_:* = undefined;
          var _loc2_:Object = null;
-         for(var _loc3_ in param1)
+         for(_loc3_ in param1)
          {
             _loc2_ = param1[_loc3_];
             if(this.hasOwnProperty(_loc3_))
@@ -70,19 +71,20 @@ package net.play5d.game.bvn.mob.input
       
       public function toObj() : Object
       {
+         var _loc4_:* = undefined;
          var _loc1_:* = undefined;
-         var _loc3_:Array = KyoUtils.getItemVaribles(this);
-         var _loc2_:Object = {};
-         for each(var _loc4_ in _loc3_)
+         var _loc2_:Array = KyoUtils.getItemVaribles(this);
+         var _loc3_:Object = {};
+         for each(_loc4_ in _loc2_)
          {
             _loc1_ = this[_loc4_];
             if(_loc1_ is JoyStickSetVO)
             {
-               _loc2_[_loc4_] = (this[_loc4_] as JoyStickSetVO).toObj();
+               _loc3_[_loc4_] = (this[_loc4_] as JoyStickSetVO).toObj();
             }
             else
             {
-               _loc2_[_loc4_] = this[_loc4_];
+               _loc3_[_loc4_] = this[_loc4_];
             }
          }
          return KyoUtils.itemToObject(this);

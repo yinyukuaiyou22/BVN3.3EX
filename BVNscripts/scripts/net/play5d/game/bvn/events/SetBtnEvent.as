@@ -27,9 +27,9 @@ package net.play5d.game.bvn.events
       public function newEvent() : SetBtnEvent
       {
          var _loc1_:SetBtnEvent = new SetBtnEvent(type,bubbles,cancelable);
-         _loc1_.selectedLabel = selectedLabel;
-         _loc1_.optionKey = optionKey;
-         _loc1_.optionValue = optionValue;
+         _loc1_.selectedLabel = this.selectedLabel;
+         _loc1_.optionKey = this.optionKey;
+         _loc1_.optionValue = this.optionValue;
          return _loc1_;
       }
    }

@@ -1,11 +1,11 @@
 package net.play5d.game.bvn.input
 {
    import flash.display.Stage;
-   import flash.utils.Dictionary;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.GameRender;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.interfaces.GameInterface;
+   import flash.utils.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.interfaces.*;
    
    public class GameInputer
    {
@@ -36,24 +36,24 @@ package net.play5d.game.bvn.input
       
       public static function initInput() : void
       {
-         var _loc3_:* = GameInterface.instance.getGameInput("MENU");
-         if(!_loc3_)
+         var _loc1_:* = GameInterface.instance.getGameInput("MENU");
+         if(!_loc1_)
          {
-            _loc3_ = new Vector.<IGameInput>([new GameKeyInput()]);
+            _loc1_ = new Vector.<IGameInput>([new GameKeyInput()]);
          }
          var _loc2_:* = GameInterface.instance.getGameInput("P1");
          if(!_loc2_)
          {
             _loc2_ = new Vector.<IGameInput>([new GameKeyInput()]);
          }
-         var _loc1_:* = GameInterface.instance.getGameInput("P2");
-         if(!_loc1_)
+         var _loc3_:* = GameInterface.instance.getGameInput("P2");
+         if(!_loc3_)
          {
-            _loc1_ = new Vector.<IGameInput>([new GameKeyInput()]);
+            _loc3_ = new Vector.<IGameInput>([new GameKeyInput()]);
          }
-         setInput("MENU",_loc3_);
+         setInput("MENU",_loc1_);
          GameInputer.setInput("P1",_loc2_);
-         GameInputer.setInput("P2",_loc1_);
+         GameInputer.setInput("P2",_loc3_);
       }
       
       public static function setInput(param1:String, param2:Vector.<IGameInput>) : void
@@ -108,22 +108,23 @@ package net.play5d.game.bvn.input
       
       private static function renderListenKeys() : void
       {
+         var _loc4_:* = undefined;
+         var _loc1_:int = 0;
+         var _loc2_:Array = null;
          var _loc3_:int = 0;
-         var _loc1_:Array = null;
-         var _loc4_:int = 0;
          if(!_listenKeys)
          {
             return;
          }
-         for each(var _loc2_ in _listenKeys)
+         for each(_loc4_ in _listenKeys)
          {
-            _loc1_ = _loc2_.ids;
-            _loc3_ = int(_loc1_.length);
-            _loc4_ = 0;
-            while(_loc4_ < _loc3_)
+            _loc2_ = _loc4_.ids;
+            _loc1_ = int(_loc2_.length);
+            _loc3_ = 0;
+            while(_loc3_ < _loc1_)
             {
-               isDown(_loc2_.type,_loc1_[_loc4_],_loc2_.justDown,true);
-               _loc4_++;
+               isDown(_loc4_.type,_loc2_[_loc3_],_loc4_.justDown,true);
+               _loc3_++;
             }
          }
       }
@@ -145,14 +146,14 @@ package net.play5d.game.bvn.input
       
       public static function render() : void
       {
-         var _loc2_:* = null;
-         var _loc1_:Boolean = false;
+         var _loc1_:* = null;
+         var _loc2_:Boolean = false;
          var _loc3_:String = null;
          for(_loc3_ in _justDownDelayKeys)
          {
             if(_justDownDelayKeys[_loc3_] > 0)
             {
-               _justDownDelayKeys[_loc3_]--;
+               --_justDownDelayKeys[_loc3_];
             }
             else
             {
@@ -239,9 +240,14 @@ package net.play5d.game.bvn.input
          callVoid("clear");
       }
       
+      public static function setKeyState(type:String, keyCode:uint, isDown:Boolean) : void
+      {
+         call(type,"setKeyState",keyCode,isDown);
+      }
+      
       private static function isDown(param1:String, param2:String, param3:int = 0, param4:Boolean = false) : Boolean
       {
-         var _loc5_:Boolean = param4 ? false : isListenedKey(param1,param2,param3);
+         var _loc5_:Boolean = param4 ? false : Boolean(isListenedKey(param1,param2,param3));
          if(param3 == 1)
          {
             return isJustDown(param1,param2);
@@ -256,13 +262,13 @@ package net.play5d.game.bvn.input
       private static function isJustDown(param1:String, param2:String) : Boolean
       {
          var _loc3_:String = param1 + "_" + param2;
-         var _loc4_:Boolean = call(param1,param2);
+         var _loc4_:Boolean = Boolean(call(param1,param2));
          if(!_loc4_)
          {
             _justDownKeys[_loc3_] = false;
             return false;
          }
-         if(_justDownKeys[_loc3_])
+         if(Boolean(_justDownKeys[_loc3_]))
          {
             return false;
          }
@@ -272,18 +278,18 @@ package net.play5d.game.bvn.input
       
       private static function isJustDownDelay(param1:String, param2:String, param3:Boolean) : Boolean
       {
-         var _loc5_:Boolean = isJustDown(param1,param2);
-         var _loc4_:String = param1 + "_" + param2;
-         if(_loc5_)
+         var _loc4_:Boolean = Boolean(isJustDown(param1,param2));
+         var _loc5_:String = param1 + "_" + param2;
+         if(_loc4_)
          {
-            _justDownDelayKeys[_loc4_] = 0.1 * MainGame.I.getFPS();
+            _justDownDelayKeys[_loc5_] = 0.1 * MainGame.I.getFPS();
          }
-         return Boolean(_justDownDelayKeys[_loc4_]) && _justDownDelayKeys[_loc4_] > 0;
+         return Boolean(_justDownDelayKeys[_loc5_]) && _justDownDelayKeys[_loc5_] > 0;
       }
       
       private static function call(param1:String, param2:String, ... rest) : Boolean
       {
-         var _loc6_:int = 0;
+         var _loc4_:int = 0;
          var _loc5_:Function = null;
          if(!enabled)
          {
@@ -293,21 +299,21 @@ package net.play5d.game.bvn.input
          {
             return false;
          }
-         var _loc4_:Vector.<IGameInput> = _inputMap[param1];
-         while(_loc6_ < _loc4_.length)
+         var _loc6_:Vector.<IGameInput> = _inputMap[param1];
+         while(_loc4_ < _loc6_.length)
          {
-            if(_loc4_[_loc6_].enabled)
+            if(_loc6_[_loc4_].enabled)
             {
-               _loc5_ = _loc4_[_loc6_][param2];
+               _loc5_ = _loc6_[_loc4_][param2];
                if(_loc5_ != null)
                {
-                  if(_loc5_.apply(null,rest))
+                  if(Boolean(_loc5_.apply(null,rest)))
                   {
                      return true;
                   }
                }
             }
-            _loc6_++;
+            _loc4_++;
          }
          return false;
       }
@@ -315,22 +321,22 @@ package net.play5d.game.bvn.input
       private static function callVoid(param1:String, ... rest) : void
       {
          var _loc3_:* = undefined;
-         var _loc5_:int = 0;
-         var _loc4_:Function = null;
+         var _loc4_:int = 0;
+         var _loc5_:Function = null;
          for each(_loc3_ in _inputMap)
          {
-            _loc5_ = 0;
-            while(_loc5_ < _loc3_.length)
+            _loc4_ = 0;
+            while(_loc4_ < _loc3_.length)
             {
-               if(_loc3_[_loc5_].enabled)
+               if(Boolean(_loc3_[_loc4_].enabled))
                {
-                  _loc4_ = _loc3_[_loc5_][param1];
-                  if(_loc4_ != null)
+                  _loc5_ = _loc3_[_loc4_][param1];
+                  if(_loc5_ != null)
                   {
-                     _loc4_.apply(null,rest);
+                     _loc5_.apply(null,rest);
                   }
                }
-               _loc5_++;
+               _loc4_++;
             }
          }
       }

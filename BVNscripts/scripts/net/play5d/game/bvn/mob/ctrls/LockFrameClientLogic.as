@@ -1,11 +1,10 @@
 package net.play5d.game.bvn.mob.ctrls
 {
-   import flash.utils.ByteArray;
-   import flash.utils.getTimer;
-   import net.play5d.game.bvn.ctrl.game_ctrls.GameCtrl;
+   import flash.utils.*;
+   import net.play5d.game.bvn.ctrl.game_ctrls.*;
    import net.play5d.game.bvn.fighter.FighterMain;
-   import net.play5d.game.bvn.mob.input.InputManager;
-   import net.play5d.game.bvn.mob.utils.LANUtils;
+   import net.play5d.game.bvn.mob.input.*;
+   import net.play5d.game.bvn.mob.utils.*;
    
    public class LockFrameClientLogic
    {
@@ -39,19 +38,19 @@ package net.play5d.game.bvn.mob.ctrls
       
       public function reset() : void
       {
-         _updateCache = {};
-         _clientK = 0;
-         _serverK = 0;
-         _clientFrame = 0;
-         _serverFrame = 0;
-         _serverNextFrame = 0;
-         _lastSendK = 0;
-         _sendStartFrame = 0;
+         this._updateCache = {};
+         this._clientK = 0;
+         this._serverK = 0;
+         this._clientFrame = 0;
+         this._serverFrame = 0;
+         this._serverNextFrame = 0;
+         this._lastSendK = 0;
+         this._sendStartFrame = 0;
       }
       
       public function dispose() : void
       {
-         _updateCache = {};
+         this._updateCache = {};
       }
       
       public function receiveUpdate(param1:ByteArray) : Boolean
@@ -61,20 +60,20 @@ package net.play5d.game.bvn.mob.ctrls
             return false;
          }
          param1.position = 0;
-         var _loc3_:int = param1.readByte();
-         if(_loc3_ != 9)
+         var _loc2_:int = param1.readByte();
+         if(_loc2_ != 9)
          {
             return false;
          }
-         _serverFrame = param1.readShort();
-         _serverK = param1.readShort();
-         _clientK = param1.readShort();
-         _serverNextFrame = _serverFrame + LANUtils.LOCK_KEYFRAME;
-         cacheUpdate();
-         var _loc2_:int = getTimer() - _delayTimer;
-         LANClientCtrl.I.updateDelay(_loc2_);
-         _delayTimer = getTimer();
-         _sendAnyWay = true;
+         this._serverFrame = param1.readShort();
+         this._serverK = param1.readShort();
+         this._clientK = param1.readShort();
+         this._serverNextFrame = this._serverFrame + LANUtils.LOCK_KEYFRAME;
+         this.cacheUpdate();
+         var _loc3_:int = getTimer() - this._delayTimer;
+         LANClientCtrl.I.updateDelay(_loc3_);
+         this._delayTimer = getTimer();
+         this._sendAnyWay = true;
          return true;
       }
       
@@ -104,7 +103,7 @@ package net.play5d.game.bvn.mob.ctrls
          {
             return false;
          }
-         _updateCache = {};
+         this._updateCache = {};
          _loc10_ = param1.readShort();
          _loc6_ = param1.readByte();
          _loc9_ = param1.readByte();
@@ -116,7 +115,7 @@ package net.play5d.game.bvn.mob.ctrls
          _loc2_ = param1.readShort();
          _loc14_ = param1.readShort();
          _loc13_ = param1.readShort();
-         _serverFrame = _loc10_;
+         this._serverFrame = _loc10_;
          try
          {
             if(GameCtrl.I.gameRunData.round != _loc6_)
@@ -156,13 +155,13 @@ package net.play5d.game.bvn.mob.ctrls
       public function render() : Boolean
       {
          var _loc1_:ByteArray = null;
-         if(!enabled)
+         if(!this.enabled)
          {
             return true;
          }
-         if(_serverNextFrame == 0 && _serverFrame == 0)
+         if(this._serverNextFrame == 0 && this._serverFrame == 0)
          {
-            if(_sendStartFrame++ == 0)
+            if(this._sendStartFrame++ == 0)
             {
                _loc1_ = new ByteArray();
                _loc1_.writeByte(8);
@@ -170,20 +169,20 @@ package net.play5d.game.bvn.mob.ctrls
                _loc1_.writeShort(0);
                LANClientCtrl.I.sendUDP(_loc1_);
             }
-            else if(_sendStartFrame > 5)
+            else if(this._sendStartFrame > 5)
             {
-               _sendStartFrame = 0;
+               this._sendStartFrame = 0;
             }
             return false;
          }
-         if(_clientFrame < _serverNextFrame)
+         if(this._clientFrame < this._serverNextFrame)
          {
-            _clientFrame += 1;
-            renderUpdate();
+            this._clientFrame += 1;
+            this.renderUpdate();
             InputManager.I.socket_input_p2.renderInput();
-            if(_clientFrame % 2 == 0)
+            if(this._clientFrame % 2 == 0)
             {
-               sendCtrl();
+               this.sendCtrl();
             }
             return true;
          }
@@ -192,36 +191,36 @@ package net.play5d.game.bvn.mob.ctrls
       
       private function sendCtrl() : void
       {
-         var _loc2_:int = InputManager.I.socket_input_p2.getSocketData();
-         if(_lastSendK == _loc2_ && !_sendAnyWay)
+         var _loc1_:int = int(InputManager.I.socket_input_p2.getSocketData());
+         if(this._lastSendK == _loc1_ && !this._sendAnyWay)
          {
             return;
          }
-         _sendAnyWay = false;
+         this._sendAnyWay = false;
          InputManager.I.socket_input_p2.resetInput();
-         var _loc1_:ByteArray = new ByteArray();
-         _loc1_.writeByte(8);
-         _loc1_.writeShort(_clientFrame);
-         _loc1_.writeShort(_loc2_);
-         LANClientCtrl.I.sendUDP(_loc1_);
-         _lastSendK = _loc2_;
+         var _loc2_:ByteArray = new ByteArray();
+         _loc2_.writeByte(8);
+         _loc2_.writeShort(this._clientFrame);
+         _loc2_.writeShort(_loc1_);
+         LANClientCtrl.I.sendUDP(_loc2_);
+         this._lastSendK = _loc1_;
       }
       
       private function cacheUpdate() : void
       {
          var _loc1_:int = 0;
-         _loc1_ = _serverFrame;
-         while(_loc1_ < _serverNextFrame)
+         _loc1_ = int(this._serverFrame);
+         while(_loc1_ < this._serverNextFrame)
          {
-            _updateCache[_loc1_] = [_serverK,_clientK];
+            this._updateCache[_loc1_] = [this._serverK,this._clientK];
             _loc1_++;
          }
       }
       
       private function renderUpdate() : void
       {
-         var _loc1_:Array = _updateCache[_clientFrame];
-         if(_loc1_)
+         var _loc1_:Array = this._updateCache[this._clientFrame];
+         if(Boolean(_loc1_))
          {
             InputManager.I.socket_input_p1.setSocketData(_loc1_[0]);
             InputManager.I.socket_input_p2.setSocketData(_loc1_[1]);

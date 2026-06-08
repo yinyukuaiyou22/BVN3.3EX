@@ -1,30 +1,18 @@
 package net.play5d.game.bvn.state
 {
-   import flash.display.DisplayObject;
-   import flash.display.MovieClip;
-   import flash.events.DataEvent;
-   import flash.events.Event;
-   import flash.events.KeyboardEvent;
-   import flash.events.MouseEvent;
-   import flash.text.TextField;
-   import flash.text.TextFormat;
-   import flash.utils.clearTimeout;
-   import flash.utils.setTimeout;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.AssetManager;
-   import net.play5d.game.bvn.ctrl.GameRender;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
-   import net.play5d.game.bvn.ctrl.StateCtrl;
-   import net.play5d.game.bvn.data.FighterModel;
-   import net.play5d.game.bvn.data.FighterVO;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.data.MessionModel;
-   import net.play5d.game.bvn.input.GameInputer;
-   import net.play5d.game.bvn.interfaces.GameInterface;
-   import net.play5d.game.bvn.ui.GameUI;
-   import net.play5d.game.bvn.utils.ResUtils;
-   import net.play5d.kyo.display.bitmap.BitmapFontText;
-   import net.play5d.kyo.stage.Istage;
+   import flash.display.*;
+   import flash.events.*;
+   import flash.text.*;
+   import flash.utils.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.input.*;
+   import net.play5d.game.bvn.interfaces.*;
+   import net.play5d.game.bvn.ui.*;
+   import net.play5d.game.bvn.utils.*;
+   import net.play5d.kyo.display.bitmap.*;
+   import net.play5d.kyo.stage.*;
    
    public class WinnerState implements Istage
    {
@@ -46,65 +34,67 @@ package net.play5d.game.bvn.state
       
       public function get display() : DisplayObject
       {
-         return _ui;
+         return this._ui;
       }
       
       private function buildData() : void
       {
-         var _loc6_:int = 0;
          var _loc1_:int = 0;
-         var _loc5_:int = 0;
+         var _loc2_:int = 0;
+         var _loc3_:int = 0;
          var _loc4_:FighterVO = FighterModel.I.getFighter(GameData.I.winnerId);
-         var _loc3_:Vector.<FighterVO> = new Vector.<FighterVO>();
-         var _loc2_:Array = GameData.I.p1Select.getSelectFighters();
-         while(_loc6_ < _loc2_.length)
+         var _loc5_:Vector.<FighterVO> = new Vector.<FighterVO>();
+         var _loc6_:Array = GameData.I.p1Select.getSelectFighters();
+         while(_loc1_ < _loc6_.length)
          {
-            _loc3_.push(FighterModel.I.getFighter(_loc2_[_loc6_]));
-            _loc6_++;
+            _loc5_.push(FighterModel.I.getFighter(_loc6_[_loc1_]));
+            _loc1_++;
          }
-         _winSay = _loc4_.getRandSay();
-         if(_loc3_.length == 1)
+         this._winSay = _loc4_.getRandSay();
+         if(_loc5_.length == 1)
          {
-            _winnerFaces = [AssetManager.I.getFighterFaceWin(_loc3_[0])];
+            this._winnerFaces = [AssetManager.I.getFighterFaceWin(_loc5_[0])];
          }
          else
          {
-            _winnerFaces = [];
-            _loc1_ = _loc3_.indexOf(_loc4_);
-            _winnerFaces.push(AssetManager.I.getFighterFaceWin(_loc3_[_loc1_]));
-            _loc3_.splice(_loc1_,1);
-            while(_loc5_ < _loc3_.length)
+            this._winnerFaces = [];
+            _loc2_ = int(_loc5_.indexOf(_loc4_));
+            this._winnerFaces.push(AssetManager.I.getFighterFaceWin(_loc5_[_loc2_]));
+            _loc5_.splice(_loc2_,1);
+            while(_loc3_ < _loc5_.length)
             {
-               _winnerFaces.push(AssetManager.I.getFighterFaceWin(_loc3_[_loc5_]));
-               _loc5_++;
+               this._winnerFaces.push(AssetManager.I.getFighterFaceWin(_loc5_[_loc3_]));
+               _loc3_++;
             }
          }
       }
       
       private function initText() : void
       {
-         var txtCompleteHandler:* = function(param1:Event):void
+         var txtCompleteHandler:* = undefined;
+         var txtmc:MovieClip = null;
+         txtCompleteHandler = function(param1:Event):void
          {
             txtmc.removeEventListener("complete",txtCompleteHandler);
-            var _loc3_:TextField = new TextField();
-            _loc3_.x = 33;
-            _loc3_.width = 548;
-            _loc3_.height = 66;
-            _loc3_.multiline = true;
-            _loc3_.wordWrap = true;
-            _loc3_.mouseEnabled = false;
-            var _loc2_:TextFormat = new TextFormat();
-            _loc2_.font = "SimHei";
-            _loc2_.color = 0;
-            _loc2_.size = 18;
-            _loc2_.align = "center";
-            _loc2_.leading = 5;
-            _loc3_.defaultTextFormat = _loc2_;
-            setText(_loc3_,_winSay);
-            txtmc.addChild(_loc3_);
+            var _loc2_:TextField = new TextField();
+            _loc2_.x = 33;
+            _loc2_.width = 548;
+            _loc2_.height = 66;
+            _loc2_.multiline = true;
+            _loc2_.wordWrap = true;
+            _loc2_.mouseEnabled = false;
+            var _loc3_:TextFormat = new TextFormat();
+            _loc3_.font = "SimHei";
+            _loc3_.color = 0;
+            _loc3_.size = 18;
+            _loc3_.align = "center";
+            _loc3_.leading = 5;
+            _loc2_.defaultTextFormat = _loc3_;
+            setText(_loc2_,_winSay);
+            txtmc.addChild(_loc2_);
          };
-         var txtmc:MovieClip = _ui.getChildByName("txtmc") as MovieClip;
-         if(txtmc)
+         txtmc = this._ui.getChildByName("txtmc") as MovieClip;
+         if(Boolean(txtmc))
          {
             txtmc.addEventListener("complete",txtCompleteHandler);
          }
@@ -112,23 +102,26 @@ package net.play5d.game.bvn.state
       
       private function testFighterSays(param1:TextField) : void
       {
-         var k:String;
-         var i:FighterVO;
-         var j:String;
-         var txt:TextField = param1;
+         var k:String = null;
+         var i:FighterVO = null;
+         var j:String = null;
+         var txt:TextField = null;
+         var sayIndex:int = 0;
+         var says:Array = null;
+         txt = param1;
          var keyHandler:* = function(param1:KeyboardEvent):void
          {
             switch(int(param1.keyCode) - 37)
             {
                case 0:
-                  sayIndex -= 1;
+                  --sayIndex;
                   if(sayIndex < 0)
                   {
                      sayIndex = 0;
                   }
                   break;
                case 2:
-                  sayIndex += 1;
+                  ++sayIndex;
                   if(sayIndex > says.length - 1)
                   {
                      sayIndex = says.length - 1;
@@ -141,8 +134,8 @@ package net.play5d.game.bvn.state
             trace(says[sayIndex].id);
          };
          var winner:FighterVO = FighterModel.I.getFighter(GameData.I.winnerId);
-         var sayIndex:int = 0;
-         var says:Array = [];
+         sayIndex = 0;
+         says = [];
          for each(k in winner.says)
          {
             says.push({
@@ -172,43 +165,43 @@ package net.play5d.game.bvn.state
       
       public function build() : void
       {
-         buildData();
-         _scoreText = new BitmapFontText(AssetManager.I.getFont("font1"));
-         _scoreText.text = "SCORE " + GameData.I.score;
-         _scoreText.x = -_scoreText.width / 2;
-         _scoreText.y = -_scoreText.height / 2;
-         _ui = ResUtils.I.createDisplayObject(ResUtils.I.loading,ResUtils.WINNER);
-         _ui.addEventListener("complete",onUIPlayComplete);
-         _ui.scoremc.addChild(_scoreText);
-         if(_winnerFaces[0])
+         this.buildData();
+         this._scoreText = new BitmapFontText(AssetManager.I.getFont("font1"));
+         this._scoreText.text = "SCORE " + GameData.I.score;
+         this._scoreText.x = -this._scoreText.width / 2;
+         this._scoreText.y = -this._scoreText.height / 2;
+         this._ui = ResUtils.I.createDisplayObject(ResUtils.I.loading,ResUtils.WINNER);
+         this._ui.addEventListener("complete",this.onUIPlayComplete);
+         this._ui.scoremc.addChild(this._scoreText);
+         if(Boolean(this._winnerFaces[0]))
          {
-            _ui.f0.addChildAt(_winnerFaces[0],0);
+            this._ui.f0.addChildAt(this._winnerFaces[0],0);
          }
          else
          {
-            _ui.f0.visible = false;
+            this._ui.f0.visible = false;
          }
-         if(_winnerFaces[1])
+         if(Boolean(this._winnerFaces[1]))
          {
-            _ui.f1.addChildAt(_winnerFaces[1],0);
-         }
-         else
-         {
-            _ui.f1.visible = false;
-         }
-         if(_winnerFaces[2])
-         {
-            _ui.f2.addChildAt(_winnerFaces[2],0);
+            this._ui.f1.addChildAt(this._winnerFaces[1],0);
          }
          else
          {
-            _ui.f2.visible = false;
+            this._ui.f1.visible = false;
+         }
+         if(Boolean(this._winnerFaces[2]))
+         {
+            this._ui.f2.addChildAt(this._winnerFaces[2],0);
+         }
+         else
+         {
+            this._ui.f2.visible = false;
          }
          SoundCtrl.I.BGM(null);
          SoundCtrl.I.playAssetSound("win");
          GameInputer.enabled = false;
-         initText();
-         _bgmDelay = setTimeout(function():void
+         this.initText();
+         this._bgmDelay = setTimeout(function():void
          {
             SoundCtrl.I.BGM(AssetManager.I.getSound("winloop"));
          },6500);
@@ -216,16 +209,16 @@ package net.play5d.game.bvn.state
       
       private function onUIPlayComplete(param1:Event) : void
       {
-         _ui.removeEventListener("complete",onUIPlayComplete);
+         this._ui.removeEventListener("complete",this.onUIPlayComplete);
          MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["winner_show"])));
-         var _loc2_:MovieClip = _ui.getChildByName("btns") as MovieClip;
-         _loc2_.btn_more.addEventListener("click",btnHandler);
-         _loc2_.btn_cont.addEventListener("click",btnHandler);
-         _loc2_.btn_exit.addEventListener("click",btnHandler);
-         _loc2_.btn_more.addEventListener("mouseOver",btnHandler);
-         _loc2_.btn_cont.addEventListener("mouseOver",btnHandler);
-         _loc2_.btn_exit.addEventListener("mouseOver",btnHandler);
-         GameRender.add(render);
+         var _loc2_:MovieClip = this._ui.getChildByName("btns") as MovieClip;
+         _loc2_.btn_more.addEventListener("click",this.btnHandler);
+         _loc2_.btn_cont.addEventListener("click",this.btnHandler);
+         _loc2_.btn_exit.addEventListener("click",this.btnHandler);
+         _loc2_.btn_more.addEventListener("mouseOver",this.btnHandler);
+         _loc2_.btn_cont.addEventListener("mouseOver",this.btnHandler);
+         _loc2_.btn_exit.addEventListener("mouseOver",this.btnHandler);
+         GameRender.add(this.render);
          GameInputer.enabled = true;
       }
       
@@ -233,7 +226,7 @@ package net.play5d.game.bvn.state
       {
          if(GameInputer.select("MENU"))
          {
-            goNext();
+            this.goNext();
          }
       }
       
@@ -244,14 +237,14 @@ package net.play5d.game.bvn.state
             SoundCtrl.I.sndSelect();
             return;
          }
-         var _loc2_:MovieClip = _ui.getChildByName("btns") as MovieClip;
+         var _loc2_:MovieClip = this._ui.getChildByName("btns") as MovieClip;
          switch(param1.currentTarget)
          {
             case _loc2_.btn_more:
                GameInterface.instance.moreGames();
                break;
             case _loc2_.btn_cont:
-               goNext();
+               this.goNext();
                break;
             case _loc2_.btn_exit:
                GameUI.confrim("BACK TITLE?","返回到主菜单？",MainGame.I.goMenu);
@@ -275,14 +268,14 @@ package net.play5d.game.bvn.state
       
       public function destory(param1:Function = null) : void
       {
-         GameRender.remove(render);
+         GameRender.remove(this.render);
          GameInputer.enabled = false;
-         clearTimeout(_bgmDelay);
+         clearTimeout(this._bgmDelay);
          MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["winner_end"])));
-         if(_ui)
+         if(Boolean(this._ui))
          {
-            _ui.gotoAndStop("destory");
-            _ui = null;
+            this._ui.gotoAndStop("destory");
+            this._ui = null;
          }
       }
    }

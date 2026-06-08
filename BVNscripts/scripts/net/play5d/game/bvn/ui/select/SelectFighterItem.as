@@ -3,11 +3,11 @@ package net.play5d.game.bvn.ui.select
    import flash.display.DisplayObject;
    import flash.events.Event;
    import flash.events.EventDispatcher;
-   import flash.geom.Point;
-   import net.play5d.game.bvn.ctrl.AssetManager;
+   import flash.geom.*;
+   import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.data.FighterVO;
    import net.play5d.game.bvn.data.SelectCharListItemVO;
-   import net.play5d.game.bvn.utils.ResUtils;
+   import net.play5d.game.bvn.utils.*;
    
    public class SelectFighterItem extends EventDispatcher
    {
@@ -16,7 +16,7 @@ package net.play5d.game.bvn.ui.select
       
       public var fighterData:FighterVO;
       
-      public var ui:slt_item_mc = ResUtils.I.createDisplayObject(ResUtils.I.select,"slt_item_mc");
+      public var ui:* = ResUtils.I.createDisplayObject(ResUtils.I.select,"slt_item_mc");
       
       public var position:Point = new Point();
       
@@ -30,54 +30,55 @@ package net.play5d.game.bvn.ui.select
          this.selectData = param2;
          this.fighterData = param1;
          var _loc3_:DisplayObject = AssetManager.I.getFighterFace(param1);
-         if(_loc3_)
+         if(Boolean(_loc3_))
          {
-            ui.ct.addChild(_loc3_);
+            this.ui.ct.addChild(_loc3_);
          }
-         ui.mouseChildren = false;
-         ui.buttonMode = true;
+         this.ui.mouseChildren = false;
+         this.ui.buttonMode = true;
       }
       
       override public function addEventListener(param1:String, param2:Function, param3:Boolean = false, param4:int = 0, param5:Boolean = false) : void
       {
-         if(ui.hasEventListener(param1))
+         if(Boolean(this.ui.hasEventListener(param1)))
          {
             return;
          }
-         ui.addEventListener(param1,selfHandler,param3,param4,param5);
-         _listeners[param1] = param2;
+         this.ui.addEventListener(param1,this.selfHandler,param3,param4,param5);
+         this._listeners[param1] = param2;
       }
       
       public function removeAllEventListener() : void
       {
-         for(var _loc1_ in _listeners)
+         var _loc1_:* = undefined;
+         for(_loc1_ in this._listeners)
          {
-            ui.removeEventListener(_loc1_,_listeners[_loc1_]);
+            this.ui.removeEventListener(_loc1_,this._listeners[_loc1_]);
          }
-         _listeners = {};
+         this._listeners = {};
       }
       
       private function selfHandler(param1:Event) : void
       {
-         _listeners[param1.type](param1.type,this);
+         this._listeners[param1.type](param1.type,this);
       }
       
       public function destory() : void
       {
-         if(ui)
+         if(Boolean(this.ui))
          {
-            removeAllEventListener();
+            this.removeAllEventListener();
          }
-         if(ui && ui.parent)
+         if(Boolean(this.ui) && Boolean(this.ui.parent))
          {
             try
             {
-               ui.parent.removeChild(ui);
+               this.ui.parent.removeChild(this.ui);
             }
             catch(e:Error)
             {
             }
-            ui = null;
+            this.ui = null;
          }
       }
    }

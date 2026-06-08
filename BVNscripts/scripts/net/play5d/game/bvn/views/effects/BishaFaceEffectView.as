@@ -1,9 +1,7 @@
 package net.play5d.game.bvn.views.effects
 {
-   import flash.display.Bitmap;
-   import flash.display.DisplayObject;
-   import flash.display.MovieClip;
-   import net.play5d.game.bvn.ctrl.AssetManager;
+   import flash.display.*;
+   import net.play5d.game.bvn.ctrl.*;
    
    public class BishaFaceEffectView
    {
@@ -15,17 +13,17 @@ package net.play5d.game.bvn.views.effects
       public function BishaFaceEffectView()
       {
          super();
-         mc = AssetManager.I.getEffect("bisha_face_mc");
+         this.mc = AssetManager.I.getEffect("bisha_face_mc");
       }
       
       public function setFace(param1:int, param2:DisplayObject) : void
       {
-         var _loc3_:MovieClip = mc["facemc" + param1];
+         var _loc3_:MovieClip = this.mc["facemc" + param1];
          if(!_loc3_)
          {
             return;
          }
-         _faceObj[param1] = param2;
+         this._faceObj[param1] = param2;
          param2.width = 254;
          param2.height = 180;
          _loc3_.addChild(param2);
@@ -33,12 +31,13 @@ package net.play5d.game.bvn.views.effects
       
       public function fadIn() : void
       {
-         mc.gotoAndPlay(2);
+         this.mc.gotoAndPlay(2);
       }
       
       public function destory() : void
       {
-         for each(var _loc1_ in _faceObj)
+         var _loc1_:* = undefined;
+         for each(_loc1_ in this._faceObj)
          {
             if(_loc1_ is Bitmap)
             {

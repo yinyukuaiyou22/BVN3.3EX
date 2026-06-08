@@ -1,14 +1,10 @@
 package net.play5d.kyo.loader
 {
-   import flash.display.Loader;
-   import flash.display.LoaderInfo;
-   import flash.events.Event;
-   import flash.events.EventDispatcher;
-   import flash.events.IOErrorEvent;
-   import flash.events.ProgressEvent;
-   import flash.net.URLRequest;
+   import flash.display.*;
+   import flash.events.*;
+   import flash.net.*;
    import flash.system.ApplicationDomain;
-   import flash.utils.Dictionary;
+   import flash.utils.*;
    
    public class KyoClassLoader extends EventDispatcher
    {
@@ -34,8 +30,10 @@ package net.play5d.kyo.loader
       
       public function getClass(param1:String, param2:String = null) : Class
       {
-         var className:String = param1;
-         var swf:String = param2;
+         var className:String = null;
+         var swf:String = null;
+         className = param1;
+         swf = param2;
          swf ||= this._defaultId;
          var app:ApplicationDomain = this._classes[swf];
          if(!app)
@@ -79,8 +77,9 @@ package net.play5d.kyo.loader
       
       public function addSwf(param1:String, param2:Loader) : void
       {
+         var swf:Loader = null;
          var id:String = param1;
-         var swf:Loader = param2;
+         swf = param2;
          this._classes[id] = swf.contentLoaderInfo.applicationDomain;
          try
          {
@@ -111,7 +110,8 @@ package net.play5d.kyo.loader
       
       private function removeLoader(param1:Loader) : void
       {
-         var loader:Loader = param1;
+         var loader:Loader = null;
+         loader = param1;
          loader.contentLoaderInfo.removeEventListener(Event.COMPLETE,this.loadComplete);
          loader.contentLoaderInfo.removeEventListener(ProgressEvent.PROGRESS,this.loadProgress);
          loader.contentLoaderInfo.removeEventListener(IOErrorEvent.IO_ERROR,this.loadError);
@@ -144,13 +144,13 @@ package net.play5d.kyo.loader
       
       private function loadError(param1:IOErrorEvent) : void
       {
-         var _loc3_:String = null;
-         var _loc2_:Loader = (param1.currentTarget as LoaderInfo).loader;
-         if(Boolean(_loc2_) && Boolean(_loc2_.loaderInfo))
+         var _loc2_:String = null;
+         var _loc3_:Loader = (param1.currentTarget as LoaderInfo).loader;
+         if(Boolean(_loc3_) && Boolean(_loc3_.loaderInfo))
          {
-            _loc3_ = _loc2_.loaderInfo.loaderURL;
+            _loc2_ = _loc3_.loaderInfo.loaderURL;
          }
-         trace("loadError",_loc3_);
+         trace("loadError",_loc2_);
          dispatchEvent(param1);
          this.checkComplete();
       }

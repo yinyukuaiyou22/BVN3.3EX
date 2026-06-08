@@ -1,11 +1,8 @@
 package net.play5d.kyo.loader
 {
-   import flash.events.Event;
-   import flash.events.IOErrorEvent;
-   import flash.events.ProgressEvent;
-   import flash.media.Sound;
-   import flash.net.URLLoader;
-   import flash.net.URLRequest;
+   import flash.events.*;
+   import flash.media.*;
+   import flash.net.*;
    
    public class KyoSoundLoader
    {
@@ -30,7 +27,7 @@ package net.play5d.kyo.loader
       public function unload() : void
       {
          var _loc1_:Sound = null;
-         if(this._soundObj)
+         if(Boolean(this._soundObj))
          {
             for each(_loc1_ in this._soundObj)
             {
@@ -53,7 +50,7 @@ package net.play5d.kyo.loader
       {
          var _loc2_:String = null;
          var _loc3_:String = null;
-         if(this._soundObj[param1])
+         if(Boolean(this._soundObj[param1]))
          {
             return this._soundObj[param1];
          }
@@ -86,9 +83,9 @@ package net.play5d.kyo.loader
       
       private function loadProcess(param1:ProgressEvent) : void
       {
-         var _loc2_:Number = Number(NaN);
-         var _loc3_:Number = Number(NaN);
-         var _loc4_:Number = Number(NaN);
+         var _loc2_:Number = NaN;
+         var _loc3_:Number = NaN;
+         var _loc4_:Number = NaN;
          if(this._loadProcess != null)
          {
             _loc2_ = param1.bytesLoaded / param1.bytesTotal;
@@ -144,20 +141,23 @@ package net.play5d.kyo.loader
       public function loadPath(param1:String, param2:String, param3:Function = null) : void
       {
          var l:URLLoader = null;
-         var path:String = param1;
+         var path:String = null;
+         var back:Function = null;
+         l = null;
+         path = param1;
          var listXML:String = param2;
-         var back:Function = param3;
+         back = param3;
          l = new URLLoader(new URLRequest(path + "/" + listXML));
          l.addEventListener(Event.COMPLETE,function(param1:Event):void
          {
-            var _loc4_:Object = null;
-            var _loc2_:XML = new XML(l.data);
-            var _loc3_:Array = [];
-            for each(_loc4_ in _loc2_.children())
+            var _loc2_:Object = null;
+            var _loc3_:XML = new XML(l.data);
+            var _loc4_:Array = [];
+            for each(_loc2_ in _loc3_.children())
             {
-               _loc3_.push(path + "/" + _loc4_.toString());
+               _loc4_.push(path + "/" + _loc2_.toString());
             }
-            loadSounds(_loc3_,back);
+            loadSounds(_loc4_,back);
          });
       }
    }

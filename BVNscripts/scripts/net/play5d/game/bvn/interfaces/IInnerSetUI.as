@@ -1,7 +1,7 @@
 package net.play5d.game.bvn.interfaces
 {
    import flash.display.DisplayObject;
-   import flash.events.IEventDispatcher;
+   import flash.events.*;
    
    public interface IInnerSetUI extends IEventDispatcher
    {

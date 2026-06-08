@@ -4,10 +4,9 @@ package net.play5d.game.bvn.mob.sockets
    import flash.events.EventDispatcher;
    import flash.events.ProgressEvent;
    import flash.events.ServerSocketConnectEvent;
-   import flash.net.ServerSocket;
-   import flash.net.Socket;
-   import flash.utils.ByteArray;
-   import net.play5d.game.bvn.mob.sockets.events.SocketEvent;
+   import flash.net.*;
+   import flash.utils.*;
+   import net.play5d.game.bvn.mob.sockets.events.*;
    
    public class SocketServer extends EventDispatcher
    {
@@ -38,59 +37,61 @@ package net.play5d.game.bvn.mob.sockets
       
       public function get port() : int
       {
-         return _serverSocket.localPort;
+         return this._serverSocket.localPort;
       }
       
       public function bind(param1:int) : void
       {
-         close();
-         _serverSocket = new ServerSocket();
-         _serverSocket.addEventListener("connect",onClientConnect);
-         _serverSocket.addEventListener("close",onClose);
-         _clients = new Vector.<Socket>();
-         _packetBuffer = new PacketBuffer();
+         this.close();
+         this._serverSocket = new ServerSocket();
+         this._serverSocket.addEventListener("connect",this.onClientConnect);
+         this._serverSocket.addEventListener("close",this.onClose);
+         this._clients = new Vector.<Socket>();
+         this._packetBuffer = new PacketBuffer();
          try
          {
-            _serverSocket.bind(param1);
-            _serverSocket.listen();
-            log("SERVER SOCKET正在监听端口:" + _serverSocket.localPort);
+            this._serverSocket.bind(param1);
+            this._serverSocket.listen();
+            this.log("SERVER SOCKET正在监听端口:" + this._serverSocket.localPort);
          }
          catch(e:Error)
          {
             log("监听失败，请尝试另一个端口");
          }
-         connected = _serverSocket.bound;
+         this.connected = this._serverSocket.bound;
       }
       
       public function get clients() : Vector.<Socket>
       {
-         return _clients;
+         return this._clients;
       }
       
       public function close() : void
       {
-         if(_clients)
+         var _loc1_:* = undefined;
+         if(Boolean(this._clients))
          {
-            for each(var _loc1_ in _clients)
+            for each(_loc1_ in this._clients)
             {
-               if(_loc1_.connected)
+               if(Boolean(_loc1_.connected))
                {
                   _loc1_.close();
                }
             }
-            _clients = null;
+            this._clients = null;
          }
-         if(_serverSocket)
+         if(Boolean(this._serverSocket))
          {
-            _serverSocket.close();
-            _serverSocket = null;
+            this._serverSocket.close();
+            this._serverSocket = null;
          }
-         connected = false;
+         this.connected = false;
       }
       
       public function getClientByIP(param1:String) : Socket
       {
-         for each(var _loc2_ in _clients)
+         var _loc2_:* = undefined;
+         for each(_loc2_ in this._clients)
          {
             if(_loc2_.remoteAddress == param1)
             {
@@ -102,64 +103,65 @@ package net.play5d.game.bvn.mob.sockets
       
       private function onClientConnect(param1:ServerSocketConnectEvent) : void
       {
-         var _loc3_:Socket = param1.socket;
-         _loc3_.addEventListener("socketData",onClientSocketData);
-         _clients.push(_loc3_);
-         _loc3_.addEventListener("close",onCloseClient);
-         log("Connection from " + _loc3_.localAddress + ":" + _loc3_.localPort);
-         connected = true;
-         var _loc2_:SocketEvent = new SocketEvent("SocketEvent_CLIENT_CONNECT");
-         _loc2_.clientSocket = _loc3_;
-         dispatchEvent(_loc2_);
+         var _loc2_:Socket = param1.socket;
+         _loc2_.addEventListener("socketData",this.onClientSocketData);
+         this._clients.push(_loc2_);
+         _loc2_.addEventListener("close",this.onCloseClient);
+         this.log("Connection from " + _loc2_.localAddress + ":" + _loc2_.localPort);
+         this.connected = true;
+         var _loc3_:SocketEvent = new SocketEvent("SocketEvent_CLIENT_CONNECT");
+         _loc3_.clientSocket = _loc2_;
+         dispatchEvent(_loc3_);
       }
       
       private function onClose(param1:Event) : void
       {
-         _serverSocket.removeEventListener("connect",onClientConnect);
-         _serverSocket.removeEventListener("close",onClose);
+         this._serverSocket.removeEventListener("connect",this.onClientConnect);
+         this._serverSocket.removeEventListener("close",this.onClose);
          dispatchEvent(new SocketEvent("SocketEvent_CLOSE"));
-         connected = false;
-         log("Connection Closed ");
+         this.connected = false;
+         this.log("Connection Closed ");
       }
       
       private function onCloseClient(param1:Event) : void
       {
-         var _loc5_:int = 0;
-         var _loc2_:Socket = null;
-         var _loc3_:SocketEvent = null;
-         var _loc4_:Socket = param1.target as Socket;
-         _loc5_ = 0;
-         while(_loc5_ < _clients.length)
+         var _loc2_:int = 0;
+         var _loc3_:Socket = null;
+         var _loc4_:SocketEvent = null;
+         var _loc5_:Socket = param1.target as Socket;
+         _loc2_ = 0;
+         while(_loc2_ < this._clients.length)
          {
-            _loc2_ = _clients[_loc5_];
-            if(_loc2_.remoteAddress == _loc4_.remoteAddress && _loc2_.remotePort == _loc4_.remotePort)
+            _loc3_ = this._clients[_loc2_];
+            if(_loc3_.remoteAddress == _loc5_.remoteAddress && _loc3_.remotePort == _loc5_.remotePort)
             {
-               _clients.splice(_loc5_,1);
-               log(param1.target.remoteAddress + ":" + param1.target.remotePort + "断开");
-               _loc3_ = new SocketEvent("SocketEvent_CLIENT_DIS_CONNECT");
-               _loc3_.clientSocket = _loc2_;
-               dispatchEvent(_loc3_);
+               this._clients.splice(_loc2_,1);
+               this.log(param1.target.remoteAddress + ":" + param1.target.remotePort + "断开");
+               _loc4_ = new SocketEvent("SocketEvent_CLIENT_DIS_CONNECT");
+               _loc4_.clientSocket = _loc3_;
+               dispatchEvent(_loc4_);
             }
-            _loc5_++;
+            _loc2_++;
          }
       }
       
       private function onClientSocketData(param1:ProgressEvent) : void
       {
-         var _loc6_:SocketEvent = null;
-         var _loc2_:ByteArray = new ByteArray();
-         var _loc3_:Socket = param1.currentTarget as Socket;
-         _loc3_.readBytes(_loc2_,0,_loc3_.bytesAvailable);
-         PacketUtils.uncompress(_loc2_);
-         _packetBuffer.push(_loc2_);
-         var _loc5_:Array = _packetBuffer.getPackets();
-         for each(var _loc4_ in _loc5_)
+         var _loc6_:* = undefined;
+         var _loc2_:SocketEvent = null;
+         var _loc3_:ByteArray = new ByteArray();
+         var _loc4_:Socket = param1.currentTarget as Socket;
+         _loc4_.readBytes(_loc3_,0,_loc4_.bytesAvailable);
+         PacketUtils.uncompress(_loc3_);
+         this._packetBuffer.push(_loc3_);
+         var _loc5_:Array = this._packetBuffer.getPackets();
+         for each(_loc6_ in _loc5_)
          {
-            _loc6_ = new SocketEvent("SocketEvent_RECEIVE_DATA");
-            _loc6_.data = _loc4_;
-            _loc6_.clientSocket = _loc3_;
-            dispatchEvent(_loc6_);
-            log("Received from Client" + _loc3_.remoteAddress + ":" + _loc3_.remotePort + "-- " + _loc4_);
+            _loc2_ = new SocketEvent("SocketEvent_RECEIVE_DATA");
+            _loc2_.data = _loc6_;
+            _loc2_.clientSocket = _loc4_;
+            dispatchEvent(_loc2_);
+            this.log("Received from Client" + _loc4_.remoteAddress + ":" + _loc4_.remotePort + "-- " + _loc6_);
          }
       }
       
@@ -169,16 +171,16 @@ package net.play5d.game.bvn.mob.sockets
          var _loc2_:Socket = null;
          try
          {
-            if(_clients.length == 0)
+            if(this._clients.length == 0)
             {
-               log("没有连接");
+               this.log("没有连接");
                return;
             }
             _loc3_ = 0;
-            while(_loc3_ < _clients.length)
+            while(_loc3_ < this._clients.length)
             {
-               _loc2_ = _clients[_loc3_] as Socket;
-               send(_loc2_,param1);
+               _loc2_ = this._clients[_loc3_] as Socket;
+               this.send(_loc2_,param1);
                _loc3_++;
             }
          }
@@ -212,13 +214,13 @@ package net.play5d.game.bvn.mob.sockets
       public function sendJson(param1:*, param2:Object) : void
       {
          var _loc3_:String = JSON.stringify(param2);
-         send(param1,_loc3_);
+         this.send(param1,_loc3_);
       }
       
       public function sendByIP(param1:String, param2:ByteArray) : void
       {
-         var _loc3_:Socket = getClientByIP(param1);
-         send(_loc3_,param2);
+         var _loc3_:Socket = this.getClientByIP(param1);
+         this.send(_loc3_,param2);
       }
       
       public function log(param1:String) : void

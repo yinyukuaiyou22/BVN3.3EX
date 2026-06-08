@@ -1,6 +1,6 @@
 package net.play5d.game.bvn.mob.sockets
 {
-   import flash.utils.ByteArray;
+   import flash.utils.*;
    
    public class PacketUtils
    {
@@ -24,16 +24,16 @@ package net.play5d.game.bvn.mob.sockets
       public static function addByteArrayHead(param1:ByteArray) : ByteArray
       {
          param1.position = 0;
-         var _loc3_:int = int(param1.bytesAvailable);
-         if(_loc3_ < 0)
+         var _loc2_:int = int(param1.bytesAvailable);
+         if(_loc2_ < 0)
          {
             return null;
          }
-         var _loc2_:ByteArray = new ByteArray();
-         _loc2_.writeShort(_loc3_);
-         _loc2_.writeBytes(param1,0,param1.bytesAvailable);
-         _loc2_.position = 0;
-         return _loc2_;
+         var _loc3_:ByteArray = new ByteArray();
+         _loc3_.writeShort(_loc2_);
+         _loc3_.writeBytes(param1,0,param1.bytesAvailable);
+         _loc3_.position = 0;
+         return _loc3_;
       }
       
       public static function compress(param1:ByteArray) : void

@@ -10,92 +10,92 @@ package com.greensock.easing
          super();
       }
       
-      public static function easeIn(param1:Number, param2:Number, param3:Number, param4:Number, param5:Number = 0, param6:Number = 0) : Number
+      public static function easeIn(t:Number, b:Number, c:Number, d:Number, a:Number = 0, p:Number = 0) : Number
       {
-         var _loc7_:Number = Number(NaN);
-         if(param1 == 0)
+         var s:Number = NaN;
+         if(t == 0)
          {
-            return param2;
+            return b;
          }
-         param1 /= param4;
-         if(param1 == 1)
+         t = t / d;
+         if(t == 1)
          {
-            return param2 + param3;
+            return b + c;
          }
-         if(!param6)
+         if(!p)
          {
-            param6 = param4 * 0.3;
+            p = d * 0.3;
          }
-         if(!param5 || param3 > 0 && param5 < param3 || param3 < 0 && param5 < -param3)
+         if(!a || c > 0 && a < c || c < 0 && a < -c)
          {
-            param5 = param3;
-            _loc7_ = param6 / 4;
+            a = c;
+            s = p / 4;
          }
          else
          {
-            _loc7_ = param6 / _2PI * Math.asin(param3 / param5);
+            s = p / _2PI * Math.asin(c / a);
          }
-         return -(param5 * Math.pow(2,10 * (param1 -= 1)) * Math.sin((param1 * param4 - _loc7_) * _2PI / param6)) + param2;
+         return -(a * Math.pow(2,10 * (t = t - 1)) * Math.sin((t * d - s) * _2PI / p)) + b;
       }
       
-      public static function easeOut(param1:Number, param2:Number, param3:Number, param4:Number, param5:Number = 0, param6:Number = 0) : Number
+      public static function easeOut(t:Number, b:Number, c:Number, d:Number, a:Number = 0, p:Number = 0) : Number
       {
-         var _loc7_:Number = Number(NaN);
-         if(param1 == 0)
+         var s:Number = NaN;
+         if(t == 0)
          {
-            return param2;
+            return b;
          }
-         param1 /= param4;
-         if(param1 == 1)
+         t = t / d;
+         if(t == 1)
          {
-            return param2 + param3;
+            return b + c;
          }
-         if(!param6)
+         if(!p)
          {
-            param6 = param4 * 0.3;
+            p = d * 0.3;
          }
-         if(!param5 || param3 > 0 && param5 < param3 || param3 < 0 && param5 < -param3)
+         if(!a || c > 0 && a < c || c < 0 && a < -c)
          {
-            param5 = param3;
-            _loc7_ = param6 / 4;
+            a = c;
+            s = p / 4;
          }
          else
          {
-            _loc7_ = param6 / _2PI * Math.asin(param3 / param5);
+            s = p / _2PI * Math.asin(c / a);
          }
-         return param5 * Math.pow(2,-10 * param1) * Math.sin((param1 * param4 - _loc7_) * _2PI / param6) + param3 + param2;
+         return a * Math.pow(2,-10 * t) * Math.sin((t * d - s) * _2PI / p) + c + b;
       }
       
-      public static function easeInOut(param1:Number, param2:Number, param3:Number, param4:Number, param5:Number = 0, param6:Number = 0) : Number
+      public static function easeInOut(t:Number, b:Number, c:Number, d:Number, a:Number = 0, p:Number = 0) : Number
       {
-         var _loc7_:Number = Number(NaN);
-         if(param1 == 0)
+         var s:Number = NaN;
+         if(t == 0)
          {
-            return param2;
+            return b;
          }
-         param1 /= param4 * 0.5;
-         if(param1 == 2)
+         t = t / (d * 0.5);
+         if(t == 2)
          {
-            return param2 + param3;
+            return b + c;
          }
-         if(!param6)
+         if(!p)
          {
-            param6 = param4 * (0.3 * 1.5);
+            p = d * (0.3 * 1.5);
          }
-         if(!param5 || param3 > 0 && param5 < param3 || param3 < 0 && param5 < -param3)
+         if(!a || c > 0 && a < c || c < 0 && a < -c)
          {
-            param5 = param3;
-            _loc7_ = param6 / 4;
+            a = c;
+            s = p / 4;
          }
          else
          {
-            _loc7_ = param6 / _2PI * Math.asin(param3 / param5);
+            s = p / _2PI * Math.asin(c / a);
          }
-         if(param1 < 1)
+         if(t < 1)
          {
-            return -0.5 * (param5 * Math.pow(2,10 * (param1 -= 1)) * Math.sin((param1 * param4 - _loc7_) * _2PI / param6)) + param2;
+            return -0.5 * (a * Math.pow(2,10 * (t = t - 1)) * Math.sin((t * d - s) * _2PI / p)) + b;
          }
-         return param5 * Math.pow(2,-10 * (param1 -= 1)) * Math.sin((param1 * param4 - _loc7_) * _2PI / param6) * 0.5 + param3 + param2;
+         return a * Math.pow(2,-10 * (t = t - 1)) * Math.sin((t * d - s) * _2PI / p) * 0.5 + c + b;
       }
    }
 }

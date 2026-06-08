@@ -1,6 +1,6 @@
 package net.play5d.kyo.utils
 {
-   import flash.system.Capabilities;
+   import flash.system.*;
    
    public class UUID
    {
@@ -15,7 +15,7 @@ package net.play5d.kyo.utils
       public static function create() : String
       {
          var _loc1_:Date = new Date();
-         var _loc2_:Number = _loc1_.getTime();
+         var _loc2_:Number = Number(_loc1_.getTime());
          var _loc3_:Number = Math.random() * Number.MAX_VALUE;
          var _loc4_:String = Capabilities.serverString;
          var _loc5_:String = calculate(_loc2_ + _loc4_ + _loc3_ + counter++).toUpperCase();
@@ -34,56 +34,56 @@ package net.play5d.kyo.utils
       
       private static function core_sha1(param1:Array, param2:Number) : Array
       {
-         var _loc10_:Number = Number(NaN);
-         var _loc11_:Number = Number(NaN);
-         var _loc12_:Number = Number(NaN);
-         var _loc13_:Number = Number(NaN);
-         var _loc14_:Number = Number(NaN);
-         var _loc15_:Number = Number(NaN);
-         var _loc16_:Number = Number(NaN);
+         var _loc3_:Number = NaN;
+         var _loc4_:Number = NaN;
+         var _loc5_:Number = NaN;
+         var _loc6_:Number = NaN;
+         var _loc7_:Number = NaN;
+         var _loc8_:Number = NaN;
+         var _loc9_:Number = NaN;
          param1[param2 >> 5] |= 128 << 24 - param2 % 32;
          param1[(param2 + 64 >> 9 << 4) + 15] = param2;
-         var _loc3_:Array = new Array(80);
-         var _loc4_:Number = 1732584193;
-         var _loc5_:Number = -271733879;
-         var _loc6_:Number = -1732584194;
-         var _loc7_:Number = 271733878;
-         var _loc8_:Number = -1009589776;
-         var _loc9_:Number = 0;
-         while(_loc9_ < param1.length)
+         var _loc10_:Array = new Array(80);
+         var _loc11_:Number = 1732584193;
+         var _loc12_:Number = -271733879;
+         var _loc13_:Number = -1732584194;
+         var _loc14_:Number = 271733878;
+         var _loc15_:Number = -1009589776;
+         var _loc16_:Number = 0;
+         while(_loc16_ < param1.length)
          {
-            _loc10_ = _loc4_;
-            _loc11_ = _loc5_;
-            _loc12_ = _loc6_;
-            _loc13_ = _loc7_;
-            _loc14_ = _loc8_;
-            _loc15_ = 0;
-            while(_loc15_ < 80)
+            _loc3_ = _loc11_;
+            _loc4_ = _loc12_;
+            _loc5_ = _loc13_;
+            _loc6_ = _loc14_;
+            _loc7_ = _loc15_;
+            _loc8_ = 0;
+            while(_loc8_ < 80)
             {
-               if(_loc15_ < 16)
+               if(_loc8_ < 16)
                {
-                  _loc3_[_loc15_] = param1[_loc9_ + _loc15_];
+                  _loc10_[_loc8_] = param1[_loc16_ + _loc8_];
                }
                else
                {
-                  _loc3_[_loc15_] = rol(_loc3_[_loc15_ - 3] ^ _loc3_[_loc15_ - 8] ^ _loc3_[_loc15_ - 14] ^ _loc3_[_loc15_ - 16],1);
+                  _loc10_[_loc8_] = rol(_loc10_[_loc8_ - 3] ^ _loc10_[_loc8_ - 8] ^ _loc10_[_loc8_ - 14] ^ _loc10_[_loc8_ - 16],1);
                }
-               _loc16_ = safe_add(safe_add(rol(_loc4_,5),sha1_ft(_loc15_,_loc5_,_loc6_,_loc7_)),safe_add(safe_add(_loc8_,_loc3_[_loc15_]),sha1_kt(_loc15_)));
-               _loc8_ = _loc7_;
-               _loc7_ = _loc6_;
-               _loc6_ = rol(_loc5_,30);
-               _loc5_ = _loc4_;
-               _loc4_ = _loc16_;
-               _loc15_++;
+               _loc9_ = Number(safe_add(safe_add(rol(_loc11_,5),sha1_ft(_loc8_,_loc12_,_loc13_,_loc14_)),safe_add(safe_add(_loc15_,_loc10_[_loc8_]),sha1_kt(_loc8_))));
+               _loc15_ = _loc14_;
+               _loc14_ = _loc13_;
+               _loc13_ = Number(rol(_loc12_,30));
+               _loc12_ = _loc11_;
+               _loc11_ = _loc9_;
+               _loc8_++;
             }
-            _loc4_ = safe_add(_loc4_,_loc10_);
-            _loc5_ = safe_add(_loc5_,_loc11_);
-            _loc6_ = safe_add(_loc6_,_loc12_);
-            _loc7_ = safe_add(_loc7_,_loc13_);
-            _loc8_ = safe_add(_loc8_,_loc14_);
-            _loc9_ += 16;
+            _loc11_ = Number(safe_add(_loc11_,_loc3_));
+            _loc12_ = Number(safe_add(_loc12_,_loc4_));
+            _loc13_ = Number(safe_add(_loc13_,_loc5_));
+            _loc14_ = Number(safe_add(_loc14_,_loc6_));
+            _loc15_ = Number(safe_add(_loc15_,_loc7_));
+            _loc16_ += 16;
          }
-         return new Array(_loc4_,_loc5_,_loc6_,_loc7_,_loc8_);
+         return new Array(_loc11_,_loc12_,_loc13_,_loc14_,_loc15_);
       }
       
       private static function sha1_ft(param1:Number, param2:Number, param3:Number, param4:Number) : Number

@@ -1,14 +1,13 @@
 package net.play5d.game.bvn.fighter
 {
-   import flash.display.DisplayObject;
-   import flash.display.MovieClip;
+   import flash.display.*;
    import flash.geom.Rectangle;
    import net.play5d.game.bvn.fighter.ctrler.FighterMcCtrler;
-   import net.play5d.game.bvn.fighter.events.FighterEventDispatcher;
+   import net.play5d.game.bvn.fighter.events.*;
    import net.play5d.game.bvn.fighter.models.FighterHitModel;
    import net.play5d.game.bvn.fighter.models.HitVO;
-   import net.play5d.game.bvn.fighter.utils.McAreaCacher;
-   import net.play5d.game.bvn.utils.MCUtils;
+   import net.play5d.game.bvn.fighter.utils.*;
+   import net.play5d.game.bvn.utils.*;
    
    public class FighterMC
    {
@@ -66,226 +65,227 @@ package net.play5d.game.bvn.fighter
       
       public function get currentFrameName() : String
       {
-         return _curFrameName;
+         return this._curFrameName;
       }
       
       public function getCurrentFrame() : int
       {
-         return _mc.currentFrame;
+         return this._mc.currentFrame;
       }
       
       public function getCurrentFrameCount() : int
       {
-         return _curFrameCount;
+         return this._curFrameCount;
       }
       
       public function get x() : Number
       {
-         return _mc.x;
+         return this._mc.x;
       }
       
       public function set x(param1:Number) : void
       {
-         _mc.x = x;
+         this._mc.x = this.x;
       }
       
       public function get y() : Number
       {
-         return _mc.y;
+         return this._mc.y;
       }
       
       public function set y(param1:Number) : void
       {
-         _mc.y = param1;
+         this._mc.y = param1;
       }
       
       public function initlize(param1:MovieClip, param2:FighterMain, param3:FighterMcCtrler) : void
       {
-         _mc = param1;
-         _fighter = param2;
-         _fighterDisplay = param2.getDisplay();
-         _mcCtrler = param3;
+         this._mc = param1;
+         this._fighter = param2;
+         this._fighterDisplay = param2.getDisplay();
+         this._mcCtrler = param3;
          param3.setMc(this);
       }
       
       public function destory() : void
       {
-         if(_bodyAreaCache)
+         if(Boolean(this._bodyAreaCache))
          {
-            _bodyAreaCache.destory();
-            _bodyAreaCache = null;
+            this._bodyAreaCache.destory();
+            this._bodyAreaCache = null;
          }
-         if(_hitAreaCache)
+         if(Boolean(this._hitAreaCache))
          {
-            _hitAreaCache.destory();
-            _hitAreaCache = null;
+            this._hitAreaCache.destory();
+            this._hitAreaCache = null;
          }
-         if(_hitCheckAreaCache)
+         if(Boolean(this._hitCheckAreaCache))
          {
-            _hitCheckAreaCache.destory();
-            _hitCheckAreaCache = null;
+            this._hitCheckAreaCache.destory();
+            this._hitCheckAreaCache = null;
          }
-         _fighter = null;
-         _fighterDisplay = null;
-         _undefinedFrames = null;
+         this._fighter = null;
+         this._fighterDisplay = null;
+         this._undefinedFrames = null;
       }
       
       public function getChildByName(param1:String) : DisplayObject
       {
-         return _mc.getChildByName(param1);
+         return this._mc.getChildByName(param1);
       }
       
       public function renderAnimate() : void
       {
-         if(_renderMainAnimate)
+         if(this._renderMainAnimate)
          {
-            if(_renderMainAnimateFrame > 0)
+            if(this._renderMainAnimateFrame > 0)
             {
-               if(--_renderMainAnimateFrame <= 0)
+               if(--this._renderMainAnimateFrame <= 0)
                {
-                  _renderMainAnimate = false;
+                  this._renderMainAnimate = false;
                }
-               _curMainFrameCount += 1;
+               ++this._curMainFrameCount;
             }
-            _mc.nextFrame();
+            this._mc.nextFrame();
          }
-         renderChildren();
-         findBodyArea();
-         findHitArea();
-         if(_hurtFlyState != 0)
+         this.renderChildren();
+         this.findBodyArea();
+         this.findHitArea();
+         if(this._hurtFlyState != 0)
          {
-            renderHurtFly();
+            this.renderHurtFly();
          }
-         _curFrameCount += 1;
-         if(_goFrameDelay)
+         ++this._curFrameCount;
+         if(Boolean(this._goFrameDelay))
          {
-            if(_goFrameDelay.delay-- <= 0)
+            if(this._goFrameDelay.delay-- <= 0)
             {
-               if(_goFrameDelay.call != undefined)
+               if(this._goFrameDelay.call != undefined)
                {
-                  _goFrameDelay.call();
+                  this._goFrameDelay.call();
                }
                else
                {
-                  goFrame(_goFrameDelay.name,_goFrameDelay.isPlay,_goFrameDelay.playFrame,null);
+                  this.goFrame(this._goFrameDelay.name,this._goFrameDelay.isPlay,this._goFrameDelay.playFrame,null);
                }
-               _goFrameDelay = null;
+               this._goFrameDelay = null;
             }
          }
       }
       
       private function renderChildren() : void
       {
-         var _loc5_:int = 0;
-         var _loc1_:MovieClip = null;
+         var _loc6_:* = undefined;
+         var _loc1_:int = 0;
+         var _loc2_:MovieClip = null;
          var _loc3_:String = null;
          var _loc4_:int = 0;
-         var _loc2_:int = _mc.numChildren;
-         _loc5_ = 0;
-         while(_loc5_ < _loc2_)
+         var _loc5_:int = int(this._mc.numChildren);
+         _loc1_ = 0;
+         while(_loc1_ < _loc5_)
          {
-            _loc1_ = _mc.getChildAt(_loc5_) as MovieClip;
-            if(_loc1_)
+            _loc2_ = this._mc.getChildAt(_loc1_) as MovieClip;
+            if(Boolean(_loc2_))
             {
-               _loc3_ = _loc1_.name;
+               _loc3_ = _loc2_.name;
                if(!(_loc3_ == "AImain" || _loc3_ == "bdmn" || _loc3_.indexOf("atm") != -1))
                {
-                  _loc4_ = _loc1_.totalFrames;
+                  _loc4_ = _loc2_.totalFrames;
                   if(_loc4_ >= 2)
                   {
-                     var _loc6_:String = _loc1_.currentFrameLabel;
+                     _loc6_ = _loc2_.currentFrameLabel;
                      if("stop" !== _loc6_)
                      {
-                        if(_loc1_.currentFrame == _loc4_)
+                        if(_loc2_.currentFrame == _loc4_)
                         {
-                           _loc1_.gotoAndStop(1);
+                           _loc2_.gotoAndStop(1);
                         }
                         else
                         {
-                           _loc1_.nextFrame();
+                           _loc2_.nextFrame();
                         }
                      }
                   }
                }
             }
-            _loc5_++;
+            _loc1_++;
          }
       }
       
       public function goFrame(param1:String, param2:Boolean = true, param3:int = 0, param4:Object = null) : void
       {
-         _curFrameName = param1;
-         _curMainFrameCount = 0;
-         _curFrameCount = 0;
-         _renderMainAnimate = param2;
-         if(_renderMainAnimate)
+         this._curFrameName = param1;
+         this._curMainFrameCount = 0;
+         this._curFrameCount = 0;
+         this._renderMainAnimate = param2;
+         if(this._renderMainAnimate)
          {
-            _renderMainAnimateFrame = param3;
+            this._renderMainAnimateFrame = param3;
          }
          else
          {
-            _renderMainAnimateFrame = 0;
+            this._renderMainAnimateFrame = 0;
          }
-         if(param4 && (param4.name || param4.call) && int(param4.delay) > 0)
+         if(Boolean(param4) && (Boolean(param4.name || param4.call)) && int(param4.delay) > 0)
          {
             param4.isPlay = param4.isPlay != undefined ? param4.isPlay : true;
             param4.playFrame = param4.playFrame != undefined ? param4.playFrame : 0;
-            _goFrameDelay = param4;
+            this._goFrameDelay = param4;
          }
          else
          {
-            _goFrameDelay = null;
+            this._goFrameDelay = null;
          }
-         _mc.gotoAndStop(param1);
-         renderChildren();
+         this._mc.gotoAndStop(param1);
+         this.renderChildren();
       }
       
       public function stopRenderMainAnimate() : void
       {
-         _renderMainAnimate = false;
+         this._renderMainAnimate = false;
       }
       
       public function resumeRenderMainAnimate() : void
       {
-         _renderMainAnimate = true;
+         this._renderMainAnimate = true;
       }
       
       public function checkFrame(param1:String) : Boolean
       {
-         if(_undefinedFrames.indexOf(param1) != -1)
+         if(this._undefinedFrames.indexOf(param1) != -1)
          {
             return false;
          }
-         if(MCUtils.hasFrameLabel(_mc,param1))
+         if(MCUtils.hasFrameLabel(this._mc,param1))
          {
             return true;
          }
-         _undefinedFrames.push(param1);
+         this._undefinedFrames.push(param1);
          trace("未找到帧：" + param1);
          return false;
       }
       
       public function getCurrentHitSprite() : Array
       {
-         var _loc3_:int = 0;
-         var _loc1_:DisplayObject = null;
-         var _loc2_:Array = [];
-         while(_loc3_ < _mc.numChildren)
+         var _loc1_:int = 0;
+         var _loc2_:DisplayObject = null;
+         var _loc3_:Array = [];
+         while(_loc1_ < this._mc.numChildren)
          {
-            _loc1_ = _mc.getChildAt(_loc3_);
-            if(_loc1_ && _loc1_.name.indexOf("atm") != -1)
+            _loc2_ = this._mc.getChildAt(_loc1_);
+            if(Boolean(_loc2_) && _loc2_.name.indexOf("atm") != -1)
             {
-               _loc2_.push(_loc1_);
+               _loc3_.push(_loc2_);
             }
-            _loc3_++;
+            _loc1_++;
          }
-         return _loc2_;
+         return _loc3_;
       }
       
       public function getCurrentBodyArea() : Rectangle
       {
-         var _loc1_:Object = _bodyAreaCache.getAreaByFrame(_mc.currentFrame);
-         if(_loc1_)
+         var _loc1_:Object = this._bodyAreaCache.getAreaByFrame(this._mc.currentFrame);
+         if(Boolean(_loc1_))
          {
             return _loc1_.area;
          }
@@ -294,114 +294,114 @@ package net.play5d.game.bvn.fighter
       
       public function getCurrentHitArea() : Array
       {
-         return _hitAreaCache.getAreaByFrame(_mc.currentFrame) as Array;
+         return this._hitAreaCache.getAreaByFrame(this._mc.currentFrame) as Array;
       }
       
       public function getCheckHitRect(param1:String) : Rectangle
       {
-         var _loc2_:DisplayObject = _mc.getChildByName(param1);
+         var _loc2_:DisplayObject = this._mc.getChildByName(param1);
          if(!_loc2_)
          {
             return null;
          }
-         var _loc4_:Object = _hitCheckAreaCache.getAreaByDisplay(_loc2_);
-         if(_loc4_)
+         var _loc3_:Object = this._hitCheckAreaCache.getAreaByDisplay(_loc2_);
+         if(Boolean(_loc3_))
          {
-            return _loc4_.area;
+            return _loc3_.area;
          }
-         var _loc3_:Rectangle = _loc2_.getBounds(_fighterDisplay);
-         _hitCheckAreaCache.cacheAreaByDisplay(_loc2_,_loc3_);
-         return _loc3_;
+         var _loc4_:Rectangle = _loc2_.getBounds(this._fighterDisplay);
+         this._hitCheckAreaCache.cacheAreaByDisplay(_loc2_,_loc4_);
+         return _loc4_;
       }
       
       private function findBodyArea() : void
       {
-         var _loc2_:Rectangle = null;
-         if(!_bodyAreaCache)
+         var _loc1_:Rectangle = null;
+         if(!this._bodyAreaCache)
          {
             return;
          }
-         if(_bodyAreaCache.areaFrameDefined(_mc.currentFrame))
+         if(this._bodyAreaCache.areaFrameDefined(this._mc.currentFrame))
          {
             return;
          }
-         var _loc1_:Object = _bodyAreaCache.getAreaByFrame(_mc.currentFrame);
-         if(_loc1_ != null)
+         var _loc2_:Object = this._bodyAreaCache.getAreaByFrame(this._mc.currentFrame);
+         if(_loc2_ != null)
          {
             return;
          }
-         var _loc3_:DisplayObject = _mc.getChildByName("bdmn");
-         if(_loc3_)
+         var _loc3_:DisplayObject = this._mc.getChildByName("bdmn");
+         if(Boolean(_loc3_))
          {
-            _loc1_ = _bodyAreaCache.getAreaByDisplay(_loc3_);
-            if(_loc1_ == null)
+            _loc2_ = this._bodyAreaCache.getAreaByDisplay(_loc3_);
+            if(_loc2_ == null)
             {
-               _loc2_ = _loc3_.getBounds(_fighterDisplay);
-               _loc1_ = _bodyAreaCache.cacheAreaByDisplay(_loc3_,_loc2_);
+               _loc1_ = _loc3_.getBounds(this._fighterDisplay);
+               _loc2_ = this._bodyAreaCache.cacheAreaByDisplay(_loc3_,_loc1_);
             }
          }
-         _bodyAreaCache.cacheAreaByFrame(_mc.currentFrame,_loc1_);
+         this._bodyAreaCache.cacheAreaByFrame(this._mc.currentFrame,_loc2_);
       }
       
       private function findHitArea() : void
       {
-         var _loc9_:int = 0;
+         var _loc1_:int = 0;
          var _loc2_:DisplayObject = null;
-         var _loc6_:HitVO = null;
-         var _loc7_:Object = null;
-         var _loc4_:Rectangle = null;
-         var _loc5_:Object = null;
-         if(!_hitAreaCache)
+         var _loc3_:HitVO = null;
+         var _loc4_:Object = null;
+         var _loc5_:Rectangle = null;
+         var _loc6_:Object = null;
+         if(!this._hitAreaCache)
          {
             return;
          }
-         if(_hitAreaCache.areaFrameDefined(_mc.currentFrame))
+         if(this._hitAreaCache.areaFrameDefined(this._mc.currentFrame))
          {
             return;
          }
-         var _loc3_:Object = _hitAreaCache.getAreaByFrame(_mc.currentFrame);
-         if(_loc3_ != null)
+         var _loc7_:Object = this._hitAreaCache.getAreaByFrame(this._mc.currentFrame);
+         if(_loc7_ != null)
          {
             return;
          }
-         var _loc8_:FighterHitModel = _fighter.getCtrler().hitModel;
-         var _loc1_:Array = [];
-         while(_loc9_ < _mc.numChildren)
+         var _loc8_:FighterHitModel = this._fighter.getCtrler().hitModel;
+         var _loc9_:Array = [];
+         while(_loc1_ < this._mc.numChildren)
          {
-            _loc2_ = _mc.getChildAt(_loc9_);
-            _loc6_ = _loc8_.getHitVOByDisplayName(_loc2_.name);
-            if(!(_loc2_ == null || _loc6_ == null))
+            _loc2_ = this._mc.getChildAt(_loc1_);
+            _loc3_ = _loc8_.getHitVOByDisplayName(_loc2_.name);
+            if(!(_loc2_ == null || _loc3_ == null))
             {
-               _loc7_ = _hitAreaCache.getAreaByDisplay(_loc2_);
-               if(_loc7_ == null)
+               _loc4_ = this._hitAreaCache.getAreaByDisplay(_loc2_);
+               if(_loc4_ == null)
                {
-                  _loc4_ = _loc2_.getBounds(_fighterDisplay);
-                  _loc5_ = _hitAreaCache.cacheAreaByDisplay(_loc2_,_loc4_,{"hitVO":_loc6_});
-                  _loc1_.push(_loc5_);
+                  _loc5_ = _loc2_.getBounds(this._fighterDisplay);
+                  _loc6_ = this._hitAreaCache.cacheAreaByDisplay(_loc2_,_loc5_,{"hitVO":_loc3_});
+                  _loc9_.push(_loc6_);
                }
                else
                {
-                  _loc1_.push(_loc7_);
+                  _loc9_.push(_loc4_);
                }
             }
-            _loc9_++;
+            _loc1_++;
          }
-         if(_loc1_.length < 1)
+         if(_loc9_.length < 1)
          {
-            _loc1_ = null;
+            _loc9_ = null;
          }
-         _hitAreaCache.cacheAreaByFrame(_mc.currentFrame,_loc1_);
+         this._hitAreaCache.cacheAreaByFrame(this._mc.currentFrame,_loc9_);
       }
       
       public function playHurtFly(param1:Number, param2:Number, param3:Boolean = true) : void
       {
          if(param1 != 0)
          {
-            _fighter.direct = param1 > 0 ? -1 : 1;
+            this._fighter.direct = param1 > 0 ? -1 : 1;
          }
          if(param3)
          {
-            goFrame("被打",false,0,{
+            this.goFrame("被打",false,0,{
                "name":"击飞",
                "delay":1,
                "isPlay":false
@@ -409,86 +409,86 @@ package net.play5d.game.bvn.fighter
          }
          else
          {
-            goFrame("击飞",false);
+            this.goFrame("击飞",false);
          }
          if(param2 > 5)
          {
-            _hurtFlyFrame = 0;
-            _isHeavyDownAttack = true;
+            this._hurtFlyFrame = 0;
+            this._isHeavyDownAttack = true;
          }
          else
          {
-            _isHeavyDownAttack = false;
-            _hurtFlyFrame = 15;
+            this._isHeavyDownAttack = false;
+            this._hurtFlyFrame = 15;
          }
-         _fighter.setVelocity(param1,param2);
-         _fighter.setDamping(0,0.5);
-         _hurtFlyState = 1;
-         _hurtYMin = _fighter.y;
-         _hitx = param1;
-         _hity = param2;
+         this._fighter.setVelocity(param1,param2);
+         this._fighter.setDamping(0,0.5);
+         this._hurtFlyState = 1;
+         this._hurtYMin = this._fighter.y;
+         this._hitx = param1;
+         this._hity = param2;
       }
       
       public function playHurtDown() : void
       {
-         goFrame("击飞_弹",false,0,{
-            "call":playHurtDown2,
+         this.goFrame("击飞_弹",false,0,{
+            "call":this.playHurtDown2,
             "delay":2
          });
-         _mcCtrler.effectCtrler.shake(0,2);
-         _mcCtrler.effectCtrler.hitFloor(1);
-         _fighter.setDamping(2);
+         this._mcCtrler.effectCtrler.shake(0,2);
+         this._mcCtrler.effectCtrler.hitFloor(1);
+         this._fighter.setDamping(2);
       }
       
       private function playHurtDown2() : void
       {
-         goFrame("击飞_倒",false);
-         _hurtDownFrame = 15;
-         _hurtFlyState = 4;
-         _mcCtrler.touchFloor();
-         _fighter.actionState = 23;
-         FighterEventDispatcher.dispatchEvent(_fighter,"HURT_DOWN");
+         this.goFrame("击飞_倒",false);
+         this._hurtDownFrame = 15;
+         this._hurtFlyState = 4;
+         this._mcCtrler.touchFloor();
+         this._fighter.actionState = 23;
+         FighterEventDispatcher.dispatchEvent(this._fighter,"HURT_DOWN");
       }
       
       public function stopHurtFly() : void
       {
-         _hurtFlyState = 0;
+         this._hurtFlyState = 0;
       }
       
       private function renderHurtFly() : void
       {
-         var _loc1_:Number = Number(NaN);
-         var _loc2_:Number = Number(NaN);
-         _loc1_ = Number(NaN);
-         _loc2_ = Number(NaN);
-         switch(_hurtFlyState - 1)
+         var _loc1_:Number = NaN;
+         var _loc2_:Number = NaN;
+         _loc1_ = NaN;
+         _loc2_ = NaN;
+         switch(this._hurtFlyState - 1)
          {
             case 0:
-               if(--_hurtFlyFrame <= 0 && !_fighter.isInAir)
+               if(--this._hurtFlyFrame <= 0 && !this._fighter.isInAir)
                {
-                  goFrame("击飞_落");
-                  _hurtFlyState = 2;
+                  this.goFrame("击飞_落");
+                  this._hurtFlyState = 2;
                }
-               if(_hurtYMin > _fighter.y)
+               if(this._hurtYMin > this._fighter.y)
                {
-                  _hurtYMin = _fighter.y;
+                  this._hurtYMin = this._fighter.y;
                }
                break;
             case 1:
-               if(_curFrameCount < 2)
+               if(this._curFrameCount < 2)
                {
                   return;
                }
-               if(_isHeavyDownAttack)
+               if(this._isHeavyDownAttack)
                {
-                  _hurtDownFrame = 30;
-                  goFrame("击飞_倒",false);
-                  _fighter.actionState = 23;
-                  FighterEventDispatcher.dispatchEvent(_fighter,"HURT_DOWN");
-                  _fighter.setDamping(4);
-                  _hurtFlyState = 4;
-                  _loc1_ = _fighter.y - _hurtYMin;
-                  _loc2_ = _loc1_ / 25 * (1 + _hity * 0.1);
+                  this._hurtDownFrame = 30;
+                  this.goFrame("击飞_倒",false);
+                  this._fighter.actionState = 23;
+                  FighterEventDispatcher.dispatchEvent(this._fighter,"HURT_DOWN");
+                  this._fighter.setDamping(4);
+                  this._hurtFlyState = 4;
+                  _loc1_ = this._fighter.y - this._hurtYMin;
+                  _loc2_ = _loc1_ / 25 * (1 + this._hity * 0.1);
                   if(_loc2_ < 2)
                   {
                      _loc2_ = 2;
@@ -497,13 +497,13 @@ package net.play5d.game.bvn.fighter
                   {
                      _loc2_ = 5;
                   }
-                  _mcCtrler.effectCtrler.shake(0,_loc2_);
-                  _mcCtrler.effectCtrler.hitFloor(2);
+                  this._mcCtrler.effectCtrler.shake(0,_loc2_);
+                  this._mcCtrler.effectCtrler.hitFloor(2);
                }
                else
                {
-                  goFrame("击飞_弹",false);
-                  _loc1_ = _fighter.y - _hurtYMin;
+                  this.goFrame("击飞_弹",false);
+                  _loc1_ = this._fighter.y - this._hurtYMin;
                   _loc2_ = _loc1_ / 25;
                   if(_loc2_ < 3)
                   {
@@ -513,9 +513,9 @@ package net.play5d.game.bvn.fighter
                   {
                      _loc2_ = 8;
                   }
-                  _fighter.setVecY(-_loc2_);
-                  _hurtFlyState = 3;
-                  _fighter.actionState = 24;
+                  this._fighter.setVecY(-_loc2_);
+                  this._hurtFlyState = 3;
+                  this._fighter.actionState = 24;
                   if(_loc2_ < 0.5)
                   {
                      _loc2_ = 0.5;
@@ -524,65 +524,66 @@ package net.play5d.game.bvn.fighter
                   {
                      _loc2_ = 3;
                   }
-                  _mcCtrler.effectCtrler.shake(0,_loc2_);
-                  _mcCtrler.effectCtrler.hitFloor(0);
+                  this._mcCtrler.effectCtrler.shake(0,_loc2_);
+                  this._mcCtrler.effectCtrler.hitFloor(0);
                }
                break;
             case 2:
-               if(_curFrameCount < 2)
+               if(this._curFrameCount < 2)
                {
                   return;
                }
-               if(_fighter.isInAir)
+               if(this._fighter.isInAir)
                {
                   return;
                }
-               goFrame("击飞_倒",false);
-               _fighter.setDamping(2);
-               _hurtDownFrame = 15;
-               _hurtFlyState = 4;
-               _mcCtrler.effectCtrler.shake(0,1);
-               _mcCtrler.effectCtrler.hitFloor(1);
-               _fighter.actionState = 23;
-               FighterEventDispatcher.dispatchEvent(_fighter,"HURT_DOWN");
+               this.goFrame("击飞_倒",false);
+               this._fighter.setDamping(2);
+               this._hurtDownFrame = 15;
+               this._hurtFlyState = 4;
+               this._mcCtrler.effectCtrler.shake(0,1);
+               this._mcCtrler.effectCtrler.hitFloor(1);
+               this._fighter.actionState = 23;
+               FighterEventDispatcher.dispatchEvent(this._fighter,"HURT_DOWN");
                break;
             case 3:
-               if(!_fighter.isAlive)
+               if(!this._fighter.isAlive)
                {
-                  _hurtFlyState = 0;
-                  _fighter.actionState = 30;
+                  this._hurtFlyState = 0;
+                  this._fighter.actionState = 30;
                   return;
                }
-               if(--_hurtDownFrame <= 0)
+               if(--this._hurtDownFrame <= 0)
                {
-                  goFrame("击飞_起",true);
-                  _hurtFlyState = 0;
+                  this.goFrame("击飞_起",true);
+                  this._hurtFlyState = 0;
                }
          }
       }
       
       public function getHitRange(param1:String) : Rectangle
       {
-         if(!_hitRangeInited)
+         if(!this._hitRangeInited)
          {
-            initHitRange();
-            _hitRangeInited = true;
+            this.initHitRange();
+            this._hitRangeInited = true;
          }
-         return _hitRangeObj[param1];
+         return this._hitRangeObj[param1];
       }
       
       private function initHitRange() : void
       {
+         var _loc3_:String = null;
          var _loc1_:DisplayObject = null;
-         var _loc2_:MovieClip = _mc.getChildByName("AImain") as MovieClip;
+         var _loc2_:MovieClip = this._mc.getChildByName("AImain") as MovieClip;
          _loc2_.gotoAndStop(2);
-         _hitRangeObj = {};
-         for each(var _loc3_ in FighterHitRange.getALL())
+         this._hitRangeObj = {};
+         for each(_loc3_ in FighterHitRange.getALL())
          {
             _loc1_ = _loc2_.getChildByName(_loc3_);
-            if(_loc1_)
+            if(Boolean(_loc1_))
             {
-               _hitRangeObj[_loc3_] = _loc1_.getBounds(_fighterDisplay);
+               this._hitRangeObj[_loc3_] = _loc1_.getBounds(this._fighterDisplay);
             }
          }
          _loc2_.gotoAndStop(1);

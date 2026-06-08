@@ -1,9 +1,9 @@
 package net.play5d.game.bvn.ui
 {
-   import com.greensock.TweenLite;
+   import com.greensock.*;
    import flash.display.Sprite;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.kyo.display.shapes.Box;
+   import net.play5d.game.bvn.*;
+   import net.play5d.kyo.display.shapes.*;
    
    public class QuickTransUI extends Sprite
    {
@@ -17,17 +17,18 @@ package net.play5d.game.bvn.ui
       public function QuickTransUI()
       {
          super();
-         _center = GameConfig.GAME_SIZE.y / 2;
-         _up = new Box(GameConfig.GAME_SIZE.x,_center);
-         _down = new Box(GameConfig.GAME_SIZE.x,_center);
-         addChild(_up);
-         addChild(_down);
+         this._center = GameConfig.GAME_SIZE.y / 2;
+         this._up = new Box(GameConfig.GAME_SIZE.x,this._center);
+         this._down = new Box(GameConfig.GAME_SIZE.x,this._center);
+         addChild(this._up);
+         addChild(this._down);
       }
       
       public function fadInAndOut(param1:Function = null) : void
       {
-         var back:Function = param1;
-         fadIn(function():void
+         var back:Function = null;
+         back = param1;
+         this.fadIn(function():void
          {
             fadOut(back);
          });
@@ -35,19 +36,19 @@ package net.play5d.game.bvn.ui
       
       public function fadIn(param1:Function = null) : void
       {
-         _up.y = -_center;
-         _down.y = GameConfig.GAME_SIZE.y;
-         TweenLite.to(_up,0.1,{"y":0});
-         TweenLite.to(_down,0.1,{
-            "y":_center,
+         this._up.y = -this._center;
+         this._down.y = GameConfig.GAME_SIZE.y;
+         TweenLite.to(this._up,0.1,{"y":0});
+         TweenLite.to(this._down,0.1,{
+            "y":this._center,
             "onComplete":param1
          });
       }
       
       public function fadOut(param1:Function = null) : void
       {
-         TweenLite.to(_up,0.1,{"y":-_center});
-         TweenLite.to(_down,0.1,{
+         TweenLite.to(this._up,0.1,{"y":-this._center});
+         TweenLite.to(this._down,0.1,{
             "y":GameConfig.GAME_SIZE.y,
             "onComplete":param1
          });

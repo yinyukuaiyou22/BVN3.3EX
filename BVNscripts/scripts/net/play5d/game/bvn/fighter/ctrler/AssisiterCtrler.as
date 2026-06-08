@@ -1,13 +1,11 @@
 package net.play5d.game.bvn.fighter.ctrler
 {
-   import flash.display.MovieClip;
+   import flash.display.*;
    import flash.geom.Rectangle;
-   import net.play5d.game.bvn.ctrl.EffectCtrl;
-   import net.play5d.game.bvn.fighter.Assister;
-   import net.play5d.game.bvn.fighter.FighterMain;
-   import net.play5d.game.bvn.fighter.events.FighterEventDispatcher;
-   import net.play5d.game.bvn.fighter.models.FighterHitModel;
-   import net.play5d.game.bvn.fighter.models.HitVO;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.fighter.*;
+   import net.play5d.game.bvn.fighter.events.*;
+   import net.play5d.game.bvn.fighter.models.*;
    import net.play5d.game.bvn.interfaces.IGameSprite;
    
    public class AssisiterCtrler
@@ -34,28 +32,28 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function get effect() : FighterEffectCtrl
       {
-         return _effectCtrl;
+         return this._effectCtrl;
       }
       
       public function destory() : void
       {
-         if(_effectCtrl)
+         if(Boolean(this._effectCtrl))
          {
-            _effectCtrl.destory();
-            _effectCtrl = null;
+            this._effectCtrl.destory();
+            this._effectCtrl = null;
          }
-         if(hitModel)
+         if(Boolean(this.hitModel))
          {
-            hitModel.destory();
-            hitModel = null;
+            this.hitModel.destory();
+            this.hitModel = null;
          }
-         _assister = null;
+         this._assister = null;
       }
       
       public function getTarget() : IGameSprite
       {
-         var _loc1_:FighterMain = _assister.getOwner() as FighterMain;
-         if(_loc1_)
+         var _loc1_:FighterMain = this._assister.getOwner() as FighterMain;
+         if(Boolean(_loc1_))
          {
             return _loc1_.getCurrentTarget();
          }
@@ -64,39 +62,39 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function getOwner() : IGameSprite
       {
-         return _assister.getOwner();
+         return this._assister.getOwner();
       }
       
       public function getSelf() : Assister
       {
-         return _assister;
+         return this._assister;
       }
       
       public function setApplyG(param1:Boolean) : void
       {
-         _assister.isApplyG = param1;
+         this._assister.isApplyG = param1;
       }
       
       public function finish(param1:Boolean = true) : void
       {
          if(param1)
          {
-            EffectCtrl.I.assisterEffect(_assister);
+            EffectCtrl.I.assisterEffect(this._assister);
          }
-         _assister.isAttacking = false;
-         removeSelf();
-         _assister.gotoAndStop(1);
+         this._assister.isAttacking = false;
+         this.removeSelf();
+         this._assister.gotoAndStop(1);
       }
       
       public function defineAction(param1:String, param2:Object) : void
       {
-         hitModel.addHitVO(param1,param2);
+         this.hitModel.addHitVO(param1,param2);
       }
       
       public function get owner_mc_ctrler() : FighterMcCtrler
       {
-         var _loc1_:FighterMain = _assister.getOwner() as FighterMain;
-         if(_loc1_)
+         var _loc1_:FighterMain = this._assister.getOwner() as FighterMain;
+         if(Boolean(_loc1_))
          {
             return _loc1_.getCtrler().getMcCtrl();
          }
@@ -105,8 +103,8 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function get owner_fighter_ctrler() : FighterCtrler
       {
-         var _loc1_:FighterMain = _assister.getOwner() as FighterMain;
-         if(_loc1_)
+         var _loc1_:FighterMain = this._assister.getOwner() as FighterMain;
+         if(Boolean(_loc1_))
          {
             return _loc1_.getCtrler();
          }
@@ -115,108 +113,108 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function initAssister(param1:Assister) : void
       {
-         hitModel = new FighterHitModel(param1);
-         _assister = param1;
-         _effectCtrl = new FighterEffectCtrl(param1);
+         this.hitModel = new FighterHitModel(param1);
+         this._assister = param1;
+         this._effectCtrl = new FighterEffectCtrl(param1);
       }
       
       public function endAct() : void
       {
-         _assister.isAttacking = false;
+         this._assister.isAttacking = false;
       }
       
       public function render() : void
       {
-         renderCheckTargetHit();
-         if(_assister.isInAir)
+         this.renderCheckTargetHit();
+         if(this._assister.isInAir)
          {
-            _touchFloor = false;
+            this._touchFloor = false;
             return;
          }
-         if(!_touchFloor)
+         if(!this._touchFloor)
          {
-            _touchFloor = true;
-            if(_touchFloorFrame)
+            this._touchFloor = true;
+            if(Boolean(this._touchFloorFrame))
             {
-               _assister.gotoAndPlay(_touchFloorFrame);
-               _touchFloorFrame = null;
+               this._assister.gotoAndPlay(this._touchFloorFrame);
+               this._touchFloorFrame = null;
             }
          }
       }
       
       public function moveToTarget(param1:Object = null, param2:Object = null, param3:Boolean = true) : void
       {
-         var _loc5_:FighterMain = _assister.getOwner() as FighterMain;
-         if(!_loc5_)
+         var _loc4_:FighterMain = this._assister.getOwner() as FighterMain;
+         if(!_loc4_)
          {
             return;
          }
-         var _loc4_:IGameSprite = _loc5_.getCurrentTarget();
-         if(!_loc4_)
+         var _loc5_:IGameSprite = _loc4_.getCurrentTarget();
+         if(!_loc5_)
          {
             return;
          }
          if(param1 != null)
          {
-            _assister.x = _loc4_.x + Number(param1) * _assister.direct;
+            this._assister.x = _loc5_.x + Number(param1) * this._assister.direct;
          }
          if(param2 != null)
          {
-            _assister.y = _loc4_.y + Number(param2);
+            this._assister.y = _loc5_.y + Number(param2);
          }
          if(param3)
          {
-            _assister.direct = _assister.x < _loc4_.x ? 1 : -1;
+            this._assister.direct = this._assister.x < _loc5_.x ? 1 : -1;
          }
       }
       
       public function setDirectToTarget() : void
       {
-         var _loc1_:IGameSprite = getTarget();
+         var _loc1_:IGameSprite = this.getTarget();
          if(!_loc1_)
          {
             return;
          }
-         _assister.direct = _assister.x < _loc1_.x ? 1 : -1;
+         this._assister.direct = this._assister.x < _loc1_.x ? 1 : -1;
       }
       
       public function move(param1:Number = 0, param2:Number = 0) : void
       {
-         _assister.setVelocity(param1 * _assister.direct,param2);
+         this._assister.setVelocity(param1 * this._assister.direct,param2);
       }
       
       public function damping(param1:Number = 0, param2:Number = 0) : void
       {
-         _assister.setDamping(param1,param2);
+         this._assister.setDamping(param1,param2);
       }
       
       public function stop() : void
       {
-         _assister.stop();
+         this._assister.stop();
       }
       
       public function gotoAndPlay(param1:String) : void
       {
-         _assister.gotoAndPlay(param1);
+         this._assister.gotoAndPlay(param1);
       }
       
       public function gotoAndStop(param1:String) : void
       {
-         _assister.gotoAndStop(param1);
+         this._assister.gotoAndStop(param1);
       }
       
       public function setTouchFloor(param1:String) : void
       {
-         _touchFloorFrame = param1;
+         this._touchFloorFrame = param1;
       }
       
       public function justHit(param1:String, param2:String = null, param3:Boolean = false) : Boolean
       {
-         if(isJustHit(param1,param3))
+         if(this.isJustHit(param1,param3))
          {
             if(param2 != null)
             {
-               gotoAndPlay(param2);
+               this.gotoAndPlay(param2);
             }
             return true;
          }
@@ -226,22 +224,22 @@ package net.play5d.game.bvn.fighter.ctrler
       private function isJustHit(param1:String, param2:Boolean = false) : Boolean
       {
          var _loc3_:HitVO = null;
-         var _loc6_:HitVO = null;
-         var _loc5_:FighterMain = _assister.getOwner() as FighterMain;
-         var _loc4_:IGameSprite = _loc5_.getCurrentTarget();
-         if(_loc4_ && _loc4_ is FighterMain)
+         var _loc4_:HitVO = null;
+         var _loc5_:FighterMain = this._assister.getOwner() as FighterMain;
+         var _loc6_:IGameSprite = _loc5_.getCurrentTarget();
+         if(Boolean(_loc6_) && _loc6_ is FighterMain)
          {
-            _loc3_ = (_loc4_ as FighterMain).hurtHit;
-            if(_loc3_)
+            _loc3_ = (_loc6_ as FighterMain).hurtHit;
+            if(Boolean(_loc3_))
             {
                return _loc3_.id == param1;
             }
             if(param2)
             {
-               _loc6_ = (_loc4_ as FighterMain).defenseHit;
-               if(_loc6_)
+               _loc4_ = (_loc6_ as FighterMain).defenseHit;
+               if(Boolean(_loc4_))
                {
-                  return _loc6_.id == param1;
+                  return _loc4_.id == param1;
                }
             }
          }
@@ -250,33 +248,35 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function setHitTarget(param1:String, param2:String) : void
       {
-         hitTargetAction = param2;
-         hitTargetChecker = param1;
+         this.hitTargetAction = param2;
+         this.hitTargetChecker = param1;
       }
       
       public function removeSelf() : void
       {
-         _assister.removeSelf();
+         this._assister.removeSelf();
       }
       
       public function fire(param1:String, param2:Object = null) : void
       {
-         var mcName:String = param1;
-         var params:Object = param2;
-         var mc:MovieClip = _assister.mc.getChildByName(mcName) as MovieClip;
-         if(mc)
+         var mcName:String = null;
+         var params:Object = null;
+         mcName = param1;
+         params = param2;
+         var mc:MovieClip = this._assister.mc.getChildByName(mcName) as MovieClip;
+         if(Boolean(mc))
          {
             if(!params)
             {
                params = {};
             }
             params.mc = mc;
-            params.hitVO = hitModel.getHitVO(mcName);
-            FighterEventDispatcher.dispatchEvent(_assister,"FIRE_BULLET",params);
+            params.hitVO = this.hitModel.getHitVO(mcName);
+            FighterEventDispatcher.dispatchEvent(this._assister,"FIRE_BULLET",params);
          }
          else
          {
-            _assister.setAnimateFrameOut(function():void
+            this._assister.setAnimateFrameOut(function():void
             {
                fire(mcName,params);
             },1);
@@ -285,22 +285,24 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function addAttacker(param1:String, param2:Object = null) : void
       {
-         var mcName:String = param1;
-         var params:Object = param2;
-         var mc:MovieClip = _assister.mc.getChildByName(mcName) as MovieClip;
-         if(mc)
+         var mcName:String = null;
+         var params:Object = null;
+         mcName = param1;
+         params = param2;
+         var mc:MovieClip = this._assister.mc.getChildByName(mcName) as MovieClip;
+         if(Boolean(mc))
          {
             if(!params)
             {
                params = {};
             }
             params.mc = mc;
-            params.hitVO = hitModel.getHitVOByDisplayName(mcName);
-            FighterEventDispatcher.dispatchEvent(_assister,"ADD_ATTACKER",params);
+            params.hitVO = this.hitModel.getHitVOByDisplayName(mcName);
+            FighterEventDispatcher.dispatchEvent(this._assister,"ADD_ATTACKER",params);
          }
          else
          {
-            _assister.setAnimateFrameOut(function():void
+            this._assister.setAnimateFrameOut(function():void
             {
                addAttacker(mcName,params);
             },1);
@@ -309,45 +311,45 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function checkHitOwner(param1:String) : Boolean
       {
-         var _loc3_:Rectangle = _assister.getHitCheckRect(param1);
-         if(!_loc3_)
-         {
-            return false;
-         }
-         var _loc2_:Rectangle = _assister.getOwner().getArea();
+         var _loc2_:Rectangle = this._assister.getHitCheckRect(param1);
          if(!_loc2_)
          {
             return false;
          }
-         return _loc3_.intersects(_loc2_);
+         var _loc3_:Rectangle = this._assister.getOwner().getArea();
+         if(!_loc3_)
+         {
+            return false;
+         }
+         return _loc2_.intersects(_loc3_);
       }
       
       private function renderCheckTargetHit() : void
       {
-         var _loc4_:int = 0;
-         var _loc1_:Rectangle = null;
-         if(!hitTargetChecker)
+         var _loc1_:int = 0;
+         var _loc2_:Rectangle = null;
+         if(!this.hitTargetChecker)
          {
             return;
          }
-         var _loc2_:Rectangle = _assister.getHitCheckRect(hitTargetChecker);
-         if(!_loc2_)
-         {
-            return;
-         }
-         var _loc3_:Vector.<IGameSprite> = _assister.getTargets();
+         var _loc3_:Rectangle = this._assister.getHitCheckRect(this.hitTargetChecker);
          if(!_loc3_)
          {
             return;
          }
-         while(_loc4_ < _loc3_.length)
+         var _loc4_:Vector.<IGameSprite> = this._assister.getTargets();
+         if(!_loc4_)
          {
-            _loc1_ = _loc3_[_loc4_].getBodyArea();
-            if(_loc1_ && _loc2_.intersects(_loc1_))
+            return;
+         }
+         while(_loc1_ < _loc4_.length)
+         {
+            _loc2_ = _loc4_[_loc1_].getBodyArea();
+            if(Boolean(_loc2_) && _loc3_.intersects(_loc2_))
             {
-               gotoAndPlay(hitTargetAction);
+               this.gotoAndPlay(this.hitTargetAction);
             }
-            _loc4_++;
+            _loc1_++;
          }
       }
    }

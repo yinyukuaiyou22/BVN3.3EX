@@ -1,16 +1,16 @@
 package net.play5d.game.bvn.state
 {
    import flash.display.DisplayObject;
-   import net.play5d.game.bvn.Debugger;
-   import net.play5d.game.bvn.ctrl.AssetManager;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.utils.ResUtils;
-   import net.play5d.kyo.stage.Istage;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.utils.*;
+   import net.play5d.kyo.stage.*;
    
    public class GameLoadingState implements Istage
    {
       
-      private var _ui:loading_cover_mc;
+      private var _ui:*;
       
       private var _initBack:Function;
       
@@ -23,42 +23,42 @@ package net.play5d.game.bvn.state
       
       public function get display() : DisplayObject
       {
-         return _ui;
+         return this._ui;
       }
       
       public function build() : void
       {
-         _ui = ResUtils.I.createDisplayObject(ResUtils.I.loading,"loading_cover_mc");
+         this._ui = ResUtils.I.createDisplayObject(ResUtils.I.loading,"loading_cover_mc");
       }
       
       public function loadGame(param1:Function, param2:Function) : void
       {
-         _initBack = param1;
-         _initFail = param2;
+         this._initBack = param1;
+         this._initFail = param2;
          if(AssetManager.I.needPreLoad())
          {
-            AssetManager.I.loadPreLoad(loadPreloadBack,loadPreloadFail,loadPreloadProcess);
-            msg("游戏初始化：准备游戏资源");
+            AssetManager.I.loadPreLoad(this.loadPreloadBack,this.loadPreloadFail,this.loadPreloadProcess);
+            this.msg("游戏初始化：准备游戏资源");
          }
          else
          {
-            loadPreloadBack();
+            this.loadPreloadBack();
          }
       }
       
       private function loadPreloadBack() : void
       {
-         GameData.I.loadConfig(loadConfigBack,loadConfigFail);
-         msg("游戏初始化：正在加载配置文件");
+         GameData.I.loadConfig(this.loadConfigBack,this.loadConfigFail);
+         this.msg("游戏初始化：正在加载配置文件");
       }
       
       private function loadPreloadFail(param1:String = null) : void
       {
          Debugger.log("游戏初始化失败：准备游戏资源失败：",param1);
-         msg("游戏初始化失败：准备游戏资源失败!");
-         if(_initFail != null)
+         this.msg("游戏初始化失败：准备游戏资源失败!");
+         if(this._initFail != null)
          {
-            _initFail(param1);
+            this._initFail(param1);
          }
       }
       
@@ -68,23 +68,23 @@ package net.play5d.game.bvn.state
          {
             param1 = 1;
          }
-         _ui.bar.bar.scaleX = param1;
+         this._ui.bar.bar.scaleX = param1;
       }
       
       private function loadConfigFail(param1:String) : void
       {
          Debugger.log("游戏初始化失败：加载配置文件失败：",param1);
-         msg("游戏初始化失败：加载配置文件失败!");
-         if(_initFail != null)
+         this.msg("游戏初始化失败：加载配置文件失败!");
+         if(this._initFail != null)
          {
-            _initFail(param1);
+            this._initFail(param1);
          }
       }
       
       private function loadConfigBack() : void
       {
-         AssetManager.I.loadBasic(loadAssetBack,loadAssetProcess);
-         msg("游戏初始化：正在加载游戏资源");
+         AssetManager.I.loadBasic(this.loadAssetBack,this.loadAssetProcess);
+         this.msg("游戏初始化：正在加载游戏资源");
       }
       
       private function loadAssetProcess(param1:Number, param2:String, param3:int, param4:int) : void
@@ -94,18 +94,18 @@ package net.play5d.game.bvn.state
             trace(param2 + "::进度超过100%");
             param1 = 1;
          }
-         _ui.bar.bar.scaleX = param1;
-         msg("游戏初始化：正在加载" + param2 + "资源(" + param3 + "/" + param4 + ")");
+         this._ui.bar.bar.scaleX = param1;
+         this.msg("游戏初始化：正在加载" + param2 + "资源(" + param3 + "/" + param4 + ")");
       }
       
       private function loadAssetBack() : void
       {
-         if(_initBack != null)
+         if(this._initBack != null)
          {
-            _initBack();
-            _initBack = null;
+            this._initBack();
+            this._initBack = null;
          }
-         _initFail = null;
+         this._initFail = null;
       }
       
       public function afterBuild() : void
@@ -118,7 +118,7 @@ package net.play5d.game.bvn.state
       
       private function msg(param1:String) : void
       {
-         _ui.bar.txt.text = param1;
+         this._ui.bar.txt.text = param1;
       }
    }
 }

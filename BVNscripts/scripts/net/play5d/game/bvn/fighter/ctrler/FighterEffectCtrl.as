@@ -1,14 +1,11 @@
 package net.play5d.game.bvn.fighter.ctrler
 {
-   import flash.display.Bitmap;
-   import flash.display.BitmapData;
-   import flash.display.DisplayObject;
-   import flash.filters.GlowFilter;
-   import flash.geom.Point;
-   import net.play5d.game.bvn.Debugger;
-   import net.play5d.game.bvn.ctrl.EffectCtrl;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
-   import net.play5d.game.bvn.fighter.FighterMain;
+   import flash.display.*;
+   import flash.filters.*;
+   import flash.geom.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.fighter.*;
    import net.play5d.game.bvn.interfaces.BaseGameSprite;
    
    public class FighterEffectCtrl
@@ -31,20 +28,20 @@ package net.play5d.game.bvn.fighter.ctrler
       public function FighterEffectCtrl(param1:BaseGameSprite)
       {
          super();
-         _target = param1;
-         _targetDisplay = param1.getDisplay();
+         this._target = param1;
+         this._targetDisplay = param1.getDisplay();
       }
       
       public function destory() : void
       {
-         _target = null;
-         _targetDisplay = null;
-         _faceObj = null;
+         this._target = null;
+         this._targetDisplay = null;
+         this._faceObj = null;
       }
       
       public function setBishaFace(param1:String, param2:Class) : void
       {
-         _faceObj[param1] = param2;
+         this._faceObj[param1] = param2;
       }
       
       private function getFace(param1:String) : DisplayObject
@@ -53,16 +50,16 @@ package net.play5d.game.bvn.fighter.ctrler
          {
             return null;
          }
-         var _loc4_:Class = _faceObj[param1];
-         if(!_loc4_)
+         var _loc2_:Class = this._faceObj[param1];
+         if(!_loc2_)
          {
             Debugger.errorMsg("未定义必杀特写:" + param1);
             return null;
          }
-         var _loc3_:BitmapData = new _loc4_();
-         var _loc2_:Bitmap = new Bitmap(_loc3_);
-         _loc2_.smoothing = true;
-         return _loc2_;
+         var _loc3_:BitmapData = new _loc2_();
+         var _loc4_:Bitmap = new Bitmap(_loc3_);
+         _loc4_.smoothing = true;
+         return _loc4_;
       }
       
       public function shine(param1:uint = 16777215) : void
@@ -79,75 +76,75 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function startShake(param1:Number = 0, param2:Number = 3) : void
       {
-         _isShakeIng = true;
+         this._isShakeIng = true;
          EffectCtrl.I.startShake(param1,param2);
       }
       
       public function endShake() : void
       {
-         if(_isShakeIng)
+         if(this._isShakeIng)
          {
             EffectCtrl.I.endShake();
-            _isShakeIng = false;
+            this._isShakeIng = false;
          }
       }
       
       public function shadow(param1:int = 0, param2:int = 0, param3:int = 0) : void
       {
-         _isShadowIng = true;
-         EffectCtrl.I.startShadow(_targetDisplay,param1,param2,param3);
+         this._isShadowIng = true;
+         EffectCtrl.I.startShadow(this._targetDisplay,param1,param2,param3);
       }
       
       public function endShadow() : void
       {
-         if(_isShadowIng)
+         if(this._isShadowIng)
          {
-            EffectCtrl.I.endShadow(_targetDisplay);
+            EffectCtrl.I.endShadow(this._targetDisplay);
          }
       }
       
       public function dash() : void
       {
-         if(_target.isInAir)
+         if(this._target.isInAir)
          {
-            EffectCtrl.I.doEffectById("dash_air",_target.x,_target.y,_target.direct);
+            EffectCtrl.I.doEffectById("dash_air",this._target.x,this._target.y,this._target.direct);
          }
          else
          {
-            EffectCtrl.I.doEffectById("dash",_target.x,_target.y,_target.direct);
+            EffectCtrl.I.doEffectById("dash",this._target.x,this._target.y,this._target.direct);
          }
       }
       
       public function bisha(param1:Boolean = false, param2:String = null) : void
       {
-         var _loc3_:DisplayObject = getFace(param2);
-         EffectCtrl.I.bisha(_target,param1,_loc3_);
+         var _loc3_:DisplayObject = this.getFace(param2);
+         EffectCtrl.I.bisha(this._target,param1,_loc3_);
       }
       
       public function endBisha() : void
       {
-         EffectCtrl.I.endBisha(_target);
+         EffectCtrl.I.endBisha(this._target);
       }
       
       public function startWanKai(param1:String = null) : void
       {
-         var _loc2_:DisplayObject = param1 ? getFace(param1) : null;
-         EffectCtrl.I.wanKai(_target as FighterMain,_loc2_);
+         var _loc2_:DisplayObject = param1 ? this.getFace(param1) : null;
+         EffectCtrl.I.wanKai(this._target as FighterMain,_loc2_);
       }
       
       public function endWanKai() : void
       {
-         if((_target as FighterMain).actionState == 50)
+         if((this._target as FighterMain).actionState == 50)
          {
-            EffectCtrl.I.endWanKai(_target as FighterMain);
+            EffectCtrl.I.endWanKai(this._target as FighterMain);
          }
       }
       
       public function walk() : void
       {
-         if(_inGhostStep)
+         if(this._inGhostStep)
          {
-            EffectCtrl.I.doEffectById("ghost_step",_target.x,_target.y,_target.direct);
+            EffectCtrl.I.doEffectById("ghost_step",this._target.x,this._target.y,this._target.direct);
          }
          else
          {
@@ -157,22 +154,22 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function jump() : void
       {
-         EffectCtrl.I.jumpEffect(_targetDisplay.x,_targetDisplay.y);
+         EffectCtrl.I.jumpEffect(this._targetDisplay.x,this._targetDisplay.y);
       }
       
       public function jumpAir() : void
       {
-         EffectCtrl.I.jumpAirEffect(_targetDisplay.x,_targetDisplay.y);
+         EffectCtrl.I.jumpAirEffect(this._targetDisplay.x,this._targetDisplay.y);
       }
       
       public function touchFloor() : void
       {
-         EffectCtrl.I.touchFloorEffect(_targetDisplay.x,_targetDisplay.y);
+         EffectCtrl.I.touchFloorEffect(this._targetDisplay.x,this._targetDisplay.y);
       }
       
       public function hitFloor(param1:int) : void
       {
-         EffectCtrl.I.hitFloorEffect(param1,_targetDisplay.x,_targetDisplay.y);
+         EffectCtrl.I.hitFloorEffect(param1,this._targetDisplay.x,this._targetDisplay.y);
       }
       
       public function slowDown(param1:Number) : void
@@ -182,44 +179,44 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function energyExplode() : void
       {
-         EffectCtrl.I.energyExplode(_target);
+         EffectCtrl.I.energyExplode(this._target);
       }
       
       public function replaceSkill() : void
       {
-         EffectCtrl.I.replaceSkill(_target);
+         EffectCtrl.I.replaceSkill(this._target);
       }
       
       public function ghostStep() : void
       {
-         _inGhostStep = true;
-         shadow(0,0,255);
-         EffectCtrl.I.ghostStep(_target);
+         this._inGhostStep = true;
+         this.shadow(0,0,255);
+         EffectCtrl.I.ghostStep(this._target);
       }
       
       public function endGhostStep() : void
       {
-         _inGhostStep = false;
-         endShadow();
-         EffectCtrl.I.endGhostStep(_target);
+         this._inGhostStep = false;
+         this.endShadow();
+         EffectCtrl.I.endGhostStep(this._target);
       }
       
       public function startGlow(param1:uint = 16777215) : void
       {
-         _isGlowIng = true;
-         var _loc3_:Point = new Point(20,20);
-         var _loc2_:Number = 2;
-         var _loc4_:GlowFilter = new GlowFilter(param1,1,_loc3_.x,_loc3_.y,_loc2_,1,false,true);
-         EffectCtrl.I.startFilter(_target,_loc4_,_loc3_);
+         this._isGlowIng = true;
+         var _loc2_:Point = new Point(20,20);
+         var _loc3_:Number = 2;
+         var _loc4_:GlowFilter = new GlowFilter(param1,1,_loc2_.x,_loc2_.y,_loc3_,1,false,true);
+         EffectCtrl.I.startFilter(this._target,_loc4_,_loc2_);
       }
       
       public function endGlow() : void
       {
-         if(_isGlowIng)
+         if(this._isGlowIng)
          {
-            EffectCtrl.I.endFilter(_target);
+            EffectCtrl.I.endFilter(this._target);
          }
-         _isGlowIng = false;
+         this._isGlowIng = false;
       }
    }
 }

@@ -1,14 +1,11 @@
 package net.play5d.kyo.utils
 {
    import flash.display.Stage;
-   import flash.events.TimerEvent;
-   import flash.external.ExternalInterface;
-   import flash.net.URLRequest;
-   import flash.net.navigateToURL;
+   import flash.events.*;
+   import flash.external.*;
+   import flash.net.*;
    import flash.text.TextField;
-   import flash.utils.Timer;
-   import flash.utils.clearInterval;
-   import flash.utils.setInterval;
+   import flash.utils.*;
    
    public class WebUtils
    {
@@ -42,10 +39,15 @@ package net.play5d.kyo.utils
       public static function addJSCallBack(param1:String, param2:Function, param3:String = null, param4:TextField = null) : void
       {
          var timer:Timer = null;
-         var functionName:String = param1;
-         var closure:Function = param2;
-         var jsReady:String = param3;
-         var debugTxt:TextField = param4;
+         var functionName:String = null;
+         var closure:Function = null;
+         var jsReady:String = null;
+         var debugTxt:TextField = null;
+         timer = null;
+         functionName = param1;
+         closure = param2;
+         jsReady = param3;
+         debugTxt = param4;
          if(jsReady == null)
          {
             try
@@ -66,7 +68,7 @@ package net.play5d.kyo.utils
                var e:TimerEvent = param1;
                try
                {
-                  jsVar = ExternalInterface.call(jsReady);
+                  jsVar = Boolean(ExternalInterface.call(jsReady));
                }
                catch(e:Error)
                {
@@ -130,7 +132,7 @@ package net.play5d.kyo.utils
                return false;
             }
             s = _url.indexOf("//") + 2;
-            e = _url.indexOf("/",s);
+            e = int(_url.indexOf("/",s));
             e = e == -1 ? int.MAX_VALUE : int(e - s);
             _url = _url.substr(s,e);
          }
@@ -141,10 +143,15 @@ package net.play5d.kyo.utils
       {
          var loadint:int = 0;
          var loadTimes:int = 0;
+         var stage:Stage = null;
+         var checkVar:String = null;
+         var back:Function = null;
+         loadint = 0;
+         loadTimes = 0;
          var loadp:Function = null;
-         var stage:Stage = param1;
-         var checkVar:String = param2;
-         var back:Function = param3;
+         stage = param1;
+         checkVar = param2;
+         back = param3;
          var timeout:int = param4;
          loadp = function():void
          {
@@ -169,7 +176,7 @@ package net.play5d.kyo.utils
       public static function getLocalUrl(param1:Stage) : String
       {
          var _loc2_:String = param1.loaderInfo.url;
-         var _loc3_:int = _loc2_.lastIndexOf("/");
+         var _loc3_:int = int(_loc2_.lastIndexOf("/"));
          return _loc2_.substr(0,_loc3_ + 1);
       }
       
@@ -181,20 +188,20 @@ package net.play5d.kyo.utils
       
       public static function getUrlFloder(param1:String) : String
       {
-         var _loc2_:int = param1.lastIndexOf("/");
+         var _loc2_:int = int(param1.lastIndexOf("/"));
          return param1.substr(0,_loc2_ + 1);
       }
       
       public static function getLocalFloder(param1:String) : String
       {
-         var _loc2_:int = param1.lastIndexOf("\\");
+         var _loc2_:int = int(param1.lastIndexOf("\\"));
          return param1.substr(0,_loc2_ + 1);
       }
       
       public static function getFileName(param1:Stage) : String
       {
          var _loc2_:String = param1.loaderInfo.url;
-         var _loc3_:int = _loc2_.lastIndexOf("/");
+         var _loc3_:int = int(_loc2_.lastIndexOf("/"));
          return _loc2_.substr(_loc3_ + 1);
       }
       

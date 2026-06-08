@@ -1,27 +1,17 @@
 package net.play5d.game.bvn.fighter.ctrler
 {
-   import flash.display.DisplayObject;
-   import flash.display.MovieClip;
+   import flash.display.*;
    import flash.geom.Point;
    import flash.geom.Rectangle;
-   import net.play5d.game.bvn.Debugger;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.ctrl.EffectCtrl;
-   import net.play5d.game.bvn.ctrl.GameLogic;
-   import net.play5d.game.bvn.ctrl.game_ctrls.GameCtrl;
-   import net.play5d.game.bvn.data.HitType;
-   import net.play5d.game.bvn.fighter.FighterAction;
-   import net.play5d.game.bvn.fighter.FighterActionState;
-   import net.play5d.game.bvn.fighter.FighterAttacker;
-   import net.play5d.game.bvn.fighter.FighterMC;
-   import net.play5d.game.bvn.fighter.FighterMain;
-   import net.play5d.game.bvn.fighter.events.FighterEvent;
-   import net.play5d.game.bvn.fighter.events.FighterEventDispatcher;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.ctrl.game_ctrls.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.fighter.*;
+   import net.play5d.game.bvn.fighter.events.*;
    import net.play5d.game.bvn.fighter.models.HitVO;
-   import net.play5d.game.bvn.fighter.vos.MoveTargetParamVO;
-   import net.play5d.game.bvn.interfaces.BaseGameSprite;
-   import net.play5d.game.bvn.interfaces.IFighterActionCtrl;
-   import net.play5d.game.bvn.interfaces.IGameSprite;
+   import net.play5d.game.bvn.fighter.vos.*;
+   import net.play5d.game.bvn.interfaces.*;
    
    public class FighterMcCtrler
    {
@@ -77,473 +67,475 @@ package net.play5d.game.bvn.fighter.ctrler
       public function FighterMcCtrler(param1:FighterMain)
       {
          super();
-         _fighter = param1;
+         this._fighter = param1;
       }
       
       public function destory() : void
       {
-         if(_actionCtrler)
+         if(Boolean(this._actionCtrler))
          {
-            _actionCtrler.destory();
-            _actionCtrler = null;
+            this._actionCtrler.destory();
+            this._actionCtrler = null;
          }
-         if(_mc)
+         if(Boolean(this._mc))
          {
-            _mc.destory();
-            _mc = null;
+            this._mc.destory();
+            this._mc = null;
          }
-         _fighter = null;
-         _action = null;
-         _moveTargetParam = null;
-         effectCtrler = null;
+         this._fighter = null;
+         this._action = null;
+         this._moveTargetParam = null;
+         this.effectCtrler = null;
       }
       
       public function getAction() : FighterAction
       {
-         return _action;
+         return this._action;
       }
       
       public function getFighterMc() : FighterMC
       {
-         return _mc;
+         return this._mc;
       }
       
       public function getCurAction() : String
       {
-         if(_doingAirAction != null)
+         if(this._doingAirAction != null)
          {
-            return _doingAirAction;
+            return this._doingAirAction;
          }
-         return _doingAction;
+         return this._doingAction;
       }
       
       public function setActionCtrler(param1:IFighterActionCtrl) : void
       {
-         _actionCtrler = param1;
+         this._actionCtrler = param1;
       }
       
       public function setMc(param1:FighterMC) : void
       {
-         _mc = param1;
-         idle();
+         this._mc = param1;
+         this.idle();
       }
       
       public function setSteelBody(param1:Boolean, param2:Boolean = false) : void
       {
-         _fighter.isSteelBody = param1;
-         _fighter.isSuperSteelBody = param1 && param2;
+         this._fighter.isSteelBody = param1;
+         this._fighter.isSuperSteelBody = param1 && param2;
          if(param1)
          {
-            effectCtrler.startGlow(param2 ? 16776960 : 16777215);
+            this.effectCtrler.startGlow(param2 ? 16776960 : 16777215);
          }
          else
          {
-            effectCtrler.endGlow();
+            this.effectCtrler.endGlow();
          }
       }
       
       public function addQi(param1:Number) : void
       {
-         _fighter.addQi(param1);
+         this._fighter.addQi(param1);
       }
       
       public function idle(param1:String = "站立") : void
       {
          var _loc2_:Boolean = false;
-         if(FighterActionState.isHurting(_fighter.actionState))
+         if(FighterActionState.isHurting(this._fighter.actionState))
          {
-            _justHurtResume = true;
+            this._justHurtResume = true;
          }
-         endAct();
-         _doingAction = null;
-         _doingAirAction = null;
-         setSteelBody(false);
-         _justDefenseFrame = 0.1 * GameConfig.FPS_GAME;
-         effectCtrler.endShadow();
-         effectCtrler.endShake();
-         _action.clearAction();
-         _action.clearState();
-         _fighter.actionState = 0;
-         _fighter.isAllowBeHit = !_justHurtResume;
-         _fighter.isApplyG = true;
-         _fighter.isCross = false;
-         _fighter.hurtHit = null;
-         _fighter.defenseHit = null;
-         _fighter.clearHurtHits();
-         _fighter.getDisplay().visible = true;
-         _isDefense = false;
-         _autoDirectFrame = 0;
-         if(!_isTouchFloor)
+         this.endAct();
+         this._doingAction = null;
+         this._doingAirAction = null;
+         this.setSteelBody(false);
+         this._justDefenseFrame = 0.1 * GameConfig.FPS_GAME;
+         this.effectCtrler.endShadow();
+         this.effectCtrler.endShake();
+         this._action.clearAction();
+         this._action.clearState();
+         this._fighter.actionState = 0;
+         this._fighter.isAllowBeHit = !this._justHurtResume;
+         this._fighter.isApplyG = true;
+         this._fighter.isCross = false;
+         this._fighter.hurtHit = null;
+         this._fighter.defenseHit = null;
+         this._fighter.clearHurtHits();
+         this._fighter.getDisplay().visible = true;
+         this._isDefense = false;
+         this._autoDirectFrame = 0;
+         if(!this._isTouchFloor)
          {
-            fall();
+            this.fall();
          }
          else
          {
             _loc2_ = true;
-            _fighter.setVelocity(0,0);
+            this._fighter.setVelocity(0,0);
             if(param1 == "站立")
             {
                _loc2_ = false;
-               _action.jumpTimes = _fighter.jumpTimes;
-               _action.airHitTimes = _fighter.airHitTimes;
-               setAllAct();
+               this._action.jumpTimes = this._fighter.jumpTimes;
+               this._action.airHitTimes = this._fighter.airHitTimes;
+               this.setAllAct();
             }
-            _mc.goFrame(param1,_loc2_);
+            this._mc.goFrame(param1,_loc2_);
          }
       }
       
       public function loop(param1:String) : void
       {
-         _mc.goFrame(param1);
+         this._mc.goFrame(param1);
       }
       
       public function stop() : void
       {
-         _mc.stopRenderMainAnimate();
+         this._mc.stopRenderMainAnimate();
       }
       
       public function dash(param1:Number = 3) : void
       {
-         _action.isDashing = true;
-         _fighter.setVelocity(_fighter.speed * param1 * _fighter.direct,0);
-         _fighter.setDamping(0,0);
-         _fighter.isCross = true;
-         _fighter.isAllowBeHit = false;
+         this._action.isDashing = true;
+         this._fighter.setVelocity(this._fighter.speed * param1 * this._fighter.direct,0);
+         this._fighter.setDamping(0,0);
+         this._fighter.isCross = true;
+         this._fighter.isAllowBeHit = false;
       }
       
       public function dashStop(param1:Number = 0.5) : void
       {
-         var _loc2_:Number = _fighter.getVecX();
+         var _loc2_:Number = Number(this._fighter.getVecX());
          var _loc3_:Number = Math.abs(_loc2_) * param1;
-         _fighter.setDamping(_loc3_);
-         _fighter.isAllowBeHit = true;
-         _fighter.actionState = 0;
-         _action.clearAction();
-         _action.isDashing = false;
-         _fighter.isCross = false;
+         this._fighter.setDamping(_loc3_);
+         this._fighter.isAllowBeHit = true;
+         this._fighter.actionState = 0;
+         this._action.clearAction();
+         this._action.isDashing = false;
+         this._fighter.isCross = false;
       }
       
       public function setAllAct() : void
       {
-         setMove();
-         setDefense();
-         setJump();
-         setJumpDown();
-         setDash();
-         setAttack();
-         setSkill1();
-         setSkill2();
-         setZhao1();
-         setZhao2();
-         setZhao3();
-         setCatch1();
-         setCatch2();
-         setBisha();
-         setBishaUP();
-         setBishaSUPER();
-         setWankai();
+         this.setMove();
+         this.setDefense();
+         this.setJump();
+         this.setJumpDown();
+         this.setDash();
+         this.setAttack();
+         this.setSkill1();
+         this.setSkill2();
+         this.setZhao1();
+         this.setZhao2();
+         this.setZhao3();
+         this.setCatch1();
+         this.setCatch2();
+         this.setBisha();
+         this.setBishaUP();
+         this.setBishaSUPER();
+         this.setWankai();
       }
       
       public function setAirAllAct() : void
       {
-         setDash();
-         setAttackAIR();
-         setSkillAIR();
-         setBishaAIR();
-         setAirMove(true);
+         this.setDash();
+         this.setAttackAIR();
+         this.setSkillAIR();
+         this.setBishaAIR();
+         this.setAirMove(true);
       }
       
       public function setAirMove(param1:Boolean) : void
       {
-         _action.airMove = param1;
+         this._action.airMove = param1;
       }
       
       public function setMove() : void
       {
-         setMoveLeft();
-         setMoveRight();
+         this.setMoveLeft();
+         this.setMoveRight();
       }
       
       public function setMoveLeft() : void
       {
-         _action.moveLeft = "走";
+         this._action.moveLeft = "走";
       }
       
       public function setMoveRight() : void
       {
-         _action.moveRight = "走";
+         this._action.moveRight = "走";
       }
       
       public function setDefense() : void
       {
-         _action.defense = "防御";
+         this._action.defense = "防御";
       }
       
       public function setJump(param1:String = "跳") : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.jump = param1;
+         this._action.jump = param1;
       }
       
       public function setJumpQuick(param1:String = "跳") : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.jumpQuick = param1;
+         this._action.jumpQuick = param1;
       }
       
       public function setJumpDown(param1:String = "落") : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.jumpDown = param1;
+         this._action.jumpDown = param1;
       }
       
       public function setDash(param1:String = "瞬步") : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.dash = param1;
+         this._action.dash = param1;
       }
       
       public function setAttack(param1:String = "砍1") : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.attack = param1;
+         this._action.attack = param1;
       }
       
       public function setSkill1(param1:String = "砍技1") : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.skill1 = param1;
+         this._action.skill1 = param1;
       }
       
       public function setSkill2(param1:String = "砍技2") : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.skill2 = param1;
+         this._action.skill2 = param1;
       }
       
       public function setZhao1(param1:String = "招1") : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.zhao1 = param1;
+         this._action.zhao1 = param1;
       }
       
       public function setZhao2(param1:String = "招2") : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.zhao2 = param1;
+         this._action.zhao2 = param1;
       }
       
       public function setZhao3(param1:String = "招3") : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.zhao3 = param1;
+         this._action.zhao3 = param1;
       }
       
       public function setCatch1(param1:String = "摔1") : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.catch1 = param1;
+         this._action.catch1 = param1;
       }
       
       public function setCatch2(param1:String = "摔2") : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.catch2 = param1;
+         this._action.catch2 = param1;
       }
       
       public function setBisha(param1:String = "必杀", param2:int = 100) : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.bisha = param1;
-         _action.bishaQi = GameConfig.INFINITE_ENERGY ? 0 : param2;
+         this._action.bisha = param1;
+         this._action.bishaQi = GameConfig.INFINITE_ENERGY ? 0 : param2;
       }
       
       public function setBishaUP(param1:String = "上必杀", param2:int = 100) : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.bishaUP = param1;
-         _action.bishaUPQi = GameConfig.INFINITE_ENERGY ? 0 : param2;
+         this._action.bishaUP = param1;
+         this._action.bishaUPQi = GameConfig.INFINITE_ENERGY ? 0 : param2;
       }
       
       public function setBishaSUPER(param1:String = "超必杀", param2:int = 300) : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.bishaSUPER = param1;
-         _action.bishaSUPERQi = GameConfig.INFINITE_ENERGY ? 0 : param2;
+         this._action.bishaSUPER = param1;
+         this._action.bishaSUPERQi = GameConfig.INFINITE_ENERGY ? 0 : param2;
       }
       
       public function setAttackAIR(param1:String = "跳砍") : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.attackAIR = param1;
+         this._action.attackAIR = param1;
       }
       
       public function setSkillAIR(param1:String = "跳招") : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.skillAIR = param1;
+         this._action.skillAIR = param1;
       }
       
       public function setBishaAIR(param1:String = "空中必杀", param2:int = 100) : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.bishaAIR = param1;
-         _action.bishaAIRQi = GameConfig.INFINITE_ENERGY ? 0 : param2;
+         this._action.bishaAIR = param1;
+         this._action.bishaAIRQi = GameConfig.INFINITE_ENERGY ? 0 : param2;
       }
       
       public function setTouchFloor(param1:String = "落地", param2:Boolean = true) : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         _action.touchFloor = param1;
-         _action.touchFloorBreakAct = param2;
+         this._action.touchFloor = param1;
+         this._action.touchFloorBreakAct = param2;
       }
       
       public function setWankai() : void
       {
-         if(_mc.checkFrame("万解"))
+         if(this._mc.checkFrame("万解"))
          {
-            _action.waiKai = "万解";
+            this._action.waiKai = "万解";
          }
-         if(_mc.checkFrame("万解W"))
+         if(this._mc.checkFrame("万解W"))
          {
-            _action.waiKaiW = "万解W";
+            this._action.waiKaiW = "万解W";
          }
-         if(_mc.checkFrame("万解S"))
+         if(this._mc.checkFrame("万解S"))
          {
-            _action.waiKaiS = "万解S";
+            this._action.waiKaiS = "万解S";
          }
       }
       
       public function setHitTarget(param1:String, param2:String) : void
       {
-         _action.hitTarget = param2;
-         _action.hitTargetChecker = param1;
+         this._action.hitTarget = param2;
+         this._action.hitTargetChecker = param1;
       }
       
       public function setHurtAction(param1:String) : void
       {
-         _action.hurtAction = param1;
-         _fighter.actionState = 16;
+         this._action.hurtAction = param1;
+         this._fighter.actionState = 16;
       }
       
       public function move(param1:Number = 0, param2:Number = 0) : void
       {
          if(param1 == 0 && param2 == 0)
          {
-            stopMove();
+            this.stopMove();
             return;
          }
-         if(_fighter.isInAir && param1 != 0)
+         if(Boolean(this._fighter.isInAir) && param1 != 0)
          {
-            _action.airMove = false;
+            this._action.airMove = false;
          }
-         param1 *= _fighter.direct;
-         _fighter.setVelocity(param1,param2);
+         param1 *= this._fighter.direct;
+         this._fighter.setVelocity(param1,param2);
       }
       
       public function movePercent(param1:Number = 0, param2:Number = 0) : void
       {
-         move(_fighter.speed * param1,_fighter.speed * param2);
+         this.move(this._fighter.speed * param1,this._fighter.speed * param2);
       }
       
       public function stopMove() : void
       {
-         _fighter.setVelocity(0,0);
+         this._fighter.setVelocity(0,0);
       }
       
       public function damping(param1:Number = 0, param2:Number = 0) : void
       {
-         _fighter.setDamping(param1,param2);
+         this._fighter.setDamping(param1,param2);
       }
       
       public function dampingPercent(param1:Number = 0, param2:Number = 0) : void
       {
-         _fighter.setDamping(_fighter.speed * param1,_fighter.speed * param2);
+         this._fighter.setDamping(this._fighter.speed * param1,this._fighter.speed * param2);
       }
       
       public function endAct() : void
       {
-         _action.clearAction();
-         _fighter.actionState = 40;
-         _moveTargetParam = null;
-         setSteelBody(false);
+         this._action.clearAction();
+         this._fighter.actionState = 40;
+         this._moveTargetParam = null;
+         this.setSteelBody(false);
       }
       
       public function fire(param1:String, param2:Object = null) : void
       {
-         var mcName:String = param1;
-         var params:Object = param2;
-         var mc:MovieClip = _mc.getChildByName(mcName) as MovieClip;
-         if(mc)
+         var mcName:String = null;
+         var params:Object = null;
+         mcName = param1;
+         params = param2;
+         var mc:MovieClip = this._mc.getChildByName(mcName) as MovieClip;
+         if(Boolean(mc))
          {
             if(!params)
             {
                params = {};
             }
             params.mc = mc;
-            params.hitVO = _fighter.getCtrler().hitModel.getHitVOByDisplayName(mcName);
-            FighterEventDispatcher.dispatchEvent(_fighter,"FIRE_BULLET",params);
+            params.hitVO = this._fighter.getCtrler().hitModel.getHitVOByDisplayName(mcName);
+            FighterEventDispatcher.dispatchEvent(this._fighter,"FIRE_BULLET",params);
          }
          else
          {
-            _fighter.setAnimateFrameOut(function():void
+            this._fighter.setAnimateFrameOut(function():void
             {
                fire(mcName,params);
             },1);
@@ -552,22 +544,24 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function addAttacker(param1:String, param2:Object = null) : void
       {
-         var mcName:String = param1;
-         var params:Object = param2;
-         var mc:MovieClip = _mc.getChildByName(mcName) as MovieClip;
-         if(mc)
+         var mcName:String = null;
+         var params:Object = null;
+         mcName = param1;
+         params = param2;
+         var mc:MovieClip = this._mc.getChildByName(mcName) as MovieClip;
+         if(Boolean(mc))
          {
             if(!params)
             {
                params = {};
             }
             params.mc = mc;
-            params.hitVO = _fighter.getCtrler().hitModel.getHitVOByDisplayName(mcName);
-            FighterEventDispatcher.dispatchEvent(_fighter,"ADD_ATTACKER",params);
+            params.hitVO = this._fighter.getCtrler().hitModel.getHitVOByDisplayName(mcName);
+            FighterEventDispatcher.dispatchEvent(this._fighter,"ADD_ATTACKER",params);
          }
          else
          {
-            _fighter.setAnimateFrameOut(function():void
+            this._fighter.setAnimateFrameOut(function():void
             {
                addAttacker(mcName,params);
             },1);
@@ -576,55 +570,55 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function isApplyG(param1:Boolean) : void
       {
-         _fighter.isApplyG = param1;
+         this._fighter.isApplyG = param1;
       }
       
       public function gotoAndPlay(param1:String) : void
       {
-         _mc.goFrame(param1,true);
+         this._mc.goFrame(param1,true);
       }
       
       public function gotoAndStop(param1:String) : void
       {
-         _mc.goFrame(param1,false);
+         this._mc.goFrame(param1,false);
       }
       
       public function hurtFly(param1:Number, param2:Number) : void
       {
-         _mc.playHurtFly(param1 * _fighter.direct,param2,false);
-         _action.isHurtFlying = true;
-         _fighter.actionState = 22;
-         _hurtDownFrame = 0;
-         _isFalling = false;
+         this._mc.playHurtFly(param1 * this._fighter.direct,param2,false);
+         this._action.isHurtFlying = true;
+         this._fighter.actionState = 22;
+         this._hurtDownFrame = 0;
+         this._isFalling = false;
       }
       
       public function moveMC(param1:DisplayObject, param2:Object = null, param3:Object = null) : void
       {
-         var _loc4_:IGameSprite = _fighter.getCurrentTarget();
-         if(param2)
+         var _loc4_:IGameSprite = this._fighter.getCurrentTarget();
+         if(Boolean(param2))
          {
             if(param2 is Number)
             {
-               param1.x = _fighter.x + param2;
+               param1.x = this._fighter.x + param2;
             }
-            else if(param2.target != undefined && _loc4_)
+            else if(param2.target != undefined && Boolean(_loc4_))
             {
-               param1.x = _loc4_.x - _fighter.x;
+               param1.x = _loc4_.x - this._fighter.x;
                if(isNaN(Number(param2.target)))
                {
                   param1.x += Number(param2.target);
                }
             }
          }
-         if(param3)
+         if(Boolean(param3))
          {
             if(param3 is Number)
             {
-               param1.y = _fighter.y + param3;
+               param1.y = this._fighter.y + param3;
             }
-            else if(param3.target != undefined && _loc4_)
+            else if(param3.target != undefined && Boolean(_loc4_))
             {
-               param1.y = _loc4_.y - _fighter.y + Number(param3);
+               param1.y = _loc4_.y - this._fighter.y + Number(param3);
                if(isNaN(Number(param3.target)))
                {
                   param1.y += Number(param3.target);
@@ -635,25 +629,20 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function justHitToPlay(param1:String, param2:String, param3:Boolean = false, param4:Boolean = false) : void
       {
-         if(_fighter.getCtrler().justHit(param1,param4))
+         if(this._fighter.getCtrler().justHit(param1,param4))
          {
-            _mc.goFrame(param2);
+            this._mc.goFrame(param2);
          }
          else if(param3)
          {
-            idle();
+            this.idle();
          }
       }
       
       public function getAttacker(param1:String) : FighterAttackerCtrler
       {
-         if(!_fighter || !_fighter.team)
-         {
-            Debugger.log("[FighterMcCtrler.getAttacker] _fighter 或 team 为空，无法获取攻击者");
-            return null;
-         }
-         var _loc2_:FighterAttacker = GameCtrl.I.getAttacker(param1,_fighter.team.id);
-         if(_loc2_)
+         var _loc2_:FighterAttacker = GameCtrl.I.getAttacker(param1,this._fighter.team.id);
+         if(Boolean(_loc2_))
          {
             return _loc2_.getCtrler();
          }
@@ -664,88 +653,88 @@ package net.play5d.game.bvn.fighter.ctrler
       {
          if(!param1)
          {
-            _moveTargetParam.clear();
-            _moveTargetParam = null;
+            this._moveTargetParam.clear();
+            this._moveTargetParam = null;
             return;
          }
-         _moveTargetParam = new MoveTargetParamVO(param1);
-         _moveTargetParam.setTarget(_fighter.getCurrentTarget());
+         this._moveTargetParam = new MoveTargetParamVO(param1);
+         this._moveTargetParam.setTarget(this._fighter.getCurrentTarget());
       }
       
       public function render() : void
       {
-         if(_ghostStepIng)
+         if(this._ghostStepIng)
          {
             return;
          }
-         if(_justDefenseFrame > 0)
+         if(this._justDefenseFrame > 0)
          {
-            _justDefenseFrame -= 1;
+            --this._justDefenseFrame;
          }
-         _action.render();
-         if(_moveTargetParam)
+         this._action.render();
+         if(Boolean(this._moveTargetParam))
          {
-            renderMoveTarget();
+            this.renderMoveTarget();
          }
-         if(_actionCtrler)
+         if(Boolean(this._actionCtrler))
          {
-            _actionCtrler.render();
+            this._actionCtrler.render();
          }
-         if(_action.isHurtFlying)
+         if(this._action.isHurtFlying)
          {
-            renderHurtFlying();
+            this.renderHurtFlying();
             return;
          }
-         if(_action.isHurting)
+         if(this._action.isHurting)
          {
-            renderHurt();
+            this.renderHurt();
             return;
          }
-         if(_action.isDefenseHiting)
+         if(this._action.isDefenseHiting)
          {
-            renderDefense(false,true);
+            this.renderDefense(false,true);
             return;
          }
-         if(_action.hitTarget)
+         if(Boolean(this._action.hitTarget))
          {
-            renderCheckTargetHit();
+            this.renderCheckTargetHit();
          }
-         if(renderWanKaiCtrl())
+         if(this.renderWanKaiCtrl())
          {
             return;
          }
-         if(_fighter && _fighter.isInAir || _doingAirAction && !_action.touchFloorBreakAct)
+         if(Boolean(this._fighter) && Boolean(this._fighter.isInAir) || Boolean(this._doingAirAction) && Boolean(!this._action.touchFloorBreakAct))
          {
-            renderAirAction();
+            this.renderAirAction();
          }
          else
          {
-            renderFloorAction();
+            this.renderFloorAction();
          }
       }
       
       private function renderHurtFlying() : void
       {
-         if(!_fighter.isInAir)
+         if(!this._fighter.isInAir)
          {
-            _isTouchFloor = true;
+            this._isTouchFloor = true;
          }
-         if(!_fighter.isAlive)
+         if(!this._fighter.isAlive)
          {
             return;
          }
-         if(_fighter.actionState == 24)
+         if(this._fighter.actionState == 24)
          {
-            _hurtDownFrame = 1;
+            this._hurtDownFrame = 1;
          }
-         if(_hurtDownFrame > 0)
+         if(this._hurtDownFrame > 0)
          {
-            if(++_hurtDownFrame < 20)
+            if(++this._hurtDownFrame < 20)
             {
-               if(_actionCtrler.dashJump())
+               if(this._actionCtrler.dashJump())
                {
-                  doHurtDownJump();
-                  _hurtDownFrame = 0;
+                  this.doHurtDownJump();
+                  this._hurtDownFrame = 0;
                }
             }
          }
@@ -753,172 +742,172 @@ package net.play5d.game.bvn.fighter.ctrler
       
       private function renderAssist() : void
       {
-         if(_fighter.actionState != 0 && _fighter.actionState != 20)
+         if(this._fighter.actionState != 0 && this._fighter.actionState != 20)
          {
             return;
          }
-         if(_actionCtrler.assist())
+         if(this._actionCtrler.assist())
          {
-            if(_fighter.fzqi >= 100)
+            if(this._fighter.fzqi >= 100)
             {
-               _fighter.fzqi = 0;
-               FighterEventDispatcher.dispatchEvent(_fighter,"ADD_ASSISTER");
+               this._fighter.fzqi = 0;
+               FighterEventDispatcher.dispatchEvent(this._fighter,"ADD_ASSISTER");
             }
          }
       }
       
       private function renderFloorAction() : void
       {
-         if(!_isTouchFloor)
+         if(!this._isTouchFloor)
          {
-            touchFloor();
+            this.touchFloor();
          }
-         if(_actionCtrler == null || !_actionCtrler.enabled())
+         if(this._actionCtrler == null || !this._actionCtrler.enabled())
          {
-            if(_mc.currentFrameName == "走" || _mc.currentFrameName == "防御")
+            if(this._mc.currentFrameName == "走" || this._mc.currentFrameName == "防御")
             {
-               idle();
+               this.idle();
             }
             return;
          }
-         renderAssist();
-         if(_action.catch1 && _actionCtrler.catch1())
+         this.renderAssist();
+         if(Boolean(this._action.catch1) && Boolean(this._actionCtrler.catch1()))
          {
-            doCatch(_action.catch1);
+            this.doCatch(this._action.catch1);
          }
-         if(_action.catch2 && _actionCtrler.catch2())
+         if(Boolean(this._action.catch2) && Boolean(this._actionCtrler.catch2()))
          {
-            doCatch(_action.catch2);
+            this.doCatch(this._action.catch2);
          }
-         if(_action.bishaSUPER && _actionCtrler.bishaSUPER())
+         if(Boolean(this._action.bishaSUPER) && Boolean(this._actionCtrler.bishaSUPER()))
          {
-            doBisha(_action.bishaSUPER,_action.bishaSUPERQi,true);
+            this.doBisha(this._action.bishaSUPER,this._action.bishaSUPERQi,true);
          }
-         if(_action.bishaUP && _actionCtrler.bishaUP())
+         if(Boolean(this._action.bishaUP) && Boolean(this._actionCtrler.bishaUP()))
          {
-            doBisha(_action.bishaUP,_action.bishaUPQi);
+            this.doBisha(this._action.bishaUP,this._action.bishaUPQi);
          }
-         if(_action.bisha && _actionCtrler.bisha())
+         if(Boolean(this._action.bisha) && Boolean(this._actionCtrler.bisha()))
          {
-            doBisha(_action.bisha,_action.bishaQi);
+            this.doBisha(this._action.bisha,this._action.bishaQi);
          }
-         if(_action.skill2 && _actionCtrler.skill2())
+         if(Boolean(this._action.skill2) && Boolean(this._actionCtrler.skill2()))
          {
-            doSkill(_action.skill2);
+            this.doSkill(this._action.skill2);
          }
-         if(_action.skill1 && _actionCtrler.skill1())
+         if(Boolean(this._action.skill1) && Boolean(this._actionCtrler.skill1()))
          {
-            doSkill(_action.skill1);
+            this.doSkill(this._action.skill1);
          }
-         if(_action.zhao3 && _actionCtrler.zhao3())
+         if(Boolean(this._action.zhao3) && Boolean(this._actionCtrler.zhao3()))
          {
-            doSkill(_action.zhao3);
+            this.doSkill(this._action.zhao3);
          }
-         if(_action.zhao2 && _actionCtrler.zhao2())
+         if(Boolean(this._action.zhao2) && Boolean(this._actionCtrler.zhao2()))
          {
-            doSkill(_action.zhao2);
+            this.doSkill(this._action.zhao2);
          }
-         if(_action.attack && _actionCtrler.attack())
+         if(Boolean(this._action.attack) && Boolean(this._actionCtrler.attack()))
          {
-            doAttack(_action.attack);
+            this.doAttack(this._action.attack);
          }
-         if(_action.zhao1 && _actionCtrler.zhao1())
+         if(Boolean(this._action.zhao1) && Boolean(this._actionCtrler.zhao1()))
          {
-            doSkill(_action.zhao1);
+            this.doSkill(this._action.zhao1);
          }
-         if(_action.defense && _actionCtrler.defense())
+         if(Boolean(this._action.defense) && Boolean(this._actionCtrler.defense()))
          {
-            doDefense();
+            this.doDefense();
          }
-         if(_action.dash && _actionCtrler.dash())
+         if(Boolean(this._action.dash) && Boolean(this._actionCtrler.dash()))
          {
-            doDash(_action.dash);
+            this.doDash(this._action.dash);
          }
-         if(_action.moveLeft && _actionCtrler.moveLEFT())
+         if(Boolean(this._action.moveLeft) && Boolean(this._actionCtrler.moveLEFT()))
          {
-            doMove(_action.moveLeft,-1);
+            this.doMove(this._action.moveLeft,-1);
          }
-         if(_action.moveRight && _actionCtrler.moveRIGHT())
+         if(Boolean(this._action.moveRight) && Boolean(this._actionCtrler.moveRIGHT()))
          {
-            doMove(_action.moveRight,1);
+            this.doMove(this._action.moveRight,1);
          }
-         if(_action.jump && _actionCtrler.jump())
+         if(Boolean(this._action.jump) && Boolean(this._actionCtrler.jump()))
          {
-            doJump(_action.jump);
+            this.doJump(this._action.jump);
          }
-         if(_action.jumpDown && _actionCtrler.jumpDown())
+         if(Boolean(this._action.jumpDown) && Boolean(this._actionCtrler.jumpDown()))
          {
-            doJumpDown(_action.jumpDown);
+            this.doJumpDown(this._action.jumpDown);
          }
-         if(_action.isMoving)
+         if(this._action.isMoving)
          {
-            renderMoving();
+            this.renderMoving();
          }
-         if(_action.isDefensing)
+         if(this._action.isDefensing)
          {
-            renderDefense();
+            this.renderDefense();
          }
-         if(FighterActionState.allowGhostStep(_fighter.actionState))
+         if(FighterActionState.allowGhostStep(this._fighter.actionState))
          {
-            if(_actionCtrler.ghostStep())
+            if(this._actionCtrler.ghostStep())
             {
-               doGhostStep();
+               this.doGhostStep();
             }
-            if(_actionCtrler.ghostJump())
+            if(this._actionCtrler.ghostJump())
             {
-               doGhostJump();
+               this.doGhostJump();
             }
          }
-         if(FighterActionState.isAttacking(_fighter.actionState))
+         if(FighterActionState.isAttacking(this._fighter.actionState))
          {
-            if(_action.attackAIR && _actionCtrler.attackAIR())
+            if(Boolean(this._action.attackAIR) && Boolean(this._actionCtrler.attackAIR()))
             {
-               doAirAttack(_action.attackAIR);
+               this.doAirAttack(this._action.attackAIR);
             }
-            if(_action.skillAIR && _actionCtrler.skillAIR())
+            if(Boolean(this._action.skillAIR) && Boolean(this._actionCtrler.skillAIR()))
             {
-               doAirSkill(_action.skillAIR);
+               this.doAirSkill(this._action.skillAIR);
             }
-            if(_action.bishaAIR && _actionCtrler.bishaAIR())
+            if(Boolean(this._action.bishaAIR) && Boolean(this._actionCtrler.bishaAIR()))
             {
-               doAirBisha(_action.bishaAIR,_action.bishaAIRQi);
+               this.doAirBisha(this._action.bishaAIR,this._action.bishaAIRQi);
             }
          }
       }
       
       private function renderWanKaiCtrl() : Boolean
       {
-         if(!_actionCtrler || !_actionCtrler.enabled())
+         if(!this._actionCtrler || !this._actionCtrler.enabled())
          {
             return false;
          }
-         if(_actionCtrler.waiKai())
+         if(this._actionCtrler.waiKai())
          {
-            return checkDoWankai(_action.waiKai,"万解");
+            return this.checkDoWankai(this._action.waiKai,"万解");
          }
-         if(_actionCtrler.waiKaiW())
+         if(this._actionCtrler.waiKaiW())
          {
-            return checkDoWankai(_action.waiKaiW,"万解W");
+            return this.checkDoWankai(this._action.waiKaiW,"万解W");
          }
-         if(_actionCtrler.waiKaiS())
+         if(this._actionCtrler.waiKaiS())
          {
-            return checkDoWankai(_action.waiKaiS,"万解S");
+            return this.checkDoWankai(this._action.waiKaiS,"万解S");
          }
          return false;
       }
       
       private function checkDoWankai(param1:String, param2:String) : Boolean
       {
-         if(param1)
+         if(Boolean(param1))
          {
-            doWaiKaiAction(param1);
+            this.doWaiKaiAction(param1);
             return true;
          }
-         if(_doingAction == "砍1")
+         if(this._doingAction == "砍1")
          {
-            if(_doActionFrame < 2)
+            if(this._doActionFrame < 2)
             {
-               doWaiKaiAction(param2);
+               this.doWaiKaiAction(param2);
                return true;
             }
          }
@@ -927,279 +916,279 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function renderAnimate() : void
       {
-         if(_justHurtResume)
+         if(this._justHurtResume)
          {
-            _fighter.isAllowBeHit = true;
-            _justHurtResume = false;
+            this._fighter.isAllowBeHit = true;
+            this._justHurtResume = false;
          }
-         renderBeHitGap();
-         if(_mc)
+         this.renderBeHitGap();
+         if(Boolean(this._mc))
          {
-            _mc.renderAnimate();
+            this._mc.renderAnimate();
          }
-         if(_actionCtrler)
+         if(Boolean(this._actionCtrler))
          {
-            _actionCtrler.renderAnimate();
+            this._actionCtrler.renderAnimate();
          }
-         if(_ghostStepIng)
+         if(this._ghostStepIng)
          {
-            renderGhostStep();
+            this.renderGhostStep();
             return;
          }
-         if(_action)
+         if(Boolean(this._action))
          {
-            if(_action.isHurting)
+            if(this._action.isHurting)
             {
-               renderHurtAnimate();
+               this.renderHurtAnimate();
             }
-            if(_action.isDefenseHiting)
+            if(this._action.isDefenseHiting)
             {
-               renderDefensHiting();
+               this.renderDefensHiting();
             }
-            if(_action.isJumping)
+            if(this._action.isJumping)
             {
-               renderJumpAnimate();
+               this.renderJumpAnimate();
             }
-            if(_doingAction)
+            if(Boolean(this._doingAction))
             {
-               _doActionFrame += 1;
+               ++this._doActionFrame;
             }
-            if(_action.isDefensing)
+            if(this._action.isDefensing)
             {
-               renderDefenseAnimate();
+               this.renderDefenseAnimate();
             }
          }
-         if(_mc && _mc.currentFrameName == "站立")
+         if(Boolean(this._mc) && this._mc.currentFrameName == "站立")
          {
-            if(++_autoDirectFrame > 5)
+            if(++this._autoDirectFrame > 5)
             {
-               _fighter.getCtrler().setDirectToTarget();
-               _autoDirectFrame = 0;
+               this._fighter.getCtrler().setDirectToTarget();
+               this._autoDirectFrame = 0;
             }
          }
       }
       
       private function renderAirAction() : void
       {
-         if(!_action.isJumping)
+         if(!this._action.isJumping)
          {
-            fall();
+            this.fall();
          }
-         _isTouchFloor = false;
-         if(_actionCtrler == null || !_actionCtrler.enabled())
+         this._isTouchFloor = false;
+         if(this._actionCtrler == null || !this._actionCtrler.enabled())
          {
             return;
          }
-         if(_action.attackAIR && _actionCtrler.attackAIR())
+         if(Boolean(this._action.attackAIR) && Boolean(this._actionCtrler.attackAIR()))
          {
-            doAirAttack(_action.attackAIR);
+            this.doAirAttack(this._action.attackAIR);
          }
-         if(_action.skillAIR && _actionCtrler.skillAIR())
+         if(Boolean(this._action.skillAIR) && Boolean(this._actionCtrler.skillAIR()))
          {
-            doAirSkill(_action.skillAIR);
+            this.doAirSkill(this._action.skillAIR);
          }
-         if(_action.bishaAIR && _actionCtrler.bishaAIR())
+         if(Boolean(this._action.bishaAIR) && Boolean(this._actionCtrler.bishaAIR()))
          {
-            doAirBisha(_action.bishaAIR,_action.bishaAIRQi);
+            this.doAirBisha(this._action.bishaAIR,this._action.bishaAIRQi);
          }
-         if(_action.jump && _actionCtrler.jump())
+         if(Boolean(this._action.jump) && Boolean(this._actionCtrler.jump()))
          {
-            doAirJump(_action.jump);
+            this.doAirJump(this._action.jump);
          }
-         if(_action.jumpQuick && _actionCtrler.jumpQuick())
+         if(Boolean(this._action.jumpQuick) && Boolean(this._actionCtrler.jumpQuick()))
          {
-            doAirJump(_action.jumpQuick);
+            this.doAirJump(this._action.jumpQuick);
          }
-         if(FighterActionState.isAttacking(_fighter.actionState))
+         if(FighterActionState.isAttacking(this._fighter.actionState))
          {
-            if(_action.bishaSUPER && _actionCtrler.bishaSUPER())
+            if(Boolean(this._action.bishaSUPER) && Boolean(this._actionCtrler.bishaSUPER()))
             {
-               doBisha(_action.bishaSUPER,_action.bishaSUPERQi,true);
+               this.doBisha(this._action.bishaSUPER,this._action.bishaSUPERQi,true);
             }
-            if(_action.bishaUP && _actionCtrler.bishaUP())
+            if(Boolean(this._action.bishaUP) && Boolean(this._actionCtrler.bishaUP()))
             {
-               doBisha(_action.bishaUP,_action.bishaUPQi);
+               this.doBisha(this._action.bishaUP,this._action.bishaUPQi);
             }
-            if(_action.bisha && _actionCtrler.bisha())
+            if(Boolean(this._action.bisha) && Boolean(this._actionCtrler.bisha()))
             {
-               doBisha(_action.bisha,_action.bishaQi);
+               this.doBisha(this._action.bisha,this._action.bishaQi);
             }
-            if(_action.skill2 && _actionCtrler.skill2())
+            if(Boolean(this._action.skill2) && Boolean(this._actionCtrler.skill2()))
             {
-               doSkill(_action.skill2);
+               this.doSkill(this._action.skill2);
             }
-            if(_action.skill1 && _actionCtrler.skill1())
+            if(Boolean(this._action.skill1) && Boolean(this._actionCtrler.skill1()))
             {
-               doSkill(_action.skill1);
+               this.doSkill(this._action.skill1);
             }
-            if(_action.zhao3 && _actionCtrler.zhao3())
+            if(Boolean(this._action.zhao3) && Boolean(this._actionCtrler.zhao3()))
             {
-               doSkill(_action.zhao3);
+               this.doSkill(this._action.zhao3);
             }
-            if(_action.zhao2 && _actionCtrler.zhao2())
+            if(Boolean(this._action.zhao2) && Boolean(this._actionCtrler.zhao2()))
             {
-               doSkill(_action.zhao2);
+               this.doSkill(this._action.zhao2);
             }
-            if(_action.attack && _actionCtrler.attack())
+            if(Boolean(this._action.attack) && Boolean(this._actionCtrler.attack()))
             {
-               doAttack(_action.attack);
+               this.doAttack(this._action.attack);
             }
-            if(_action.zhao1 && _actionCtrler.zhao1())
+            if(Boolean(this._action.zhao1) && Boolean(this._actionCtrler.zhao1()))
             {
-               doSkill(_action.zhao1);
+               this.doSkill(this._action.zhao1);
             }
          }
-         if(_action.dash && _actionCtrler.dash())
+         if(Boolean(this._action.dash) && Boolean(this._actionCtrler.dash()))
          {
-            doDashAir(_action.dash);
+            this.doDashAir(this._action.dash);
          }
-         if(_action.airMove)
+         if(this._action.airMove)
          {
-            doAirMove();
+            this.doAirMove();
          }
-         if(_actionCtrler.ghostJump())
+         if(this._actionCtrler.ghostJump())
          {
-            doGhostJump();
+            this.doGhostJump();
          }
-         if(_actionCtrler.ghostJumpDown())
+         if(this._actionCtrler.ghostJumpDown())
          {
-            doGhostJumpDown();
+            this.doGhostJumpDown();
          }
       }
       
       private function renderMoveTarget() : void
       {
-         var _loc3_:Number = Number(NaN);
-         var _loc1_:Number = Number(NaN);
-         var _loc2_:DisplayObject = null;
-         var _loc4_:IGameSprite = _moveTargetParam.target;
+         var _loc1_:Number = NaN;
+         var _loc2_:Number = NaN;
+         var _loc3_:DisplayObject = null;
+         var _loc4_:IGameSprite = this._moveTargetParam.target;
          if(!_loc4_)
          {
             return;
          }
-         if(_moveTargetParam.followMcName)
+         if(Boolean(this._moveTargetParam.followMcName))
          {
-            _loc2_ = _mc.getChildByName(_moveTargetParam.followMcName);
-            if(!_loc2_)
+            _loc3_ = this._mc.getChildByName(this._moveTargetParam.followMcName);
+            if(!_loc3_)
             {
                return;
             }
-            _loc3_ = _fighter.x + _loc2_.x * _fighter.direct;
-            _loc1_ = _fighter.y + _loc2_.y;
+            _loc1_ = this._fighter.x + _loc3_.x * this._fighter.direct;
+            _loc2_ = this._fighter.y + _loc3_.y;
          }
          else
          {
-            if(!isNaN(_moveTargetParam.x))
+            if(!isNaN(this._moveTargetParam.x))
             {
-               _loc3_ = _moveTargetParam.x;
+               _loc1_ = Number(this._moveTargetParam.x);
             }
-            if(!isNaN(_moveTargetParam.y))
+            if(!isNaN(this._moveTargetParam.y))
             {
-               _loc1_ = _moveTargetParam.y;
+               _loc2_ = Number(this._moveTargetParam.y);
             }
          }
-         if(_moveTargetParam.speed)
+         if(Boolean(this._moveTargetParam.speed))
          {
-            if(_moveTargetParam.speed.x > 0 && !isNaN(_loc3_))
+            if(this._moveTargetParam.speed.x > 0 && !isNaN(_loc1_))
             {
-               if(_loc4_.x > _loc3_ + _moveTargetParam.speed.x)
+               if(_loc4_.x > _loc1_ + this._moveTargetParam.speed.x)
                {
-                  _loc4_.x -= _moveTargetParam.speed.x;
+                  _loc4_.x -= this._moveTargetParam.speed.x;
                }
-               if(_loc4_.x < _loc3_ - _moveTargetParam.speed.x)
+               if(_loc4_.x < _loc1_ - this._moveTargetParam.speed.x)
                {
-                  _loc4_.x += _moveTargetParam.speed.x;
+                  _loc4_.x += this._moveTargetParam.speed.x;
                }
-               if(_loc4_.y > _loc1_ + _moveTargetParam.speed.y)
+               if(_loc4_.y > _loc2_ + this._moveTargetParam.speed.y)
                {
                   if(_loc4_ is BaseGameSprite)
                   {
-                     (_loc4_ as BaseGameSprite).setVecY(-_moveTargetParam.speed.y);
+                     (_loc4_ as BaseGameSprite).setVecY(-this._moveTargetParam.speed.y);
                      (_loc4_ as BaseGameSprite).setDampingY(1);
                   }
                   else
                   {
-                     _loc4_.y -= _moveTargetParam.speed.y;
+                     _loc4_.y -= this._moveTargetParam.speed.y;
                   }
                }
-               if(_loc4_.y < _loc1_ - _moveTargetParam.speed.y)
+               if(_loc4_.y < _loc2_ - this._moveTargetParam.speed.y)
                {
                   if(_loc4_ is BaseGameSprite)
                   {
-                     (_loc4_ as BaseGameSprite).setVecY(_moveTargetParam.speed.y);
+                     (_loc4_ as BaseGameSprite).setVecY(this._moveTargetParam.speed.y);
                      (_loc4_ as BaseGameSprite).setDampingY(1);
                   }
                   else
                   {
-                     _loc4_.y += _moveTargetParam.speed.y;
+                     _loc4_.y += this._moveTargetParam.speed.y;
                   }
                }
             }
          }
          else
          {
-            if(!isNaN(_loc3_))
-            {
-               _loc4_.x = _loc3_;
-            }
             if(!isNaN(_loc1_))
             {
-               _loc4_.y = _loc1_;
+               _loc4_.x = _loc1_;
+            }
+            if(!isNaN(_loc2_))
+            {
+               _loc4_.y = _loc2_;
             }
          }
       }
       
       private function fall() : void
       {
-         if(_isFalling)
+         if(this._isFalling)
          {
             return;
          }
-         if(_doingAction)
+         if(Boolean(this._doingAction))
          {
             return;
          }
-         _action.clearState();
-         _action.clearAction();
-         setAirAllAct();
-         setJump();
-         _isFalling = true;
-         _doingAirAction = null;
-         _isTouchFloor = false;
-         _isDefense = false;
-         _fighter.setVecX(0);
-         setTouchFloor("落地",true);
-         _mc.goFrame("落",false);
+         this._action.clearState();
+         this._action.clearAction();
+         this.setAirAllAct();
+         this.setJump();
+         this._isFalling = true;
+         this._doingAirAction = null;
+         this._isTouchFloor = false;
+         this._isDefense = false;
+         this._fighter.setVecX(0);
+         this.setTouchFloor("落地",true);
+         this._mc.goFrame("落",false);
       }
       
       public function touchFloor() : void
       {
-         if(!_fighter.isAlive)
+         if(!this._fighter.isAlive)
          {
             return;
          }
-         var _loc2_:String = _action.touchFloor;
-         if(_isFalling)
+         var _loc1_:String = this._action.touchFloor;
+         if(this._isFalling)
          {
-            if(!_loc2_)
+            if(!_loc1_)
             {
-               _loc2_ = "落地";
+               _loc1_ = "落地";
             }
          }
-         if(_loc2_ == null)
+         if(_loc1_ == null)
          {
             return;
          }
-         var _loc1_:Object = _loc2_ == "落地" ? {
-            "call":setAttack,
+         var _loc2_:Object = _loc1_ == "落地" ? {
+            "call":this.setAttack,
             "delay":1
          } : null;
-         doAction(_loc2_,false,_loc1_);
-         effectCtrler.touchFloor();
-         _action.airHitTimes = _fighter.airHitTimes;
-         _action.jumpTimes = _fighter.jumpTimes;
-         _isTouchFloor = true;
-         _isFalling = false;
+         this.doAction(_loc1_,false,_loc2_);
+         this.effectCtrler.touchFloor();
+         this._action.airHitTimes = this._fighter.airHitTimes;
+         this._action.jumpTimes = this._fighter.jumpTimes;
+         this._isTouchFloor = true;
+         this._isFalling = false;
       }
       
       private function doAction(param1:String, param2:Boolean = false, param3:Object = null) : void
@@ -1208,130 +1197,130 @@ package net.play5d.game.bvn.fighter.ctrler
          {
             return;
          }
-         effectCtrler.endShadow();
-         effectCtrler.endShake();
-         _fighter.setVelocity(0,0);
-         _action.isMoving = false;
-         _action.isDefensing = false;
-         _action.isDashing = false;
-         _doingAction = param1;
-         _doingAirAction = param2 ? param1 : null;
-         _action.clearAction();
-         _isFalling = false;
-         _isDefense = false;
-         _fighter.isAllowBeHit = true;
-         _fighter.isCross = false;
-         _fighter.isApplyG = true;
-         _doActionFrame = 0;
-         _mc.goFrame(param1,true,0,param3);
-         _fighter.dispatchEvent(new FighterEvent("DO_ACTION"));
+         this.effectCtrler.endShadow();
+         this.effectCtrler.endShake();
+         this._fighter.setVelocity(0,0);
+         this._action.isMoving = false;
+         this._action.isDefensing = false;
+         this._action.isDashing = false;
+         this._doingAction = param1;
+         this._doingAirAction = param2 ? param1 : null;
+         this._action.clearAction();
+         this._isFalling = false;
+         this._isDefense = false;
+         this._fighter.isAllowBeHit = true;
+         this._fighter.isCross = false;
+         this._fighter.isApplyG = true;
+         this._doActionFrame = 0;
+         this._mc.goFrame(param1,true,0,param3);
+         this._fighter.dispatchEvent(new FighterEvent("DO_ACTION"));
       }
       
       private function setMoveAction() : void
       {
-         _action.clearAction();
-         _action.isMoving = true;
-         setMove();
-         setAttack();
-         setZhao1();
-         setZhao3();
-         setSkill2();
-         setJump();
-         setDash();
-         setBisha();
-         setBishaUP();
-         setDefense();
-         setCatch1();
-         setCatch2();
+         this._action.clearAction();
+         this._action.isMoving = true;
+         this.setMove();
+         this.setAttack();
+         this.setZhao1();
+         this.setZhao3();
+         this.setSkill2();
+         this.setJump();
+         this.setDash();
+         this.setBisha();
+         this.setBishaUP();
+         this.setDefense();
+         this.setCatch1();
+         this.setCatch2();
       }
       
       private function renderMoving() : void
       {
-         if(_actionCtrler.moveLEFT())
+         if(this._actionCtrler.moveLEFT())
          {
-            _fighter.direct = -1;
-            move(_fighter.speed);
+            this._fighter.direct = -1;
+            this.move(this._fighter.speed);
          }
-         else if(_actionCtrler.moveRIGHT())
+         else if(this._actionCtrler.moveRIGHT())
          {
-            _fighter.direct = 1;
-            move(_fighter.speed);
+            this._fighter.direct = 1;
+            this.move(this._fighter.speed);
          }
          else
          {
-            idle();
+            this.idle();
          }
       }
       
       private function doMove(param1:String, param2:int = 1) : void
       {
-         if(_action.isMoving)
+         if(this._action.isMoving)
          {
             return;
          }
-         _mc.goFrame(param1,true);
-         _fighter.actionState = 0;
-         setMoveAction();
+         this._mc.goFrame(param1,true);
+         this._fighter.actionState = 0;
+         this.setMoveAction();
       }
       
       private function doAirMove() : void
       {
-         if(_actionCtrler.moveLEFT())
+         if(this._actionCtrler.moveLEFT())
          {
-            _fighter.move(-_fighter.speed);
+            this._fighter.move(-this._fighter.speed);
          }
-         if(_actionCtrler.moveRIGHT())
+         if(this._actionCtrler.moveRIGHT())
          {
-            _fighter.move(_fighter.speed);
+            this._fighter.move(this._fighter.speed);
          }
       }
       
       private function renderDefense(param1:Boolean = true, param2:Boolean = false) : void
       {
-         if(_actionCtrler.moveLEFT())
+         if(this._actionCtrler.moveLEFT())
          {
-            if(_fighter.direct != -1)
+            if(this._fighter.direct != -1)
             {
-               _fighter.direct = -1;
-               setDefenseAction(param1,param2);
+               this._fighter.direct = -1;
+               this.setDefenseAction(param1,param2);
             }
          }
-         if(_actionCtrler.moveRIGHT())
+         if(this._actionCtrler.moveRIGHT())
          {
-            if(_fighter.direct != 1)
+            if(this._fighter.direct != 1)
             {
-               _fighter.direct = 1;
-               setDefenseAction(param1,param2);
+               this._fighter.direct = 1;
+               this.setDefenseAction(param1,param2);
             }
          }
       }
       
       private function renderDefenseAnimate() : void
       {
-         if(_action.isDefenseHiting)
+         if(this._action.isDefenseHiting)
          {
             return;
          }
-         if(_defenseFrameDelay-- > 0)
+         if(this._defenseFrameDelay-- > 0)
          {
             return;
          }
-         if(_actionCtrler.enabled() && _actionCtrler.defense())
+         if(Boolean(this._actionCtrler.enabled()) && Boolean(this._actionCtrler.defense()))
          {
-            if(!_isDefense)
+            if(!this._isDefense)
             {
-               _isDefense = true;
+               this._isDefense = true;
             }
          }
          else
          {
-            if(_defenseFrameDelay > -5)
+            if(this._defenseFrameDelay > -5)
             {
                return;
             }
-            _action.isDefensing = false;
-            _mc.goFrame("防御恢复",false,0,{
-               "call":idle,
+            this._action.isDefensing = false;
+            this._mc.goFrame("防御恢复",false,0,{
+               "call":this.idle,
                "delay":1
             });
          }
@@ -1341,611 +1330,596 @@ package net.play5d.game.bvn.fighter.ctrler
       {
          if(param1)
          {
-            _action.clearAction();
-            _action.clearState();
-            _action.isDefensing = true;
-            setSkill1();
-            setZhao2();
-            setBishaSUPER();
-            setJumpDown();
+            this._action.clearAction();
+            this._action.clearState();
+            this._action.isDefensing = true;
+            this.setSkill1();
+            this.setZhao2();
+            this.setBishaSUPER();
+            this.setJumpDown();
          }
          if(param2)
          {
-            _isDefense = true;
+            this._isDefense = true;
          }
          else
          {
-            _isDefense = _justDefenseFrame > 0 ? true : false;
+            this._isDefense = this._justDefenseFrame > 0 ? true : false;
          }
-         _defenseFrameDelay = 1;
-         _mc.goFrame("防御",true,3);
+         this._defenseFrameDelay = 1;
+         this._mc.goFrame("防御",true,3);
       }
       
       private function doDefense() : void
       {
-         if(_action.isDefensing)
+         if(this._action.isDefensing)
          {
             return;
          }
-         _fighter.actionState = 20;
-         dampingPercent(1,1);
-         setDefenseAction();
+         this._fighter.actionState = 20;
+         this.dampingPercent(1,1);
+         this.setDefenseAction();
       }
       
       private function doDash(param1:String) : void
       {
-         if(!_fighter.hasEnergy(20,true))
+         if(!this._fighter.hasEnergy(20,true))
          {
             return;
          }
-         _fighter.useEnergy(20);
-         if(_actionCtrler.moveLEFT())
+         this._fighter.useEnergy(20);
+         if(this._actionCtrler.moveLEFT())
          {
-            _fighter.direct = -1;
+            this._fighter.direct = -1;
          }
-         if(_actionCtrler.moveRIGHT())
+         if(this._actionCtrler.moveRIGHT())
          {
-            _fighter.direct = 1;
+            this._fighter.direct = 1;
          }
-         doAction(param1);
-         _fighter.actionState = 15;
-         _fighter.isAllowBeHit = false;
-         isApplyG(false);
+         this.doAction(param1);
+         this._fighter.actionState = 15;
+         this._fighter.isAllowBeHit = false;
+         this.isApplyG(false);
       }
       
       private function doDashAir(param1:String) : void
       {
-         if(_action.jumpTimes < 1)
+         if(this._action.jumpTimes < 1)
          {
             return;
          }
-         if(!_fighter.hasEnergy(30,true))
+         if(!this._fighter.hasEnergy(30,true))
          {
             return;
          }
-         _fighter.useEnergy(30);
-         doAction(param1);
-         _fighter.actionState = 15;
-         _fighter.isAllowBeHit = false;
-         isApplyG(false);
-         _action.jumpTimes = 0;
+         this._fighter.useEnergy(30);
+         this.doAction(param1);
+         this._fighter.actionState = 15;
+         this._fighter.isAllowBeHit = false;
+         this.isApplyG(false);
+         this._action.jumpTimes = 0;
       }
       
       private function doJump(param1:String) : void
       {
-         if(_action.jumpTimes <= 0)
+         if(this._action.jumpTimes <= 0)
          {
             return;
          }
-         _action.clearAction();
-         _action.clearState();
-         _doingAction = null;
-         _doingAirAction = null;
-         _mc.goFrame("起跳",false);
-         _jumpDelayFrame = 2;
-         _action.isJumping = true;
-         _fighter.actionState = 14;
+         this._action.clearAction();
+         this._action.clearState();
+         this._doingAction = null;
+         this._doingAirAction = null;
+         this._mc.goFrame("起跳",false);
+         this._jumpDelayFrame = 2;
+         this._action.isJumping = true;
+         this._fighter.actionState = 14;
       }
       
       private function doJumpDown(param1:String) : void
       {
-         if(_fighter.isTouchBottom)
+         if(this._fighter.isTouchBottom)
          {
             return;
          }
-         _action.clear();
-         _action.jumpTimes = 0;
-         _fighter.setVecY(5);
-         _fighter.setDamping(0,1);
-         _fighter.y += 1;
-         _isDefense = false;
-         _mc.goFrame(param1,false);
-         setTouchFloor();
+         this._action.clear();
+         this._action.jumpTimes = 0;
+         this._fighter.setVecY(5);
+         this._fighter.setDamping(0,1);
+         this._fighter.y += 1;
+         this._isDefense = false;
+         this._mc.goFrame(param1,false);
+         this.setTouchFloor();
       }
       
       private function doAirJump(param1:String) : void
       {
-         if(_action.jumpTimes <= 0)
+         if(this._action.jumpTimes <= 0)
          {
             return;
          }
-         _action.clearAction();
-         _action.clearState();
-         _doingAction = null;
-         _doingAirAction = null;
-         _jumpDelayFrame = 1;
-         _action.isJumping = true;
-         _fighter.actionState = 14;
+         this._action.clearAction();
+         this._action.clearState();
+         this._doingAction = null;
+         this._doingAirAction = null;
+         this._jumpDelayFrame = 1;
+         this._action.isJumping = true;
+         this._fighter.actionState = 14;
       }
       
       public function renderJumpAnimate() : void
       {
-         if(_doingAction)
+         if(Boolean(this._doingAction))
          {
             return;
          }
-         if(_jumpDelayFrame > 0)
+         if(this._jumpDelayFrame > 0)
          {
-            _jumpDelayFrame -= 1;
-            if(_jumpDelayFrame == 0)
+            --this._jumpDelayFrame;
+            if(this._jumpDelayFrame == 0)
             {
-               _isFalling = false;
-               --_action.jumpTimes;
-               _mc.goFrame("跳",false);
-               _fighter.jump();
-               setAirAllAct();
-               if(_fighter.isInAir)
+               this._isFalling = false;
+               --this._action.jumpTimes;
+               this._mc.goFrame("跳",false);
+               this._fighter.jump();
+               this.setAirAllAct();
+               if(this._fighter.isInAir)
                {
-                  effectCtrler.jumpAir();
+                  this.effectCtrler.jumpAir();
                }
                else
                {
-                  effectCtrler.jump();
+                  this.effectCtrler.jump();
                }
             }
             return;
          }
-         if(_mc.getCurrentFrameCount() == 2)
+         if(this._mc.getCurrentFrameCount() == 2)
          {
-            setJumpQuick();
+            this.setJumpQuick();
          }
-         var _loc1_:Number = _fighter.getVecY();
-         if(_mc.currentFrameName != "跳中" && _loc1_ > -_fighter.jumpPower * 0.35)
+         var _loc1_:Number = Number(this._fighter.getVecY());
+         if(this._mc.currentFrameName != "跳中" && _loc1_ > -this._fighter.jumpPower * 0.35)
          {
-            _mc.goFrame("跳中",false);
-            _fighter.setAnimateFrameOut(setJump,5);
+            this._mc.goFrame("跳中",false);
+            this._fighter.setAnimateFrameOut(this.setJump,5);
          }
          if(_loc1_ >= 0)
          {
-            _action.isJumping = false;
-            _isFalling = true;
+            this._action.isJumping = false;
+            this._isFalling = true;
          }
       }
       
       private function doAttack(param1:String) : void
       {
-         doAction(param1);
-         _fighter.actionState = 10;
+         this.doAction(param1);
+         this._fighter.actionState = 10;
       }
       
       private function doSkill(param1:String) : void
       {
-         doAction(param1);
-         _fighter.actionState = 11;
+         this.doAction(param1);
+         this._fighter.actionState = 11;
       }
       
       private function doCatch(param1:String) : void
       {
-         if(!allowCatch())
+         if(!this.allowCatch())
          {
             return;
          }
-         doAction(param1);
-         _fighter.actionState = 11;
+         this.doAction(param1);
+         this._fighter.actionState = 11;
       }
       
       private function doBisha(param1:String, param2:int, param3:Boolean = false) : void
       {
          if(GameConfig.INFINITE_ENERGY)
          {
-            _fighter.actionState = param3 ? 13 : 12;
-            doAction(param1);
-            return;
+            param2 = 0;
          }
-         var _loc1_:int = param2 > 0 ? param2 : (param3 ? 300 : 100);
-         if(!_fighter.useQi(_loc1_))
+         if(!this._fighter.useQi(param2))
          {
             return;
          }
-         _fighter.actionState = param3 ? 13 : 12;
-         doAction(param1);
+         this._fighter.actionState = param3 ? 13 : 12;
+         this.doAction(param1);
       }
       
       private function doWaiKaiAction(param1:String) : void
       {
-         if(!_mc.checkFrame(param1))
+         if(!this._mc.checkFrame(param1))
          {
             return;
          }
-         if(GameConfig.INFINITE_ENERGY)
+         if(!GameConfig.INFINITE_ENERGY)
          {
-            _fighter.actionState = 50;
-            doAction(param1);
-            _fighter.isAllowBeHit = false;
-            return;
          }
-         if(!_fighter.useQi(300))
+         if(!this._fighter.useQi(300))
          {
             return;
          }
-         _fighter.actionState = 50;
-         doAction(param1);
-         _fighter.isAllowBeHit = false;
+         this._fighter.actionState = 50;
+         this.doAction(param1);
+         this._fighter.isAllowBeHit = false;
       }
       
       private function doAirAttack(param1:String) : void
       {
-         if(_doingAction == null && _action.airHitTimes <= 0)
+         if(this._doingAction == null && this._action.airHitTimes <= 0)
          {
             return;
          }
-         _fighter.addDamping(0,3);
-         --_action.airHitTimes;
-         _action.jumpTimes = 0;
-         doAction(param1,true);
-         _fighter.actionState = 10;
+         this._fighter.addDamping(0,3);
+         --this._action.airHitTimes;
+         this._action.jumpTimes = 0;
+         this.doAction(param1,true);
+         this._fighter.actionState = 10;
       }
       
       private function doAirSkill(param1:String) : void
       {
-         if(_doingAction == null && _action.airHitTimes <= 0)
+         if(this._doingAction == null && this._action.airHitTimes <= 0)
          {
             return;
          }
-         _action.airHitTimes = 0;
-         _action.jumpTimes = 0;
-         doAction(param1,true);
-         _fighter.actionState = 11;
+         this._action.airHitTimes = 0;
+         this._action.jumpTimes = 0;
+         this.doAction(param1,true);
+         this._fighter.actionState = 11;
       }
       
       private function doAirBisha(param1:String, param2:int) : void
       {
-         if(_doingAction == null && _action.airHitTimes <= 0)
+         if(this._doingAction == null && this._action.airHitTimes <= 0)
          {
             return;
          }
-         if(GameConfig.INFINITE_ENERGY)
-         {
-            _fighter.actionState = 12;
-            _action.airHitTimes = 0;
-            doAction(param1,true);
-            return;
-         }
-         var _loc1_:int = param2 > 0 ? param2 : 100;
-         if(!_fighter.useQi(_loc1_))
+         if(!this._fighter.useQi(param2))
          {
             return;
          }
-         _fighter.actionState = 12;
-         _action.airHitTimes = 0;
-         doAction(param1,true);
+         this._fighter.actionState = 12;
+         this._action.airHitTimes = 0;
+         this.doAction(param1,true);
       }
       
       public function beHit(param1:HitVO, param2:Rectangle = null) : void
       {
-         var _loc5_:BaseGameSprite = null;
-         var _loc4_:Number = Number(NaN);
-         var _loc3_:Number = Number(NaN);
-         if(_action.hurtAction)
+         var _loc3_:BaseGameSprite = null;
+         var _loc4_:Number = NaN;
+         var _loc5_:Number = NaN;
+         if(Boolean(this._action.hurtAction))
          {
-            doAction(_action.hurtAction);
+            this.doAction(this._action.hurtAction);
             return;
          }
-         if(_fighter.getIsTouchSide())
+         if(this._fighter.getIsTouchSide())
          {
-            if(param1.owner && param1.owner is BaseGameSprite)
+            if(Boolean(param1.owner) && param1.owner is BaseGameSprite)
             {
-               _loc5_ = param1.owner as BaseGameSprite;
-               if(Math.abs(_fighter.x - param1.owner.x) < 100)
+               _loc3_ = param1.owner as BaseGameSprite;
+               if(Math.abs(this._fighter.x - param1.owner.x) < 100)
                {
                   _loc4_ = 0.3;
-                  _loc3_ = -param1.hitx * _loc5_.direct * 1.4;
-                  if(_loc3_ > 20)
+                  _loc5_ = -param1.hitx * _loc3_.direct * 1.4;
+                  if(_loc5_ > 20)
                   {
-                     _loc3_ = 20;
+                     _loc5_ = 20;
                   }
-                  if(_loc3_ < -20)
+                  if(_loc5_ < -20)
                   {
-                     _loc3_ = -20;
+                     _loc5_ = -20;
                   }
-                  _loc5_.setVec2(_loc3_,0,_loc4_,0);
+                  _loc3_.setVec2(_loc5_,0,_loc4_,0);
                }
             }
          }
-         if(_isDefense)
+         if(this._isDefense)
          {
             if(param1.isBreakDef && param1.hitType == 11)
             {
-               doHurt(param1,param2);
+               this.doHurt(param1,param2);
                return;
             }
-            if(param1.checkDirect && param1.owner)
+            if(param1.checkDirect && Boolean(param1.owner))
             {
-               if(checkDefDirect(param1.owner))
+               if(this.checkDefDirect(param1.owner))
                {
-                  doHurt(param1,param2);
+                  this.doHurt(param1,param2);
                   return;
                }
             }
-            doDefenseHit(param1,param2);
+            this.doDefenseHit(param1,param2);
          }
-         else if(_fighter.isSteelBody && _fighter.isAlive)
+         else if(Boolean(this._fighter.isSteelBody) && Boolean(this._fighter.isAlive))
          {
-            doSteelHurt(param1,param2);
+            this.doSteelHurt(param1,param2);
          }
          else
          {
-            doHurt(param1,param2);
+            this.doHurt(param1,param2);
          }
       }
       
       private function checkDefDirect(param1:IGameSprite) : Boolean
       {
          var _loc2_:int = 5;
-         if(_fighter.x < param1.x - _loc2_)
+         if(this._fighter.x < param1.x - _loc2_)
          {
-            return _fighter.direct < 0 && param1.direct < 0;
+            return this._fighter.direct < 0 && param1.direct < 0;
          }
-         if(_fighter.x > param1.x + _loc2_)
+         if(this._fighter.x > param1.x + _loc2_)
          {
-            return _fighter.direct > 0 && param1.direct > 0;
+            return this._fighter.direct > 0 && param1.direct > 0;
          }
          return false;
       }
       
       private function doSteelHurt(param1:HitVO, param2:Rectangle) : void
       {
-         var _loc6_:Number = Number(NaN);
-         var _loc3_:Number = Number(NaN);
-         var _loc5_:Number = Number(NaN);
-         var _loc4_:Number = Number(NaN);
-         if(!_fighter.isSuperSteelBody && (_fighter.energyOverLoad || param1.isBisha() || param1.isCatch()))
+         var _loc3_:Number = NaN;
+         var _loc4_:Number = NaN;
+         var _loc5_:* = NaN;
+         var _loc6_:* = NaN;
+         if(!this._fighter.isSuperSteelBody && (Boolean(this._fighter.energyOverLoad) || param1.isBisha() || param1.isCatch()))
          {
-            doHurt(param1,param2);
+            this.doHurt(param1,param2);
             return;
          }
-         _fighter.hurtHit = param1;
-         if(_fighter.isSuperSteelBody)
+         this._fighter.hurtHit = param1;
+         if(this._fighter.isSuperSteelBody)
          {
-            _fighter.loseHp(param1.getDamage() * 0.3);
+            this._fighter.loseHp(param1.getDamage() * 0.3);
          }
          else
          {
-            _fighter.loseHp(param1.getDamage() * 0.65);
+            this._fighter.loseHp(param1.getDamage() * 0.65);
          }
-         if(_fighter.isAlive && GameLogic.checkFighterDie(_fighter))
+         if(Boolean(this._fighter.isAlive) && Boolean(GameLogic.checkFighterDie(this._fighter)))
          {
-            FighterEventDispatcher.dispatchEvent(_fighter,"DIE");
-            _fighter.isAlive = false;
-            doHurt(param1,param2);
+            FighterEventDispatcher.dispatchEvent(this._fighter,"DIE");
+            this._fighter.isAlive = false;
+            this.doHurt(param1,param2);
             return;
          }
          if(param1.hurtType == 1)
          {
-            _beHitGap = 10;
+            this._beHitGap = 10;
          }
          else
          {
-            _beHitGap = 4;
+            this._beHitGap = 4;
          }
-         if(_fighter.isSuperSteelBody)
+         if(this._fighter.isSuperSteelBody)
          {
-            _fighter.useEnergy(param1.getDamage() * 0.2);
+            this._fighter.useEnergy(param1.getDamage() * 0.2);
          }
          else if(param1.isBreakDef)
          {
-            _fighter.useEnergy(param1.getDamage());
+            this._fighter.useEnergy(param1.getDamage());
          }
          else
          {
-            _fighter.useEnergy(param1.getDamage() * 0.4);
+            this._fighter.useEnergy(param1.getDamage() * 0.4);
          }
-         _fighter.isAllowBeHit = false;
-         if(!_fighter.isSuperSteelBody)
+         this._fighter.isAllowBeHit = false;
+         if(!this._fighter.isSuperSteelBody)
          {
-            _loc6_ = param1.hitx;
-            _loc3_ = param1.hity;
-            if(param1.owner)
+            _loc3_ = param1.hitx;
+            _loc4_ = param1.hity;
+            if(Boolean(param1.owner))
             {
-               _loc6_ *= param1.owner.direct;
+               _loc3_ *= param1.owner.direct;
             }
-            _loc5_ = _loc6_;
-            _loc4_ = _loc3_;
+            _loc5_ = _loc3_;
+            _loc6_ = _loc4_;
             if(param1.isBreakDef)
             {
                _loc5_ *= 2;
-               _loc4_ *= 2;
+               _loc6_ *= 2;
             }
-            _fighter.setVec2(_loc5_,_loc4_,Math.abs(_loc6_ * 0.1),Math.abs(_loc3_ * 0.1));
+            this._fighter.setVec2(_loc5_,_loc6_,Math.abs(_loc3_ * 0.1),Math.abs(_loc4_ * 0.1));
          }
-         if(param1 && param2)
+         if(Boolean(param1) && Boolean(param2))
          {
-            EffectCtrl.I.doSteelHitEffect(param1,param2,_fighter);
+            EffectCtrl.I.doSteelHitEffect(param1,param2,this._fighter);
          }
       }
       
       private function doHurt(param1:HitVO, param2:Rectangle) : void
       {
-         effectCtrler.endShadow();
-         effectCtrler.endShake();
-         _fighter.hurtHit = param1;
-         _fighter.loseHp(param1.getDamage());
-         if(_fighter.isAlive && GameLogic.checkFighterDie(_fighter))
+         this.effectCtrler.endShadow();
+         this.effectCtrler.endShake();
+         this._fighter.hurtHit = param1;
+         this._fighter.loseHp(param1.getDamage());
+         if(Boolean(this._fighter.isAlive) && Boolean(GameLogic.checkFighterDie(this._fighter)))
          {
-            FighterEventDispatcher.dispatchEvent(_fighter,"DIE");
-            _fighter.isAlive = false;
+            FighterEventDispatcher.dispatchEvent(this._fighter,"DIE");
+            this._fighter.isAlive = false;
          }
-         _beHitGap = 4;
-         _fighter.isAllowBeHit = false;
-         _fighter.isApplyG = true;
-         _isDefense = false;
-         var _loc4_:Number = param1.hitx;
-         var _loc3_:Number = param1.hity;
-         if(param1.owner)
+         this._beHitGap = 4;
+         this._fighter.isAllowBeHit = false;
+         this._fighter.isApplyG = true;
+         this._isDefense = false;
+         var _loc3_:Number = param1.hitx;
+         var _loc4_:Number = param1.hity;
+         if(Boolean(param1.owner))
          {
-            _loc4_ *= param1.owner.direct;
+            _loc3_ *= param1.owner.direct;
          }
-         if(_fighter.isInAir)
+         if(this._fighter.isInAir)
          {
-            if(_loc3_ <= 0)
+            if(_loc4_ <= 0)
             {
-               _loc3_ -= 3;
+               _loc4_ -= 3;
             }
          }
-         else if(_loc3_ < 0)
+         else if(_loc4_ < 0)
          {
-            _loc3_ -= 6;
-            _isTouchFloor = false;
+            _loc4_ -= 6;
+            this._isTouchFloor = false;
          }
-         _action.clearState();
-         _doingAirAction = null;
-         _doingAction = null;
-         setSteelBody(false);
+         this._action.clearState();
+         this._doingAirAction = null;
+         this._doingAction = null;
+         this.setSteelBody(false);
          if(param1.hurtType == 0)
          {
-            _action.isHurting = true;
-            _hurtHoldFrame = Math.round(param1.hurtTime / 1000 * 30) + GameConfig.HURT_FRAME_OFFSET;
-            if(_hurtHoldFrame < 4)
+            this._action.isHurting = true;
+            this._hurtHoldFrame = Math.round(param1.hurtTime / 1000 * 30) + GameConfig.HURT_FRAME_OFFSET;
+            if(this._hurtHoldFrame < 4)
             {
-               _hurtHoldFrame = 4;
+               this._hurtHoldFrame = 4;
             }
             if(param1.hitType == 11)
             {
-               _mc.goFrame("被打",false);
+               this._mc.goFrame("被打",false);
             }
             else
             {
-               _mc.goFrame("被打",true,7);
+               this._mc.goFrame("被打",true,7);
             }
-            _fighter.actionState = 21;
-            _fighter.setVelocity(_loc4_,_loc3_);
-            _fighter.setDamping(0.1,0.5);
-            if(_fighter.isAlive && HitType.isHeavy(param1.hitType))
+            this._fighter.actionState = 21;
+            this._fighter.setVelocity(_loc3_,_loc4_);
+            this._fighter.setDamping(0.1,0.5);
+            if(Boolean(this._fighter.isAlive) && Boolean(HitType.isHeavy(param1.hitType)))
             {
-               _fighter.getCtrler().getVoiceCtrl().playVoice(0,0.5);
+               this._fighter.getCtrler().getVoiceCtrl().playVoice(0,0.5);
             }
          }
          if(param1.hurtType == 1)
          {
-            _action.isHurtFlying = true;
-            _fighter.actionState = 22;
-            _hurtDownFrame = 0;
-            _mc.playHurtFly(_loc4_,_loc3_);
-            if(_fighter.isAlive)
+            this._action.isHurtFlying = true;
+            this._fighter.actionState = 22;
+            this._hurtDownFrame = 0;
+            this._mc.playHurtFly(_loc3_,_loc4_);
+            if(this._fighter.isAlive)
             {
-               _fighter.getCtrler().getVoiceCtrl().playVoice(1,1);
+               this._fighter.getCtrler().getVoiceCtrl().playVoice(1,1);
             }
             else
             {
-               _fighter.getCtrler().getVoiceCtrl().playVoice(2,1);
+               this._fighter.getCtrler().getVoiceCtrl().playVoice(2,1);
             }
          }
-         if(param1 && param2)
+         if(Boolean(param1) && Boolean(param2))
          {
-            EffectCtrl.I.doHitEffect(param1,param2,_fighter);
+            EffectCtrl.I.doHitEffect(param1,param2,this._fighter);
          }
-         _isFalling = false;
+         this._isFalling = false;
       }
       
       private function renderHurt() : void
       {
-         if(!_fighter.isAlive)
+         if(!this._fighter.isAlive)
          {
             return;
          }
-         renderHurtBreak();
+         this.renderHurtBreak();
       }
       
       private function renderHurtBreak() : void
       {
-         if(!_actionCtrler.specailSkill())
+         if(!this._actionCtrler.specailSkill())
          {
             return;
          }
-         if(!_fighter.hasEnergy(50))
+         if(!this._fighter.hasEnergy(50))
          {
             return;
          }
-         if(_fighter.qi < 100)
+         if(this._fighter.qi < 100)
          {
             return;
          }
-         var _loc3_:Boolean = _fighter.getLastHurtHitVO().isBisha();
-         if(_loc3_)
-         {
-            return;
-         }
-         var _loc1_:Boolean = _fighter.hurtBreakHit();
+         var _loc1_:Boolean = Boolean(this._fighter.getLastHurtHitVO().isBisha());
          if(_loc1_)
          {
             return;
          }
-         var _loc2_:int = _fighter.currentHurtDamage();
-         if(_loc2_ > 210)
+         var _loc2_:Boolean = Boolean(this._fighter.hurtBreakHit());
+         if(_loc2_)
          {
             return;
          }
-         _fighter.useQi(100);
-         _fighter.useEnergy(100);
-         if(_fighter.data.comicType == 1)
+         var _loc3_:int = int(this._fighter.currentHurtDamage());
+         if(_loc3_ > 210)
          {
-            _fighter.replaceSkill();
+            return;
+         }
+         this._fighter.useQi(100);
+         this._fighter.useEnergy(100);
+         if(this._fighter.data.comicType == 1)
+         {
+            this._fighter.replaceSkill();
          }
          else
          {
-            _fighter.energyExplode();
+            this._fighter.energyExplode();
          }
-         FighterEventDispatcher.dispatchEvent(_fighter,"HURT_RESUME");
+         FighterEventDispatcher.dispatchEvent(this._fighter,"HURT_RESUME");
       }
       
       private function renderHurtAnimate() : void
       {
          var _loc1_:Point = null;
-         if(_hurtHoldFrame-- <= 0)
+         if(this._hurtHoldFrame-- <= 0)
          {
-            if(!_fighter.isAlive)
+            if(!this._fighter.isAlive)
             {
-               _action.clearState();
-               if(_fighter.isInAir)
+               this._action.clearState();
+               if(this._fighter.isInAir)
                {
-                  _loc1_ = _fighter.getVec2();
-                  hurtFly(_loc1_.x,_loc1_.y);
+                  _loc1_ = this._fighter.getVec2();
+                  this.hurtFly(_loc1_.x,_loc1_.y);
                }
                else
                {
-                  _mc.playHurtDown();
+                  this._mc.playHurtDown();
                }
-               _fighter.getCtrler().getVoiceCtrl().playVoice(2,1);
+               this._fighter.getCtrler().getVoiceCtrl().playVoice(2,1);
             }
             else
             {
-               hurtResume();
+               this.hurtResume();
             }
          }
       }
       
       private function hurtResume() : void
       {
-         if(!_fighter.isInAir && !_isTouchFloor)
+         if(!this._fighter.isInAir && !this._isTouchFloor)
          {
-            _isTouchFloor = true;
+            this._isTouchFloor = true;
          }
-         idle();
-         FighterEventDispatcher.dispatchEvent(_fighter,"HURT_RESUME");
+         this.idle();
+         FighterEventDispatcher.dispatchEvent(this._fighter,"HURT_RESUME");
       }
       
       private function renderBeHitGap() : void
       {
-         if(_beHitGap > 0)
+         if(this._beHitGap > 0)
          {
-            if(--_beHitGap <= 0)
+            if(--this._beHitGap <= 0)
             {
-               _fighter.isAllowBeHit = true;
+               this._fighter.isAllowBeHit = true;
             }
          }
       }
       
       private function doDefenseHit(param1:HitVO, param2:Rectangle) : void
       {
-         _fighter.loseHp(param1.getDamage() * 0.05);
-         if(_fighter.isAlive && GameLogic.checkFighterDie(_fighter))
+         this._fighter.loseHp(param1.getDamage() * 0.05);
+         if(Boolean(this._fighter.isAlive) && Boolean(GameLogic.checkFighterDie(this._fighter)))
          {
-            FighterEventDispatcher.dispatchEvent(_fighter,"DIE");
-            _fighter.isAlive = false;
-            doHurt(param1,param2);
+            FighterEventDispatcher.dispatchEvent(this._fighter,"DIE");
+            this._fighter.isAlive = false;
+            this.doHurt(param1,param2);
             return;
          }
-         _fighter.defenseHit = param1;
+         this._fighter.defenseHit = param1;
          var _loc3_:int = 0;
          if(param1.isBreakDef)
          {
@@ -1959,304 +1933,325 @@ package net.play5d.game.bvn.fighter.ctrler
                _loc3_ = 50;
             }
          }
-         if(!_fighter.hasEnergy(_loc3_,false))
+         if(!this._fighter.hasEnergy(_loc3_,false))
          {
-            _fighter.useEnergy(_loc3_);
-            doBreakDefense(param1,param2);
+            this._fighter.useEnergy(_loc3_);
+            this.doBreakDefense(param1,param2);
             return;
          }
-         _fighter.useEnergy(_loc3_);
-         _beHitGap = 4;
-         _fighter.isAllowBeHit = false;
+         this._fighter.useEnergy(_loc3_);
+         this._beHitGap = 4;
+         this._fighter.isAllowBeHit = false;
          var _loc4_:Number = param1.hitx;
-         if(param1.owner)
+         if(Boolean(param1.owner))
          {
             _loc4_ *= param1.owner.direct;
          }
-         _action.isDefenseHiting = true;
+         this._action.isDefenseHiting = true;
          if(param1.hurtType == 0)
          {
-            _defenseHoldFrame = param1.hurtTime / 1000 * GameConfig.FPS_GAME / 5;
-            if(_defenseHoldFrame < 5)
+            this._defenseHoldFrame = param1.hurtTime / 1000 * GameConfig.FPS_GAME / 5;
+            if(this._defenseHoldFrame < 5)
             {
-               _defenseHoldFrame = 5;
+               this._defenseHoldFrame = 5;
             }
-            if(_defenseHoldFrame > 10)
+            if(this._defenseHoldFrame > 10)
             {
-               _defenseHoldFrame = 10;
+               this._defenseHoldFrame = 10;
             }
          }
          else
          {
-            _defenseHoldFrame = 10;
-            _beHitGap = 8;
+            this._defenseHoldFrame = 10;
+            this._beHitGap = 8;
          }
-         _fighter.setVelocity(_loc4_,0);
-         _fighter.setDamping(1,0);
-         if(param1 && param2)
+         this._fighter.setVelocity(_loc4_,0);
+         this._fighter.setDamping(1,0);
+         if(Boolean(param1) && Boolean(param2))
          {
-            EffectCtrl.I.doDefenseEffect(param1,param2,_fighter.defenseType);
+            EffectCtrl.I.doDefenseEffect(param1,param2,this._fighter.defenseType);
          }
       }
       
       private function doBreakDefense(param1:HitVO, param2:Rectangle) : void
       {
-         var _loc5_:Number = Number(NaN);
-         var _loc3_:Number = Number(NaN);
-         _fighter.loseHp(param1.getDamage() / 10);
+         var _loc3_:Number = NaN;
+         var _loc4_:Number = NaN;
+         this._fighter.loseHp(param1.getDamage() / 10);
          if(param1.hurtType == 0)
          {
-            _beHitGap = 4;
+            this._beHitGap = 4;
          }
          if(param1.hurtType == 1)
          {
-            _beHitGap = 10;
+            this._beHitGap = 10;
          }
-         _fighter.isAllowBeHit = false;
-         _fighter.energyOverLoad = false;
-         _isDefense = false;
-         var _loc4_:Number = param1.hitx;
-         if(_loc4_ < 5)
+         this._fighter.isAllowBeHit = false;
+         this._fighter.energyOverLoad = false;
+         this._isDefense = false;
+         var _loc5_:Number = param1.hitx;
+         if(_loc5_ < 5)
          {
-            _loc4_ = 5;
+            _loc5_ = 5;
          }
-         if(_loc4_ > 10)
+         if(_loc5_ > 10)
          {
-            _loc4_ = 10;
+            _loc5_ = 10;
          }
-         if(param1.owner)
+         if(Boolean(param1.owner))
          {
-            _loc4_ *= param1.owner.direct;
+            _loc5_ *= param1.owner.direct;
          }
-         _action.clearState();
-         _action.isHurting = true;
-         _hurtHoldFrame = 42;
-         _mc.goFrame("被打",true,7);
-         _fighter.actionState = 21;
-         _fighter.setVelocity(_loc4_);
-         _fighter.setDamping(0.1);
-         if(param1 && param2)
+         this._action.clearState();
+         this._action.isHurting = true;
+         this._hurtHoldFrame = 42;
+         this._mc.goFrame("被打",true,7);
+         this._fighter.actionState = 21;
+         this._fighter.setVelocity(_loc5_);
+         this._fighter.setDamping(0.1);
+         if(Boolean(param1) && Boolean(param2))
          {
-            _loc5_ = param2.x + param2.width / 2;
-            _loc3_ = param2.y + param2.height / 2;
-            EffectCtrl.I.doDefenseEffect(param1,param2,_fighter.defenseType);
-            EffectCtrl.I.doEffectById("break_def",_loc5_,_loc3_,_fighter.direct);
+            _loc3_ = param2.x + param2.width / 2;
+            _loc4_ = param2.y + param2.height / 2;
+            EffectCtrl.I.doDefenseEffect(param1,param2,this._fighter.defenseType);
+            EffectCtrl.I.doEffectById("break_def",_loc3_,_loc4_,this._fighter.direct);
          }
       }
       
       private function renderDefensHiting() : void
       {
-         if(_defenseHoldFrame > 0)
+         if(this._defenseHoldFrame > 0)
          {
-            _defenseHoldFrame -= 1;
+            --this._defenseHoldFrame;
          }
-         else if(_fighter.getVecX() == 0)
+         else if(this._fighter.getVecX() == 0)
          {
-            _action.isDefenseHiting = false;
+            this._action.isDefenseHiting = false;
          }
       }
       
       private function renderCheckTargetHit() : void
       {
-         var _loc5_:int = 0;
-         var _loc1_:Rectangle = null;
-         var _loc2_:String = _action.hitTargetChecker;
-         if(!_loc2_)
-         {
-            return;
-         }
-         var _loc3_:Rectangle = _fighter.getCtrler().getHitCheckRect(_loc2_);
+         var _loc1_:int = 0;
+         var _loc2_:Rectangle = null;
+         var _loc3_:String = this._action.hitTargetChecker;
          if(!_loc3_)
          {
             return;
          }
-         var _loc4_:Vector.<IGameSprite> = _fighter.getTargets();
+         var _loc4_:Rectangle = this._fighter.getCtrler().getHitCheckRect(_loc3_);
          if(!_loc4_)
          {
             return;
          }
-         while(_loc5_ < _loc4_.length)
+         var _loc5_:Vector.<IGameSprite> = this._fighter.getTargets();
+         if(!_loc5_)
          {
-            if(_loc4_[_loc5_] is FighterMain)
+            return;
+         }
+         while(_loc1_ < _loc5_.length)
+         {
+            if(_loc5_[_loc1_] is FighterMain)
             {
-               _loc1_ = _loc4_[_loc5_].getBodyArea();
-               if(_loc1_ && _loc3_.intersects(_loc1_))
+               _loc2_ = _loc5_[_loc1_].getBodyArea();
+               if(Boolean(_loc2_) && _loc4_.intersects(_loc2_))
                {
-                  doAction(_action.hitTarget);
+                  this.doAction(this._action.hitTarget);
                }
             }
-            _loc5_++;
+            _loc1_++;
          }
       }
       
       private function allowCatch() : Boolean
       {
-         var _loc2_:Number = Number(NaN);
-         var _loc4_:IGameSprite = _fighter.getCurrentTarget();
-         if(!_loc4_)
+         var _loc1_:Number = NaN;
+         var _loc2_:IGameSprite = this._fighter.getCurrentTarget();
+         if(!_loc2_)
          {
             return false;
          }
-         if(_loc4_ is FighterMain)
+         if(_loc2_ is FighterMain)
          {
-            if((_loc4_ as FighterMain).actionState == 21)
+            if((_loc2_ as FighterMain).actionState == 21)
             {
                return false;
             }
          }
-         var _loc5_:Rectangle = _loc4_.getBodyArea();
-         var _loc3_:Rectangle = _fighter.getBodyArea();
-         if(!_loc5_ || !_loc3_)
+         var _loc3_:Rectangle = _loc2_.getBodyArea();
+         var _loc4_:Rectangle = this._fighter.getBodyArea();
+         if(!_loc3_ || !_loc4_)
          {
             return false;
          }
-         var _loc1_:Number = Math.abs(_fighter.y - _loc4_.y);
-         if(_loc3_.x < _loc5_.x)
+         var _loc5_:Number = Math.abs(this._fighter.y - _loc2_.y);
+         if(_loc4_.x < _loc3_.x)
          {
-            if(_fighter.direct < 0)
+            if(this._fighter.direct < 0)
             {
                return false;
             }
-            _loc2_ = _loc5_.x - (_loc3_.x + _loc3_.width);
+            _loc1_ = _loc3_.x - (_loc4_.x + _loc4_.width);
          }
          else
          {
-            if(_fighter.direct > 0)
+            if(this._fighter.direct > 0)
             {
                return false;
             }
-            _loc2_ = _loc3_.x - (_loc5_.x + _loc5_.width);
+            _loc1_ = _loc4_.x - (_loc3_.x + _loc3_.width);
          }
-         return _loc2_ < 2 && _loc1_ < 1;
+         return _loc1_ < 2 && _loc5_ < 1;
       }
       
       private function doHurtDownJump() : void
       {
-         if(_doingAction == "起身")
+         if(this._doingAction == "起身")
          {
             return;
          }
-         if(_fighter.currentHurtDamage() > 240)
+         if(this._fighter.currentHurtDamage() > 240)
          {
             return;
          }
-         if(!_fighter.hasEnergy(30))
+         if(!this._fighter.hasEnergy(30))
          {
             return;
          }
-         _mc.stopHurtFly();
-         _fighter.useEnergy(30);
-         var _loc1_:Number = _fighter.getVecX();
-         doAction("起身");
-         _fighter.isAllowBeHit = false;
-         _fighter.setVelocity(_loc1_);
-         _fighter.setDamping(_loc1_ * 0.1);
-         FighterEventDispatcher.dispatchEvent(_fighter,"HURT_RESUME");
+         this._mc.stopHurtFly();
+         this._fighter.useEnergy(30);
+         var _loc1_:Number = Number(this._fighter.getVecX());
+         this.doAction("起身");
+         this._fighter.isAllowBeHit = false;
+         this._fighter.setVelocity(_loc1_);
+         this._fighter.setDamping(_loc1_ * 0.1);
+         FighterEventDispatcher.dispatchEvent(this._fighter,"HURT_RESUME");
       }
       
       public function sayIntro() : void
       {
-         _fighter.actionState = 60;
-         _mc.goFrame("开场");
+         if(this._mc.checkFrame("开场"))
+         {
+            this._fighter.actionState = 60;
+            this._mc.goFrame("开场");
+         }
+         else
+         {
+            this.idle();
+         }
       }
       
       public function doWin() : void
       {
-         _fighter.actionState = 61;
-         _mc.goFrame("胜利");
+         if(this._mc.checkFrame("胜利"))
+         {
+            this._fighter.actionState = 61;
+            this._mc.goFrame("胜利");
+         }
+         else
+         {
+            this.idle();
+         }
       }
       
       public function doLose() : void
       {
-         _fighter.actionState = 62;
-         _mc.goFrame("失败");
+         if(this._mc.checkFrame("失败"))
+         {
+            this._fighter.actionState = 62;
+            this._mc.goFrame("失败");
+         }
+         else
+         {
+            this.idle();
+         }
       }
       
       private function doGhostStep() : void
       {
-         if(startGhostStep())
+         if(this.startGhostStep())
          {
-            move(8,0);
-            _mc.goFrame("走",true);
-            _ghostType = 0;
+            this.move(8,0);
+            this._mc.goFrame("走",true);
+            this._ghostType = 0;
          }
       }
       
       private function doGhostJump() : void
       {
-         if(startGhostStep())
+         if(this.startGhostStep())
          {
-            move(0,-12);
-            damping(0,0.1);
-            _mc.goFrame("跳",false);
-            --_action.jumpTimes;
-            _ghostType = 1;
+            this.move(0,-12);
+            this.damping(0,0.1);
+            this._mc.goFrame("跳",false);
+            --this._action.jumpTimes;
+            this._ghostType = 1;
          }
       }
       
       private function doGhostJumpDown() : void
       {
-         if(startGhostStep())
+         if(this.startGhostStep())
          {
-            move(0,15);
-            _mc.goFrame("落",false);
-            _ghostType = 2;
+            this.move(0,15);
+            this._mc.goFrame("落",false);
+            this._ghostType = 2;
          }
       }
       
       private function startGhostStep() : Boolean
       {
-         if(_fighter.qi < 60)
+         if(this._fighter.qi < 60)
          {
             return false;
          }
-         if(!_fighter.hasEnergy(80,true))
+         if(!this._fighter.hasEnergy(80,true))
          {
             return false;
          }
-         _fighter.useQi(60);
-         _fighter.useEnergy(80);
-         _fighter.getCtrler().setDirectToTarget();
-         _ghostStepIng = true;
-         _ghostStepFrame = 30 * 0.4;
-         _fighter.isAllowBeHit = false;
-         _fighter.isCross = true;
-         effectCtrler.ghostStep();
+         this._fighter.useQi(60);
+         this._fighter.useEnergy(80);
+         this._fighter.getCtrler().setDirectToTarget();
+         this._ghostStepIng = true;
+         this._ghostStepFrame = 30 * 0.4;
+         this._fighter.isAllowBeHit = false;
+         this._fighter.isCross = true;
+         this.effectCtrler.ghostStep();
          return true;
       }
       
       private function renderGhostStep() : void
       {
-         var _loc1_:Number = Number(NaN);
-         if(_ghostStepFrame-- <= 0)
+         var _loc1_:Number = NaN;
+         if(this._ghostStepFrame-- <= 0)
          {
-            if(_ghostType == 1)
+            if(this._ghostType == 1)
             {
-               _loc1_ = _fighter.getVecY();
-               _action.isJumping = false;
-               endGhostStep();
-               _fighter.setVelocity(0,_loc1_);
-               _fighter.setDamping(0,-_loc1_ / 10);
-               setAirMove(true);
+               _loc1_ = Number(this._fighter.getVecY());
+               this._action.isJumping = false;
+               this.endGhostStep();
+               this._fighter.setVelocity(0,_loc1_);
+               this._fighter.setDamping(0,-_loc1_ / 10);
+               this.setAirMove(true);
                return;
             }
-            endGhostStep();
+            this.endGhostStep();
          }
-         if(_ghostType == 2)
+         if(this._ghostType == 2)
          {
-            if(GameLogic.isTouchBottomFloor(_fighter))
+            if(GameLogic.isTouchBottomFloor(this._fighter))
             {
-               endGhostStep();
+               this.endGhostStep();
             }
          }
       }
       
       private function endGhostStep() : void
       {
-         _ghostStepIng = false;
-         effectCtrler.endGhostStep();
-         _fighter.getCtrler().setDirectToTarget();
-         idle();
+         this._ghostStepIng = false;
+         this.effectCtrler.endGhostStep();
+         this._fighter.getCtrler().setDirectToTarget();
+         this.idle();
       }
    }
 }

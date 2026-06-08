@@ -1,14 +1,12 @@
 package net.play5d.game.bvn.ctrl.game_ctrls
 {
    import flash.geom.Rectangle;
-   import net.play5d.game.bvn.Debugger;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.ctrl.GameLogic;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.data.TeamMap;
    import net.play5d.game.bvn.data.TeamVO;
    import net.play5d.game.bvn.fighter.models.HitVO;
-   import net.play5d.game.bvn.interfaces.BaseGameSprite;
-   import net.play5d.game.bvn.interfaces.IGameSprite;
+   import net.play5d.game.bvn.interfaces.*;
    import net.play5d.game.bvn.map.MapMain;
    import net.play5d.game.bvn.state.GameState;
    
@@ -34,37 +32,37 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       public function initlize(param1:GameState, param2:TeamMap, param3:MapMain) : void
       {
-         _gameState = param1;
-         _teamMap = param2;
-         _leftSide = param3.left + 10;
-         _rightSide = param3.right - 10;
+         this._gameState = param1;
+         this._teamMap = param2;
+         this._leftSide = param3.left + 10;
+         this._rightSide = param3.right - 10;
       }
       
       public function setSpeedPlus(param1:Number) : void
       {
-         var _loc5_:TeamVO = null;
-         var _loc7_:int = 0;
+         var _loc2_:TeamVO = null;
          var _loc3_:int = 0;
-         var _loc2_:IGameSprite = null;
+         var _loc4_:int = 0;
+         var _loc5_:IGameSprite = null;
          var _loc6_:int = 0;
          GameConfig.SPEED_PLUS = param1;
-         var _loc4_:int = int(_teamMap.teams.length);
-         _loc7_ = 0;
-         while(_loc7_ < _loc4_)
+         var _loc7_:int = int(this._teamMap.teams.length);
+         _loc3_ = 0;
+         while(_loc3_ < _loc7_)
          {
-            _loc5_ = _teamMap.teams[_loc7_];
-            _loc3_ = int(_loc5_.children.length);
+            _loc2_ = this._teamMap.teams[_loc3_];
+            _loc4_ = int(_loc2_.children.length);
             _loc6_ = 0;
-            while(_loc6_ < _loc3_)
+            while(_loc6_ < _loc4_)
             {
-               _loc2_ = _loc5_.children[_loc6_];
-               if(_loc2_ && !_loc2_.isDestoryed())
+               _loc5_ = _loc2_.children[_loc6_];
+               if(Boolean(_loc5_) && !_loc5_.isDestoryed())
                {
-                  _loc2_.setSpeedRate(param1);
+                  _loc5_.setSpeedRate(param1);
                }
                _loc6_++;
             }
-            _loc7_++;
+            _loc3_++;
          }
       }
       
@@ -74,91 +72,93 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       public function render() : void
       {
-         renderMainLogic();
+         this.renderMainLogic();
       }
       
       private function renderMainLogic() : void
       {
-         var _loc6_:int = 0;
-         var _loc7_:int = 0;
+         var _loc1_:int = 0;
+         var _loc2_:int = 0;
+         var _loc3_:int = 0;
          var _loc4_:int = 0;
-         var _loc9_:int = 0;
-         var _loc1_:IGameSprite = null;
-         var _loc2_:IGameSprite = null;
-         var _loc14_:TeamVO = null;
-         var _loc5_:TeamVO = null;
-         var _loc8_:* = undefined;
-         var _loc3_:* = undefined;
-         var _loc13_:int = 0;
-         var _loc11_:Vector.<TeamVO> = _teamMap.teams;
-         var _loc12_:int = int(_loc11_.length);
-         var _loc10_:Vector.<IGameSprite> = _gameState.getGameSprites();
-         _loc9_ = 0;
-         while(_loc9_ < _loc10_.length)
+         var _loc5_:IGameSprite = null;
+         var _loc6_:IGameSprite = null;
+         var _loc7_:TeamVO = null;
+         var _loc8_:TeamVO = null;
+         var _loc9_:* = undefined;
+         var _loc10_:* = undefined;
+         var _loc11_:int = 0;
+         var _loc12_:Vector.<TeamVO> = this._teamMap.teams;
+         var _loc13_:int = int(_loc12_.length);
+         var _loc14_:Vector.<IGameSprite> = this._gameState.getGameSprites();
+         _loc4_ = 0;
+         while(_loc4_ < _loc14_.length)
          {
-            renderGameSprite(_loc10_[_loc9_]);
-            _loc9_++;
+            this.renderGameSprite(_loc14_[_loc4_]);
+            _loc4_++;
          }
-         _loc9_ = 0;
-         while(_loc9_ < _loc12_)
+         _loc4_ = 0;
+         while(_loc4_ < _loc13_)
          {
-            _loc5_ = _loc11_[_loc9_];
-            _loc3_ = _loc5_.children;
-            _loc6_ = 0;
-            while(_loc6_ < _loc3_.length)
+            _loc8_ = _loc12_[_loc4_];
+            _loc10_ = _loc8_.children;
+            _loc1_ = 0;
+            while(_loc1_ < _loc10_.length)
             {
-               _loc2_ = _loc3_[_loc6_];
-               if(!(_loc2_ == null || _loc2_.isDestoryed()))
+               _loc6_ = _loc10_[_loc1_];
+               if(!(_loc6_ == null || _loc6_.isDestoryed()))
                {
-                  _loc7_ = _loc9_ + 1;
-                  while(_loc7_ < _loc12_)
+                  _loc2_ = _loc4_ + 1;
+                  while(_loc2_ < _loc13_)
                   {
-                     _loc14_ = _loc11_[_loc7_];
-                     _loc8_ = _loc14_.children;
-                     _loc13_ = int(_loc8_.length);
-                     _loc4_ = 0;
-                     while(_loc4_ < _loc13_)
+                     _loc7_ = _loc12_[_loc2_];
+                     _loc9_ = _loc7_.children;
+                     _loc11_ = int(_loc9_.length);
+                     _loc3_ = 0;
+                     while(_loc3_ < _loc11_)
                      {
-                        _loc1_ = _loc8_[_loc4_];
-                        if(!(_loc1_ == null || _loc1_.isDestoryed()))
+                        _loc5_ = _loc9_[_loc3_];
+                        if(!(_loc5_ == null || _loc5_.isDestoryed()))
                         {
-                           checkBodyHit(_loc2_,_loc1_);
-                           if(_renderAnimate)
+                           this.checkBodyHit(_loc6_,_loc5_);
+                           if(this._renderAnimate)
                            {
-                              checkHit(_loc2_,_loc1_);
+                              this.checkHit(_loc6_,_loc5_);
                            }
                         }
-                        _loc4_++;
+                        _loc3_++;
                      }
-                     _loc7_++;
+                     _loc2_++;
                   }
                }
-               _loc6_++;
+               _loc1_++;
             }
-            _loc9_++;
+            _loc4_++;
          }
-         _renderAnimate = false;
+         this._renderAnimate = false;
       }
       
       public function renderAnimate() : void
       {
-         _renderAnimate = true;
+         this._renderAnimate = true;
       }
       
       private function checkBodyHit(param1:IGameSprite, param2:IGameSprite) : void
       {
-         var ba:BaseGameSprite;
-         var bb:BaseGameSprite;
-         var bodyA:Rectangle;
-         var bodyB:Rectangle;
-         var bodyHit:Rectangle;
-         var vecA:Number;
-         var vecB:Number;
-         var overVec:Object;
-         var vo:Object;
-         var vo2:Object;
-         var A:IGameSprite = param1;
-         var B:IGameSprite = param2;
+         var ba:BaseGameSprite = null;
+         var bb:BaseGameSprite = null;
+         var bodyA:Rectangle = null;
+         var bodyB:Rectangle = null;
+         var bodyHit:Rectangle = null;
+         var vecA:Number = NaN;
+         var vecB:Number = NaN;
+         var overVec:Object = null;
+         var vo:Object = null;
+         var vo2:Object = null;
+         var A:IGameSprite = null;
+         var B:IGameSprite = null;
+         A = param1;
+         B = param2;
          var getVec:* = function(param1:Number):Object
          {
             var _loc2_:Number = bb.heavy / ba.heavy * 0.5;
@@ -170,8 +170,8 @@ package net.play5d.game.bvn.ctrl.game_ctrls
             {
                _loc2_ = 0.1;
             }
-            var _loc3_:Number = param1 * _loc2_;
-            var _loc4_:Number = param1 * (1 - _loc2_);
+            var _loc3_:* = param1 * _loc2_;
+            var _loc4_:* = param1 * (1 - _loc2_);
             if(A.getIsTouchSide() && B.getIsTouchSide())
             {
                _loc3_ = param1;
@@ -192,7 +192,7 @@ package net.play5d.game.bvn.ctrl.game_ctrls
                "B":_loc4_
             };
          };
-         if(!renderHit)
+         if(!this.renderHit)
          {
             return;
          }
@@ -283,7 +283,7 @@ package net.play5d.game.bvn.ctrl.game_ctrls
             if(param1 is BaseGameSprite)
             {
                _loc3_ = param1 as BaseGameSprite;
-               _loc2_ = GameLogic.isInAir(_loc3_);
+               _loc2_ = Boolean(GameLogic.isInAir(_loc3_));
                if(_loc2_)
                {
                   _loc3_.applayG(12);
@@ -291,7 +291,7 @@ package net.play5d.game.bvn.ctrl.game_ctrls
                _loc3_.setInAir(_loc2_);
             }
             param1.render();
-            if(_renderAnimate && !param1.isDestoryed())
+            if(Boolean(this._renderAnimate) && !param1.isDestoryed())
             {
                param1.renderAnimate();
             }
@@ -304,21 +304,21 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       private function checkHit(param1:IGameSprite, param2:IGameSprite) : void
       {
-         var _loc8_:Rectangle = null;
+         var _loc3_:Rectangle = null;
          var _loc4_:Rectangle = null;
-         if(!renderHit)
+         if(!this.renderHit)
          {
             return;
          }
-         var _loc7_:Array = param1.getCurrentHits();
-         var _loc5_:Array = param2.getCurrentHits();
+         var _loc5_:Array = param1.getCurrentHits();
+         var _loc6_:Array = param2.getCurrentHits();
          if(param1 is BaseGameSprite && !(param1 as BaseGameSprite).isAllowBeHit)
          {
-            _loc8_ = null;
+            _loc3_ = null;
          }
          else
          {
-            _loc8_ = param1.getBodyArea();
+            _loc3_ = param1.getBodyArea();
          }
          if(param2 is BaseGameSprite && !(param2 as BaseGameSprite).isAllowBeHit)
          {
@@ -328,25 +328,25 @@ package net.play5d.game.bvn.ctrl.game_ctrls
          {
             _loc4_ = param2.getBodyArea();
          }
-         var _loc6_:Object = getHitObj(_loc7_,_loc4_);
-         var _loc3_:Object = getHitObj(_loc5_,_loc8_);
-         if(_loc6_)
+         var _loc7_:Object = this.getHitObj(_loc5_,_loc4_);
+         var _loc8_:Object = this.getHitObj(_loc6_,_loc3_);
+         if(Boolean(_loc7_))
          {
-            param2.beHit(_loc6_.hitVO,_loc6_.hitRect);
-            param1.hit(_loc6_.hitVO,param2);
+            param2.beHit(_loc7_.hitVO,_loc7_.hitRect);
+            param1.hit(_loc7_.hitVO,param2);
          }
-         if(_loc3_)
+         if(Boolean(_loc8_))
          {
-            param1.beHit(_loc3_.hitVO,_loc3_.hitRect);
-            param2.hit(_loc3_.hitVO,param1);
+            param1.beHit(_loc8_.hitVO,_loc8_.hitRect);
+            param2.hit(_loc8_.hitVO,param1);
          }
       }
       
       private function getHitObj(param1:Array, param2:Rectangle) : Object
       {
-         var _loc7_:int = 0;
+         var _loc3_:int = 0;
          var _loc4_:Rectangle = null;
-         var _loc3_:HitVO = null;
+         var _loc5_:HitVO = null;
          var _loc6_:Rectangle = null;
          if(!param2)
          {
@@ -356,27 +356,27 @@ package net.play5d.game.bvn.ctrl.game_ctrls
          {
             return null;
          }
-         var _loc5_:int = int(param1.length);
-         _loc7_ = 0;
-         while(_loc7_ < _loc5_)
+         var _loc7_:int = int(param1.length);
+         _loc3_ = 0;
+         while(_loc3_ < _loc7_)
          {
-            _loc3_ = param1[_loc7_];
-            if(_loc3_ != null)
+            _loc5_ = param1[_loc3_];
+            if(_loc5_ != null)
             {
-               _loc6_ = _loc3_.currentArea;
+               _loc6_ = _loc5_.currentArea;
                if(_loc6_ != null)
                {
                   _loc4_ = _loc6_.intersection(param2);
-                  if(_loc4_ && _loc4_.isEmpty() == false)
+                  if(Boolean(_loc4_) && _loc4_.isEmpty() == false)
                   {
                      return {
-                        "hitVO":_loc3_,
+                        "hitVO":_loc5_,
                         "hitRect":_loc4_
                      };
                   }
                }
             }
-            _loc7_++;
+            _loc3_++;
          }
          return null;
       }

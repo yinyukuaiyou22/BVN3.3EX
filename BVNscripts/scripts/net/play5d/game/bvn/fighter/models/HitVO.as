@@ -2,7 +2,7 @@ package net.play5d.game.bvn.fighter.models
 {
    import flash.geom.Rectangle;
    import net.play5d.game.bvn.interfaces.IGameSprite;
-   import net.play5d.kyo.utils.KyoUtils;
+   import net.play5d.kyo.utils.*;
    
    public class HitVO
    {
@@ -36,15 +36,15 @@ package net.play5d.game.bvn.fighter.models
       public function HitVO(param1:Object = null)
       {
          super();
-         if(param1)
+         if(Boolean(param1))
          {
             KyoUtils.setValueByObject(this,param1);
          }
-         if(hitType == 1)
+         if(this.hitType == 1)
          {
-            if(hurtTime < 100)
+            if(this.hurtTime < 100)
             {
-               hurtTime = 100;
+               this.hurtTime = 100;
             }
          }
       }
@@ -52,27 +52,27 @@ package net.play5d.game.bvn.fighter.models
       public function clone() : HitVO
       {
          var _loc1_:HitVO = new HitVO();
-         KyoUtils.cloneValue(_loc1_,this,_cloneKey);
+         KyoUtils.cloneValue(_loc1_,this,this._cloneKey);
          return _loc1_;
       }
       
       public function isBisha() : Boolean
       {
-         if(id == null)
+         if(this.id == null)
          {
             return false;
          }
-         return id.indexOf("bs") != -1 || id.indexOf("sbs") != -1 || id.indexOf("cbs") != -1 || id.indexOf("kbs") != -1;
+         return this.id.indexOf("bs") != -1 || this.id.indexOf("sbs") != -1 || this.id.indexOf("cbs") != -1 || this.id.indexOf("kbs") != -1;
       }
       
       public function isCatch() : Boolean
       {
-         return hitType == 11 && isBreakDef;
+         return this.hitType == 11 && this.isBreakDef;
       }
       
       public function getDamage() : int
       {
-         return power * powerRate;
+         return this.power * this.powerRate;
       }
    }
 }

@@ -1,10 +1,8 @@
 package net.play5d.game.bvn.mob.input
 {
    import flash.events.GameInputEvent;
-   import flash.ui.GameInput;
-   import flash.ui.GameInputControl;
-   import flash.ui.GameInputDevice;
-   import net.play5d.game.bvn.mob.GameInterfaceManager;
+   import flash.ui.*;
+   import net.play5d.game.bvn.mob.*;
    
    public class JoySticker
    {
@@ -57,7 +55,7 @@ package net.play5d.game.bvn.mob.input
             return null;
          }
          var _loc2_:GameInputDevice = _gameDeivces[param1];
-         if(_loc2_)
+         if(Boolean(_loc2_))
          {
             return _loc2_.id;
          }
@@ -89,8 +87,8 @@ package net.play5d.game.bvn.mob.input
       
       private static function outputDeviceInfo(param1:GameInputDevice) : void
       {
-         var _loc3_:int = 0;
-         var _loc2_:GameInputControl = null;
+         var _loc2_:int = 0;
+         var _loc3_:GameInputControl = null;
          trace("device.enabled - " + param1.enabled);
          trace("device.id - " + param1.id);
          trace("device.name - " + param1.name);
@@ -98,11 +96,11 @@ package net.play5d.game.bvn.mob.input
          trace("device.sampleInterval - " + param1.sampleInterval);
          trace("device.MAX_BUFFER - 32000");
          trace("buttonNum",param1.numControls);
-         while(_loc3_ < param1.numControls)
+         while(_loc2_ < param1.numControls)
          {
-            _loc2_ = param1.getControlAt(_loc3_);
-            trace("button:" + _loc3_ + ":" + _loc2_.id);
-            _loc3_++;
+            _loc3_ = param1.getControlAt(_loc2_);
+            trace("button:" + _loc2_ + ":" + _loc3_.id);
+            _loc2_++;
          }
       }
       
@@ -117,13 +115,14 @@ package net.play5d.game.bvn.mob.input
       
       private static function removeDevice(param1:GameInputDevice) : void
       {
+         var _loc3_:* = undefined;
          param1.enabled = false;
-         var _loc2_:int = _gameDeivces.indexOf(param1);
+         var _loc2_:int = int(_gameDeivces.indexOf(param1));
          if(_loc2_ != -1)
          {
             _gameDeivces.splice(_loc2_,1);
          }
-         for(var _loc3_ in _deivceMap)
+         for(_loc3_ in _deivceMap)
          {
             if(_deivceMap[_loc3_] == param1)
             {
@@ -172,54 +171,54 @@ package net.play5d.game.bvn.mob.input
       
       public static function isDownAnyKey(param1:String) : Boolean
       {
-         var _loc3_:int = 0;
-         var _loc2_:GameInputDevice = getDeive(param1);
-         if(!_loc2_)
+         var _loc2_:int = 0;
+         var _loc3_:GameInputDevice = getDeive(param1);
+         if(!_loc3_)
          {
             return false;
          }
-         while(_loc3_ < _loc2_.numControls)
+         while(_loc2_ < _loc3_.numControls)
          {
-            if(checkDownValue(_loc2_,_loc3_))
+            if(Boolean(checkDownValue(_loc3_,_loc2_)))
             {
                return true;
             }
-            _loc3_++;
+            _loc2_++;
          }
          return false;
       }
       
       public static function getDownKey(param1:String, param2:Boolean) : JoyStickSetVO
       {
-         var _loc8_:int = 0;
-         var _loc4_:Number = Number(NaN);
-         var _loc3_:String = null;
+         var _loc3_:int = 0;
+         var _loc4_:Number = NaN;
+         var _loc5_:String = null;
          var _loc6_:String = null;
-         var _loc5_:JoyStickSetVO = null;
-         var _loc7_:GameInputDevice = getDeive(param1);
-         if(!_loc7_)
+         var _loc7_:JoyStickSetVO = null;
+         var _loc8_:GameInputDevice = getDeive(param1);
+         if(!_loc8_)
          {
             return null;
          }
-         while(_loc8_ < _loc7_.numControls)
+         while(_loc3_ < _loc8_.numControls)
          {
-            _loc4_ = checkDownValue(_loc7_,_loc8_);
+            _loc4_ = Number(checkDownValue(_loc8_,_loc3_));
             if(_loc4_ != 0)
             {
-               if(_downKey)
+               if(Boolean(_downKey))
                {
-                  _loc3_ = _loc8_ + "_" + _loc4_;
+                  _loc5_ = _loc3_ + "_" + _loc4_;
                   _loc6_ = _downKey.id + "_" + _downKey.value;
-                  if(_loc6_ == _loc3_)
+                  if(_loc6_ == _loc5_)
                   {
                      return param2 ? null : _downKey;
                   }
                }
-               _downKey = _loc5_ = new JoyStickSetVO(_loc8_,_loc4_);
-               trace("isDown",_loc5_.id + "_" + _loc5_.value);
-               return _loc5_;
+               _downKey = _loc7_ = new JoyStickSetVO(_loc3_,_loc4_);
+               trace("isDown",_loc7_.id + "_" + _loc7_.value);
+               return _loc7_;
             }
-            _loc8_++;
+            _loc3_++;
          }
          return null;
       }
@@ -230,17 +229,17 @@ package net.play5d.game.bvn.mob.input
          {
             return 0;
          }
-         var _loc4_:GameInputControl = param1.getControlAt(param2);
-         if(!_loc4_)
+         var _loc3_:GameInputControl = param1.getControlAt(param2);
+         if(!_loc3_)
          {
             return 0;
          }
-         var _loc3_:Number = _loc4_.value;
-         if(_loc3_ == 1 || _loc3_ > 0.5)
+         var _loc4_:Number = _loc3_.value;
+         if(_loc4_ == 1 || _loc4_ > 0.5)
          {
             return 1;
          }
-         if(_loc3_ < -0.5)
+         if(_loc4_ < -0.5)
          {
             return -1;
          }

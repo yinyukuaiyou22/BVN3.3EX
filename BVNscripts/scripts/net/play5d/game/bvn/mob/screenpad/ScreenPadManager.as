@@ -3,19 +3,15 @@ package net.play5d.game.bvn.mob.screenpad
    import flash.display.DisplayObject;
    import flash.display.Stage;
    import flash.events.TouchEvent;
-   import flash.geom.Point;
-   import flash.geom.Rectangle;
-   import flash.ui.Multitouch;
-   import flash.utils.Dictionary;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.GameRender;
-   import net.play5d.game.bvn.events.GameEvent;
-   import net.play5d.game.bvn.mob.ctrls.MobileCtrler;
-   import net.play5d.game.bvn.mob.input.InputManager;
-   import net.play5d.game.bvn.mob.input.ScreenPadInput;
-   import net.play5d.game.bvn.state.GameState;
-   import net.play5d.game.bvn.state.SelectFighterStage;
+   import flash.geom.*;
+   import flash.ui.*;
+   import flash.utils.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.events.*;
+   import net.play5d.game.bvn.mob.ctrls.*;
+   import net.play5d.game.bvn.mob.input.*;
+   import net.play5d.game.bvn.state.*;
    import net.play5d.kyo.stage.events.KyoStageEvent;
    
    public class ScreenPadManager
@@ -66,7 +62,7 @@ package net.play5d.game.bvn.mob.screenpad
       
       public static function reBuild() : void
       {
-         var _loc1_:int = _curMode;
+         var _loc1_:int = int(_curMode);
          _curMode = 0;
          _game.reBuild();
          _selectFighter.reBuild();
@@ -124,7 +120,7 @@ package net.play5d.game.bvn.mob.screenpad
             return;
          }
          _curMode = 1;
-         if(_stage)
+         if(Boolean(_stage))
          {
             _stage.mouseChildren = true;
          }
@@ -138,7 +134,7 @@ package net.play5d.game.bvn.mob.screenpad
          {
             return;
          }
-         if(_stage)
+         if(Boolean(_stage))
          {
             _stage.mouseChildren = false;
          }
@@ -153,7 +149,7 @@ package net.play5d.game.bvn.mob.screenpad
          {
             return;
          }
-         if(_stage)
+         if(Boolean(_stage))
          {
             _stage.mouseChildren = true;
          }
@@ -194,7 +190,7 @@ package net.play5d.game.bvn.mob.screenpad
       
       private static function render() : void
       {
-         if(_game && _game.isShowing)
+         if(Boolean(_game) && Boolean(_game.isShowing))
          {
             _game.render();
          }
@@ -222,26 +218,27 @@ package net.play5d.game.bvn.mob.screenpad
       
       private static function listenTouchHandler(param1:TouchEvent) : void
       {
-         var _loc3_:Point = null;
-         var _loc2_:Rectangle = null;
-         var _loc5_:String = param1.type;
-         if("touchEnd" === _loc5_)
+         var _loc5_:* = undefined;
+         var _loc2_:Point = null;
+         var _loc3_:Rectangle = null;
+         var _loc4_:String = param1.type;
+         if("touchEnd" === _loc4_)
          {
-            _loc3_ = new Point(param1.stageX,param1.stageY);
-            for(var _loc4_ in _listened)
+            _loc2_ = new Point(param1.stageX,param1.stageY);
+            for(_loc5_ in _listened)
             {
-               if(_loc4_.visible)
+               if(Boolean(_loc5_.visible))
                {
-                  if(!_loc4_ || !_listened[_loc4_])
+                  if(!_loc5_ || !_listened[_loc5_])
                   {
-                     delete _listened[_loc4_];
+                     delete _listened[_loc5_];
                   }
                   else
                   {
-                     _loc2_ = _loc4_.getBounds(_stage);
-                     if(_loc2_.containsPoint(_loc3_))
+                     _loc3_ = _loc5_.getBounds(_stage);
+                     if(_loc3_.containsPoint(_loc2_))
                      {
-                        _listened[_loc4_](_loc4_);
+                        _listened[_loc5_](_loc5_);
                      }
                   }
                }

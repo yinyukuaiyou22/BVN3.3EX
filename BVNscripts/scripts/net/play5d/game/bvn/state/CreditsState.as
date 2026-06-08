@@ -1,20 +1,14 @@
 package net.play5d.game.bvn.state
 {
-   import flash.display.Bitmap;
-   import flash.display.BitmapData;
-   import flash.display.DisplayObject;
-   import flash.display.Sprite;
-   import flash.text.TextField;
-   import flash.text.TextFormat;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.AssetManager;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
+   import flash.display.*;
+   import flash.text.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.events.SetBtnEvent;
-   import net.play5d.game.bvn.interfaces.GameInterface;
-   import net.play5d.game.bvn.ui.SetBtnGroup;
-   import net.play5d.game.bvn.utils.ResUtils;
-   import net.play5d.kyo.stage.Istage;
+   import net.play5d.game.bvn.interfaces.*;
+   import net.play5d.game.bvn.ui.*;
+   import net.play5d.game.bvn.utils.*;
+   import net.play5d.kyo.stage.*;
    
    public class CreditsState implements Istage
    {
@@ -32,31 +26,31 @@ package net.play5d.game.bvn.state
       
       public function get display() : DisplayObject
       {
-         return _ui;
+         return this._ui;
       }
       
       public function build() : void
       {
          SoundCtrl.I.BGM(AssetManager.I.getSound("back"));
-         _ui = new Sprite();
-         var _loc3_:BitmapData = ResUtils.I.createBitmapData(ResUtils.I.common_ui,"cover_bgimg",GameConfig.GAME_SIZE.x,GameConfig.GAME_SIZE.y);
-         var _loc1_:Bitmap = new Bitmap(_loc3_);
-         _ui.addChild(_loc1_);
-         var _loc2_:String = getCreditsText();
-         _createsSp = GameInterface.instance.getCreadits(_loc2_);
-         if(!_createsSp)
+         this._ui = new Sprite();
+         var _loc1_:BitmapData = ResUtils.I.createBitmapData(ResUtils.I.common_ui,"cover_bgimg",GameConfig.GAME_SIZE.x,GameConfig.GAME_SIZE.y);
+         var _loc2_:Bitmap = new Bitmap(_loc1_);
+         this._ui.addChild(_loc2_);
+         var _loc3_:String = this.getCreditsText();
+         this._createsSp = GameInterface.instance.getCreadits(_loc3_);
+         if(!this._createsSp)
          {
-            _createsSp = getDefaultCredits(_loc2_);
+            this._createsSp = this.getDefaultCredits(_loc3_);
          }
-         _ui.addChild(_createsSp);
-         _btngroup = new SetBtnGroup();
-         _btngroup.y = GameConfig.GAME_SIZE.y - 150;
-         _btngroup.setBtnData([{
+         this._ui.addChild(this._createsSp);
+         this._btngroup = new SetBtnGroup();
+         this._btngroup.y = GameConfig.GAME_SIZE.y - 150;
+         this._btngroup.setBtnData([{
             "label":"BACK",
             "cn":"返回"
          }]);
-         _btngroup.addEventListener("SELECT",selectBtnHandler);
-         _ui.addChild(_btngroup);
+         this._btngroup.addEventListener("SELECT",this.selectBtnHandler);
+         this._ui.addChild(this._btngroup);
       }
       
       public function afterBuild() : void
@@ -65,11 +59,11 @@ package net.play5d.game.bvn.state
       
       public function destory(param1:Function = null) : void
       {
-         if(_btngroup)
+         if(Boolean(this._btngroup))
          {
-            _btngroup.destory();
-            _btngroup.removeEventListener("SELECT",selectBtnHandler);
-            _btngroup = null;
+            this._btngroup.destory();
+            this._btngroup.removeEventListener("SELECT",this.selectBtnHandler);
+            this._btngroup = null;
          }
       }
       
@@ -86,19 +80,19 @@ package net.play5d.game.bvn.state
       private function getDefaultCredits(param1:String) : Sprite
       {
          var _loc2_:Sprite = new Sprite();
-         var _loc4_:TextField = new TextField();
-         var _loc3_:TextFormat = new TextFormat();
-         _loc3_.font = "微软雅黑";
-         _loc3_.size = 20;
-         _loc3_.color = 16776960;
-         _loc3_.leading = 15;
-         _loc4_.defaultTextFormat = _loc3_;
-         _loc4_.multiline = true;
-         _loc4_.htmlText = param1;
-         _loc4_.autoSize = "left";
-         _loc4_.x = 50;
-         _loc4_.y = 30;
-         _loc2_.addChild(_loc4_);
+         var _loc3_:TextField = new TextField();
+         var _loc4_:TextFormat = new TextFormat();
+         _loc4_.font = "微软雅黑";
+         _loc4_.size = 20;
+         _loc4_.color = 16776960;
+         _loc4_.leading = 15;
+         _loc3_.defaultTextFormat = _loc4_;
+         _loc3_.multiline = true;
+         _loc3_.htmlText = param1;
+         _loc3_.autoSize = "left";
+         _loc3_.x = 50;
+         _loc3_.y = 30;
+         _loc2_.addChild(_loc3_);
          return _loc2_;
       }
    }

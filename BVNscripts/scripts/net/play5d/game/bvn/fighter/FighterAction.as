@@ -1,7 +1,6 @@
 package net.play5d.game.bvn.fighter
 {
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.mob.GameInterfaceManager;
+   import net.play5d.game.bvn.*;
    
    public class FighterAction
    {
@@ -94,8 +93,6 @@ package net.play5d.game.bvn.fighter
       
       private var _cdObj:Object = {};
       
-      private var _lastInfiniteState:Boolean = false;
-      
       public function FighterAction()
       {
          super();
@@ -103,98 +100,98 @@ package net.play5d.game.bvn.fighter
       
       public function clear() : void
       {
-         clearState();
-         clearAction();
+         this.clearState();
+         this.clearAction();
       }
       
       public function clearState() : void
       {
-         isMoving = false;
-         isJumping = false;
-         isDefensing = false;
-         isDashing = false;
-         isHurting = false;
-         isHurtFlying = false;
-         isDefenseHiting = false;
-         touchFloorBreakAct = false;
+         this.isMoving = false;
+         this.isJumping = false;
+         this.isDefensing = false;
+         this.isDashing = false;
+         this.isHurting = false;
+         this.isHurtFlying = false;
+         this.isDefenseHiting = false;
+         this.touchFloorBreakAct = false;
       }
       
       public function clearAction() : void
       {
-         hitTarget = null;
-         hitTargetChecker = null;
-         moveLeft = null;
-         moveRight = null;
-         defense = null;
-         jump = null;
-         jumpQuick = null;
-         jumpDown = null;
-         dash = null;
-         attack = null;
-         skill1 = null;
-         skill2 = null;
-         zhao1 = null;
-         zhao2 = null;
-         zhao3 = null;
-         catch1 = null;
-         catch2 = null;
-         bisha = null;
-         bishaUP = null;
-         bishaSUPER = null;
-         bishaQi = 100;
-         bishaUPQi = 100;
-         bishaAIRQi = 100;
-         bishaSUPERQi = 300;
-         hurtAction = null;
-         waiKai = null;
-         attackAIR = null;
-         skillAIR = null;
-         bishaAIR = null;
-         touchFloor = null;
-         airMove = false;
+         this.hitTarget = null;
+         this.hitTargetChecker = null;
+         this.moveLeft = null;
+         this.moveRight = null;
+         this.defense = null;
+         this.jump = null;
+         this.jumpQuick = null;
+         this.jumpDown = null;
+         this.dash = null;
+         this.attack = null;
+         this.skill1 = null;
+         this.skill2 = null;
+         this.zhao1 = null;
+         this.zhao2 = null;
+         this.zhao3 = null;
+         this.catch1 = null;
+         this.catch2 = null;
+         this.bisha = null;
+         this.bishaUP = null;
+         this.bishaSUPER = null;
+         this.bishaQi = 100;
+         this.bishaUPQi = 100;
+         this.bishaAIRQi = 100;
+         this.bishaSUPERQi = 300;
+         this.hurtAction = null;
+         this.waiKai = null;
+         this.attackAIR = null;
+         this.skillAIR = null;
+         this.bishaAIR = null;
+         this.touchFloor = null;
+         this.airMove = false;
       }
       
       public function render() : void
       {
-         var infiniteOn:Boolean = GameInterfaceManager.config.INFINITE_ENERGY;
+         var _loc2_:* = undefined;
+         var infiniteOn:Boolean = Boolean(GameConfig.INFINITE_ENERGY);
          if(infiniteOn)
          {
-            if(bishaQi != 100)
+            if(this.bishaQi != 100)
             {
-               bishaQi = 100;
+               this.bishaQi = 100;
             }
-            if(bishaUPQi != 100)
+            if(this.bishaUPQi != 100)
             {
-               bishaUPQi = 100;
+               this.bishaUPQi = 100;
             }
-            if(bishaSUPERQi != 300)
+            if(this.bishaSUPERQi != 300)
             {
-               bishaSUPERQi = 300;
+               this.bishaSUPERQi = 300;
             }
-            if(bishaAIRQi != 100)
+            if(this.bishaAIRQi != 100)
             {
-               bishaAIRQi = 100;
+               this.bishaAIRQi = 100;
             }
          }
-         _lastInfiniteState = infiniteOn;
-         for(var _loc1_ in _cdObj)
+         for(_loc2_ in this._cdObj)
          {
-            if(--_cdObj[_loc1_] <= 0)
+            if(--this._cdObj[_loc2_] <= 0)
             {
-               delete _cdObj[_loc1_];
+               delete this._cdObj[_loc2_];
             }
          }
       }
       
       public function setCD(param1:String, param2:int) : void
       {
-         _cdObj[param1] = param2 / GameConfig.FPS_GAME;
-         trace(_cdObj[param1]);
+         this._cdObj[param1] = param2 / GameConfig.FPS_GAME;
+         trace(this._cdObj[param1]);
       }
       
       public function CDOK(param1:String) : Boolean
       {
-         return !_cdObj[param1];
+         return !this._cdObj[param1];
       }
    }
 }

@@ -2,7 +2,7 @@ package
 {
    import flash.utils.ByteArray;
    
-   [Embed(source="/_assets/25_fight_swf$9ccdf9d2a37e1fb6b6f0df6717a547941873914523ByteArray.bin", mimeType="application/octet-stream")]
+   [Embed(source="_assets/25_fight_swf$9ccdf9d2a37e1fb6b6f0df6717a547941873914523ByteArray.bin", mimeType="application/octet-stream")]
    public class fight_swf$9ccdf9d2a37e1fb6b6f0df6717a547941873914523ByteArray extends ByteArray
    {
       

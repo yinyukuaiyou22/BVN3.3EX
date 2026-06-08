@@ -20,11 +20,11 @@ package net.play5d.game.bvn.data
       
       public function initByXML(param1:XML) : void
       {
-         id = param1.@id;
-         name = param1.@name;
-         fileUrl = param1.file.@url;
-         picUrl = param1.img.@url;
-         bgm = param1.bgm.@url;
+         this.id = param1.@id;
+         this.name = param1.@name;
+         this.fileUrl = param1.file.@url;
+         this.picUrl = param1.img.@url;
+         this.bgm = param1.bgm.@url;
       }
    }
 }

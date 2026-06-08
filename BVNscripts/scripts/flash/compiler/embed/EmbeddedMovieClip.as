@@ -1,4 +1,4 @@
-package flash.compiler.embed
+﻿package flash.compiler.embed
 {
    import flash.display.Loader;
    import flash.display.MovieClip;
@@ -9,7 +9,6 @@ package flash.compiler.embed
    
    public class EmbeddedMovieClip extends MovieClip
    {
-      
       private var loader:Loader = null;
       
       private var initialized:Boolean = false;
@@ -24,85 +23,85 @@ package flash.compiler.embed
       
       protected var initialHeight:Number = 0;
       
-      public function EmbeddedMovieClip(param1:ByteArray, param2:Number, param3:Number)
+      public function EmbeddedMovieClip(data:ByteArray, width:Number, height:Number)
       {
          super();
-         this.bytes = param1;
-         this.initialWidth = param2;
-         this.initialHeight = param3;
-         var _loc4_:LoaderContext = new LoaderContext();
-         _loc4_.applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
-         if("allowLoadBytesCodeExecution" in _loc4_)
+         bytes = data;
+         initialWidth = width;
+         initialHeight = height;
+         var context:LoaderContext = new LoaderContext();
+         context.applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
+         if("allowLoadBytesCodeExecution" in context)
          {
-            _loc4_["allowLoadBytesCodeExecution"] = true;
+            context["allowLoadBytesCodeExecution"] = true;
          }
-         this.loader = new Loader();
-         this.loader.contentLoaderInfo.addEventListener(Event.COMPLETE,this.completeHandler);
-         this.loader.loadBytes(this.movieClipData,_loc4_);
-         addChild(this.loader);
+         loader = new Loader();
+         loader.contentLoaderInfo.addEventListener(Event.COMPLETE,completeHandler);
+         loader.loadBytes(movieClipData,context);
+         addChild(loader);
       }
       
       override public function get height() : Number
       {
-         if(!this.initialized)
+         if(!initialized)
          {
-            return this.initialHeight;
+            return initialHeight;
          }
          return super.height;
       }
       
-      override public function set height(param1:Number) : void
+      override public function set height(v:Number) : void
       {
-         if(!this.initialized)
+         if(!initialized)
          {
-            this.requestedHeight = param1;
+            requestedHeight = v;
          }
          else
          {
-            this.loader.height = param1;
+            loader.height = v;
          }
       }
       
       override public function get width() : Number
       {
-         if(!this.initialized)
+         if(!initialized)
          {
-            return this.initialWidth;
+            return initialWidth;
          }
          return super.width;
       }
       
-      override public function set width(param1:Number) : void
+      override public function set width(v:Number) : void
       {
-         if(!this.initialized)
+         if(!initialized)
          {
-            this.requestedWidth = param1;
+            requestedWidth = v;
          }
          else
          {
-            this.loader.width = param1;
+            loader.width = v;
          }
       }
       
       public function get movieClipData() : ByteArray
       {
-         return this.bytes;
+         return bytes;
       }
       
-      private function completeHandler(param1:Event) : void
+      private function completeHandler(evt:Event) : void
       {
-         this.initialized = true;
-         this.initialWidth = this.loader.contentLoaderInfo.width;
-         this.initialHeight = this.loader.contentLoaderInfo.height;
-         if(!isNaN(this.requestedWidth))
+         initialized = true;
+         initialWidth = loader.contentLoaderInfo.width;
+         initialHeight = loader.contentLoaderInfo.height;
+         if(!isNaN(requestedWidth))
          {
-            this.loader.width = this.requestedWidth;
+            loader.width = requestedWidth;
          }
-         if(!isNaN(this.requestedHeight))
+         if(!isNaN(requestedHeight))
          {
-            this.loader.height = this.requestedHeight;
+            loader.height = requestedHeight;
          }
-         dispatchEvent(param1);
+         dispatchEvent(evt);
       }
    }
 }

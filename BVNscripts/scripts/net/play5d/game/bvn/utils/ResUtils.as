@@ -1,11 +1,12 @@
 package net.play5d.game.bvn.utils
 {
-   import flash.display.BitmapData;
-   import flash.display.Sprite;
+   import flash.display.*;
+   import flash.events.*;
    import flash.media.SoundTransform;
-   import flash.utils.Dictionary;
-   import flash.utils.describeType;
-   import net.play5d.game.bvn.data.GameData;
+   import flash.net.*;
+   import flash.system.*;
+   import flash.utils.*;
+   import net.play5d.game.bvn.data.*;
    
    public class ResUtils
    {
@@ -24,21 +25,31 @@ package net.play5d.game.bvn.utils
       
       public static var SELECT:String = "stg_select";
       
-      public var common_ui:Class = common_ui_swf$a3bf7921c1ba01403bf4dfe7a7fe5c9e1164926403;
-      
-      public var fight:Class = fight_swf$9ccdf9d2a37e1fb6b6f0df6717a547941873914523;
-      
-      public var gameover:Class = §gameover_swf$284eb874265c7eb53b81fbe601ecf04c-712060857§;
-      
-      public var howtoplay:Class = §howtoplay_swf$d10d084cfcec7c2d33e8c028a67fd274-539314070§;
-      
-      public var loading:Class = §loading_swf$7f39eada5ad885643203a9108b753eb3-531490057§;
-      
-      public var select:Class = §select_swf$f2bee00124a9f488c4c58f35b18af2d9-2023338167§;
-      
-      public var setting:Class = §setting_swf$4adf08ab3774d57fd0d989297cc4a7d7-103244389§;
-      
-      public var title:Class = §title_swf$528f79a0143139adcd9aaf069b4879b7-1105035181§;
+      private static const SWF_LIST:Array = [{
+         "key":"common_ui",
+         "file":"assets/swf/common_ui.swf"
+      },{
+         "key":"fight",
+         "file":"assets/swf/fight.swf"
+      },{
+         "key":"gameover",
+         "file":"assets/swf/gameover.swf"
+      },{
+         "key":"howtoplay",
+         "file":"assets/swf/howtoplay.swf"
+      },{
+         "key":"loading",
+         "file":"assets/swf/loading.swf"
+      },{
+         "key":"select",
+         "file":"assets/swf/select.swf"
+      },{
+         "key":"setting",
+         "file":"assets/swf/setting.swf"
+      },{
+         "key":"title",
+         "file":"assets/swf/title.swf"
+      }];
       
       private var _swfPool:Dictionary;
       
@@ -49,6 +60,22 @@ package net.play5d.game.bvn.utils
       private var _inited:Boolean;
       
       private var _initing:Boolean;
+      
+      public var common_ui:*;
+      
+      public var fight:*;
+      
+      public var gameover:*;
+      
+      public var howtoplay:*;
+      
+      public var loading:*;
+      
+      public var select:*;
+      
+      public var setting:*;
+      
+      public var title:*;
       
       public function ResUtils()
       {
@@ -66,14 +93,14 @@ package net.play5d.game.bvn.utils
       
       public function initalize(param1:Function = null, param2:Function = null) : void
       {
-         var _loc8_:String = null;
-         var _loc3_:Class = null;
-         var _loc7_:InsSwf = null;
-         if(_initing)
+         var total:int = 0;
+         var loaded:int = 0;
+         var item:Object = null;
+         if(this._initing)
          {
             throw new Error("正在初始化过程中，不能再次初始化！");
          }
-         if(_inited)
+         if(this._inited)
          {
             if(param1 != null)
             {
@@ -81,152 +108,96 @@ package net.play5d.game.bvn.utils
             }
             return;
          }
-         _inited = true;
-         _initing = true;
-         _swfPool = new Dictionary();
-         _initBack = param1;
-         _initError = param2;
-         var _loc5_:XML = describeType(this);
-         var _loc4_:Object = {};
-         for each(var _loc6_ in _loc5_.variable)
+         this._inited = true;
+         this._initing = true;
+         this._swfPool = new Dictionary();
+         this._initBack = param1;
+         this._initError = param2;
+         total = int(SWF_LIST.length);
+         loaded = 0;
+         for each(item in SWF_LIST)
          {
-            _loc8_ = _loc6_.@name;
-            _loc3_ = this[_loc8_];
-            _loc7_ = new InsSwf(_loc3_);
-            _loc7_.ready = swfReadyBack;
-            _loc7_.error = swfErrorBack;
-            _swfPool[_loc3_] = _loc7_;
-         }
-      }
-      
-      private function swfReadyBack(param1:InsSwf) : void
-      {
-         for each(var _loc2_ in _swfPool)
-         {
-            if(!_loc2_.isReady)
+            this.loadOneSwf(item,function(domain:ApplicationDomain, key:String):void
             {
-               return;
-            }
+               I[key] = domain;
+               ++loaded;
+               if(loaded >= total)
+               {
+                  finish();
+               }
+            });
          }
-         finish();
       }
       
-      private function swfErrorBack(param1:String) : void
+      private function loadOneSwf(item:Object, callback:Function) : void
       {
-         if(_initError != null)
+         var loader:Loader = new Loader();
+         var ctx:LoaderContext = new LoaderContext(false,ApplicationDomain.currentDomain);
+         ctx.allowCodeImport = true;
+         loader.contentLoaderInfo.addEventListener(Event.COMPLETE,function(e:Event):void
          {
-            _initError();
-         }
+            var li:LoaderInfo = e.currentTarget as LoaderInfo;
+            callback(li.applicationDomain,item.key);
+         });
+         loader.load(new URLRequest(item.file),ctx);
       }
       
       private function finish() : void
       {
-         _initing = false;
-         if(_initBack != null)
+         this._initing = false;
+         if(this._initBack != null)
          {
-            _initBack();
-            _initBack = null;
+            this._initBack();
+            this._initBack = null;
          }
       }
       
-      public function createDisplayObject(param1:Class, param2:String) : *
+      public function getItemClass(param1:*, param2:String) : Class
       {
-         var _loc3_:* = undefined;
-         var _loc5_:Sprite = null;
-         var _loc6_:SoundTransform = null;
-         var _loc4_:Class = getItemClass(param1,param2);
-         if(_loc4_)
-         {
-            _loc3_ = new _loc4_();
-            if(_loc3_ is Sprite)
-            {
-               _loc5_ = _loc3_ as Sprite;
-               _loc6_ = _loc5_.soundTransform;
-               _loc6_.volume = GameData.I.config.soundVolume;
-               _loc5_.soundTransform = _loc6_;
-               return _loc5_;
-            }
-            return _loc3_;
-         }
-      }
-      
-      public function createBitmapData(param1:Class, param2:String, param3:int, param4:int) : BitmapData
-      {
-         var _loc5_:Class = getItemClass(param1,param2);
-         if(!_loc5_)
+         var domain:ApplicationDomain = param1 as ApplicationDomain;
+         if(!domain)
          {
             return null;
          }
-         return new _loc5_(param3,param4);
+         return domain.getDefinition(param2) as Class;
       }
       
-      public function getItemClass(param1:Class, param2:String) : Class
+      public function createDisplayObject(param1:*, param2:String) : *
       {
-         if(!_swfPool)
-         {
-            throw new Error("未进行初始化！");
-         }
-         var _loc3_:InsSwf = _swfPool[param1];
-         if(!_loc3_)
+         var obj:* = undefined;
+         var sp:Sprite = null;
+         var st:SoundTransform = null;
+         var domain:ApplicationDomain = param1 as ApplicationDomain;
+         if(!domain)
          {
             throw new Error("swf is undefined!");
          }
-         return _loc3_.getClass(param2);
+         var cls:Class = this.getItemClass(param1,param2);
+         if(Boolean(cls))
+         {
+            obj = new cls();
+            if(obj is Sprite)
+            {
+               sp = obj as Sprite;
+               st = sp.soundTransform;
+               st.volume = GameData.I.config.soundVolume;
+               sp.soundTransform = st;
+               return sp;
+            }
+            return obj;
+         }
+         return null;
+      }
+      
+      public function createBitmapData(param1:*, param2:String, param3:int, param4:int) : BitmapData
+      {
+         var cls:Class = this.getItemClass(param1,param2);
+         if(!cls)
+         {
+            return null;
+         }
+         return new cls(param3,param4);
       }
    }
 }
 
-import flash.display.Loader;
-import flash.display.LoaderInfo;
-import flash.events.Event;
-import flash.system.ApplicationDomain;
-import flash.system.LoaderContext;
-import flash.utils.ByteArray;
-
-class InsSwf
-{
-   
-   private var _swf:*;
-   
-   private var _domain:ApplicationDomain;
-   
-   public var isReady:Boolean;
-   
-   public var ready:Function;
-   
-   public var error:Function;
-   
-   public function InsSwf(param1:Class)
-   {
-      super();
-      _swf = new param1();
-      var _loc2_:ByteArray = _swf.movieClipData;
-      if(!_loc2_)
-      {
-         error("未发现swf的movieClipData!");
-         throw new Error("未发现swf的movieClipData!");
-      }
-      var _loc3_:Loader = new Loader();
-      _loc3_.contentLoaderInfo.addEventListener("complete",loadComplete,false,0,true);
-      var _loc4_:LoaderContext = new LoaderContext(false,ApplicationDomain.currentDomain);
-      _loc4_.allowCodeImport = true;
-      _loc3_.loadBytes(_loc2_,_loc4_);
-   }
-   
-   public function getClass(param1:String) : Class
-   {
-      return _domain.getDefinition(param1) as Class;
-   }
-   
-   private function loadComplete(param1:Event) : void
-   {
-      var _loc2_:LoaderInfo = param1.currentTarget as LoaderInfo;
-      _domain = _loc2_.applicationDomain;
-      isReady = true;
-      if(ready != null)
-      {
-         ready(this);
-         ready = null;
-      }
-   }
-}

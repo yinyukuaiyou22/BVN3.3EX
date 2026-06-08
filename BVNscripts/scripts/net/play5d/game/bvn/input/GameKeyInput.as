@@ -2,8 +2,8 @@ package net.play5d.game.bvn.input
 {
    import flash.display.Stage;
    import flash.events.KeyboardEvent;
-   import net.play5d.game.bvn.data.KeyConfigVO;
-   import net.play5d.game.bvn.utils.KeyBoarder;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.utils.*;
    
    public class GameKeyInput implements IGameInput
    {
@@ -22,22 +22,22 @@ package net.play5d.game.bvn.input
       public function initlize(param1:Stage) : void
       {
          KeyBoarder.initlize(param1);
-         KeyBoarder.listen(keyBoardHandler);
+         KeyBoarder.listen(this.keyBoardHandler);
       }
       
       public function get enabled() : Boolean
       {
-         return _enabled;
+         return this._enabled;
       }
       
       public function set enabled(param1:Boolean) : void
       {
-         _enabled = param1;
+         this._enabled = param1;
       }
       
       public function setConfig(param1:Object) : void
       {
-         _config = param1 as KeyConfigVO;
+         this._config = param1 as KeyConfigVO;
       }
       
       public function focus() : void
@@ -47,9 +47,10 @@ package net.play5d.game.bvn.input
       
       public function anyKey() : Boolean
       {
-         for(var _loc1_ in _downKeys)
+         var _loc1_:* = undefined;
+         for(_loc1_ in this._downKeys)
          {
-            if(_downKeys[_loc1_] == 1)
+            if(this._downKeys[_loc1_] == 1)
             {
                return true;
             }
@@ -59,14 +60,15 @@ package net.play5d.game.bvn.input
       
       public function back() : Boolean
       {
-         return isDown(27);
+         return this.isDown(27);
       }
       
       public function select() : Boolean
       {
-         for each(var _loc1_ in _config.selects)
+         var _loc1_:* = undefined;
+         for each(_loc1_ in this._config.selects)
          {
-            if(isDown(_loc1_))
+            if(this.isDown(_loc1_))
             {
                return true;
             }
@@ -76,62 +78,62 @@ package net.play5d.game.bvn.input
       
       public function up() : Boolean
       {
-         return isDown(_config.up);
+         return this.isDown(this._config.up);
       }
       
       public function down() : Boolean
       {
-         return isDown(_config.down);
+         return this.isDown(this._config.down);
       }
       
       public function left() : Boolean
       {
-         return isDown(_config.left);
+         return this.isDown(this._config.left);
       }
       
       public function right() : Boolean
       {
-         return isDown(_config.right);
+         return this.isDown(this._config.right);
       }
       
       public function attack() : Boolean
       {
-         return isDown(_config.attack);
+         return this.isDown(this._config.attack);
       }
       
       public function jump() : Boolean
       {
-         return isDown(_config.jump);
+         return this.isDown(this._config.jump);
       }
       
       public function dash() : Boolean
       {
-         return isDown(_config.dash);
+         return this.isDown(this._config.dash);
       }
       
       public function skill() : Boolean
       {
-         return isDown(_config.skill);
+         return this.isDown(this._config.skill);
       }
       
       public function superSkill() : Boolean
       {
-         return isDown(_config.superKill);
+         return this.isDown(this._config.superKill);
       }
       
       public function special() : Boolean
       {
-         return isDown(_config.beckons);
+         return this.isDown(this._config.beckons);
       }
       
       public function wankai() : Boolean
       {
-         return isDown(_config.attack) && isDown(_config.jump);
+         return Boolean(this.isDown(this._config.attack)) && Boolean(this.isDown(this._config.jump));
       }
       
       public function clear() : void
       {
-         _downKeys = {};
+         this._downKeys = {};
       }
       
       private function keyBoardHandler(param1:KeyboardEvent) : void
@@ -139,16 +141,21 @@ package net.play5d.game.bvn.input
          switch(param1.type)
          {
             case "keyDown":
-               _downKeys[param1.keyCode] = 1;
+               this._downKeys[param1.keyCode] = 1;
                break;
             case "keyUp":
-               _downKeys[param1.keyCode] = 0;
+               this._downKeys[param1.keyCode] = 0;
          }
+      }
+      
+      public function setKeyState(keyCode:uint, isDown:Boolean) : void
+      {
+         this._downKeys[keyCode] = isDown ? 1 : 0;
       }
       
       private function isDown(param1:uint) : Boolean
       {
-         return _downKeys[param1] == 1;
+         return this._downKeys[param1] == 1;
       }
    }
 }

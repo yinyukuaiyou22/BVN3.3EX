@@ -1,6 +1,6 @@
 package net.play5d.kyo.utils
 {
-   import flash.geom.Point;
+   import flash.geom.*;
    
    public class KyoMath
    {
@@ -46,14 +46,14 @@ package net.play5d.kyo.utils
       
       public static function sum(... rest) : Number
       {
-         var _loc4_:Number = Number(NaN);
-         var _loc2_:Array = rest[0] is Array ? rest[0] : rest;
-         var _loc3_:Number = 0;
-         for each(_loc4_ in _loc2_)
+         var _loc2_:Number = NaN;
+         var _loc3_:Array = rest[0] is Array ? rest[0] : rest;
+         var _loc4_:Number = 0;
+         for each(_loc2_ in _loc3_)
          {
-            _loc3_ += _loc4_;
+            _loc4_ += _loc2_;
          }
-         return _loc3_;
+         return _loc4_;
       }
       
       public static function getAngleByPoints(param1:Point, param2:Point) : int

@@ -1,8 +1,7 @@
 package net.play5d.game.bvn.mob.data
 {
-   import net.play5d.game.bvn.interfaces.IExtendConfig;
-   import net.play5d.game.bvn.mob.input.JoyStickConfigVO;
-   import net.play5d.game.bvn.mob.input.JoySticker;
+   import net.play5d.game.bvn.interfaces.*;
+   import net.play5d.game.bvn.mob.input.*;
    
    public class ExtendConfig implements IExtendConfig
    {
@@ -29,11 +28,11 @@ package net.play5d.game.bvn.mob.data
       public function toSaveObj() : Object
       {
          var _loc1_:Object = {};
-         _loc1_.joy_menu = joyMenuConfig.toObj();
-         _loc1_.joy_p1 = joy1Config.toObj();
-         _loc1_.screenMode = screenMode;
-         _loc1_.screenPadConfig = screenPadConfig.toObj();
-         _loc1_.ENABLE_KEYBOARD = ENABLE_KEYBOARD;
+         _loc1_.joy_menu = this.joyMenuConfig.toObj();
+         _loc1_.joy_p1 = this.joy1Config.toObj();
+         _loc1_.screenMode = this.screenMode;
+         _loc1_.screenPadConfig = this.screenPadConfig.toObj();
+         _loc1_.ENABLE_KEYBOARD = this.ENABLE_KEYBOARD;
          return _loc1_;
       }
       
@@ -43,38 +42,38 @@ package net.play5d.game.bvn.mob.data
          {
             return;
          }
-         joyMenuConfig.readObj(param1.joy_menu);
-         joy1Config.readObj(param1.joy_p1);
+         this.joyMenuConfig.readObj(param1.joy_menu);
+         this.joy1Config.readObj(param1.joy_p1);
          if(param1.screenMode != undefined)
          {
-            screenMode = param1.screenMode;
+            this.screenMode = param1.screenMode;
          }
          if(param1.screenPadConfig != undefined)
          {
-            screenPadConfig.readObj(param1.screenPadConfig);
+            this.screenPadConfig.readObj(param1.screenPadConfig);
          }
          if(param1.ENABLE_KEYBOARD != undefined)
          {
-            ENABLE_KEYBOARD = param1.ENABLE_KEYBOARD;
+            this.ENABLE_KEYBOARD = param1.ENABLE_KEYBOARD;
          }
-         updateJoyConfig();
+         this.updateJoyConfig();
       }
       
       public function updateJoyConfig() : void
       {
-         initDefaultDevices();
-         joyMenuConfig.deviceId = joy1Config.deviceId;
+         this.initDefaultDevices();
+         this.joyMenuConfig.deviceId = this.joy1Config.deviceId;
       }
       
       private function initDefaultDevices() : void
       {
-         if(_isInitDefaultJoystick)
+         if(this._isInitDefaultJoystick)
          {
             return;
          }
          trace("initDefaultDevices");
-         _isInitDefaultJoystick = true;
-         setDefaultDevice(joy1Config,0);
+         this._isInitDefaultJoystick = true;
+         this.setDefaultDevice(this.joy1Config,0);
       }
       
       private function setDefaultDevice(param1:JoyStickConfigVO, param2:int) : void

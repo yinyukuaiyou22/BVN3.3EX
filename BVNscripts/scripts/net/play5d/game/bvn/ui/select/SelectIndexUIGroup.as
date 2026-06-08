@@ -1,21 +1,18 @@
 package net.play5d.game.bvn.ui.select
 {
-   import com.greensock.TweenLite;
+   import com.greensock.*;
    import flash.display.DisplayObject;
    import flash.display.Sprite;
    import flash.events.MouseEvent;
    import flash.events.TouchEvent;
-   import flash.geom.Point;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.ctrl.GameRender;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
-   import net.play5d.game.bvn.data.AssisterModel;
-   import net.play5d.game.bvn.data.FighterModel;
-   import net.play5d.game.bvn.data.SelectVO;
-   import net.play5d.game.bvn.events.GameEvent;
-   import net.play5d.game.bvn.input.GameInputer;
-   import net.play5d.game.bvn.ui.GameUI;
-   import net.play5d.kyo.utils.KyoRandom;
+   import flash.geom.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.events.*;
+   import net.play5d.game.bvn.input.*;
+   import net.play5d.game.bvn.ui.*;
+   import net.play5d.kyo.utils.*;
    
    public class SelectIndexUIGroup extends Sprite
    {
@@ -28,13 +25,15 @@ package net.play5d.game.bvn.ui.select
       
       public var onFinish:Function;
       
-      public var fighterOffset:Point = new Point();
+      public var fighterOffset:Point;
       
       private var _fighters:Vector.<SelectedFighterUI>;
       
       private var _fighterScale:Number = 1;
       
-      private var _arrowOffset:Point = new Point();
+      private var _fzScale:Number = 1;
+      
+      private var _arrowOffset:Point;
       
       private var _arrow:DisplayObject;
       
@@ -52,62 +51,12 @@ package net.play5d.game.bvn.ui.select
       
       public function SelectIndexUIGroup()
       {
+         this.fighterOffset = new Point();
+         this._arrowOffset = new Point();
          super();
       }
       
-      public function getOrder() : Array
-      {
-         var _loc2_:int = 0;
-         var _loc1_:Array = [];
-         if(!_fighters)
-         {
-            return _loc1_;
-         }
-         _fighters.sort(sortFighters);
-         while(_loc2_ < _fighters.length)
-         {
-            _loc1_.push(_fighters[_loc2_].getFighter().id);
-            _loc2_++;
-         }
-         return _loc1_;
-      }
-      
-      public function setFighterScale(param1:Number) : void
-      {
-         _fighterScale = param1;
-         if(!_fighters)
-         {
-            return;
-         }
-         for each(var _loc2_ in _fighters)
-         {
-            _loc2_.ui.scaleX = _loc2_.ui.scaleY = param1;
-         }
-      }
-      
-      public function setOrder(param1:Array) : void
-      {
-         var _loc3_:int = 0;
-         var _loc2_:int = 0;
-         if(!_fighters)
-         {
-            return;
-         }
-         while(_loc3_ < _fighters.length)
-         {
-            _loc2_ = param1.indexOf(_fighters[_loc3_].getFighter().id);
-            if(_loc2_ != -1)
-            {
-               _fighters[_loc3_].setFighterIndex(_loc2_ + 1);
-            }
-            _loc3_++;
-         }
-         removeArrow();
-         isFinish = true;
-         updateOrder();
-      }
-      
-      private function sortFighters(param1:SelectedFighterUI, param2:SelectedFighterUI) : int
+      private static function sortFighters(param1:SelectedFighterUI, param2:SelectedFighterUI) : int
       {
          var _loc3_:int = param1.getFighterIndex();
          var _loc4_:int = param2.getFighterIndex();
@@ -130,240 +79,279 @@ package net.play5d.game.bvn.ui.select
          return 0;
       }
       
+      public function getOrder() : Array
+      {
+         var _loc1_:int = 0;
+         var _loc2_:Array = [];
+         this._fighters.sort(sortFighters);
+         while(_loc1_ < this._fighters.length)
+         {
+            _loc2_.push(this._fighters[_loc1_].getFighter().id);
+            _loc1_++;
+         }
+         return _loc2_;
+      }
+      
+      public function setFighterScale(param1:Number) : void
+      {
+         var _loc2_:* = undefined;
+         this._fighterScale = param1;
+         for each(_loc2_ in this._fighters)
+         {
+            _loc2_.ui.scaleX = _loc2_.ui.scaleY = param1;
+         }
+      }
+      
+      public function setFZScale(param1:Number) : void
+      {
+         this._fzScale = param1;
+         if(!this._fuzhu)
+         {
+            return;
+         }
+         this._fuzhu.ui.scaleX = this._fuzhu.ui.scaleY = param1;
+      }
+      
+      public function setOrder(param1:Array) : void
+      {
+         var _loc2_:int = 0;
+         var _loc3_:int = 0;
+         while(_loc2_ < this._fighters.length)
+         {
+            _loc3_ = param1.indexOf(this._fighters[_loc2_].getFighter().id);
+            if(_loc3_ != -1)
+            {
+               this._fighters[_loc2_].setFighterIndex(_loc3_ + 1);
+            }
+            _loc2_++;
+         }
+         this.removeArrow();
+         this.isFinish = true;
+         this.updateOrder();
+      }
+      
       public function destory() : void
       {
-         removeArrow();
-         if(_fighters)
+         var _loc1_:* = undefined;
+         this.removeArrow();
+         if(Boolean(this._fighters))
          {
-            for each(var _loc1_ in _fighters)
+            for each(_loc1_ in this._fighters)
             {
-               _loc1_.removeEventListener("mouseOver",selectFighterMouseHandler);
-               _loc1_.removeEventListener("click",selectFighterMouseHandler);
-               _loc1_.removeEventListener("touchTap",selectFighterTouchHandler);
+               _loc1_.removeEventListener("mouseOver",this.selectFighterMouseHandler);
+               _loc1_.removeEventListener("click",this.selectFighterMouseHandler);
+               _loc1_.removeEventListener("touchTap",this.selectFighterTouchHandler);
                _loc1_.destory();
             }
-            _fighters = null;
+            this._fighters = null;
          }
-         if(_fuzhu)
+         if(Boolean(this._fuzhu))
          {
-            _fuzhu.destory();
-            _fuzhu = null;
+            this._fuzhu.destory();
+            this._fuzhu = null;
          }
-         _selectItem = null;
+         this._selectItem = null;
       }
       
       public function build(param1:Class, param2:SelectVO) : void
       {
-         var _loc4_:SelectedFighterUI = null;
-         var _loc5_:int = 0;
-         var _loc3_:Array = param2.getSelectFighters();
-         _fighters = new Vector.<SelectedFighterUI>();
-         while(_loc5_ < _loc3_.length)
+         var _loc3_:* = null;
+         var _loc4_:int = 0;
+         var _loc5_:Array = param2.getSelectFighters();
+         this._fighters = new Vector.<SelectedFighterUI>();
+         while(_loc4_ < _loc5_.length)
          {
-            _loc4_ = new SelectedFighterUI(new param1());
-            _loc4_.setFighter(FighterModel.I.getFighter(_loc3_[_loc5_]));
-            _loc4_.mouseEnabled(true);
-            if(GameConfig.TOUCH_MODE)
+            _loc3_ = new SelectedFighterUI(new param1());
+            _loc3_.setFighter(FighterModel.I.getFighter(_loc5_[_loc4_]));
+            _loc3_.mouseEnabled(true);
+            if(_loc5_.length > 1)
             {
-               _loc4_.addEventListener("touchTap",selectFighterTouchHandler);
+               if(GameConfig.TOUCH_MODE)
+               {
+                  _loc3_.addEventListener("touchTap",this.selectFighterTouchHandler);
+               }
+               else
+               {
+                  _loc3_.addEventListener("mouseOver",this.selectFighterMouseHandler);
+                  _loc3_.addEventListener("click",this.selectFighterMouseHandler);
+               }
             }
-            else
+            _loc3_.ui.x = this.fighterOffset.x;
+            _loc3_.ui.y = _loc4_ * this._gy + this.fighterOffset.y;
+            _loc3_.trueY = _loc4_ * this._gy;
+            if(this._fighterScale != 1)
             {
-               _loc4_.addEventListener("mouseOver",selectFighterMouseHandler);
-               _loc4_.addEventListener("click",selectFighterMouseHandler);
+               _loc3_.ui.scaleX = _loc3_.ui.scaleY = this._fighterScale;
             }
-            _loc4_.ui.x = fighterOffset.x;
-            _loc4_.ui.y = _loc5_ * _gy + fighterOffset.y;
-            _loc4_.trueY = _loc5_ * _gy;
-            if(_fighterScale != 1)
-            {
-               _loc4_.ui.scaleX = _loc4_.ui.scaleY = _fighterScale;
-            }
-            _fighters.push(_loc4_);
-            addChild(_loc4_.ui);
-            _loc5_++;
+            this._fighters.push(_loc3_);
+            addChild(_loc3_.ui);
+            _loc4_++;
          }
-         if(param2.fuzhu)
+         if(Boolean(param2.fuzhu))
          {
-            _loc4_ = new SelectedFighterUI(new param1());
-            _loc4_.setFighter(AssisterModel.I.getAssister(param2.fuzhu));
-            _loc4_.ui.x = fzx;
-            _loc4_.ui.y = fzy;
-            _loc4_.setAssister();
-            addChild(_loc4_.ui);
-            _fuzhu = _loc4_;
+            _loc3_ = new SelectedFighterUI(new param1());
+            _loc3_.setFighter(AssisterModel.I.getAssister(param2.fuzhu));
+            _loc3_.ui.x = this.fzx;
+            _loc3_.ui.y = this.fzy;
+            _loc3_.setAssister();
+            if(this._fzScale != 1)
+            {
+               _loc3_.ui.scaleX = _loc3_.ui.scaleY = this._fzScale;
+            }
+            addChild(_loc3_.ui);
+            this._fuzhu = _loc3_;
          }
       }
       
       private function selectFighterTouchHandler(param1:TouchEvent) : void
       {
-         if(!_fighters)
+         var _loc2_:SelectedFighterUI = param1.currentTarget as SelectedFighterUI;
+         var _loc3_:int = int(this._fighters.indexOf(_loc2_));
+         if(_loc3_ == -1)
          {
             return;
          }
-         var _loc3_:SelectedFighterUI = param1.currentTarget as SelectedFighterUI;
-         var _loc2_:int = _fighters.indexOf(_loc3_);
-         if(_loc2_ == -1)
-         {
-            return;
-         }
-         selectIndex(_loc2_);
-         doConfrim();
+         this.selectIndex(_loc3_);
+         this.doConfrim();
       }
       
       private function selectFighterMouseHandler(param1:MouseEvent) : void
       {
-         if(!_fighters)
-         {
-            return;
-         }
-         var _loc3_:SelectedFighterUI = param1.currentTarget as SelectedFighterUI;
-         var _loc2_:int = _fighters.indexOf(_loc3_);
-         if(_loc2_ == -1)
+         var _loc2_:SelectedFighterUI = param1.currentTarget as SelectedFighterUI;
+         var _loc3_:int = int(this._fighters.indexOf(_loc2_));
+         if(_loc3_ == -1 || this._arrow == null)
          {
             return;
          }
          switch(param1.type)
          {
             case "mouseOver":
-               selectIndex(_loc2_);
+               this.selectIndex(_loc3_);
                SoundCtrl.I.sndSelect();
                break;
             case "click":
-               doConfrim();
+               this.doConfrim();
          }
       }
       
       public function initArrow(param1:DisplayObject, param2:Point) : void
       {
-         _arrowOffset = param2;
-         _arrow = param1;
-         _arrow.x = param2.x;
-         addChild(_arrow);
-         selectIndex(0);
+         this._arrowOffset = param2;
+         this._arrow = param1;
+         this._arrow.x = param2.x;
+         addChild(this._arrow);
+         this.selectIndex(0);
       }
       
       public function selectIndex(param1:int, param2:int = 0) : void
       {
-         if(!_fighters || _fighters.length == 0)
-         {
-            return;
-         }
          if(param1 < 0)
          {
-            param1 = _fighters.length - 1;
+            param1 = this._fighters.length - 1;
          }
-         if(param1 > _fighters.length - 1)
+         if(param1 > this._fighters.length - 1)
          {
             param1 = 0;
          }
-         var _loc3_:SelectedFighterUI = _fighters[param1];
-         if(!_loc3_)
-         {
-            return;
-         }
+         var _loc3_:SelectedFighterUI = this._fighters[param1];
          if(_loc3_.getFighterIndex() != -1)
          {
             if(param2 != 0)
             {
-               selectIndex(param1 + param2,param2);
+               this.selectIndex(param1 + param2,param2);
             }
             return;
          }
-         _selectIndex = param1;
-         _selectItem = _loc3_;
-         if(_arrow)
+         this._selectIndex = param1;
+         this._selectItem = this._fighters[param1];
+         try
          {
-            _arrow.y = _selectItem.trueY + _arrowOffset.y;
+            this._arrow.y = this._selectItem.trueY + this._arrowOffset.y;
+         }
+         catch(e:Error)
+         {
          }
       }
       
       public function setKey(param1:String) : void
       {
-         _inputType = param1;
-         GameRender.add(render);
+         this._inputType = param1;
+         GameRender.add(this.render);
          GameInputer.focus();
       }
       
       public function autoSelect() : void
       {
-         if(!_fighters)
+         var _loc3_:int = 0;
+         var _loc1_:* = null;
+         var _loc2_:Array = [];
+         for each(_loc1_ in this._fighters)
          {
-            return;
+            _loc2_.push(_loc1_);
          }
-         var _loc3_:* = null;
-         var _loc1_:Array = [];
-         for each(_loc3_ in _fighters)
+         KyoRandom.arraySortRandom(_loc2_);
+         _loc3_ = 1;
+         for each(_loc1_ in _loc2_)
          {
-            _loc1_.push(_loc3_);
+            _loc1_.setFighterIndex(_loc3_);
+            _loc3_++;
          }
-         KyoRandom.arraySortRandom(_loc1_);
-         var _loc2_:int = 1;
-         for each(_loc3_ in _loc1_)
-         {
-            _loc3_.setFighterIndex(_loc2_);
-            _loc2_++;
-         }
-         selectFinish();
+         this.selectFinish();
       }
       
       private function removeArrow() : void
       {
-         if(_arrow)
+         if(Boolean(this._arrow))
          {
             try
             {
-               removeChild(_arrow);
+               removeChild(this._arrow);
             }
             catch(e:Error)
             {
             }
-            _arrow = null;
+            this._arrow = null;
          }
-         GameRender.remove(render);
+         GameRender.remove(this.render);
       }
       
       private function render() : void
       {
-         if(!_fighters)
-         {
-            return;
-         }
          if(GameUI.showingDialog())
          {
             return;
          }
-         if(GameInputer.up(_inputType,1))
+         if(GameInputer.up(this._inputType,1))
          {
-            selectIndex(_selectIndex - 1,-1);
+            this.selectIndex(this._selectIndex - 1,-1);
             SoundCtrl.I.sndSelect();
          }
-         if(GameInputer.down(_inputType,1))
+         if(GameInputer.down(this._inputType,1))
          {
-            selectIndex(_selectIndex + 1,1);
+            this.selectIndex(this._selectIndex + 1,1);
             SoundCtrl.I.sndSelect();
          }
-         if(GameInputer.select(_inputType,1))
+         if(GameInputer.attack(this._inputType,1))
          {
-            doConfrim();
+            this.doConfrim();
          }
       }
       
       private function doConfrim() : void
       {
-         if(_selectItem)
+         if(Boolean(this._selectItem))
          {
-            _selectItem.setFighterIndex(_currentSelectId);
-            _currentSelectId += 1;
-            if(_currentSelectId > _fighters.length - 1)
+            this._selectItem.setFighterIndex(this._currentSelectId);
+            ++this._currentSelectId;
+            if(this._currentSelectId > this._fighters.length - 1)
             {
-               selectLast();
-               selectFinish();
+               this.selectLast();
+               this.selectFinish();
             }
             else
             {
-               updateOrder();
-               selectIndex(1,1);
+               this.updateOrder();
+               this.selectIndex(1,1);
             }
             SoundCtrl.I.sndConfrim();
          }
@@ -371,15 +359,12 @@ package net.play5d.game.bvn.ui.select
       
       private function selectLast() : void
       {
-         if(!_fighters)
-         {
-            return;
-         }
-         for each(var _loc1_ in _fighters)
+         var _loc1_:* = undefined;
+         for each(_loc1_ in this._fighters)
          {
             if(_loc1_.getFighterIndex() == -1)
             {
-               _loc1_.setFighterIndex(_currentSelectId);
+               _loc1_.setFighterIndex(this._currentSelectId);
                return;
             }
          }
@@ -387,36 +372,32 @@ package net.play5d.game.bvn.ui.select
       
       private function selectFinish() : void
       {
-         removeArrow();
-         isFinish = true;
-         updateOrder();
-         if(onFinish != null)
+         this.removeArrow();
+         this.isFinish = true;
+         this.updateOrder();
+         if(this.onFinish != null)
          {
-            GameEvent.dispatchEvent("SELECT_FIGHTER_INDEX",getOrder());
-            onFinish();
+            GameEvent.dispatchEvent("SELECT_FIGHTER_INDEX",this.getOrder());
+            this.onFinish();
          }
       }
       
       private function updateOrder() : void
       {
-         var _loc3_:int = 0;
-         var _loc1_:Number = Number(NaN);
-         var _loc2_:DisplayObject = null;
-         if(!_fighters)
+         var _loc1_:int = 0;
+         var _loc2_:Number = NaN;
+         var _loc3_:* = null;
+         this._fighters.sort(sortFighters);
+         while(_loc1_ < this._fighters.length)
          {
-            return;
-         }
-         _fighters.sort(sortFighters);
-         while(_loc3_ < _fighters.length)
-         {
-            _loc1_ = _loc3_ * _gy;
-            _fighters[_loc3_].trueY = _loc1_;
-            _loc2_ = _fighters[_loc3_].ui;
-            if(Math.abs(_loc1_ - _loc2_.y) > 2)
+            _loc2_ = _loc1_ * this._gy;
+            this._fighters[_loc1_].trueY = _loc2_;
+            _loc3_ = this._fighters[_loc1_].ui;
+            if(Math.abs(_loc2_ - _loc3_.y) > 2)
             {
-               TweenLite.to(_loc2_,0.2,{"y":_loc1_});
+               TweenLite.to(_loc3_,0.2,{"y":_loc2_});
             }
-            _loc3_++;
+            _loc1_++;
          }
       }
    }

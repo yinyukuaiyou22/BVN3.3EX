@@ -1,6 +1,6 @@
 package net.play5d.game.bvn.mob.sockets
 {
-   import flash.utils.ByteArray;
+   import flash.utils.*;
    
    public class PacketBuffer
    {
@@ -14,49 +14,49 @@ package net.play5d.game.bvn.mob.sockets
       
       public function push(param1:ByteArray) : void
       {
-         if(buf == null)
+         if(this.buf == null)
          {
-            buf = param1;
+            this.buf = param1;
          }
          else
          {
-            buf.position = buf.length;
-            buf.writeBytes(param1);
+            this.buf.position = this.buf.length;
+            this.buf.writeBytes(param1);
          }
       }
       
       public function getPackets() : Array
       {
-         var _loc3_:* = 0;
-         var _loc1_:ByteArray = null;
+         var _loc1_:* = 0;
          var _loc2_:ByteArray = null;
+         var _loc3_:ByteArray = null;
          var _loc4_:Array = [];
-         buf.position = 0;
-         while(buf.bytesAvailable >= 2)
+         this.buf.position = 0;
+         while(this.buf.bytesAvailable >= 2)
          {
-            _loc3_ = uint(buf.readShort());
-            if(buf.bytesAvailable < _loc3_)
+            _loc1_ = uint(this.buf.readShort());
+            if(this.buf.bytesAvailable < _loc1_)
             {
-               _loc1_ = new ByteArray();
-               _loc1_.writeBytes(buf,0,buf.bytesAvailable);
-               buf = _loc1_;
+               _loc2_ = new ByteArray();
+               _loc2_.writeBytes(this.buf,0,this.buf.bytesAvailable);
+               this.buf = _loc2_;
                return _loc4_;
             }
-            _loc2_ = new ByteArray();
-            buf.readBytes(_loc2_,0,_loc3_);
-            _loc2_.position = 0;
-            _loc4_.push(_loc2_);
+            _loc3_ = new ByteArray();
+            this.buf.readBytes(_loc3_,0,_loc1_);
+            _loc3_.position = 0;
+            _loc4_.push(_loc3_);
          }
-         if(buf.bytesAvailable <= 0)
+         if(this.buf.bytesAvailable <= 0)
          {
-            buf = null;
+            this.buf = null;
          }
          return _loc4_;
       }
       
       public function clear() : void
       {
-         buf = null;
+         this.buf = null;
       }
    }
 }

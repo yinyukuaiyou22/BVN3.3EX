@@ -38,9 +38,9 @@ package net.play5d.kyo.display
       {
          var _loc2_:DisplayObject = null;
          var _loc3_:String = null;
-         var _loc5_:* = 0;
-         var _loc6_:String = null;
-         var _loc7_:DisplayObject = null;
+         var _loc4_:int = 0;
+         var _loc5_:String = null;
+         var _loc6_:DisplayObject = null;
          this._number = param1;
          for each(_loc2_ in this._mcs)
          {
@@ -52,14 +52,14 @@ package net.play5d.kyo.display
          {
             _loc3_ = "0" + _loc3_;
          }
-         var _loc4_:Number = 0;
-         while(_loc5_ < _loc3_.length)
+         var _loc7_:Number = 0;
+         while(_loc4_ < _loc3_.length)
          {
-            _loc6_ = _loc3_.charAt(_loc5_);
-            _loc7_ = this.createNum(int(_loc6_));
-            _loc7_.x = _loc4_;
-            _loc4_ += this.mcWidth == -1 ? _loc7_.width : this.mcWidth;
-            _loc5_++;
+            _loc5_ = _loc3_.charAt(_loc4_);
+            _loc6_ = this.createNum(int(_loc5_));
+            _loc6_.x = _loc7_;
+            _loc7_ += this.mcWidth == -1 ? _loc6_.width : this.mcWidth;
+            _loc4_++;
          }
       }
       

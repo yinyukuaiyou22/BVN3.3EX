@@ -14,18 +14,19 @@ package net.play5d.game.bvn.data
       
       public function clear() : void
       {
-         _teamObj = {};
+         this._teamObj = {};
       }
       
       public function getTeam(param1:int) : TeamVO
       {
-         return _teamObj[param1];
+         return this._teamObj[param1];
       }
       
       public function getOtherTeams(param1:int) : Vector.<TeamVO>
       {
+         var _loc3_:* = undefined;
          var _loc2_:Vector.<TeamVO> = new Vector.<TeamVO>();
-         for each(var _loc3_ in _teamObj)
+         for each(_loc3_ in this._teamObj)
          {
             if(_loc3_.id != param1)
             {
@@ -37,24 +38,25 @@ package net.play5d.game.bvn.data
       
       public function add(param1:TeamVO) : void
       {
-         _teamObj[param1.id] = param1;
-         refreshTeams();
+         this._teamObj[param1.id] = param1;
+         this.refreshTeams();
       }
       
       public function remove(param1:TeamVO) : void
       {
-         delete _teamObj[param1.id];
-         refreshTeams();
+         delete this._teamObj[param1.id];
+         this.refreshTeams();
       }
       
       private function refreshTeams() : void
       {
-         teams = new Vector.<TeamVO>();
-         for each(var _loc1_ in _teamObj)
+         var _loc1_:* = undefined;
+         this.teams = new Vector.<TeamVO>();
+         for each(_loc1_ in this._teamObj)
          {
-            if(_loc1_)
+            if(Boolean(_loc1_))
             {
-               teams.push(_loc1_);
+               this.teams.push(_loc1_);
             }
          }
       }

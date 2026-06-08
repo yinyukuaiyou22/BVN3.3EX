@@ -1,31 +1,22 @@
 package net.play5d.game.bvn.mob.ctrls
 {
    import flash.events.TimerEvent;
-   import flash.text.TextField;
-   import flash.text.TextFormat;
-   import flash.utils.ByteArray;
-   import flash.utils.Timer;
-   import flash.utils.clearTimeout;
-   import flash.utils.setTimeout;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.game_ctrls.GameCtrl;
-   import net.play5d.game.bvn.events.GameEvent;
+   import flash.text.*;
+   import flash.utils.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.game_ctrls.*;
+   import net.play5d.game.bvn.events.*;
    import net.play5d.game.bvn.fighter.FighterMain;
-   import net.play5d.game.bvn.interfaces.GameInterface;
-   import net.play5d.game.bvn.mob.data.HostVO;
-   import net.play5d.game.bvn.mob.input.InputManager;
-   import net.play5d.game.bvn.mob.sockets.SocketClient;
+   import net.play5d.game.bvn.interfaces.*;
+   import net.play5d.game.bvn.mob.data.*;
+   import net.play5d.game.bvn.mob.input.*;
+   import net.play5d.game.bvn.mob.sockets.*;
    import net.play5d.game.bvn.mob.sockets.events.SocketEvent;
-   import net.play5d.game.bvn.mob.sockets.udp.UDPDataVO;
-   import net.play5d.game.bvn.mob.sockets.udp.UDPSocket;
-   import net.play5d.game.bvn.mob.utils.JsonUtils;
-   import net.play5d.game.bvn.mob.utils.LockFrameLogic;
-   import net.play5d.game.bvn.mob.utils.SocketMsgFactory;
-   import net.play5d.game.bvn.state.GameState;
-   import net.play5d.game.bvn.state.LoadingState;
-   import net.play5d.game.bvn.state.SelectFighterStage;
-   import net.play5d.game.bvn.ui.GameUI;
-   import net.play5d.kyo.utils.setFrameOut;
+   import net.play5d.game.bvn.mob.sockets.udp.*;
+   import net.play5d.game.bvn.mob.utils.*;
+   import net.play5d.game.bvn.state.*;
+   import net.play5d.game.bvn.ui.*;
+   import net.play5d.kyo.utils.*;
    
    public class LANClientCtrl
    {
@@ -78,78 +69,78 @@ package net.play5d.game.bvn.mob.ctrls
       
       public function initlize() : void
       {
-         if(!_udpSocket)
+         if(!this._udpSocket)
          {
-            _udpSocket = new UDPSocket();
-            _udpSocket.listen(17478);
-            _udpSocket.addDataHandler(udpDataHandler);
+            this._udpSocket = new UDPSocket();
+            this._udpSocket.listen(17478);
+            this._udpSocket.addDataHandler(this.udpDataHandler);
          }
       }
       
       public function findHost(param1:Function) : void
       {
-         _onFindHostBack = param1;
-         if(!_findHostTimer)
+         this._onFindHostBack = param1;
+         if(!this._findHostTimer)
          {
-            _findHostTimer = new Timer(2000);
-            _findHostTimer.addEventListener("timer",findHostTimerHandler);
+            this._findHostTimer = new Timer(2000);
+            this._findHostTimer.addEventListener("timer",this.findHostTimerHandler);
          }
-         _findHostTimer.reset();
-         _findHostTimer.start();
-         findHostTimerHandler(null);
+         this._findHostTimer.reset();
+         this._findHostTimer.start();
+         this.findHostTimerHandler(null);
       }
       
       public function cancelFindHost() : void
       {
-         _onFindHostBack = null;
-         if(_findHostTimer)
+         this._onFindHostBack = null;
+         if(Boolean(this._findHostTimer))
          {
-            _findHostTimer.stop();
-            _findHostTimer.removeEventListener("timer",findHostTimerHandler);
-            _findHostTimer = null;
+            this._findHostTimer.stop();
+            this._findHostTimer.removeEventListener("timer",this.findHostTimerHandler);
+            this._findHostTimer = null;
          }
       }
       
       private function findHostTimerHandler(param1:TimerEvent) : void
       {
-         _udpSocket.sendBroadcast(17477,SocketMsgFactory.createFindHostMsg());
+         this._udpSocket.sendBroadcast(17477,SocketMsgFactory.createFindHostMsg());
       }
       
       private function receiveHostHandler(param1:UDPDataVO) : Boolean
       {
          var _loc2_:HostVO = null;
-         if(!_findHostTimer)
+         if(!this._findHostTimer)
          {
             return false;
          }
          var _loc3_:ByteArray = param1.getDataByteArray();
-         if(_loc3_ && _loc3_.readByte() != 21)
+         if(Boolean(_loc3_) && _loc3_.readByte() != 21)
          {
             return false;
          }
-         if(_onFindHostBack != null)
+         if(this._onFindHostBack != null)
          {
             _loc2_ = new HostVO();
             _loc2_.readByteArray(_loc3_);
             _loc2_.ip = param1.fromIP;
-            _onFindHostBack(_loc2_);
+            this._onFindHostBack(_loc2_);
          }
          return true;
       }
       
       private function udpDataHandler(param1:UDPDataVO) : void
       {
-         if(receiveHostHandler(param1))
+         if(this.receiveHostHandler(param1))
          {
             return;
          }
-         if(_connGameLogic)
+         if(Boolean(this._connGameLogic))
          {
-            if(_connGameLogic.receiveSyncUpdate(param1.getDataByteArray()))
+            if(this._connGameLogic.receiveSyncUpdate(param1.getDataByteArray()))
             {
                return;
             }
-            if(_connGameLogic.receiveUpdate(param1.getDataByteArray()))
+            if(this._connGameLogic.receiveUpdate(param1.getDataByteArray()))
             {
                return;
             }
@@ -158,94 +149,95 @@ package net.play5d.game.bvn.mob.ctrls
       
       public function updateDelay(param1:int) : void
       {
+         var _loc5_:* = undefined;
          var _loc2_:int = 0;
-         var _loc4_:int = 0;
-         var _loc3_:* = 0;
-         if(!_delayText)
+         var _loc3_:int = 0;
+         var _loc4_:* = 0;
+         if(!this._delayText)
          {
             return;
          }
-         _delayCache.push(param1);
-         if(_delayCache.length >= 10)
+         this._delayCache.push(param1);
+         if(this._delayCache.length >= 10)
          {
             _loc2_ = 0;
-            for each(var _loc5_ in _delayCache)
+            for each(_loc5_ in this._delayCache)
             {
                _loc2_ += _loc5_;
             }
-            _loc4_ = _loc2_ / _delayCache.length;
-            _loc4_ -= 200;
-            if(_loc4_ < 0)
+            _loc3_ = _loc2_ / this._delayCache.length;
+            _loc3_ -= 200;
+            if(_loc3_ < 0)
             {
-               _loc4_ = 0;
+               _loc3_ = 0;
             }
-            _delayCache = [];
-            _loc3_ = 16711680;
-            if(_loc4_ < 200)
+            this._delayCache = [];
+            _loc4_ = 16711680;
+            if(_loc3_ < 200)
             {
-               _loc3_ = 65280;
+               _loc4_ = 65280;
             }
-            else if(_loc4_ < 500)
+            else if(_loc3_ < 500)
             {
-               _loc3_ = 16776960;
+               _loc4_ = 16776960;
             }
-            _delayText.text = _loc4_ + " ms";
-            _delayText.textColor = _loc3_;
+            this._delayText.text = _loc3_ + " ms";
+            this._delayText.textColor = _loc4_;
          }
       }
       
       public function join(param1:HostVO, param2:Function) : void
       {
-         _host = param1;
-         _joinBack = param2;
-         initTcp(param1);
+         this._host = param1;
+         this._joinBack = param2;
+         this.initTcp(param1);
       }
       
       private function initTcp(param1:HostVO) : void
       {
-         if(_socket)
+         if(Boolean(this._socket))
          {
-            dispose();
+            this.dispose();
          }
-         _socket = new SocketClient();
-         _socket.addEventListener("SocketEvent_CLIENT_CONNECT",socketHandler);
-         _socket.addEventListener("SocketEvent_CLOSE",socketHandler);
-         _socket.addEventListener("SocketEvent_RECEIVE_DATA",socketHandler);
-         _socket.connect(param1.ip,17511);
+         this._socket = new SocketClient();
+         this._socket.addEventListener("SocketEvent_CLIENT_CONNECT",this.socketHandler);
+         this._socket.addEventListener("SocketEvent_CLOSE",this.socketHandler);
+         this._socket.addEventListener("SocketEvent_RECEIVE_DATA",this.socketHandler);
+         this._socket.connect(param1.ip,17511);
       }
       
       public function sendJoinIn() : void
       {
-         _socket.sendJSON(SocketMsgFactory.createJoinInMsg());
+         this._socket.sendJSON(SocketMsgFactory.createJoinInMsg());
       }
       
       public function dispose() : void
       {
-         cancelFindHost();
-         disposeTcp();
-         disposeUdp();
-         GameEvent.removeEventListener("GAME_START",onRoundStart);
+         this.cancelFindHost();
+         this.disposeTcp();
+         this.disposeUdp();
+         GameEvent.removeEventListener("GAME_START",this.onRoundStart);
       }
       
       private function disposeTcp() : void
       {
-         if(_socket)
+         if(Boolean(this._socket))
          {
-            _socket.removeEventListener("SocketEvent_CLIENT_CONNECT",socketHandler);
-            _socket.removeEventListener("SocketEvent_CLOSE",socketHandler);
-            _socket.removeEventListener("SocketEvent_RECEIVE_DATA",socketHandler);
-            _socket.close();
-            _socket = null;
+            this._socket.removeEventListener("SocketEvent_CLIENT_CONNECT",this.socketHandler);
+            this._socket.removeEventListener("SocketEvent_CLOSE",this.socketHandler);
+            this._socket.removeEventListener("SocketEvent_RECEIVE_DATA",this.socketHandler);
+            this._socket.close();
+            this._socket = null;
          }
       }
       
       private function disposeUdp() : void
       {
-         if(_udpSocket)
+         if(Boolean(this._udpSocket))
          {
-            _udpSocket.unListen();
-            _udpSocket.removeDataHandler(udpDataHandler);
-            _udpSocket = null;
+            this._udpSocket.unListen();
+            this._udpSocket.removeDataHandler(this.udpDataHandler);
+            this._udpSocket = null;
          }
       }
       
@@ -254,43 +246,43 @@ package net.play5d.game.bvn.mob.ctrls
          switch(param1.type)
          {
             case "SocketEvent_CLIENT_CONNECT":
-               _socket.sendJSON(SocketMsgFactory.createJoinMsg());
+               this._socket.sendJSON(SocketMsgFactory.createJoinMsg());
                break;
             case "SocketEvent_CLOSE":
-               if(active)
+               if(this.active)
                {
-                  gameEnd();
+                  this.gameEnd();
                   GameUI.alert("DISCONNECT","与主机断开连接");
                }
                else
                {
-                  dispose();
+                  this.dispose();
                }
                break;
             case "SocketEvent_RECEIVE_DATA":
-               onReceiveData(param1);
+               this.onReceiveData(param1);
          }
       }
       
       private function onReceiveData(param1:SocketEvent) : void
       {
-         var _loc3_:Object = param1.getDataObject();
-         if(!_loc3_)
+         var _loc2_:Object = param1.getDataObject();
+         if(!_loc2_)
          {
             return;
          }
-         if(_selectLogic && _selectLogic.receiveSelect(_loc3_))
+         if(Boolean(this._selectLogic) && Boolean(this._selectLogic.receiveSelect(_loc2_)))
          {
             return;
          }
-         if(receiveSync(_loc3_))
+         if(this.receiveSync(_loc2_))
          {
             return;
          }
-         var _loc2_:Object = JsonUtils.str2json(_loc3_);
-         if(_loc2_)
+         var _loc3_:Object = JsonUtils.str2json(_loc2_);
+         if(Boolean(_loc3_))
          {
-            receiveJson(_loc2_);
+            this.receiveJson(_loc3_);
          }
       }
       
@@ -301,89 +293,89 @@ package net.play5d.game.bvn.mob.ctrls
          {
             case "JOIN_BACK":
                _loc2_ = Boolean(param1.success);
-               if(_joinBack != null)
+               if(this._joinBack != null)
                {
-                  _joinBack(_loc2_);
-                  _joinBack = null;
+                  this._joinBack(_loc2_);
+                  this._joinBack = null;
                }
                if(!_loc2_)
                {
-                  dispose();
+                  this.dispose();
                }
                break;
             case "START_GAME":
-               gameStart(_host);
+               this.gameStart(this._host);
          }
       }
       
       public function sendTCP(param1:Object) : void
       {
-         if(_socket)
+         if(Boolean(this._socket))
          {
-            _socket.send(param1);
+            this._socket.send(param1);
          }
       }
       
       public function sendUDP(param1:Object) : void
       {
-         if(_udpSocket)
+         if(Boolean(this._udpSocket))
          {
-            _udpSocket.send(_host.ip,17477,param1);
+            this._udpSocket.send(this._host.ip,17477,param1);
          }
       }
       
       public function gameStart(param1:HostVO) : void
       {
-         active = true;
-         _delayText = new TextField();
-         _delayText.text = "0ms";
+         this.active = true;
+         this._delayText = new TextField();
+         this._delayText.text = "0ms";
          var _loc2_:TextFormat = new TextFormat();
          _loc2_.color = 16777215;
          _loc2_.size = 16;
-         _delayText.defaultTextFormat = _loc2_;
-         MainGame.I.stage.addChild(_delayText);
-         _selectLogic = new SelectFighterClientLogic();
-         _selectLogic.init();
-         _connGameLogic = new LockFrameClientLogic();
+         this._delayText.defaultTextFormat = _loc2_;
+         MainGame.I.stage.addChild(this._delayText);
+         this._selectLogic = new SelectFighterClientLogic();
+         this._selectLogic.init();
+         this._connGameLogic = new LockFrameClientLogic();
          GameCtrl.I.autoEndRoundAble = false;
          GameCtrl.I.autoStartAble = false;
          SelectFighterStage.AUTO_FINISH = false;
          LoadingState.AUTO_START_GAME = false;
          GameInterface.instance.updateInputConfig();
          LockFrameLogic.I.initClient();
-         GameEvent.addEventListener("ROUND_START",onRoundStart);
+         GameEvent.addEventListener("ROUND_START",this.onRoundStart);
          LANGameCtrl.I.gameStart(param1);
       }
       
       private function onRoundStart(param1:GameEvent) : void
       {
-         _connGameLogic.enabled = true;
+         this._connGameLogic.enabled = true;
       }
       
       public function gameEnd() : void
       {
-         active = false;
-         if(_selectLogic)
+         this.active = false;
+         if(Boolean(this._selectLogic))
          {
-            _selectLogic.dispose();
-            _selectLogic = null;
+            this._selectLogic.dispose();
+            this._selectLogic = null;
          }
-         if(_connGameLogic)
+         if(Boolean(this._connGameLogic))
          {
-            _connGameLogic.dispose();
-            _connGameLogic = null;
+            this._connGameLogic.dispose();
+            this._connGameLogic = null;
          }
-         if(_delayText)
+         if(Boolean(this._delayText))
          {
             try
             {
-               _delayText.parent.removeChild(_delayText);
+               this._delayText.parent.removeChild(this._delayText);
             }
             catch(e:Error)
             {
                trace(e);
             }
-            _delayText = null;
+            this._delayText = null;
          }
          GameCtrl.I.autoEndRoundAble = true;
          GameCtrl.I.autoStartAble = true;
@@ -391,7 +383,7 @@ package net.play5d.game.bvn.mob.ctrls
          LoadingState.AUTO_START_GAME = true;
          GameInterface.instance.updateInputConfig();
          LockFrameLogic.I.dispose();
-         dispose();
+         this.dispose();
          LANGameCtrl.I.gameEnd();
       }
       
@@ -399,7 +391,7 @@ package net.play5d.game.bvn.mob.ctrls
       {
          if(MainGame.stageCtrl.currentStage is GameState)
          {
-            return _connGameLogic.render();
+            return this._connGameLogic.render();
          }
          InputManager.I.socket_input_p2.freeRender();
          return true;
@@ -407,8 +399,8 @@ package net.play5d.game.bvn.mob.ctrls
       
       private function receiveSync(param1:Object) : Boolean
       {
-         var arr:Array;
-         var type:int;
+         var arr:Array = null;
+         var type:int = 0;
          var o:Object = param1;
          if(o is Array)
          {
@@ -420,14 +412,14 @@ package net.play5d.game.bvn.mob.ctrls
                switch(type - 3)
                {
                   case 0:
-                     syncStartGame();
+                     this.syncStartGame();
                      break;
                   case 1:
-                     syncGameFinish();
+                     this.syncGameFinish();
                      break;
                   case 4:
-                     _connGameLogic.enabled = false;
-                     _connGameLogic.reset();
+                     this._connGameLogic.enabled = false;
+                     this._connGameLogic.reset();
                      setFrameOut(function():void
                      {
                         syncRoundFinish(arr);
@@ -444,9 +436,9 @@ package net.play5d.game.bvn.mob.ctrls
          try
          {
             GameCtrl.I.doStartGame();
-            _syncErrorTimes = 0;
-            _connGameLogic.enabled = true;
-            _connGameLogic.reset();
+            this._syncErrorTimes = 0;
+            this._connGameLogic.enabled = true;
+            this._connGameLogic.reset();
          }
          catch(e:Error)
          {
@@ -472,9 +464,9 @@ package net.play5d.game.bvn.mob.ctrls
          {
             if(GameCtrl.I.gameRunData.round != _loc10_)
             {
-               syncError(true);
-               clearTimeout(_syncRoundFinishInt);
-               _syncRoundFinishInt = setTimeout(syncRoundFinish,500,param1);
+               this.syncError(true);
+               clearTimeout(this._syncRoundFinishInt);
+               this._syncRoundFinishInt = setTimeout(this.syncRoundFinish,500,param1);
                return;
             }
             if(_loc4_)
@@ -508,7 +500,7 @@ package net.play5d.game.bvn.mob.ctrls
                }
                GameCtrl.I.doGameEnd(_loc9_,_loc3_);
             }
-            _syncErrorTimes = 0;
+            this._syncErrorTimes = 0;
          }
          catch(e:Error)
          {
@@ -521,8 +513,8 @@ package net.play5d.game.bvn.mob.ctrls
       
       private function syncGameFinish() : void
       {
-         _connGameLogic.enabled = false;
-         _connGameLogic.reset();
+         this._connGameLogic.enabled = false;
+         this._connGameLogic.reset();
          if(!GameCtrl.I.fightFinished)
          {
             try
@@ -540,21 +532,21 @@ package net.play5d.game.bvn.mob.ctrls
       
       public function resetSyncError() : void
       {
-         _syncErrorTimes = 0;
+         this._syncErrorTimes = 0;
       }
       
       public function syncError(param1:Boolean = false) : void
       {
          if(!param1)
          {
-            gameEnd();
+            this.gameEnd();
             GameUI.alert("DISCONNECT","发生异常");
             return;
          }
-         _syncErrorTimes += 1;
-         if(_syncErrorTimes > 10)
+         this._syncErrorTimes += 1;
+         if(this._syncErrorTimes > 10)
          {
-            gameEnd();
+            this.gameEnd();
             GameUI.alert("DISCONNECT","发生异常");
          }
       }

@@ -43,14 +43,14 @@ package net.play5d.game.bvn.data
          super();
       }
       
-      public function getWins(param1:FighterMain) : int
+      public function getWins(f:FighterMain) : int
       {
-         switch(param1.team.id - 1)
+         switch(f.team.id - 1)
          {
             case 0:
-               return p1Wins;
+               return this.p1Wins;
             case 1:
-               return p2Wins;
+               return this.p2Wins;
             default:
                return 0;
          }
@@ -58,46 +58,46 @@ package net.play5d.game.bvn.data
       
       public function reset() : void
       {
-         p1Wins = 0;
-         p2Wins = 0;
-         round = 1;
-         lastWinnerTeam = null;
-         lastWinner = null;
-         lastLoserData = null;
-         lastLoserQi = 0;
-         isTimerOver = false;
-         isDrawGame = false;
-         lastWinnerHp = GameData.I.config.fighterHP;
-         gameTimeMax = GameData.I.config.fightTime;
-         gameTime = gameTimeMax;
-         continueLoser = null;
+         this.p1Wins = 0;
+         this.p2Wins = 0;
+         this.round = 1;
+         this.lastWinnerTeam = null;
+         this.lastWinner = null;
+         this.lastLoserData = null;
+         this.lastLoserQi = 0;
+         this.isTimerOver = false;
+         this.isDrawGame = false;
+         this.lastWinnerHp = GameData.I.config.fighterHP;
+         this.gameTimeMax = GameData.I.config.fightTime;
+         this.gameTime = this.gameTimeMax;
+         this.continueLoser = null;
       }
       
       public function clear() : void
       {
-         map = null;
-         lastWinnerTeam = null;
-         lastWinner = null;
-         lastLoserData = null;
-         continueLoser = null;
+         this.map = null;
+         this.lastWinnerTeam = null;
+         this.lastWinner = null;
+         this.lastLoserData = null;
+         this.continueLoser = null;
       }
       
       public function nextRound() : void
       {
-         round += 1;
-         gameTime = gameTimeMax;
-         isTimerOver = false;
+         ++this.round;
+         this.gameTime = this.gameTimeMax;
+         this.isTimerOver = false;
       }
       
-      public function setAllowLoseHP(param1:Boolean) : void
+      public function setAllowLoseHP(v:Boolean) : void
       {
-         if(p1FighterGroup)
+         if(Boolean(this.p1FighterGroup))
          {
-            p1FighterGroup.currentFighter.isAllowLoseHP = param1;
+            this.p1FighterGroup.currentFighter.isAllowLoseHP = v;
          }
-         if(p2FighterGroup)
+         if(Boolean(this.p2FighterGroup))
          {
-            p2FighterGroup.currentFighter.isAllowLoseHP = param1;
+            this.p2FighterGroup.currentFighter.isAllowLoseHP = v;
          }
       }
    }

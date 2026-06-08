@@ -13,10 +13,6 @@ package net.play5d.game.bvn.data
       
       public static const TEAM_WATCH:int = 13;
       
-      public static const TEAM_DUO:int = 14;
-      
-      public static const TEAM_DUO_WATCH:int = 15;
-      
       public static const SINGLE_ACRADE:int = 20;
       
       public static const SINGLE_VS_PEOPLE:int = 21;
@@ -24,10 +20,6 @@ package net.play5d.game.bvn.data
       public static const SINGLE_VS_CPU:int = 22;
       
       public static const SINGLE_WATCH:int = 23;
-      
-      public static const SINGLE_VS_DUO:int = 24;
-      
-      public static const SINGLE_VS_DUO_WATCH:int = 25;
       
       public static const SURVIVOR:int = 30;
       
@@ -56,17 +48,7 @@ package net.play5d.game.bvn.data
       
       public static function isSingleMode() : Boolean
       {
-         return currentMode == 20 || currentMode == 22 || currentMode == 21 || currentMode == 23 || currentMode == 24 || currentMode == 14 || currentMode == 15 || currentMode == 25;
-      }
-      
-      public static function isTeamDuo() : Boolean
-      {
-         return currentMode == 14 || currentMode == 15;
-      }
-      
-      public static function isDuoMode() : Boolean
-      {
-         return currentMode == 24 || currentMode == 25;
+         return currentMode == 20 || currentMode == 22 || currentMode == 21 || currentMode == 23;
       }
       
       public static function isVsPeople() : Boolean
@@ -76,12 +58,12 @@ package net.play5d.game.bvn.data
       
       public static function isVsCPU(param1:Boolean = true) : Boolean
       {
-         return currentMode == 12 || currentMode == 22 || param1 && currentMode == 40 || currentMode == 13 || currentMode == 23 || currentMode == 24 || currentMode == 14 || currentMode == 15 || currentMode == 25;
+         return currentMode == 12 || currentMode == 22 || param1 && currentMode == 40 || isWatch(param1);
       }
       
-      public static function isWatch() : Boolean
+      public static function isWatch(param1:Boolean = true) : Boolean
       {
-         return currentMode == 13 || currentMode == 23 || currentMode == 15 || currentMode == 25;
+         return currentMode == 13 || currentMode == 23 || param1 && currentMode == 40;
       }
       
       public static function isAcrade() : Boolean

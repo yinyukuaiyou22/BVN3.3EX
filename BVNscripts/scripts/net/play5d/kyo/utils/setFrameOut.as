@@ -1,15 +1,17 @@
 package net.play5d.kyo.utils
 {
-   import flash.display.DisplayObject;
-   import flash.display.Sprite;
-   import flash.events.Event;
+   import flash.display.*;
+   import flash.events.*;
    
    public function setFrameOut(param1:Function, param2:int, param3:DisplayObject = null) : void
    {
-      var ii:int;
+      var ii:int = 0;
       var _mc:DisplayObject = null;
       var mx:int = 0;
       var onEnterframe:Function = null;
+      _mc = null;
+      mx = 0;
+      onEnterframe = null;
       var fun:Function = param1;
       var frame:int = param2;
       var mc:DisplayObject = param3;

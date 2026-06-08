@@ -20,51 +20,52 @@ package net.play5d.game.bvn.fighter.utils
       
       public function destory() : void
       {
-         _idCache = null;
-         _frameCache = null;
+         this._idCache = null;
+         this._frameCache = null;
       }
       
       public function areaFrameDefined(param1:int) : Boolean
       {
-         return _frameCache[param1] !== undefined;
+         return this._frameCache[param1] !== undefined;
       }
       
       public function getAreaByFrame(param1:int) : Object
       {
-         return _frameCache[param1];
+         return this._frameCache[param1];
       }
       
       public function cacheAreaByFrame(param1:int, param2:Object) : void
       {
-         _frameCache[param1] = param2;
+         this._frameCache[param1] = param2;
       }
       
       public function getAreaByDisplay(param1:DisplayObject) : Object
       {
-         var _loc2_:String = getDisplayCacheId(param1);
-         if(_idCache[_loc2_])
+         var _loc2_:String = this.getDisplayCacheId(param1);
+         if(Boolean(this._idCache[_loc2_]))
          {
-            return _idCache[_loc2_];
+            return this._idCache[_loc2_];
          }
          return null;
       }
       
       public function cacheAreaByDisplay(param1:DisplayObject, param2:Rectangle, param3:Object = null) : Object
       {
-         var _loc4_:String = getDisplayCacheId(param1);
+         var _loc7_:* = undefined;
+         var _loc4_:String = this.getDisplayCacheId(param1);
          var _loc5_:String = param1.name;
-         var _loc7_:Object = {};
-         _loc7_.name = _loc5_;
-         _loc7_.area = param2;
-         if(param3)
+         var _loc6_:Object = {};
+         _loc6_.name = _loc5_;
+         _loc6_.area = param2;
+         if(Boolean(param3))
          {
-            for(var _loc6_ in param3)
+            for(_loc7_ in param3)
             {
-               _loc7_[_loc6_] = param3[_loc6_];
+               _loc6_[_loc7_] = param3[_loc7_];
             }
          }
-         _idCache[_loc4_] = _loc7_;
-         return _loc7_;
+         this._idCache[_loc4_] = _loc6_;
+         return _loc6_;
       }
       
       private function getDisplayCacheId(param1:DisplayObject) : String

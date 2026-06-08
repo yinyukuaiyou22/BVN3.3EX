@@ -1,6 +1,6 @@
 package net.play5d.game.bvn.fighter.vos
 {
-   import net.play5d.game.bvn.GameConfig;
+   import net.play5d.game.bvn.*;
    
    public class FighterBuffVO
    {
@@ -29,13 +29,13 @@ package net.play5d.game.bvn.fighter.vos
       
       public function render() : Boolean
       {
-         if(finished)
+         if(this.finished)
          {
             return true;
          }
-         if(--_holdFrame <= 0)
+         if(--this._holdFrame <= 0)
          {
-            finished = true;
+            this.finished = true;
             return true;
          }
          return false;

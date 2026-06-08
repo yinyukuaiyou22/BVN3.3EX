@@ -1,0 +1,15 @@
+{
+    "type": "app",
+    "compilerOptions": {
+        "debug": true,
+        "swf-version": 37,
+        "optimize": false,
+        "use-gpu": true,
+        "use-direct-blit": true,
+        "source-path": [
+            "BVNscripts/scripts"
+        ],
+        "output": "launch.swf"
+    },
+    "mainClass": "launch"
+}

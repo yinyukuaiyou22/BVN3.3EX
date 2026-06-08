@@ -1,9 +1,8 @@
 package net.play5d.game.bvn.ctrl
 {
    import flash.display.Sprite;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ui.QuickTransUI;
-   import net.play5d.game.bvn.ui.TransUI;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ui.*;
    
    public class StateCtrl
    {
@@ -21,7 +20,7 @@ package net.play5d.game.bvn.ctrl
       public function StateCtrl()
       {
          super();
-         _transContainer = MainGame.I.root;
+         this._transContainer = MainGame.I.root;
       }
       
       public static function get I() : StateCtrl
@@ -35,18 +34,18 @@ package net.play5d.game.bvn.ctrl
       
       private function addTransUI() : void
       {
-         if(!_transUI)
+         if(!this._transUI)
          {
-            _transUI = new TransUI();
+            this._transUI = new TransUI();
          }
-         _transContainer.addChild(_transUI.ui);
+         this._transContainer.addChild(this._transUI.ui);
       }
       
       private function removeTrainsUI() : void
       {
          try
          {
-            _transContainer.removeChild(_transUI.ui);
+            this._transContainer.removeChild(this._transUI.ui);
          }
          catch(e:Error)
          {
@@ -55,7 +54,8 @@ package net.play5d.game.bvn.ctrl
       
       public function transIn(param1:Function = null, param2:Boolean = false) : void
       {
-         var back:Function = param1;
+         var back:Function = null;
+         back = param1;
          var removeAfterComplete:Boolean = param2;
          var removeSelf:* = function():void
          {
@@ -65,7 +65,7 @@ package net.play5d.game.bvn.ctrl
             }
             removeTrainsUI();
          };
-         if(!transEnabled)
+         if(!this.transEnabled)
          {
             if(back != null)
             {
@@ -73,20 +73,21 @@ package net.play5d.game.bvn.ctrl
             }
             return;
          }
-         addTransUI();
+         this.addTransUI();
          if(removeAfterComplete)
          {
-            _transUI.fadIn(removeSelf);
+            this._transUI.fadIn(removeSelf);
          }
          else
          {
-            _transUI.fadIn(back);
+            this._transUI.fadIn(back);
          }
       }
       
       public function transOut(param1:Function = null, param2:Boolean = true) : void
       {
-         var back:Function = param1;
+         var back:Function = null;
+         back = param1;
          var removeAfterComplete:Boolean = param2;
          var removeSelf:* = function():void
          {
@@ -96,7 +97,7 @@ package net.play5d.game.bvn.ctrl
             }
             removeTrainsUI();
          };
-         if(!transEnabled)
+         if(!this.transEnabled)
          {
             if(back != null)
             {
@@ -104,20 +105,21 @@ package net.play5d.game.bvn.ctrl
             }
             return;
          }
-         addTransUI();
+         this.addTransUI();
          if(removeAfterComplete)
          {
-            _transUI.fadOut(removeSelf);
+            this._transUI.fadOut(removeSelf);
          }
          else
          {
-            _transUI.fadOut(back);
+            this._transUI.fadOut(back);
          }
       }
       
       public function quickTrans(param1:Function = null) : void
       {
-         var back:Function = param1;
+         var back:Function = null;
+         back = param1;
          var transCom:* = function():void
          {
             try
@@ -132,17 +134,17 @@ package net.play5d.game.bvn.ctrl
                back();
             }
          };
-         if(!_quickTransUI)
+         if(!this._quickTransUI)
          {
-            _quickTransUI = new QuickTransUI();
+            this._quickTransUI = new QuickTransUI();
          }
-         _transContainer.addChild(_quickTransUI);
-         _quickTransUI.fadInAndOut(transCom);
+         this._transContainer.addChild(this._quickTransUI);
+         this._quickTransUI.fadInAndOut(transCom);
       }
       
       public function clearTrans() : void
       {
-         removeTrainsUI();
+         this.removeTrainsUI();
       }
    }
 }

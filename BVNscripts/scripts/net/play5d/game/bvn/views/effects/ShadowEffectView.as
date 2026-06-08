@@ -1,11 +1,8 @@
 package net.play5d.game.bvn.views.effects
 {
-   import flash.display.Bitmap;
-   import flash.display.DisplayObject;
-   import flash.display.Sprite;
-   import flash.geom.ColorTransform;
-   import flash.geom.Rectangle;
-   import net.play5d.kyo.utils.KyoUtils;
+   import flash.display.*;
+   import flash.geom.*;
+   import net.play5d.kyo.utils.*;
    
    public class ShadowEffectView
    {
@@ -41,93 +38,93 @@ package net.play5d.game.bvn.views.effects
          this.r = param2;
          this.g = param3;
          this.b = param4;
-         _addBpFrame = 0;
+         this._addBpFrame = 0;
       }
       
       public function destory() : void
       {
-         var _loc2_:int = 0;
-         var _loc1_:Bitmap = null;
-         target = null;
-         while(_loc2_ < _bps.length)
+         var _loc1_:int = 0;
+         var _loc2_:Bitmap = null;
+         this.target = null;
+         while(_loc1_ < this._bps.length)
          {
-            _loc1_ = _bps[_loc2_];
-            _loc1_.bitmapData.dispose();
+            _loc2_ = this._bps[_loc1_];
+            _loc2_.bitmapData.dispose();
             try
             {
-               container.removeChild(_loc1_);
+               this.container.removeChild(_loc2_);
             }
             catch(error:Error)
             {
             }
-            _loc2_++;
+            _loc1_++;
          }
-         _bps = null;
+         this._bps = null;
       }
       
       public function render() : void
       {
-         var _loc2_:int = 0;
-         var _loc1_:Bitmap = null;
-         if(stopShadow)
+         var _loc1_:int = 0;
+         var _loc2_:Bitmap = null;
+         if(this.stopShadow)
          {
-            if(_bps.length <= 0)
+            if(this._bps.length <= 0)
             {
-               removeSelf();
+               this.removeSelf();
             }
          }
-         else if(_addBpFrame++ > _addBpGap)
+         else if(this._addBpFrame++ > this._addBpGap)
          {
-            addShadowBp();
-            _addBpFrame = 0;
+            this.addShadowBp();
+            this._addBpFrame = 0;
          }
-         while(_loc2_ < _bps.length)
+         while(_loc1_ < this._bps.length)
          {
-            _loc1_ = _bps[_loc2_];
-            _loc1_.alpha -= _alphaLose;
-            if(_loc1_.alpha <= 0)
+            _loc2_ = this._bps[_loc1_];
+            _loc2_.alpha -= this._alphaLose;
+            if(_loc2_.alpha <= 0)
             {
-               removeBitmap(_loc1_);
+               this.removeBitmap(_loc2_);
             }
-            _loc2_++;
+            _loc1_++;
          }
       }
       
       private function addShadowBp() : void
       {
-         var _loc3_:ColorTransform = null;
-         if(r != 0 || g != 0 || b != 0)
+         var _loc1_:ColorTransform = null;
+         if(this.r != 0 || this.g != 0 || this.b != 0)
          {
-            _loc3_ = new ColorTransform();
-            _loc3_.redOffset = r;
-            _loc3_.greenOffset = g;
-            _loc3_.blueOffset = b;
+            _loc1_ = new ColorTransform();
+            _loc1_.redOffset = this.r;
+            _loc1_.greenOffset = this.g;
+            _loc1_.blueOffset = this.b;
          }
-         var _loc2_:Rectangle = target.getBounds(target);
-         var _loc1_:Bitmap = KyoUtils.drawDisplay(target,true,true,0,_loc3_);
-         if(_loc1_ == null)
+         var _loc2_:Rectangle = this.target.getBounds(this.target);
+         var _loc3_:Bitmap = KyoUtils.drawDisplay(this.target,true,true,0,_loc1_);
+         if(_loc3_ == null)
          {
             return;
          }
-         _loc1_.alpha = _alphaStart;
-         _loc1_.x = target.x + _loc2_.x * target.scaleX;
-         _loc1_.y = target.y + _loc2_.y;
-         _loc1_.scaleX = target.scaleX;
-         _loc1_.scaleY = target.scaleY;
-         container.addChildAt(_loc1_,0);
-         _bps.push(_loc1_);
+         _loc3_.alpha = this._alphaStart;
+         _loc3_.x = this.target.x + _loc2_.x * this.target.scaleX;
+         _loc3_.y = this.target.y + _loc2_.y;
+         _loc3_.scaleX = this.target.scaleX;
+         _loc3_.scaleY = this.target.scaleY;
+         this.container.addChildAt(_loc3_,0);
+         this._bps.push(_loc3_);
       }
       
       private function removeBitmap(param1:Bitmap) : void
       {
-         var _loc2_:int = _bps.indexOf(param1);
+         var _loc2_:int = int(this._bps.indexOf(param1));
          if(_loc2_ != -1)
          {
-            _bps.splice(_loc2_,1);
+            this._bps.splice(_loc2_,1);
          }
          try
          {
-            container.removeChild(param1);
+            this.container.removeChild(param1);
          }
          catch(e:Error)
          {
@@ -137,9 +134,9 @@ package net.play5d.game.bvn.views.effects
       
       private function removeSelf() : void
       {
-         if(onRemove != null)
+         if(this.onRemove != null)
          {
-            onRemove(this);
+            this.onRemove(this);
          }
       }
    }

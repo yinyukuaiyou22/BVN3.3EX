@@ -23,39 +23,41 @@ package net.play5d.game.bvn.data
       
       public function getAllFighters() : Object
       {
-         return _fighterObj;
+         return this._fighterObj;
       }
       
       public function getFighters(param1:int = -1, param2:Function = null) : Vector.<FighterVO>
       {
-         var _loc4_:Vector.<FighterVO> = new Vector.<FighterVO>();
-         for each(var _loc3_ in _fighterObj)
+         var _loc4_:* = undefined;
+         var _loc3_:Vector.<FighterVO> = new Vector.<FighterVO>();
+         for each(_loc4_ in this._fighterObj)
          {
-            if(!(param2 && !param2(_loc3_)))
+            if(param2 != null || Boolean(param2(_loc4_)))
             {
-               if(param1 == -1 || _loc3_.comicType == param1)
+               if(param1 == -1 || _loc4_.comicType == param1)
                {
-                  _loc4_.push(_loc3_);
+                  _loc3_.push(_loc4_);
                }
             }
          }
-         return _loc4_;
+         return _loc3_;
       }
       
       public function getFighter(param1:String, param2:Boolean = false) : FighterVO
       {
-         return _fighterObj[param1];
+         return this._fighterObj[param1];
       }
       
       public function initByXML(param1:XML) : void
       {
+         var _loc3_:* = undefined;
          var _loc2_:FighterVO = null;
-         _fighterObj = {};
-         for each(var _loc3_ in param1.fighter)
+         this._fighterObj = {};
+         for each(_loc3_ in param1.fighter)
          {
             _loc2_ = new FighterVO();
             _loc2_.initByXML(_loc3_);
-            _fighterObj[_loc2_.id] = _loc2_;
+            this._fighterObj[_loc2_.id] = _loc2_;
          }
       }
    }

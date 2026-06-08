@@ -1,27 +1,22 @@
 package net.play5d.game.bvn.state
 {
-   import com.greensock.TweenLite;
+   import com.greensock.*;
    import flash.display.DisplayObject;
    import flash.display.MovieClip;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.AssetManager;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
-   import net.play5d.game.bvn.data.ConfigVO;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.data.KeyConfigVO;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.events.SetBtnEvent;
-   import net.play5d.game.bvn.input.GameInputer;
+   import net.play5d.game.bvn.input.*;
    import net.play5d.game.bvn.interfaces.IInnerSetUI;
-   import net.play5d.game.bvn.ui.SetBtnGroup;
-   import net.play5d.game.bvn.ui.SetCtrlBtnUI;
-   import net.play5d.game.bvn.utils.ResUtils;
-   import net.play5d.kyo.stage.Istage;
+   import net.play5d.game.bvn.ui.*;
+   import net.play5d.game.bvn.utils.*;
+   import net.play5d.kyo.stage.*;
    
    public class SettingState implements Istage
    {
       
-      private var _ui:stg_set_ui;
+      private var _ui:*;
       
       private var _btnGroup:SetBtnGroup;
       
@@ -36,22 +31,22 @@ package net.play5d.game.bvn.state
       
       public function get display() : DisplayObject
       {
-         return _ui;
+         return this._ui;
       }
       
       public function build() : void
       {
-         _ui = ResUtils.I.createDisplayObject(ResUtils.I.setting,ResUtils.SETTING);
-         _btnGroup = new SetBtnGroup();
-         _btnGroup.startY = 30;
-         _btnGroup.endY = 550;
-         _btnGroup.gap = 70;
-         _btnGroup.initMainSet();
-         _btnGroup.initScroll(GameConfig.GAME_SIZE.x,600);
-         _btnGroup.addEventListener("SELECT",onBtnSelect);
-         _btnGroup.addEventListener("OPTION_CHANGE",onOptionChange);
-         _ui.addChild(_btnGroup);
-         _man = _ui.ichigo;
+         this._ui = ResUtils.I.createDisplayObject(ResUtils.I.setting,ResUtils.SETTING);
+         this._btnGroup = new SetBtnGroup();
+         this._btnGroup.startY = 30;
+         this._btnGroup.endY = 550;
+         this._btnGroup.gap = 70;
+         this._btnGroup.initMainSet();
+         this._btnGroup.initScroll(GameConfig.GAME_SIZE.x,600);
+         this._btnGroup.addEventListener("SELECT",this.onBtnSelect);
+         this._btnGroup.addEventListener("OPTION_CHANGE",this.onOptionChange);
+         this._ui.addChild(this._btnGroup);
+         this._man = this._ui.ichigo;
          SoundCtrl.I.BGM(AssetManager.I.getSound("back"));
       }
       
@@ -66,10 +61,10 @@ package net.play5d.game.bvn.state
          switch(param1.selectedLabel)
          {
             case "P1 KEY SET":
-               goKeyConfig(1,GameData.I.config.key_p1);
+               this.goKeyConfig(1,GameData.I.config.key_p1);
                break;
             case "P2 KEY SET":
-               goKeyConfig(2,GameData.I.config.key_p2);
+               this.goKeyConfig(2,GameData.I.config.key_p2);
                break;
             case "APPLY":
                GameData.I.saveData();
@@ -83,7 +78,7 @@ package net.play5d.game.bvn.state
       {
          var _loc3_:SetCtrlBtnUI = new SetCtrlBtnUI();
          _loc3_.setKey(param2);
-         goInnerSetPage(_loc3_);
+         this.goInnerSetPage(_loc3_);
       }
       
       public function goInnerSetPage(param1:IInnerSetUI) : void
@@ -93,35 +88,35 @@ package net.play5d.game.bvn.state
          {
             _btnGroup.visible = false;
          };
-         destoryInnerSetUI();
-         _innerSetUI = innerUI;
-         innerUI.addEventListener("APPLY_SET",innerSetHandler);
-         innerUI.addEventListener("CANCEL_SET",innerSetHandler);
-         _ui.addChild(innerUI.getUI());
+         this.destoryInnerSetUI();
+         this._innerSetUI = innerUI;
+         innerUI.addEventListener("APPLY_SET",this.innerSetHandler);
+         innerUI.addEventListener("CANCEL_SET",this.innerSetHandler);
+         this._ui.addChild(innerUI.getUI());
          innerUI.fadIn();
-         TweenLite.to(_btnGroup,0.2,{
+         TweenLite.to(this._btnGroup,0.2,{
             "y":-GameConfig.GAME_SIZE.y,
             "onComplete":tweenComplete
          });
-         _btnGroup.keyEnable = false;
-         _man.gotoAndPlay("key_fadin");
+         this._btnGroup.keyEnable = false;
+         this._man.gotoAndPlay("key_fadin");
       }
       
       private function destoryInnerSetUI() : void
       {
-         if(_innerSetUI)
+         if(Boolean(this._innerSetUI))
          {
             try
             {
-               _ui.removeChild(_innerSetUI.getUI());
+               this._ui.removeChild(this._innerSetUI.getUI());
             }
             catch(e:Error)
             {
             }
-            _innerSetUI.removeEventListener("APPLY_SET",innerSetHandler);
-            _innerSetUI.removeEventListener("CANCEL_SET",innerSetHandler);
-            _innerSetUI.destory();
-            _innerSetUI = null;
+            this._innerSetUI.removeEventListener("APPLY_SET",this.innerSetHandler);
+            this._innerSetUI.removeEventListener("CANCEL_SET",this.innerSetHandler);
+            this._innerSetUI.destory();
+            this._innerSetUI = null;
          }
       }
       
@@ -131,24 +126,24 @@ package net.play5d.game.bvn.state
          {
             _btnGroup.keyEnable = true;
          };
-         TweenLite.to(_btnGroup,0.2,{
+         TweenLite.to(this._btnGroup,0.2,{
             "y":0,
             "onComplete":tweenComplete,
             "delay":0.1
          });
-         _btnGroup.visible = true;
-         if(_innerSetUI)
+         this._btnGroup.visible = true;
+         if(Boolean(this._innerSetUI))
          {
-            _innerSetUI.fadOut();
-            _innerSetUI.removeEventListener("APPLY_SET",innerSetHandler);
-            _innerSetUI.removeEventListener("CANCEL_SET",innerSetHandler);
+            this._innerSetUI.fadOut();
+            this._innerSetUI.removeEventListener("APPLY_SET",this.innerSetHandler);
+            this._innerSetUI.removeEventListener("CANCEL_SET",this.innerSetHandler);
          }
-         _man.gotoAndPlay("key_fadout");
+         this._man.gotoAndPlay("key_fadout");
       }
       
       private function innerSetHandler(param1:String) : void
       {
-         goMainSetting();
+         this.goMainSetting();
       }
       
       public function afterBuild() : void
@@ -157,21 +152,21 @@ package net.play5d.game.bvn.state
       
       public function destory(param1:Function = null) : void
       {
-         if(_btnGroup)
+         if(Boolean(this._btnGroup))
          {
             try
             {
-               _ui.removeChild(_btnGroup);
+               this._ui.removeChild(this._btnGroup);
             }
             catch(e:Error)
             {
             }
-            _btnGroup.removeEventListener("SELECT",onBtnSelect);
-            _btnGroup.removeEventListener("OPTION_CHANGE",onOptionChange);
-            _btnGroup.destory();
-            _btnGroup = null;
+            this._btnGroup.removeEventListener("SELECT",this.onBtnSelect);
+            this._btnGroup.removeEventListener("OPTION_CHANGE",this.onOptionChange);
+            this._btnGroup.destory();
+            this._btnGroup = null;
          }
-         destoryInnerSetUI();
+         this.destoryInnerSetUI();
       }
    }
 }

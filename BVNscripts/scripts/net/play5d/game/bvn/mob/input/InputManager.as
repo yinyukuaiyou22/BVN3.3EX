@@ -1,6 +1,6 @@
 package net.play5d.game.bvn.mob.input
 {
-   import net.play5d.game.bvn.input.GameKeyInput;
+   import net.play5d.game.bvn.input.*;
    
    public class InputManager
    {

@@ -3,8 +3,7 @@ package net.play5d.kyo.display.bitmap
    import flash.display.Bitmap;
    import flash.display.BitmapData;
    import flash.events.Event;
-   import net.play5d.kyo.loader.BitmapLoader;
-   import net.play5d.kyo.loader.KyoURLoader;
+   import net.play5d.kyo.loader.*;
    
    public class BitmapFontLoader
    {
@@ -70,6 +69,7 @@ package net.play5d.kyo.display.bitmap
       private function loadNext() : void
       {
          var url:String = null;
+         url = null;
          var loadXMLFin:Function = null;
          var loadXMLFail:Function = null;
          var cur:int = 0;
@@ -103,12 +103,17 @@ package net.play5d.kyo.display.bitmap
       private function loadBitmapData(param1:String, param2:XML, param3:Function = null, param4:Function = null) : void
       {
          var fontid:String = null;
+         var bpurl:String = null;
+         var xml:XML = null;
+         var back:Function = null;
+         var fail:Function = null;
+         fontid = null;
          var loadBpComplete:Function = null;
          var loadBpFail:Function = null;
-         var bpurl:String = param1;
-         var xml:XML = param2;
-         var back:Function = param3;
-         var fail:Function = param4;
+         bpurl = param1;
+         xml = param2;
+         back = param3;
+         fail = param4;
          loadBpComplete = function(param1:Bitmap):void
          {
             _fontObj[fontid] = new BitmapFont(xml,param1.bitmapData);

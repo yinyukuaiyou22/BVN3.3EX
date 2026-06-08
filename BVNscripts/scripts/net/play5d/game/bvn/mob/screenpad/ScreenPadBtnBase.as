@@ -1,8 +1,7 @@
 package net.play5d.game.bvn.mob.screenpad
 {
    import flash.display.Bitmap;
-   import flash.geom.Point;
-   import flash.geom.Rectangle;
+   import flash.geom.*;
    
    public class ScreenPadBtnBase
    {
@@ -34,31 +33,31 @@ package net.play5d.game.bvn.mob.screenpad
       
       public function init(param1:Point = null) : void
       {
-         if(param1)
+         if(Boolean(param1))
          {
-            display.width = param1.x;
-            display.height = param1.y;
+            this.display.width = param1.x;
+            this.display.height = param1.y;
          }
-         _orgScale = display.scaleX;
+         this._orgScale = this.display.scaleX;
       }
       
       public function setScale(param1:Number) : void
       {
-         _orgScale = param1;
-         display.scaleX = display.scaleY = param1;
+         this._orgScale = param1;
+         this.display.scaleX = this.display.scaleY = param1;
       }
       
       public function isDown() : Boolean
       {
-         return _isDown;
+         return this._isDown;
       }
       
       public function setVisible(param1:Boolean) : void
       {
-         _visible = param1;
-         if(display)
+         this._visible = param1;
+         if(Boolean(this.display))
          {
-            display.visible = param1;
+            this.display.visible = param1;
          }
       }
       
@@ -72,82 +71,82 @@ package net.play5d.game.bvn.mob.screenpad
       
       public function initArea() : void
       {
-         _orgBounds = new Rectangle();
-         _orgBounds.x = display.x;
-         _orgBounds.y = display.y;
-         _orgBounds.width = display.width;
-         _orgBounds.height = display.height;
-         _area = _orgBounds.clone();
-         if(areaAdd != 0)
+         this._orgBounds = new Rectangle();
+         this._orgBounds.x = this.display.x;
+         this._orgBounds.y = this.display.y;
+         this._orgBounds.width = this.display.width;
+         this._orgBounds.height = this.display.height;
+         this._area = this._orgBounds.clone();
+         if(this.areaAdd != 0)
          {
-            _area.x -= areaAdd;
-            _area.y -= areaAdd;
-            _area.width += areaAdd * 2;
-            _area.height += areaAdd * 2;
+            this._area.x -= this.areaAdd;
+            this._area.y -= this.areaAdd;
+            this._area.width += this.areaAdd * 2;
+            this._area.height += this.areaAdd * 2;
          }
       }
       
       public function updateBounds() : void
       {
-         _orgBounds.x = display.x;
-         _orgBounds.y = display.y;
-         _orgBounds.width = display.width;
-         _orgBounds.height = display.height;
+         this._orgBounds.x = this.display.x;
+         this._orgBounds.y = this.display.y;
+         this._orgBounds.width = this.display.width;
+         this._orgBounds.height = this.display.height;
       }
       
       public function checkArea(param1:Number, param2:Number) : Boolean
       {
-         if(!_visible)
+         if(!this._visible)
          {
             return false;
          }
-         return _area.contains(param1,param2);
+         return this._area.contains(param1,param2);
       }
       
       final public function touchDown(param1:Number, param2:Number) : void
       {
-         if(_isDown)
+         if(this._isDown)
          {
             return;
          }
-         _isDown = true;
-         onTouchDown(param1,param2);
-         downState();
+         this._isDown = true;
+         this.onTouchDown(param1,param2);
+         this.downState();
       }
       
       final public function touchMove(param1:Number, param2:Number) : void
       {
-         onTouchMove(param1,param2);
-         moveState();
+         this.onTouchMove(param1,param2);
+         this.moveState();
       }
       
       final public function touchUP() : void
       {
-         if(!_isDown)
+         if(!this._isDown)
          {
             return;
          }
-         _isDown = false;
-         onTouchUp();
-         upState();
+         this._isDown = false;
+         this.onTouchUp();
+         this.upState();
       }
       
       public function setPosData(param1:Object) : void
       {
-         if(display)
+         if(Boolean(this.display))
          {
-            display.x = param1.x;
-            display.y = param1.y;
-            display.scaleX = display.scaleY = param1.scale;
+            this.display.x = param1.x;
+            this.display.y = param1.y;
+            this.display.scaleX = this.display.scaleY = param1.scale;
          }
       }
       
       public function getPosData() : Object
       {
          return {
-            "x":display.x,
-            "y":display.y,
-            "scale":display.scaleX
+            "x":this.display.x,
+            "y":this.display.y,
+            "scale":this.display.scaleX
          };
       }
       
@@ -165,9 +164,9 @@ package net.play5d.game.bvn.mob.screenpad
       
       protected function upState() : void
       {
-         display.scaleX = display.scaleY = _orgScale;
-         display.x = _orgBounds.x;
-         display.y = _orgBounds.y;
+         this.display.scaleX = this.display.scaleY = this._orgScale;
+         this.display.x = this._orgBounds.x;
+         this.display.y = this._orgBounds.y;
       }
       
       protected function onTouchMove(param1:Number, param2:Number) : void

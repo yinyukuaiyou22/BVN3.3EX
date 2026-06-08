@@ -1,12 +1,11 @@
 package net.play5d.game.bvn.mob.views
 {
    import flash.display.Sprite;
-   import net.play5d.game.bvn.GameConfig;
+   import net.play5d.game.bvn.*;
    import net.play5d.game.bvn.events.SetBtnEvent;
-   import net.play5d.game.bvn.mob.GameInterfaceManager;
+   import net.play5d.game.bvn.mob.*;
    import net.play5d.game.bvn.mob.data.ScreenPadConfigVO;
-   import net.play5d.game.bvn.ui.GameUI;
-   import net.play5d.game.bvn.ui.SetBtnGroup;
+   import net.play5d.game.bvn.ui.*;
    
    public class SetScreenBtnView extends Sprite
    {
@@ -19,12 +18,12 @@ package net.play5d.game.bvn.mob.views
          this.graphics.beginFill(0,0.8);
          this.graphics.drawRect(0,0,GameConfig.GAME_SIZE.x,GameConfig.GAME_SIZE.y);
          this.graphics.endFill();
-         _btnGroup = new SetBtnGroup();
-         _btnGroup.startY = 30;
-         _btnGroup.endY = 550;
-         _btnGroup.gap = 70;
+         this._btnGroup = new SetBtnGroup();
+         this._btnGroup.startY = 30;
+         this._btnGroup.endY = 550;
+         this._btnGroup.gap = 70;
          var _loc1_:ScreenPadConfigVO = GameInterfaceManager.config.screenPadConfig;
-         _btnGroup.setBtnData([{
+         this._btnGroup.setBtnData([{
             "label":"PREINSTALL",
             "cn":"预置位置",
             "options":[{
@@ -117,10 +116,10 @@ package net.play5d.game.bvn.mob.views
             "label":"APPLY",
             "cn":"确定"
          }]);
-         _btnGroup.initScroll(launch.FULL_SCREEN_SIZE.x,launch.FULL_SCREEN_SIZE.y);
-         _btnGroup.addEventListener("SELECT",onBtnSelect);
-         _btnGroup.addEventListener("OPTION_CHANGE",onOptionChange);
-         this.addChild(_btnGroup);
+         this._btnGroup.initScroll(launch.FULL_SCREEN_SIZE.x,launch.FULL_SCREEN_SIZE.y);
+         this._btnGroup.addEventListener("SELECT",this.onBtnSelect);
+         this._btnGroup.addEventListener("OPTION_CHANGE",this.onOptionChange);
+         this.addChild(this._btnGroup);
       }
       
       private function onBtnSelect(param1:SetBtnEvent) : void
@@ -133,17 +132,18 @@ package net.play5d.game.bvn.mob.views
                launch.I.addChild(_loc2_.getDisplay());
                break;
             case "APPLY":
-               closeSelf();
+               this.closeSelf();
          }
       }
       
       private function onOptionChange(param1:SetBtnEvent) : void
       {
-         var config:ScreenPadConfigVO;
-         var e:SetBtnEvent = param1;
+         var config:ScreenPadConfigVO = null;
+         var e:SetBtnEvent = null;
+         e = param1;
          if(e.optionKey == "joyMode")
          {
-            if(GameInterfaceManager.config.screenPadConfig.joySet)
+            if(Boolean(GameInterfaceManager.config.screenPadConfig.joySet))
             {
                GameUI.confrim("Custom already set, are you sure ?","自定义按钮已设定，改变此项将丢失自定义按钮设定，确定要改变？",function():void
                {
@@ -160,13 +160,13 @@ package net.play5d.game.bvn.mob.views
       
       private function closeSelf() : void
       {
-         if(_btnGroup)
+         if(Boolean(this._btnGroup))
          {
             try
             {
-               _btnGroup.destory();
-               this.removeChild(_btnGroup);
-               _btnGroup = null;
+               this._btnGroup.destory();
+               this.removeChild(this._btnGroup);
+               this._btnGroup = null;
             }
             catch(e:Error)
             {

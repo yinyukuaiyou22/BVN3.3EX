@@ -1,6 +1,6 @@
 package net.play5d.game.bvn.ui.select
 {
-   import com.greensock.TweenLite;
+   import com.greensock.*;
    import flash.display.Sprite;
    import net.play5d.game.bvn.data.FighterVO;
    
@@ -16,63 +16,63 @@ package net.play5d.game.bvn.ui.select
       public function SelectedFighterGroup(param1:Class)
       {
          super();
-         _uiClass = param1;
+         this._uiClass = param1;
       }
       
       public function destory() : void
       {
-         if(_curUI)
+         if(Boolean(this._curUI))
          {
-            _curUI.destory();
-            _curUI = null;
+            this._curUI.destory();
+            this._curUI = null;
          }
       }
       
       public function addFighter(param1:FighterVO) : void
       {
-         var _loc3_:SelectedFighterUI = null;
-         var _loc7_:int = 0;
-         var _loc5_:Number = 20 - (_uis.length - 1) * 3;
-         var _loc2_:Number = _uis.length * -20;
-         var _loc6_:Number = 0.7 - (_uis.length - 1) * 0.3;
-         var _loc4_:Number = 0.85 - (_uis.length - 1) * 0.15;
-         while(_loc7_ < _uis.length)
+         var _loc2_:SelectedFighterUI = null;
+         var _loc3_:int = 0;
+         var _loc4_:Number = 20 - (this._uis.length - 1) * 3;
+         var _loc5_:Number = this._uis.length * -20;
+         var _loc6_:Number = 0.7 - (this._uis.length - 1) * 0.3;
+         var _loc7_:Number = 0.85 - (this._uis.length - 1) * 0.15;
+         while(_loc3_ < this._uis.length)
          {
-            _loc3_ = _uis[_loc7_];
-            TweenLite.to(_loc3_.ui,0.1,{
-               "y":_loc2_,
+            _loc2_ = this._uis[_loc3_];
+            TweenLite.to(_loc2_.ui,0.1,{
+               "y":_loc5_,
                "alpha":_loc6_,
-               "scaleX":_loc4_,
-               "scaleY":_loc4_
+               "scaleX":_loc7_,
+               "scaleY":_loc7_
             });
-            _loc2_ += _loc5_;
+            _loc5_ += _loc4_;
             _loc6_ += 0.3;
-            _loc4_ += 0.15;
-            _loc7_++;
+            _loc7_ += 0.15;
+            _loc3_++;
          }
-         _loc3_ = new SelectedFighterUI(new _uiClass());
-         if(param1)
+         _loc2_ = new SelectedFighterUI(new this._uiClass());
+         if(Boolean(param1))
          {
-            _loc3_.setFighter(param1);
+            _loc2_.setFighter(param1);
          }
-         _loc3_.ui.y = 50;
-         TweenLite.to(_loc3_.ui,0.1,{
+         _loc2_.ui.y = 50;
+         TweenLite.to(_loc2_.ui,0.1,{
             "y":0,
             "delay":0.05
          });
-         addChild(_loc3_.ui);
-         _uis.push(_loc3_);
-         if(_curUI)
+         addChild(_loc2_.ui);
+         this._uis.push(_loc2_);
+         if(Boolean(this._curUI))
          {
-            _curUI.destory();
-            _curUI = null;
+            this._curUI.destory();
+            this._curUI = null;
          }
-         _curUI = _loc3_;
+         this._curUI = _loc2_;
       }
       
       public function updateFighter(param1:FighterVO) : void
       {
-         _curUI.setFighter(param1);
+         this._curUI.setFighter(param1);
       }
    }
 }

@@ -1,16 +1,13 @@
 package net.play5d.game.bvn.ui.select
 {
-   import net.play5d.game.bvn.data.AssisterModel;
-   import net.play5d.game.bvn.data.FighterModel;
-   import net.play5d.game.bvn.data.FighterVO;
-   import net.play5d.game.bvn.data.SelectVO;
-   import net.play5d.game.bvn.utils.ResUtils;
-   import net.play5d.kyo.utils.KyoUtils;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.utils.*;
+   import net.play5d.kyo.utils.*;
    
    public class SelecterItemUI
    {
       
-      public var ui:select_item_mc;
+      public var ui:*;
       
       public var currentFighter:FighterVO;
       
@@ -41,95 +38,96 @@ package net.play5d.game.bvn.ui.select
       public function SelecterItemUI(param1:int = 1)
       {
          super();
-         _playerType = param1;
-         ui = ResUtils.I.createDisplayObject(ResUtils.I.select,"select_item_mc");
-         ui.mouseEnabled = ui.mouseChildren = false;
-         ui.mc.gotoAndStop(param1 == 1 ? 1 : 2);
+         this._playerType = param1;
+         this.ui = ResUtils.I.createDisplayObject(ResUtils.I.select,"select_item_mc");
+         this.ui.mouseEnabled = this.ui.mouseChildren = false;
+         this.ui.mc.gotoAndStop(param1 == 1 ? 1 : 2);
       }
       
       public function selectFinish() : Boolean
       {
-         return selectTimes >= selectTimesCount;
+         return this.selectTimes >= this.selectTimesCount;
       }
       
       public function getCurrentSelectes() : Array
       {
-         if(isSelectAssist)
+         if(this.isSelectAssist)
          {
-            return [selectVO.fuzhu];
+            return [this.selectVO.fuzhu];
          }
-         return [selectVO.fighter1,selectVO.fighter2,selectVO.fighter3];
+         return [this.selectVO.fighter1,this.selectVO.fighter2,this.selectVO.fighter3];
       }
       
       public function setCurrentSelect(param1:Array) : void
       {
-         if(isSelectAssist)
+         if(this.isSelectAssist)
          {
-            selectVO.fuzhu = param1[0];
-            group.updateFighter(AssisterModel.I.getAssister(selectVO.fuzhu));
+            this.selectVO.fuzhu = param1[0];
+            this.group.updateFighter(AssisterModel.I.getAssister(this.selectVO.fuzhu));
          }
          else
          {
-            selectVO.fighter1 = param1[0];
-            selectVO.fighter2 = param1[1];
-            selectVO.fighter3 = param1[2];
-            group.updateFighter(FighterModel.I.getFighter(selectVO.fighter1));
-            group.addFighter(FighterModel.I.getFighter(selectVO.fighter2));
-            group.addFighter(FighterModel.I.getFighter(selectVO.fighter3));
+            this.selectVO.fighter1 = param1[0];
+            this.selectVO.fighter2 = param1[1];
+            this.selectVO.fighter3 = param1[2];
+            this.group.updateFighter(FighterModel.I.getFighter(this.selectVO.fighter1));
+            this.group.addFighter(FighterModel.I.getFighter(this.selectVO.fighter2));
+            this.group.addFighter(FighterModel.I.getFighter(this.selectVO.fighter3));
          }
-         selectTimes = selectTimesCount;
-         enabled = false;
+         this.selectTimes = this.selectTimesCount;
+         this.enabled = false;
       }
       
       public function isSelected(param1:String) : Boolean
       {
-         if(!selectVO)
+         if(!this.selectVO)
          {
             return false;
          }
-         if(isSelectAssist)
+         if(this.isSelectAssist)
          {
-            return selectVO.fuzhu == param1;
+            return this.selectVO.fuzhu == param1;
          }
-         return selectVO.fighter1 == param1 || selectVO.fighter2 == param1 || selectVO.fighter3 == param1;
+         return this.selectVO.fighter1 == param1 || this.selectVO.fighter2 == param1 || this.selectVO.fighter3 == param1;
       }
       
       public function select(param1:Function = null) : void
       {
-         var _this:*;
-         var back:Function = param1;
-         if(!selectVO)
+         var _this:* = undefined;
+         var back:Function = null;
+         back = param1;
+         if(!this.selectVO)
          {
             throw new Error("未设置selectVO!");
          }
-         if(isSelectAssist)
+         if(this.isSelectAssist)
          {
-            selectVO.fuzhu = currentFighter.id;
+            this.selectVO.fuzhu = this.currentFighter.id;
          }
          else
          {
-            switch(selectTimes)
+            switch(this.selectTimes)
             {
                case 0:
-                  selectVO.fighter1 = currentFighter.id;
+                  this.selectVO.fighter1 = this.currentFighter.id;
                   break;
                case 1:
-                  selectVO.fighter2 = currentFighter.id;
+                  this.selectVO.fighter2 = this.currentFighter.id;
                   break;
                case 2:
-                  selectVO.fighter3 = currentFighter.id;
+                  this.selectVO.fighter3 = this.currentFighter.id;
             }
          }
-         selectTimes = selectTimes + 1;
-         if(!selectFinish())
+         ++this.selectTimes;
+         if(!this.selectFinish())
          {
-            group.addFighter(currentFighter);
+            this.group.addFighter(this.currentFighter);
          }
-         enabled = false;
+         this.enabled = false;
          _this = this;
-         ui.gotoAndPlay("select");
-         updateRandom();
-         KyoUtils.addFrameScript(ui,function():void
+         this.ui.gotoAndPlay("select");
+         this.updateRandom();
+         KyoUtils.addFrameScript(this.ui,function():void
          {
             if(!selectFinish())
             {
@@ -144,78 +142,78 @@ package net.play5d.game.bvn.ui.select
       
       public function moveTo(param1:Number, param2:Number) : void
       {
-         ui.x = param1;
-         ui.y = param2;
+         this.ui.x = param1;
+         this.ui.y = param2;
       }
       
       public function destory() : void
       {
-         enabled = false;
-         removeSelecter();
-         removeGroup();
+         this.enabled = false;
+         this.removeSelecter();
+         this.removeGroup();
       }
       
       public function removeSelecter() : void
       {
-         if(ui && ui.parent)
+         if(Boolean(this.ui) && Boolean(this.ui.parent))
          {
             try
             {
-               ui.parent.removeChild(ui);
+               this.ui.parent.removeChild(this.ui);
             }
             catch(e:Error)
             {
             }
-            ui = null;
+            this.ui = null;
          }
       }
       
       public function removeGroup() : void
       {
-         if(group && group.parent)
+         if(Boolean(this.group) && Boolean(this.group.parent))
          {
             try
             {
-               group.parent.removeChild(group);
+               this.group.parent.removeChild(this.group);
             }
             catch(e:Error)
             {
             }
-            group = null;
+            this.group = null;
          }
       }
       
       private function updateRandom() : void
       {
-         if(!randoms)
+         if(!this.randoms)
          {
             return;
          }
-         if(!selectVO)
+         if(!this.selectVO)
          {
             return;
          }
-         selectVO.fighter1 && removeRand(selectVO.fighter1);
-         selectVO.fighter2 && removeRand(selectVO.fighter2);
-         selectVO.fighter3 && removeRand(selectVO.fighter3);
+         this.selectVO.fighter1 && this.removeRand(this.selectVO.fighter1);
+         this.selectVO.fighter2 && this.removeRand(this.selectVO.fighter2);
+         this.selectVO.fighter3 && this.removeRand(this.selectVO.fighter3);
       }
       
       private function removeRand(param1:String) : void
       {
-         var _loc3_:int = 0;
-         var _loc2_:* = -1;
-         while(_loc3_ < randoms.length)
+         var _loc2_:int = 0;
+         var _loc3_:* = -1;
+         while(_loc2_ < this.randoms.length)
          {
-            if(randoms[_loc3_].id == param1)
+            if(this.randoms[_loc2_].id == param1)
             {
-               _loc2_ = _loc3_;
+               _loc3_ = _loc2_;
                break;
             }
-            _loc3_++;
+            _loc2_++;
          }
-         if(_loc2_ != -1)
+         if(_loc3_ != -1)
          {
-            randoms.splice(_loc2_,1);
+            this.randoms.splice(_loc3_,1);
          }
       }
    }

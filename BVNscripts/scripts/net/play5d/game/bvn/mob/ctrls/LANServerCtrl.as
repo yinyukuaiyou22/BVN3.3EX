@@ -3,26 +3,21 @@ package net.play5d.game.bvn.mob.ctrls
    import flash.events.EventDispatcher;
    import flash.net.Socket;
    import flash.utils.ByteArray;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.game_ctrls.GameCtrl;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.game_ctrls.*;
    import net.play5d.game.bvn.data.GameRunDataVO;
-   import net.play5d.game.bvn.events.GameEvent;
+   import net.play5d.game.bvn.events.*;
    import net.play5d.game.bvn.fighter.FighterMain;
-   import net.play5d.game.bvn.interfaces.GameInterface;
-   import net.play5d.game.bvn.mob.data.ClientVO;
-   import net.play5d.game.bvn.mob.data.HostVO;
-   import net.play5d.game.bvn.mob.events.LanEvent;
-   import net.play5d.game.bvn.mob.input.InputManager;
-   import net.play5d.game.bvn.mob.sockets.SocketServer;
+   import net.play5d.game.bvn.interfaces.*;
+   import net.play5d.game.bvn.mob.data.*;
+   import net.play5d.game.bvn.mob.events.*;
+   import net.play5d.game.bvn.mob.input.*;
+   import net.play5d.game.bvn.mob.sockets.*;
    import net.play5d.game.bvn.mob.sockets.events.SocketEvent;
-   import net.play5d.game.bvn.mob.sockets.udp.UDPDataVO;
-   import net.play5d.game.bvn.mob.sockets.udp.UDPSocket;
-   import net.play5d.game.bvn.mob.utils.JsonUtils;
-   import net.play5d.game.bvn.mob.utils.LockFrameLogic;
-   import net.play5d.game.bvn.mob.utils.SocketMsgFactory;
-   import net.play5d.game.bvn.state.GameState;
-   import net.play5d.game.bvn.state.MenuState;
-   import net.play5d.game.bvn.ui.GameUI;
+   import net.play5d.game.bvn.mob.sockets.udp.*;
+   import net.play5d.game.bvn.mob.utils.*;
+   import net.play5d.game.bvn.state.*;
+   import net.play5d.game.bvn.ui.*;
    
    public class LANServerCtrl extends EventDispatcher
    {
@@ -75,63 +70,63 @@ package net.play5d.game.bvn.mob.ctrls
       
       public function get host() : HostVO
       {
-         return _host;
+         return this._host;
       }
       
       public function startServer(param1:HostVO) : void
       {
-         _host = param1;
+         this._host = param1;
          SocketServer.I.bind(17511);
-         SocketServer.I.addEventListener("SocketEvent_CLIENT_CONNECT",socketHandler);
-         SocketServer.I.addEventListener("SocketEvent_CLIENT_DIS_CONNECT",socketHandler);
-         SocketServer.I.addEventListener("SocketEvent_RECEIVE_DATA",socketDataHandler);
-         _udpSocket = new UDPSocket();
-         _udpSocket.listen(17477);
-         _udpSocket.addDataHandler(udpDataHandler);
+         SocketServer.I.addEventListener("SocketEvent_CLIENT_CONNECT",this.socketHandler);
+         SocketServer.I.addEventListener("SocketEvent_CLIENT_DIS_CONNECT",this.socketHandler);
+         SocketServer.I.addEventListener("SocketEvent_RECEIVE_DATA",this.socketDataHandler);
+         this._udpSocket = new UDPSocket();
+         this._udpSocket.listen(17477);
+         this._udpSocket.addDataHandler(this.udpDataHandler);
       }
       
       public function stopServer() : void
       {
-         _host = null;
+         this._host = null;
          SocketServer.I.close();
-         SocketServer.I.removeEventListener("SocketEvent_CLIENT_CONNECT",socketHandler);
-         SocketServer.I.removeEventListener("SocketEvent_CLIENT_DIS_CONNECT",socketHandler);
-         SocketServer.I.removeEventListener("SocketEvent_RECEIVE_DATA",socketDataHandler);
-         if(_udpSocket)
+         SocketServer.I.removeEventListener("SocketEvent_CLIENT_CONNECT",this.socketHandler);
+         SocketServer.I.removeEventListener("SocketEvent_CLIENT_DIS_CONNECT",this.socketHandler);
+         SocketServer.I.removeEventListener("SocketEvent_RECEIVE_DATA",this.socketDataHandler);
+         if(Boolean(this._udpSocket))
          {
-            _udpSocket.unListen();
-            _udpSocket.removeDataHandler(udpDataHandler);
-            _udpSocket = null;
+            this._udpSocket.unListen();
+            this._udpSocket.removeDataHandler(this.udpDataHandler);
+            this._udpSocket = null;
          }
-         if(_selectLogic)
+         if(Boolean(this._selectLogic))
          {
-            _selectLogic.dispose();
-            _selectLogic = null;
+            this._selectLogic.dispose();
+            this._selectLogic = null;
          }
-         if(_connGameLogic)
+         if(Boolean(this._connGameLogic))
          {
-            _connGameLogic.dispose();
-            _connGameLogic = null;
+            this._connGameLogic.dispose();
+            this._connGameLogic = null;
          }
-         _clients = new Vector.<ClientVO>();
-         _host = null;
-         _udpClientIP = null;
+         this._clients = new Vector.<ClientVO>();
+         this._host = null;
+         this._udpClientIP = null;
       }
       
       private function udpDataHandler(param1:UDPDataVO) : void
       {
          var _loc2_:ByteArray = param1.getDataByteArray();
-         if(_loc2_ && _loc2_.readByte() == 20)
+         if(Boolean(_loc2_) && _loc2_.readByte() == 20)
          {
-            if(!active)
+            if(!this.active)
             {
-               _udpSocket.send(param1.fromIP,17478,SocketMsgFactory.createFindHostBackMsg());
+               this._udpSocket.send(param1.fromIP,17478,SocketMsgFactory.createFindHostBackMsg());
             }
             return;
          }
-         if(_connGameLogic && _connGameLogic.receiveInput(_loc2_))
+         if(Boolean(this._connGameLogic) && Boolean(this._connGameLogic.receiveInput(_loc2_)))
          {
-            _udpClientIP = param1.fromIP;
+            this._udpClientIP = param1.fromIP;
             return;
          }
       }
@@ -144,30 +139,30 @@ package net.play5d.game.bvn.mob.ctrls
             case "SocketEvent_CLIENT_CONNECT":
                break;
             case "SocketEvent_CLIENT_DIS_CONNECT":
-               if(active)
+               if(this.active)
                {
-                  gameEnd();
+                  this.gameEnd();
                   GameUI.alert("PLAYER EXIT","玩家退出房间");
                }
-               _udpClientIP = null;
+               this._udpClientIP = null;
          }
       }
       
       private function socketDataHandler(param1:SocketEvent) : void
       {
-         var _loc3_:Object = param1.getDataObject();
-         if(!_loc3_)
+         var _loc2_:Object = param1.getDataObject();
+         if(!_loc2_)
          {
             return;
          }
-         if(_selectLogic && _selectLogic.receiveSelect(_loc3_))
+         if(Boolean(this._selectLogic) && Boolean(this._selectLogic.receiveSelect(_loc2_)))
          {
             return;
          }
-         var _loc2_:Object = JsonUtils.str2json(_loc3_);
-         if(_loc2_)
+         var _loc3_:Object = JsonUtils.str2json(_loc2_);
+         if(Boolean(_loc3_))
          {
-            receiveJson(_loc2_,param1.clientSocket);
+            this.receiveJson(_loc3_,param1.clientSocket);
          }
       }
       
@@ -176,7 +171,7 @@ package net.play5d.game.bvn.mob.ctrls
          switch(param1.type)
          {
             case "JOIN":
-               receiveJoin(param1,param2);
+               this.receiveJoin(param1,param2);
                break;
             case "JOIN_IN":
          }
@@ -184,7 +179,7 @@ package net.play5d.game.bvn.mob.ctrls
       
       private function receiveJoin(param1:Object, param2:Socket) : void
       {
-         if(_clients.length > 0)
+         if(this._clients.length > 0)
          {
             SocketServer.I.sendJson(param2,SocketMsgFactory.createJoinFailMsg("人数已满"));
             return;
@@ -193,15 +188,16 @@ package net.play5d.game.bvn.mob.ctrls
          _loc3_.ip = param2.remoteAddress;
          _loc3_.name = param1.name;
          _loc3_.socket = param2;
-         _clients.push(_loc3_);
-         _playerClient = _loc3_;
+         this._clients.push(_loc3_);
+         this._playerClient = _loc3_;
          SocketServer.I.sendJson(_loc3_.socket,SocketMsgFactory.createJoinSuccMsg());
          dispatchEvent(new LanEvent("CLIENT_JOIN_SUCCESS"));
       }
       
       private function findClient(param1:Socket) : ClientVO
       {
-         for each(var _loc2_ in _clients)
+         var _loc2_:* = undefined;
+         for each(_loc2_ in this._clients)
          {
             if(_loc2_.socket == param1)
             {
@@ -213,69 +209,69 @@ package net.play5d.game.bvn.mob.ctrls
       
       public function gameStart() : void
       {
-         active = true;
+         this.active = true;
          GameInterface.instance.updateInputConfig();
          LockFrameLogic.I.initServer();
-         _renderFrame = 1;
-         _selectLogic = new SelectFighterServerLogic();
-         _selectLogic.init();
-         _connGameLogic = new LockFrameServerLogic();
-         initSyncEvent();
-         LANGameCtrl.I.gameStart(_host);
+         this._renderFrame = 1;
+         this._selectLogic = new SelectFighterServerLogic();
+         this._selectLogic.init();
+         this._connGameLogic = new LockFrameServerLogic();
+         this.initSyncEvent();
+         LANGameCtrl.I.gameStart(this._host);
       }
       
       public function gameEnd() : void
       {
-         active = false;
+         this.active = false;
          GameInterface.instance.updateInputConfig();
          LockFrameLogic.I.dispose();
-         if(_selectLogic)
+         if(Boolean(this._selectLogic))
          {
-            _selectLogic.dispose();
-            _selectLogic = null;
+            this._selectLogic.dispose();
+            this._selectLogic = null;
          }
-         if(_connGameLogic)
+         if(Boolean(this._connGameLogic))
          {
-            _connGameLogic.dispose();
-            _connGameLogic = null;
+            this._connGameLogic.dispose();
+            this._connGameLogic = null;
          }
-         disposeSyncEvent();
+         this.disposeSyncEvent();
          LANGameCtrl.I.gameEnd();
-         gameQuit();
+         this.gameQuit();
       }
       
       public function gameQuit() : void
       {
-         active = false;
+         this.active = false;
          GameInterface.instance.updateInputConfig();
          LockFrameLogic.I.dispose();
-         disposeSyncEvent();
+         this.disposeSyncEvent();
          LanGameMenuCtrl.I.dispose();
-         stopServer();
+         this.stopServer();
          MainGame.stageCtrl.goStage(new MenuState());
       }
       
       private function initSyncEvent() : void
       {
-         GameEvent.addEventListener("ROUND_END",onGameRoundEnd);
-         GameEvent.addEventListener("GAME_START",onGameStart);
-         GameEvent.addEventListener("GAME_END",onGameEnd);
-         GameEvent.addEventListener("ROUND_START",onRoundStart);
+         GameEvent.addEventListener("ROUND_END",this.onGameRoundEnd);
+         GameEvent.addEventListener("GAME_START",this.onGameStart);
+         GameEvent.addEventListener("GAME_END",this.onGameEnd);
+         GameEvent.addEventListener("ROUND_START",this.onRoundStart);
       }
       
       private function disposeSyncEvent() : void
       {
-         GameEvent.removeEventListener("ROUND_END",onGameRoundEnd);
-         GameEvent.removeEventListener("GAME_START",onGameStart);
-         GameEvent.removeEventListener("GAME_END",onGameEnd);
-         GameEvent.removeEventListener("ROUND_START",onRoundStart);
+         GameEvent.removeEventListener("ROUND_END",this.onGameRoundEnd);
+         GameEvent.removeEventListener("GAME_START",this.onGameStart);
+         GameEvent.removeEventListener("GAME_END",this.onGameEnd);
+         GameEvent.removeEventListener("ROUND_START",this.onRoundStart);
       }
       
       public function renderGame() : Boolean
       {
          if(MainGame.stageCtrl.currentStage is GameState)
          {
-            return _connGameLogic.render();
+            return this._connGameLogic.render();
          }
          InputManager.I.socket_input_p1.freeRender();
          return true;
@@ -283,40 +279,41 @@ package net.play5d.game.bvn.mob.ctrls
       
       private function onGameStart(param1:GameEvent) : void
       {
-         _connGameLogic.enabled = true;
-         _connGameLogic.reset();
+         this._connGameLogic.enabled = true;
+         this._connGameLogic.reset();
          var _loc2_:Array = ["SYNC",3];
-         sendTCP(_loc2_);
+         this.sendTCP(_loc2_);
       }
       
       private function onGameEnd(param1:GameEvent) : void
       {
-         _connGameLogic.enabled = false;
-         _connGameLogic.reset();
+         this._connGameLogic.enabled = false;
+         this._connGameLogic.reset();
          var _loc2_:Array = ["SYNC",4];
-         sendTCP(_loc2_);
+         this.sendTCP(_loc2_);
       }
       
       private function onRoundStart(param1:GameEvent) : void
       {
-         _connGameLogic.enabled = true;
+         this._connGameLogic.enabled = true;
       }
       
       private function onGameRoundEnd(param1:GameEvent) : void
       {
-         var _loc3_:GameRunDataVO = GameCtrl.I.gameRunData;
-         var _loc4_:FighterMain = _loc3_.p1FighterGroup.currentFighter;
-         var _loc2_:FighterMain = _loc3_.p2FighterGroup.currentFighter;
-         var _loc5_:Array = ["SYNC",7,_loc3_.round,_loc3_.isTimerOver,_loc3_.isDrawGame,_loc4_.hp << 0,_loc2_.hp << 0];
-         sendTCP(_loc5_);
-         _connGameLogic.enabled = false;
-         _connGameLogic.reset();
+         var _loc2_:GameRunDataVO = GameCtrl.I.gameRunData;
+         var _loc3_:FighterMain = _loc2_.p1FighterGroup.currentFighter;
+         var _loc4_:FighterMain = _loc2_.p2FighterGroup.currentFighter;
+         var _loc5_:Array = ["SYNC",7,_loc2_.round,_loc2_.isTimerOver,_loc2_.isDrawGame,_loc3_.hp << 0,_loc4_.hp << 0];
+         this.sendTCP(_loc5_);
+         this._connGameLogic.enabled = false;
+         this._connGameLogic.reset();
       }
       
       public function sendGameStart() : void
       {
+         var _loc2_:* = undefined;
          var _loc1_:Object = SocketMsgFactory.createStartGame();
-         for each(var _loc2_ in _clients)
+         for each(_loc2_ in this._clients)
          {
             SocketServer.I.sendJson(_loc2_.socket,_loc1_);
          }
@@ -324,7 +321,8 @@ package net.play5d.game.bvn.mob.ctrls
       
       public function sendTCP(param1:Object) : void
       {
-         for each(var _loc2_ in _clients)
+         var _loc2_:* = undefined;
+         for each(_loc2_ in this._clients)
          {
             SocketServer.I.send(_loc2_.socket,param1);
          }
@@ -332,9 +330,9 @@ package net.play5d.game.bvn.mob.ctrls
       
       public function sendUDP(param1:Object) : void
       {
-         if(_udpClientIP)
+         if(Boolean(this._udpClientIP))
          {
-            _udpSocket.send(_udpClientIP,17478,param1);
+            this._udpSocket.send(this._udpClientIP,17478,param1);
          }
       }
    }

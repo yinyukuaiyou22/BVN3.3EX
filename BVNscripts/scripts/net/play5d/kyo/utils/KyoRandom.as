@@ -14,7 +14,7 @@ package net.play5d.kyo.utils
          {
             return null;
          }
-         var _loc3_:int = Math.random() * param1.length << 0;
+         var _loc3_:* = Math.random() * param1.length << 0;
          var _loc4_:* = param1[_loc3_];
          if(param2)
          {
@@ -25,23 +25,23 @@ package net.play5d.kyo.utils
       
       public static function getRandomSomeInArray(param1:Array, param2:int, param3:Boolean = false) : Array
       {
-         var _loc6_:* = 0;
-         var _loc7_:int = 0;
-         var _loc8_:* = undefined;
-         var _loc4_:Array = param1.concat();
-         var _loc5_:Array = [];
-         while(_loc6_ < param2)
+         var _loc4_:int = 0;
+         var _loc5_:* = 0;
+         var _loc6_:* = undefined;
+         var _loc7_:Array = param1.concat();
+         var _loc8_:Array = [];
+         while(_loc4_ < param2)
          {
-            _loc7_ = Math.random() * _loc4_.length << 0;
-            _loc8_ = _loc4_[_loc7_];
-            _loc5_.push(_loc8_);
+            _loc5_ = Math.random() * _loc7_.length << 0;
+            _loc6_ = _loc7_[_loc5_];
+            _loc8_.push(_loc6_);
             if(!param3)
             {
-               _loc4_.splice(_loc7_,1);
+               _loc7_.splice(_loc5_,1);
             }
-            _loc6_++;
+            _loc4_++;
          }
-         return _loc5_;
+         return _loc8_;
       }
       
       public static function getRandomOne(... rest) : *
@@ -51,8 +51,8 @@ package net.play5d.kyo.utils
       
       public static function between(param1:Number, param2:Number) : Number
       {
-         var _loc3_:Number = Number(NaN);
-         var _loc4_:Number = Number(NaN);
+         var _loc3_:Number = NaN;
+         var _loc4_:Number = NaN;
          if(param1 < param2)
          {
             _loc3_ = param1;
@@ -77,69 +77,69 @@ package net.play5d.kyo.utils
       
       public static function getRandomByRate(param1:Array, param2:String) : *
       {
-         var _loc7_:Number = Number(NaN);
-         var _loc3_:Number = 0;
+         var _loc3_:Number = NaN;
+         var _loc4_:Number = 0;
          param1.sortOn(param2,Array.NUMERIC);
-         var _loc4_:* = 0;
-         while(_loc4_ < param1.length)
+         var _loc5_:int = 0;
+         while(_loc5_ < param1.length)
          {
-            _loc3_ += Number(param1[_loc4_][param2]);
-            _loc4_++;
+            _loc4_ += Number(param1[_loc5_][param2]);
+            _loc5_++;
          }
-         var _loc5_:Number = Math.random() * _loc3_;
-         if(_loc5_ > _loc3_ - 1)
+         var _loc6_:Number = Math.random() * _loc4_;
+         if(_loc6_ > _loc4_ - 1)
          {
-            _loc5_ = _loc3_ - 1;
+            _loc6_ = _loc4_ - 1;
          }
-         var _loc6_:Number = 0;
-         _loc4_ = 0;
-         while(_loc4_ < param1.length)
+         var _loc7_:Number = 0;
+         _loc5_ = 0;
+         while(_loc5_ < param1.length)
          {
-            _loc7_ = _loc6_ + Number(param1[_loc4_][param2]);
-            if(_loc5_ >= _loc6_ && _loc5_ < _loc7_)
+            _loc3_ = _loc7_ + Number(param1[_loc5_][param2]);
+            if(_loc6_ >= _loc7_ && _loc6_ < _loc3_)
             {
-               return param1[_loc4_];
+               return param1[_loc5_];
             }
-            _loc6_ = _loc7_;
-            _loc4_++;
+            _loc7_ = _loc3_;
+            _loc5_++;
          }
-         throw "无法按机率选择，请检查数据";
+         throw Error("无法按机率选择，请检查数据");
       }
       
       public static function getRandomByRateLite(param1:Array, param2:String, param3:Number = 1) : *
       {
-         var _loc8_:* = undefined;
-         var _loc9_:Number = Number(NaN);
+         var _loc4_:* = undefined;
+         var _loc5_:Number = NaN;
          param1.sortOn(param2,Array.NUMERIC);
-         var _loc4_:Number = Math.random() * param3;
-         var _loc5_:Number = 0;
-         var _loc6_:Array = [];
-         var _loc7_:* = 0;
-         while(_loc7_ < param1.length)
+         var _loc6_:Number = Math.random() * param3;
+         var _loc7_:Number = 0;
+         var _loc8_:Array = [];
+         var _loc9_:int = 0;
+         while(_loc9_ < param1.length)
          {
-            _loc8_ = param1[_loc7_];
-            _loc9_ = Number(_loc8_[param2]);
-            if(_loc5_ == 0)
+            _loc4_ = param1[_loc9_];
+            _loc5_ = Number(_loc4_[param2]);
+            if(_loc7_ == 0)
             {
-               if(_loc4_ <= _loc9_)
+               if(_loc6_ <= _loc5_)
                {
-                  _loc5_ = _loc9_;
-                  _loc6_.push(_loc8_);
+                  _loc7_ = _loc5_;
+                  _loc8_.push(_loc4_);
                }
             }
-            else if(_loc9_ == _loc5_)
+            else if(_loc5_ == _loc7_)
             {
-               _loc6_.push(_loc8_);
+               _loc8_.push(_loc4_);
             }
-            _loc7_++;
+            _loc9_++;
          }
-         return getRandomInArray(_loc6_);
+         return getRandomInArray(_loc8_);
       }
       
       public static function getRandomInts(param1:int, param2:int) : Array
       {
          var _loc3_:Array = [];
-         var _loc4_:* = param1;
+         var _loc4_:int = param1;
          while(_loc4_ < param2)
          {
             _loc3_.push(_loc4_);

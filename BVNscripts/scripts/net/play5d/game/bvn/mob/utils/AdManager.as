@@ -1,9 +1,8 @@
 package net.play5d.game.bvn.mob.utils
 {
    import flash.events.DataEvent;
-   import flash.utils.clearTimeout;
-   import flash.utils.setTimeout;
-   import net.play5d.game.bvn.MainGame;
+   import flash.utils.*;
+   import net.play5d.game.bvn.*;
    
    public class AdManager
    {
@@ -44,44 +43,44 @@ package net.play5d.game.bvn.mob.utils
       
       public function initAD(param1:Function = null, param2:Function = null) : void
       {
-         _initSdkBack = param1;
-         _openCloseBack = param2;
-         if(_initSdkBack != null)
+         this._initSdkBack = param1;
+         this._openCloseBack = param2;
+         if(this._initSdkBack != null)
          {
-            _initSdkBack();
-            _initSdkBack = null;
+            this._initSdkBack();
+            this._initSdkBack = null;
          }
-         if(_openCloseBack != null)
+         if(this._openCloseBack != null)
          {
-            _showOpenAdTimer = setTimeout(openCloseBack,5000);
+            this._showOpenAdTimer = setTimeout(this.openCloseBack,5000);
          }
       }
       
       public function cancelInitBack() : void
       {
-         clearTimeout(_showOpenAdTimer);
-         _initSdkBack = null;
-         _openCloseBack = null;
+         clearTimeout(this._showOpenAdTimer);
+         this._initSdkBack = null;
+         this._openCloseBack = null;
       }
       
       private function openCloseBack() : void
       {
-         clearTimeout(_showOpenAdTimer);
-         if(_openCloseBack != null)
+         clearTimeout(this._showOpenAdTimer);
+         if(this._openCloseBack != null)
          {
-            _openCloseBack();
-            _openCloseBack = null;
+            this._openCloseBack();
+            this._openCloseBack = null;
          }
       }
       
       public function onGameInited() : void
       {
-         MainGame.I.stage.addEventListener("5d_message",messageHandler);
+         MainGame.I.stage.addEventListener("5d_message",this.messageHandler);
       }
       
       private function messageHandler(param1:DataEvent) : void
       {
-         var cmd:String;
+         var cmd:String = null;
          var data:Array = null;
          try
          {
@@ -103,7 +102,7 @@ package net.play5d.game.bvn.mob.utils
             case "show_continue":
                break;
             case "go_menu_stage":
-               if(++_showMenuTimes > 2)
+               if(++this._showMenuTimes > 2)
                {
                }
          }

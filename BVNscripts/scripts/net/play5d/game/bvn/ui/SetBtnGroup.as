@@ -1,20 +1,17 @@
 package net.play5d.game.bvn.ui
 {
-   import com.greensock.TweenLite;
-   import flash.display.DisplayObject;
+   import com.greensock.*;
    import flash.display.Sprite;
    import flash.events.MouseEvent;
    import flash.events.TouchEvent;
-   import flash.geom.Rectangle;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.ctrl.GameRender;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
-   import net.play5d.game.bvn.data.ConfigVO;
-   import net.play5d.game.bvn.data.GameData;
+   import flash.geom.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.events.SetBtnEvent;
-   import net.play5d.game.bvn.input.GameInputer;
-   import net.play5d.game.bvn.interfaces.GameInterface;
-   import net.play5d.game.bvn.utils.ResUtils;
+   import net.play5d.game.bvn.input.*;
+   import net.play5d.game.bvn.interfaces.*;
+   import net.play5d.game.bvn.utils.*;
    
    public class SetBtnGroup extends Sprite
    {
@@ -35,13 +32,11 @@ package net.play5d.game.bvn.ui
       
       private var _btns:Vector.<SetBtn>;
       
-      private var _arrow:DisplayObject;
+      private var _arrow:*;
       
       private var _arrowIndex:int = -1;
       
       private var _scrollRect:Rectangle;
-      
-      private var _processing:Boolean;
       
       public function SetBtnGroup()
       {
@@ -54,22 +49,22 @@ package net.play5d.game.bvn.ui
       
       public function initScroll(param1:Number, param2:Number) : void
       {
-         _scrollRect = new Rectangle(0,0,param1,param2);
-         this.scrollRect = _scrollRect;
+         this._scrollRect = new Rectangle(0,0,param1,param2);
+         this.scrollRect = this._scrollRect;
       }
       
       public function initMainSet() : void
       {
-         initMainBtns();
-         initArrow();
-         GameRender.add(render,this);
+         this.initMainBtns();
+         this.initArrow();
+         GameRender.add(this.render,this);
          GameInputer.focus();
          GameInputer.enabled = true;
       }
       
       public function initKeySet() : void
       {
-         setBtnData([{
+         this.setBtnData([{
             "label":"SET ALL",
             "cn":"设置全部"
          },{
@@ -87,54 +82,55 @@ package net.play5d.game.bvn.ui
       public function setBtnData(param1:Array, param2:int = 0) : void
       {
          var _loc3_:SetBtn = null;
-         var _loc5_:int = 0;
-         var _loc4_:Object = null;
-         _btns = new Vector.<SetBtn>();
-         while(_loc5_ < param1.length)
+         var _loc4_:int = 0;
+         var _loc5_:Object = null;
+         this._btns = new Vector.<SetBtn>();
+         while(_loc4_ < param1.length)
          {
-            _loc4_ = param1[_loc5_];
-            _loc3_ = addBtn(_loc4_.label,_loc4_.cn,_loc4_.options);
-            if(_loc4_.optoinKey != undefined)
+            _loc5_ = param1[_loc4_];
+            _loc3_ = this.addBtn(_loc5_.label,_loc5_.cn,_loc5_.options);
+            if(_loc5_.optoinKey != undefined)
             {
-               _loc3_.optionKey = _loc4_.optoinKey;
+               _loc3_.optionKey = _loc5_.optoinKey;
             }
-            if(_loc4_.optionValue != undefined)
+            if(_loc5_.optionValue != undefined)
             {
-               _loc3_.setOptionByValue(_loc4_.optionValue);
+               _loc3_.setOptionByValue(_loc5_.optionValue);
             }
-            _loc5_++;
+            _loc4_++;
          }
-         initArrow(param2);
-         GameRender.add(render,this);
+         this.initArrow(param2);
+         GameRender.add(this.render,this);
          GameInputer.focus();
          GameInputer.enabled = true;
       }
       
       public function destory() : void
       {
-         if(_btns)
+         var _loc1_:* = undefined;
+         if(Boolean(this._btns))
          {
-            for each(var _loc1_ in _btns)
+            for each(_loc1_ in this._btns)
             {
                _loc1_.destory();
-               _loc1_.removeEventListener("touchTap",touchHandler);
-               _loc1_.removeEventListener("mouseOver",mouseHandler);
-               _loc1_.removeEventListener("click",mouseHandler);
-               _loc1_.removeEventListener("OPTION_CHANGE",onChangeOption);
-               _loc1_.removeEventListener("SELECT",onSelect);
+               _loc1_.removeEventListener("touchTap",this.touchHandler);
+               _loc1_.removeEventListener("mouseOver",this.mouseHandler);
+               _loc1_.removeEventListener("click",this.mouseHandler);
+               _loc1_.removeEventListener("OPTION_CHANGE",this.onChangeOption);
+               _loc1_.removeEventListener("SELECT",this.onSelect);
             }
-            _btns = null;
+            this._btns = null;
          }
-         GameRender.remove(render,this);
+         GameRender.remove(this.render,this);
       }
       
       private function initMainBtns() : void
       {
          var _loc1_:SetBtn = null;
-         var _loc5_:int = 0;
-         var _loc2_:Object = null;
-         _btns = new Vector.<SetBtn>();
-         var _loc4_:Array = GameInterface.instance.getSettingMenu();
+         var _loc2_:int = 0;
+         var _loc3_:Object = null;
+         this._btns = new Vector.<SetBtn>();
+         var _loc4_:* = GameInterface.instance.getSettingMenu();
          if(!_loc4_)
          {
             _loc4_ = [{
@@ -312,23 +308,23 @@ package net.play5d.game.bvn.ui
                "optoinKey":"quality"
             }];
          }
-         var _loc3_:ConfigVO = GameData.I.config;
-         while(_loc5_ < _loc4_.length)
+         var _loc5_:ConfigVO = GameData.I.config;
+         while(_loc2_ < _loc4_.length)
          {
-            _loc2_ = _loc4_[_loc5_];
-            _loc1_ = addBtn(_loc2_.txt,_loc2_.cn,_loc2_.options);
-            if(_loc2_.select)
+            _loc3_ = _loc4_[_loc2_];
+            _loc1_ = this.addBtn(_loc3_.txt,_loc3_.cn,_loc3_.options);
+            if(Boolean(_loc3_.select))
             {
-               _loc1_.onSelect = _loc2_.select;
+               _loc1_.onSelect = _loc3_.select;
             }
-            _loc1_.optionKey = _loc2_.optoinKey;
-            if(_loc1_.optionKey)
+            _loc1_.optionKey = _loc3_.optoinKey;
+            if(Boolean(_loc1_.optionKey))
             {
-               _loc1_.setOptionByValue(_loc3_.getValueByKey(_loc1_.optionKey));
+               _loc1_.setOptionByValue(_loc5_.getValueByKey(_loc1_.optionKey));
             }
-            _loc5_++;
+            _loc2_++;
          }
-         addBtn("APPLY","应用");
+         this.addBtn("APPLY","应用");
       }
       
       private function addBtn(param1:String, param2:String, param3:Array = null) : SetBtn
@@ -336,94 +332,80 @@ package net.play5d.game.bvn.ui
          var _loc4_:SetBtn = new SetBtn(param1,param2);
          if(GameConfig.TOUCH_MODE)
          {
-            _loc4_.addEventListener("touchTap",touchHandler);
+            _loc4_.addEventListener("touchTap",this.touchHandler);
          }
          else
          {
-            _loc4_.addEventListener("mouseOver",mouseHandler);
-            _loc4_.addEventListener("click",mouseHandler);
+            _loc4_.addEventListener("mouseOver",this.mouseHandler);
+            _loc4_.addEventListener("click",this.mouseHandler);
          }
-         switch(direct)
+         switch(this.direct)
          {
             case 0:
-               _loc4_.x = startX + gap * _btns.length;
-               _loc4_.y = startY;
+               _loc4_.x = this.startX + this.gap * this._btns.length;
+               _loc4_.y = this.startY;
                break;
             case 1:
-               _loc4_.x = startX;
-               _loc4_.y = startY + gap * _btns.length;
+               _loc4_.x = this.startX;
+               _loc4_.y = this.startY + this.gap * this._btns.length;
          }
          addChild(_loc4_);
-         if(param3)
+         if(Boolean(param3))
          {
             _loc4_.setOption(param3);
-            _loc4_.addEventListener("OPTION_CHANGE",onChangeOption);
+            _loc4_.addEventListener("OPTION_CHANGE",this.onChangeOption);
          }
          else
          {
-            _loc4_.addEventListener("SELECT",onSelect);
+            _loc4_.addEventListener("SELECT",this.onSelect);
          }
-         _btns.push(_loc4_);
+         this._btns.push(_loc4_);
          return _loc4_;
       }
       
       private function touchHandler(param1:TouchEvent) : void
       {
-         if(!keyEnable)
+         if(!this.keyEnable)
          {
             return;
          }
-         if(_processing)
+         var _loc2_:SetBtn = param1.currentTarget as SetBtn;
+         var _loc3_:int = int(this._btns.indexOf(_loc2_));
+         if(_loc3_ == -1)
          {
             return;
          }
-         _processing = true;
-         var _loc3_:SetBtn = param1.currentTarget as SetBtn;
-         var _loc2_:int = _btns.indexOf(_loc3_);
-         if(_loc2_ == -1)
-         {
-            _processing = false;
-            return;
-         }
-         var _loc4_:Object = _loc3_.getOption();
-         if(_loc2_ == _arrowIndex)
+         var _loc4_:Object = _loc2_.getOption();
+         if(_loc3_ == this._arrowIndex)
          {
             if(_loc4_ != null)
             {
-               _processing = false;
-               _loc3_.nextOption();
+               _loc2_.nextOption();
             }
             else
             {
-               _loc3_.select();
-               _processing = false;
+               _loc2_.select();
             }
             return;
          }
-         _processing = false;
-         setArrowIndex(_loc2_,true);
+         this.setArrowIndex(_loc3_,true);
       }
       
       private function mouseHandler(param1:MouseEvent) : void
       {
          var _loc2_:int = 0;
-         if(!keyEnable)
+         if(!this.keyEnable)
          {
             return;
          }
-         if(_processing)
-         {
-            return;
-         }
-         _processing = true;
          var _loc3_:SetBtn = param1.currentTarget as SetBtn;
          switch(param1.type)
          {
             case "mouseOver":
-               _loc2_ = _btns.indexOf(_loc3_);
+               _loc2_ = int(this._btns.indexOf(_loc3_));
                if(_loc2_ != -1)
                {
-                  setArrowIndex(_loc2_);
+                  this.setArrowIndex(_loc2_);
                }
                break;
             case "click":
@@ -431,7 +413,7 @@ package net.play5d.game.bvn.ui
                {
                   _loc3_.select();
                }
-               else if(param1.target)
+               else if(Boolean(param1.target))
                {
                   switch(param1.target.name)
                   {
@@ -443,38 +425,37 @@ package net.play5d.game.bvn.ui
                   }
                }
          }
-         _processing = false;
       }
       
       private function initArrow(param1:int = 0) : void
       {
-         _arrow = ResUtils.I.createDisplayObject(ResUtils.I.common_ui,"select_arrow_mc");
-         addChild(_arrow);
-         setArrowIndex(param1);
+         this._arrow = ResUtils.I.createDisplayObject(ResUtils.I.common_ui,"select_arrow_mc");
+         addChild(this._arrow);
+         this.setArrowIndex(param1);
       }
       
       public function setArrowIndex(param1:int, param2:Boolean = true) : void
       {
-         var btn:SetBtn;
+         var btn:SetBtn = null;
          var id:int = param1;
          var sound:Boolean = param2;
-         if(_arrowIndex == id)
+         if(this._arrowIndex == id)
          {
             return;
          }
          if(id < 0)
          {
-            id = _btns.length - 1;
+            id = this._btns.length - 1;
          }
-         if(id > _btns.length - 1)
+         if(id > this._btns.length - 1)
          {
             id = 0;
          }
-         btn = _btns[id];
-         _arrowIndex = id;
-         _arrow.x = btn.x - 10;
-         _arrow.y = btn.y + 15;
-         _btns.every(function(param1:SetBtn, param2:int, param3:Vector.<SetBtn>):Boolean
+         btn = this._btns[id];
+         this._arrowIndex = id;
+         this._arrow.x = btn.x - 10;
+         this._arrow.y = btn.y + 15;
+         this._btns.every(function(param1:SetBtn, param2:int, param3:Vector.<SetBtn>):Boolean
          {
             if(btn == param1)
             {
@@ -490,99 +471,95 @@ package net.play5d.game.bvn.ui
          {
             SoundCtrl.I.sndSelect();
          }
-         moveScroll();
+         this.moveScroll();
       }
       
       private function moveScroll() : void
       {
-         var _loc4_:Number = Number(NaN);
-         var _loc3_:Number = Number(NaN);
-         var _loc1_:Number = Number(NaN);
-         var _loc5_:Number = Number(NaN);
-         var _loc2_:Number = Number(NaN);
-         if(!_scrollRect)
+         var _loc1_:Number = NaN;
+         var _loc2_:Number = NaN;
+         var _loc3_:Number = NaN;
+         var _loc4_:Number = NaN;
+         var _loc5_:Number = NaN;
+         if(!this._scrollRect)
          {
             return;
          }
-         if(direct == 1)
+         if(this.direct == 1)
          {
-            if(_btns.length < 8)
+            if(this._btns.length < 8)
             {
                return;
             }
-            _loc4_ = endY != 0 ? endY : _scrollRect.height;
-            _loc3_ = this.height;
-            if(_loc3_ < _loc4_)
+            _loc1_ = this.endY != 0 ? this.endY : Number(this._scrollRect.height);
+            _loc2_ = this.height;
+            if(_loc2_ < _loc1_)
             {
                return;
             }
-            _loc1_ = _loc4_ - startY;
-            _loc5_ = _loc1_ / _btns.length;
-            _loc2_ = -_arrowIndex * (_loc5_ - gap);
-            TweenLite.to(_scrollRect,0.2,{
-               "y":_loc2_,
-               "onUpdate":updateScroll
+            _loc3_ = _loc1_ - this.startY;
+            _loc4_ = _loc3_ / this._btns.length;
+            _loc5_ = -this._arrowIndex * (_loc4_ - this.gap);
+            TweenLite.to(this._scrollRect,0.2,{
+               "y":_loc5_,
+               "onUpdate":this.updateScroll
             });
          }
       }
       
       private function updateScroll() : void
       {
-         this.scrollRect = _scrollRect;
+         this.scrollRect = this._scrollRect;
       }
       
       private function render() : void
       {
-         if(!keyEnable)
+         if(!this.keyEnable)
          {
             return;
          }
-         if(_processing)
+         if(!this._btns || this._btns.length < 1)
          {
             return;
          }
-         if(!_btns || _btns.length < 1)
+         var _loc1_:SetBtn = this._btns[this._arrowIndex];
+         if(GameInputer.up(this.gameInputType,1))
          {
-            return;
-         }
-         var _loc1_:SetBtn = _btns[_arrowIndex];
-         if(GameInputer.up(gameInputType,1))
-         {
-            if(direct == 1)
+            if(this.direct == 1)
             {
-               setArrowIndex(_arrowIndex - 1);
+               this.setArrowIndex(this._arrowIndex - 1);
             }
          }
-         if(GameInputer.down(gameInputType,1))
+         if(GameInputer.down(this.gameInputType,1))
          {
-            if(direct == 1)
+            if(this.direct == 1)
             {
-               setArrowIndex(_arrowIndex + 1);
+               this.setArrowIndex(this._arrowIndex + 1);
             }
          }
-         if(GameInputer.left(gameInputType,1))
+         if(GameInputer.left(this.gameInputType,1))
          {
-            if(direct == 0)
+            if(this.direct == 0)
             {
-               setArrowIndex(_arrowIndex - 1);
+               this.setArrowIndex(this._arrowIndex - 1);
             }
-            if(direct == 1)
+            if(this.direct == 1)
             {
                _loc1_.prevOption();
             }
          }
-         if(GameInputer.right(gameInputType,1))
+         if(GameInputer.right(this.gameInputType,1))
          {
-            if(direct == 0)
+            if(this.direct == 0)
             {
-               setArrowIndex(_arrowIndex + 1);
+               this.setArrowIndex(this._arrowIndex + 1);
             }
-            if(direct == 1)
+            if(this.direct == 1)
             {
                _loc1_.nextOption();
             }
          }
-         if(GameInputer.select(gameInputType,1))
+         if(GameInputer.select(this.gameInputType,1))
          {
             _loc1_.select();
          }

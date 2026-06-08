@@ -24,22 +24,22 @@ package net.play5d.game.bvn.mob.sockets.udp
       
       public function addDataHandler(param1:Function) : void
       {
-         if(!_dataBacks)
+         if(!this._dataBacks)
          {
-            _dataBacks = new Vector.<Function>();
+            this._dataBacks = new Vector.<Function>();
          }
-         if(_dataBacks.indexOf(param1) == -1)
+         if(this._dataBacks.indexOf(param1) == -1)
          {
-            _dataBacks.push(param1);
+            this._dataBacks.push(param1);
          }
       }
       
       public function removeDataHandler(param1:Function) : void
       {
-         var _loc2_:int = _dataBacks.indexOf(param1);
+         var _loc2_:int = int(this._dataBacks.indexOf(param1));
          if(_loc2_ != -1)
          {
-            _dataBacks.splice(_loc2_,1);
+            this._dataBacks.splice(_loc2_,1);
          }
       }
       

@@ -2,7 +2,7 @@ package net.play5d.game.bvn.mob
 {
    import flash.display.Stage;
    import flash.events.AccelerometerEvent;
-   import flash.sensors.Accelerometer;
+   import flash.sensors.*;
    
    public class ScreenRotater
    {
@@ -38,44 +38,44 @@ package net.play5d.game.bvn.mob
       
       public function init(param1:Stage) : void
       {
-         _stage = param1;
+         this._stage = param1;
          if(!Accelerometer.isSupported)
          {
             param1.autoOrients = true;
-            _stage.setOrientation("rotatedRight");
+            this._stage.setOrientation("rotatedRight");
             return;
          }
          param1.autoOrients = false;
-         setOrientation("rotatedRight");
-         _accer = new Accelerometer();
-         _accer.addEventListener("update",accUpdate);
+         this.setOrientation("rotatedRight");
+         this._accer = new Accelerometer();
+         this._accer.addEventListener("update",this.accUpdate);
       }
       
       private function setOrientation(param1:String) : void
       {
-         if(_currentOrientation == param1)
+         if(this._currentOrientation == param1)
          {
             return;
          }
-         _currentOrientation = param1;
-         _stage.setOrientation(param1);
+         this._currentOrientation = param1;
+         this._stage.setOrientation(param1);
       }
       
       private function accUpdate(param1:AccelerometerEvent) : void
       {
-         if(_currentOrientation == "rotatedLeft")
+         if(this._currentOrientation == "rotatedLeft")
          {
-            if(param1.accelerationY < -sensitivity)
+            if(param1.accelerationY < -this.sensitivity)
             {
-               setOrientation("rotatedRight");
+               this.setOrientation("rotatedRight");
                return;
             }
          }
-         if(_currentOrientation == "rotatedRight")
+         if(this._currentOrientation == "rotatedRight")
          {
-            if(param1.accelerationY < -sensitivity)
+            if(param1.accelerationY < -this.sensitivity)
             {
-               setOrientation("rotatedLeft");
+               this.setOrientation("rotatedLeft");
                return;
             }
          }

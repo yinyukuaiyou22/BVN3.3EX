@@ -1,13 +1,12 @@
 package net.play5d.game.bvn.mob.views
 {
-   import com.greensock.TweenLite;
-   import flash.display.DisplayObject;
-   import flash.display.Sprite;
+   import com.greensock.*;
+   import flash.display.*;
    import flash.events.TouchEvent;
-   import flash.geom.Point;
-   import flash.utils.Dictionary;
+   import flash.geom.*;
+   import flash.utils.*;
    import net.play5d.game.bvn.mob.screenpad.ScreenPadBtnBase;
-   import net.play5d.game.bvn.mob.utils.UIAssetUtil;
+   import net.play5d.game.bvn.mob.utils.*;
    
    public class CustomSetBtnItemUI
    {
@@ -25,90 +24,91 @@ package net.play5d.game.bvn.mob.views
       public function CustomSetBtnItemUI(param1:Number)
       {
          super();
-         _ui = UIAssetUtil.I.createDisplayObject("item_set_btns_mc");
-         _ui.scaleX = _ui.scaleY = param1;
-         _ui.visible = false;
-         initBtns("zoomin2","zoomout2");
+         this._ui = UIAssetUtil.I.createDisplayObject("item_set_btns_mc");
+         this._ui.scaleX = this._ui.scaleY = param1;
+         this._ui.visible = false;
+         this.initBtns("zoomin2","zoomout2");
       }
       
       public function getUI() : Sprite
       {
-         return _ui;
+         return this._ui;
       }
       
       private function initBtns(... rest) : void
       {
+         var _loc3_:* = undefined;
          var _loc2_:DisplayObject = null;
-         _btns = [];
-         for each(var _loc3_ in rest)
+         this._btns = [];
+         for each(_loc3_ in rest)
          {
-            _loc2_ = _ui.getChildByName(_loc3_);
-            if(_loc2_)
+            _loc2_ = this._ui.getChildByName(_loc3_);
+            if(Boolean(_loc2_))
             {
-               _btnPos[_loc2_] = new Point(_loc2_.x,_loc2_.y);
-               _btns.push(_loc2_);
-               _loc2_.addEventListener("touchTap",btnTouchHandler);
+               this._btnPos[_loc2_] = new Point(_loc2_.x,_loc2_.y);
+               this._btns.push(_loc2_);
+               _loc2_.addEventListener("touchTap",this.btnTouchHandler);
             }
          }
       }
       
       private function btnTouchHandler(param1:TouchEvent) : void
       {
-         var _loc4_:Number = Number(NaN);
+         var _loc2_:Number = NaN;
          var _loc3_:DisplayObject = param1.currentTarget as DisplayObject;
          if(!_loc3_)
          {
             return;
          }
-         var _loc2_:Point = _btnPos[_loc3_];
-         if(!_loc2_)
+         var _loc4_:Point = this._btnPos[_loc3_];
+         if(!_loc4_)
          {
             _loc3_.alpha = 0.5;
             TweenLite.to(_loc3_,0.2,{"alpha":1});
          }
          else
          {
-            _loc4_ = _loc2_.y;
+            _loc2_ = _loc4_.y;
             _loc3_.y += 5;
             _loc3_.alpha = 0.5;
             TweenLite.to(_loc3_,0.2,{
                "alpha":1,
-               "y":_loc4_
+               "y":_loc2_
             });
          }
          switch(_loc3_.name)
          {
             case "zoomin2":
-               zoomBtn(0.1);
+               this.zoomBtn(0.1);
                break;
             case "zoomout2":
-               zoomBtn(-0.1);
+               this.zoomBtn(-0.1);
          }
       }
       
       private function zoomBtn(param1:Number) : void
       {
-         if(!_target)
+         if(!this._target)
          {
             return;
          }
-         var _loc2_:Number = _target.display.scaleX;
+         var _loc2_:Number = Number(this._target.display.scaleX);
          _loc2_ += param1;
-         _target.display.scaleX = _target.display.scaleY = _loc2_;
+         this._target.display.scaleX = this._target.display.scaleY = _loc2_;
       }
       
       public function show(param1:ScreenPadBtnBase) : void
       {
-         _target = param1;
-         _ui.visible = true;
-         _ui.x = _target.display.x + _target.display.width - _ui.width;
-         _ui.y = _target.display.y;
+         this._target = param1;
+         this._ui.visible = true;
+         this._ui.x = this._target.display.x + this._target.display.width - this._ui.width;
+         this._ui.y = this._target.display.y;
       }
       
       public function hide() : void
       {
-         _target = null;
-         _ui.visible = false;
+         this._target = null;
+         this._ui.visible = false;
       }
    }
 }

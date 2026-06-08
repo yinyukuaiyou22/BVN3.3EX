@@ -1,6 +1,6 @@
 package net.play5d.game.bvn.mob.utils
 {
-   import net.play5d.game.bvn.GameConfig;
+   import net.play5d.game.bvn.*;
    
    public class LANUtils
    {

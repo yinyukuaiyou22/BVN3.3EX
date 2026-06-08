@@ -1,27 +1,21 @@
 package net.play5d.game.bvn.state
 {
-   import flash.display.DisplayObject;
-   import flash.display.Sprite;
-   import flash.text.TextField;
-   import flash.utils.setTimeout;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.AssetManager;
-   import net.play5d.game.bvn.ctrl.GameRender;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.input.GameInputer;
-   import net.play5d.game.bvn.interfaces.GameInterface;
-   import net.play5d.game.bvn.ui.GameUI;
-   import net.play5d.game.bvn.ui.MenuBtnGroup;
-   import net.play5d.game.bvn.ui.UIUtils;
-   import net.play5d.game.bvn.utils.ResUtils;
-   import net.play5d.kyo.stage.Istage;
+   import flash.display.*;
+   import flash.text.*;
+   import flash.utils.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.input.*;
+   import net.play5d.game.bvn.interfaces.*;
+   import net.play5d.game.bvn.ui.*;
+   import net.play5d.game.bvn.utils.*;
+   import net.play5d.kyo.stage.*;
    
    public class MenuState extends Sprite implements Istage
    {
       
-      private var _ui:stg_title;
+      private var _ui:*;
       
       private var _btnGroup:MenuBtnGroup;
       
@@ -34,21 +28,21 @@ package net.play5d.game.bvn.state
       
       public function get display() : DisplayObject
       {
-         return _ui;
+         return this._ui;
       }
       
       public function build() : void
       {
-         _ui = ResUtils.I.createDisplayObject(ResUtils.I.title,ResUtils.TITLE);
-         _ui.gotoAndStop(1);
-         GameInterface.instance.initTitleUI(_ui);
+         this._ui = ResUtils.I.createDisplayObject(ResUtils.I.title,ResUtils.TITLE);
+         this._ui.gotoAndStop(1);
+         GameInterface.instance.initTitleUI(this._ui);
          GameInputer.enabled = false;
          SoundCtrl.I.BGM(AssetManager.I.getSound("op"));
       }
       
       public function afterBuild() : void
       {
-         _ui.gotoAndPlay(2);
+         this._ui.gotoAndPlay(2);
          setTimeout(function():void
          {
             _ui.buttonMode = true;
@@ -65,17 +59,17 @@ package net.play5d.game.bvn.state
             GameInputer.focus();
             GameInputer.enabled = true;
          },500);
-         _versionTxt = new TextField();
-         UIUtils.formatText(_versionTxt,{
+         this._versionTxt = new TextField();
+         UIUtils.formatText(this._versionTxt,{
             "color":0,
             "size":18
          });
-         _versionTxt.text = "V3.3";
-         _versionTxt.autoSize = "left";
-         _versionTxt.x = GameConfig.GAME_SIZE.x - _versionTxt.width - 15;
-         _versionTxt.y = GameConfig.GAME_SIZE.y - _versionTxt.height - 10;
-         _ui.addChild(_versionTxt);
-         if(GameData.I.isFristRun && MainGame.UPDATE_INFO)
+         this._versionTxt.text = "V3.3";
+         this._versionTxt.autoSize = "left";
+         this._versionTxt.x = GameConfig.GAME_SIZE.x - this._versionTxt.width - 15;
+         this._versionTxt.y = GameConfig.GAME_SIZE.y - this._versionTxt.height - 10;
+         this._ui.addChild(this._versionTxt);
+         if(Boolean(GameData.I.isFristRun) && Boolean(MainGame.UPDATE_INFO))
          {
             GameData.I.isFristRun = false;
             GameUI.alert("UPDATE",MainGame.UPDATE_INFO);
@@ -86,36 +80,36 @@ package net.play5d.game.bvn.state
       {
          if(GameInputer.anyKey(1))
          {
-            showBtns();
+            this.showBtns();
          }
       }
       
       private function showBtns(... rest) : void
       {
-         var ct:Sprite;
+         var ct:Sprite = null;
          var params:Array = rest;
-         _ui.removeEventListener("click",showBtns);
-         _ui.removeEventListener("touchTap",showBtns);
-         GameRender.remove(render);
-         _ui.buttonMode = false;
-         _ui.useHandCursor = false;
-         _ui.gotoAndPlay("menu");
+         this._ui.removeEventListener("click",this.showBtns);
+         this._ui.removeEventListener("touchTap",this.showBtns);
+         GameRender.remove(this.render);
+         this._ui.buttonMode = false;
+         this._ui.useHandCursor = false;
+         this._ui.gotoAndPlay("menu");
          SoundCtrl.I.playSwcSound(snd_menu5);
-         _btnGroup = new MenuBtnGroup();
-         _btnGroup.enabled = false;
-         _btnGroup.x = 470;
-         _btnGroup.y = 100;
-         ct = _ui.getChildByName("btnct") as Sprite;
-         if(ct)
+         this._btnGroup = new MenuBtnGroup();
+         this._btnGroup.enabled = false;
+         this._btnGroup.x = 470;
+         this._btnGroup.y = 100;
+         ct = this._ui.getChildByName("btnct") as Sprite;
+         if(Boolean(ct))
          {
-            ct.addChild(_btnGroup);
+            ct.addChild(this._btnGroup);
          }
          else
          {
-            _ui.addChild(_btnGroup);
+            this._ui.addChild(this._btnGroup);
          }
-         _btnGroup.build();
-         _btnGroup.fadIn(0.2,0.04);
+         this._btnGroup.build();
+         this._btnGroup.fadIn(0.2,0.04);
          setTimeout(function():void
          {
             _btnGroup.enabled = true;
@@ -124,17 +118,17 @@ package net.play5d.game.bvn.state
       
       public function destory(param1:Function = null) : void
       {
-         if(_btnGroup)
+         if(Boolean(this._btnGroup))
          {
             try
             {
-               _btnGroup.parent.removeChild(_btnGroup);
+               this._btnGroup.parent.removeChild(this._btnGroup);
             }
             catch(e:Error)
             {
             }
-            _btnGroup.destory();
-            _btnGroup = null;
+            this._btnGroup.destory();
+            this._btnGroup = null;
          }
          GameInputer.enabled = false;
       }

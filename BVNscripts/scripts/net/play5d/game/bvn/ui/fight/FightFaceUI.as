@@ -1,32 +1,32 @@
 package net.play5d.game.bvn.ui.fight
 {
    import flash.display.DisplayObject;
-   import net.play5d.game.bvn.ctrl.AssetManager;
+   import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.data.FighterVO;
    
    public class FightFaceUI
    {
       
-      private var _ui:hpbar_facemc;
+      private var _ui:*;
       
-      public function FightFaceUI(param1:hpbar_facemc)
+      public function FightFaceUI(param1:*)
       {
          super();
-         _ui = param1;
+         this._ui = param1;
       }
       
       public function setData(param1:FighterVO) : void
       {
          if(!param1)
          {
-            _ui.visible = false;
+            this._ui.visible = false;
             return;
          }
-         _ui.visible = true;
+         this._ui.visible = true;
          var _loc2_:DisplayObject = AssetManager.I.getFighterFaceBar(param1);
-         if(_loc2_)
+         if(Boolean(_loc2_))
          {
-            _ui.ct.addChild(_loc2_);
+            this._ui.ct.addChild(_loc2_);
          }
       }
       

@@ -1,9 +1,8 @@
 package net.play5d.game.bvn.fighter.vos
 {
-   import flash.geom.Point;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.interfaces.BaseGameSprite;
-   import net.play5d.game.bvn.interfaces.IGameSprite;
+   import flash.geom.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.interfaces.*;
    
    public class MoveTargetParamVO
    {
@@ -25,40 +24,40 @@ package net.play5d.game.bvn.fighter.vos
          {
             return;
          }
-         x = param1.x != undefined ? param1.x : 0;
-         y = param1.y != undefined ? param1.y : 0;
-         followMcName = param1.followmc != undefined ? param1.followmc : null;
-         if(param1.speed)
+         this.x = param1.x != undefined ? Number(param1.x) : 0;
+         this.y = param1.y != undefined ? Number(param1.y) : 0;
+         this.followMcName = param1.followmc != undefined ? param1.followmc : null;
+         if(Boolean(param1.speed))
          {
-            speed = new Point();
+            this.speed = new Point();
             if(param1.speed is Number)
             {
-               speed.x = speed.y = param1.speed * GameConfig.SPEED_PLUS;
+               this.speed.x = this.speed.y = param1.speed * GameConfig.SPEED_PLUS;
             }
             else
             {
-               speed.x = param1.speed.x != undefined ? param1.speed.x * GameConfig.SPEED_PLUS : 0;
-               speed.y = param1.speed.y != undefined ? param1.speed.y * GameConfig.SPEED_PLUS : 0;
+               this.speed.x = param1.speed.x != undefined ? param1.speed.x * GameConfig.SPEED_PLUS : 0;
+               this.speed.y = param1.speed.y != undefined ? param1.speed.y * GameConfig.SPEED_PLUS : 0;
             }
          }
       }
       
       public function setTarget(param1:IGameSprite) : void
       {
-         target = param1;
-         if(target is BaseGameSprite)
+         this.target = param1;
+         if(this.target is BaseGameSprite)
          {
-            (target as BaseGameSprite).setVelocity(0,0);
+            (this.target as BaseGameSprite).setVelocity(0,0);
          }
       }
       
       public function clear() : void
       {
-         if(target)
+         if(Boolean(this.target))
          {
-            if(target is BaseGameSprite)
+            if(this.target is BaseGameSprite)
             {
-               (target as BaseGameSprite).isApplyG = true;
+               (this.target as BaseGameSprite).isApplyG = true;
             }
          }
       }

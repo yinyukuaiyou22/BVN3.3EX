@@ -1,3 +1,10 @@
+# Compiled output
+*.swf
+
+# Build artifacts
+localFonts.ser
+flex-config.xml
+
 # Temp & debug directories
 debug_export/
 fix_export/
@@ -15,9 +22,11 @@ sync.py
 # FFDec source
 jpexs-decompiler-master/
 
-# SWF backups
-launch_orig.swf
-launch_backup_*.swf
-
 # Claude internal
 .claude/
+
+# Reference / blueprint (not source)
+BVN3.9/
+BVNscripts/OLD/
+BVNscripts/last/
+launch-fla/

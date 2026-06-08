@@ -1,8 +1,7 @@
 package net.play5d.game.bvn.mob.utils
 {
-   import flash.filesystem.File;
-   import flash.filesystem.FileStream;
-   import flash.utils.ByteArray;
+   import flash.filesystem.*;
+   import flash.utils.*;
    
    public class FileUtils
    {
@@ -51,9 +50,9 @@ package net.play5d.game.bvn.mob.utils
       
       public static function getAppFloderFileUrl(param1:String) : String
       {
-         var _loc3_:File = File.applicationDirectory;
-         var _loc2_:String = _loc3_.nativePath;
-         return _loc2_ + "/" + param1;
+         var _loc2_:File = File.applicationDirectory;
+         var _loc3_:String = _loc2_.nativePath;
+         return _loc3_ + "/" + param1;
       }
       
       public static function createFloder(param1:String) : void

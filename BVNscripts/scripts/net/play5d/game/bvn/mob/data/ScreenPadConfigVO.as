@@ -24,19 +24,19 @@ package net.play5d.game.bvn.mob.data
       {
          if(infiniteOn)
          {
-            superSkillAutoHide = false;
+            this.superSkillAutoHide = false;
          }
       }
       
       public function toObj() : Object
       {
          return {
-            "joyMode":joyMode,
-            "joyAlpha":joyAlpha,
-            "joySet":joySet,
-            "wankaiAutoHide":wankaiAutoHide,
-            "specialAutoHide":specialAutoHide,
-            "superSkillAutoHide":superSkillAutoHide
+            "joyMode":this.joyMode,
+            "joyAlpha":this.joyAlpha,
+            "joySet":this.joySet,
+            "wankaiAutoHide":this.wankaiAutoHide,
+            "specialAutoHide":this.specialAutoHide,
+            "superSkillAutoHide":this.superSkillAutoHide
          };
       }
       
@@ -48,27 +48,27 @@ package net.play5d.game.bvn.mob.data
          }
          if(param1.joyMode != undefined)
          {
-            joyMode = param1.joyMode;
+            this.joyMode = param1.joyMode;
          }
          if(param1.joyAlpha != undefined)
          {
-            joyAlpha = param1.joyAlpha;
+            this.joyAlpha = param1.joyAlpha;
          }
          if(param1.joySet != undefined)
          {
-            joySet = param1.joySet;
+            this.joySet = param1.joySet;
          }
          if(param1.wankaiAutoHide != undefined)
          {
-            wankaiAutoHide = param1.wankaiAutoHide;
+            this.wankaiAutoHide = param1.wankaiAutoHide;
          }
          if(param1.specialAutoHide != undefined)
          {
-            specialAutoHide = param1.specialAutoHide;
+            this.specialAutoHide = param1.specialAutoHide;
          }
          if(param1.superSkillAutoHide != undefined)
          {
-            superSkillAutoHide = param1.superSkillAutoHide;
+            this.superSkillAutoHide = param1.superSkillAutoHide;
          }
       }
       

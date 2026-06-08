@@ -1,24 +1,20 @@
 package net.play5d.game.bvn.ui
 {
-   import com.greensock.TweenLite;
-   import flash.display.DisplayObject;
-   import flash.display.MovieClip;
-   import flash.display.Sprite;
+   import com.greensock.*;
+   import flash.display.*;
    import flash.events.EventDispatcher;
    import flash.events.KeyboardEvent;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.data.KeyConfigVO;
-   import net.play5d.game.bvn.events.SetBtnEvent;
-   import net.play5d.game.bvn.interfaces.IInnerSetUI;
-   import net.play5d.game.bvn.utils.ResUtils;
-   import net.play5d.kyo.input.KyoKeyCode;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.events.*;
+   import net.play5d.game.bvn.interfaces.*;
+   import net.play5d.game.bvn.utils.*;
+   import net.play5d.kyo.input.*;
    
    public class SetCtrlBtnUI extends EventDispatcher implements IInnerSetUI
    {
       
-      public var ui:keyset_mc;
+      public var ui:*;
       
       private var _keyMappings:Array;
       
@@ -37,68 +33,69 @@ package net.play5d.game.bvn.ui
       public function SetCtrlBtnUI()
       {
          super();
-         ui = ResUtils.I.createDisplayObject(ResUtils.I.setting,"keyset_mc");
-         _btnGroup = new SetBtnGroup();
-         _btnGroup.startY = 30;
-         _btnGroup.initKeySet();
-         _btnGroup.addEventListener("SELECT",onBtnSelect);
-         ui.addChild(_btnGroup);
-         _dialog = new SetBtnDialog();
-         ui.addChild(_dialog.ui);
-         initKeyMapping();
+         this.ui = ResUtils.I.createDisplayObject(ResUtils.I.setting,"keyset_mc");
+         this._btnGroup = new SetBtnGroup();
+         this._btnGroup.startY = 30;
+         this._btnGroup.initKeySet();
+         this._btnGroup.addEventListener("SELECT",this.onBtnSelect);
+         this.ui.addChild(this._btnGroup);
+         this._dialog = new SetBtnDialog();
+         this.ui.addChild(this._dialog.ui);
+         this.initKeyMapping();
       }
       
       public function destory() : void
       {
-         if(_btnGroup)
+         this.cleanupKeyInput();
+         if(Boolean(this._btnGroup))
          {
             try
             {
-               ui.removeChild(_btnGroup);
+               this.ui.removeChild(this._btnGroup);
             }
             catch(e:Error)
             {
             }
-            _btnGroup.removeEventListener("SELECT",onBtnSelect);
-            _btnGroup.destory();
-            _btnGroup = null;
+            this._btnGroup.removeEventListener("SELECT",this.onBtnSelect);
+            this._btnGroup.destory();
+            this._btnGroup = null;
          }
       }
       
       public function getUI() : DisplayObject
       {
-         return ui;
+         return this.ui;
       }
       
       public function setKey(param1:KeyConfigVO) : void
       {
-         _keyConfig = param1;
-         _tmpKeyConfig = param1.clone();
-         updateKeyMapping();
+         this._keyConfig = param1;
+         this._tmpKeyConfig = param1.clone();
+         this.updateKeyMapping();
       }
       
       private function updateKeyMapping() : void
       {
-         _keyMap["up"].setKey(_tmpKeyConfig.up);
-         _keyMap["down"].setKey(_tmpKeyConfig.down);
-         _keyMap["left"].setKey(_tmpKeyConfig.left);
-         _keyMap["right"].setKey(_tmpKeyConfig.right);
-         _keyMap["attack"].setKey(_tmpKeyConfig.attack);
-         _keyMap["jump"].setKey(_tmpKeyConfig.jump);
-         _keyMap["dash"].setKey(_tmpKeyConfig.dash);
-         _keyMap["skill"].setKey(_tmpKeyConfig.skill);
-         _keyMap["superKill"].setKey(_tmpKeyConfig.superKill);
-         _keyMap["beckons"].setKey(_tmpKeyConfig.beckons);
+         this._keyMap["up"].setKey(this._tmpKeyConfig.up);
+         this._keyMap["down"].setKey(this._tmpKeyConfig.down);
+         this._keyMap["left"].setKey(this._tmpKeyConfig.left);
+         this._keyMap["right"].setKey(this._tmpKeyConfig.right);
+         this._keyMap["attack"].setKey(this._tmpKeyConfig.attack);
+         this._keyMap["jump"].setKey(this._tmpKeyConfig.jump);
+         this._keyMap["dash"].setKey(this._tmpKeyConfig.dash);
+         this._keyMap["skill"].setKey(this._tmpKeyConfig.skill);
+         this._keyMap["superKill"].setKey(this._tmpKeyConfig.superKill);
+         this._keyMap["beckons"].setKey(this._tmpKeyConfig.beckons);
       }
       
       private function initKeyMapping() : void
       {
-         var _loc6_:int = 0;
-         var _loc3_:Sprite = null;
-         var _loc4_:Object = null;
-         var _loc5_:KeyMapping = null;
-         var _loc1_:MovieClip = ui.keysmc;
-         var _loc2_:Array = [{
+         var _loc1_:int = 0;
+         var _loc2_:Sprite = null;
+         var _loc3_:Object = null;
+         var _loc4_:KeyMapping = null;
+         var _loc5_:MovieClip = this.ui.keysmc;
+         var _loc6_:Array = [{
             "id":"up",
             "name":"UP",
             "cn":"上"
@@ -139,23 +136,23 @@ package net.play5d.game.bvn.ui
             "name":"SPECIAL",
             "cn":"特殊"
          }];
-         _keyMappings = [];
-         _keyMap = {};
-         while(_loc6_ < _loc2_.length)
+         this._keyMappings = [];
+         this._keyMap = {};
+         while(_loc1_ < _loc6_.length)
          {
-            _loc3_ = _loc1_.getChildByName("k" + _loc6_) as Sprite;
-            _loc4_ = _loc2_[_loc6_];
-            if(!_loc3_)
+            _loc2_ = _loc5_.getChildByName("k" + _loc1_) as Sprite;
+            _loc3_ = _loc6_[_loc1_];
+            if(!_loc2_)
             {
-               trace("mc[k" + _loc6_ + "]不存在！");
+               trace("mc[k" + _loc1_ + "]不存在！");
             }
             else
             {
-               _loc5_ = new KeyMapping(_loc3_,_loc4_.id,_loc4_.name,_loc4_.cn);
-               _keyMappings.push(_loc5_);
-               _keyMap[_loc5_.keyId] = _loc5_;
+               _loc4_ = new KeyMapping(_loc2_,_loc3_.id,_loc3_.name,_loc3_.cn);
+               this._keyMappings.push(_loc4_);
+               this._keyMap[_loc4_.keyId] = _loc4_;
             }
-            _loc6_++;
+            _loc1_++;
          }
       }
       
@@ -164,87 +161,96 @@ package net.play5d.game.bvn.ui
          switch(param1.selectedLabel)
          {
             case "SET ALL":
-               MainGame.I.stage.addEventListener("keyDown",onKeyDown);
+               MainGame.I.stage.addEventListener("keyDown",this.onKeyDown);
                MainGame.I.stage.focus = MainGame.I.stage;
-               _setKeyIndex = -1;
-               _btnGroup.keyEnable = false;
-               setNextKey();
+               this._setKeyIndex = -1;
+               this._btnGroup.keyEnable = false;
+               this.setNextKey();
                break;
             case "SET DEFAULT":
-               GameData.I.config.setDefaultConfig(_tmpKeyConfig);
-               updateKeyMapping();
+               GameData.I.config.setDefaultConfig(this._tmpKeyConfig);
+               this.updateKeyMapping();
                break;
             case "APPLY":
-               _keyConfig.readSaveObj(_tmpKeyConfig.toSaveObj());
+               this.cleanupKeyInput();
+               this._keyConfig.readSaveObj(this._tmpKeyConfig.toSaveObj());
                dispatchEvent(new SetBtnEvent("APPLY_SET"));
                break;
             case "CANCEL":
+               this.cleanupKeyInput();
                dispatchEvent(new SetBtnEvent("CANCEL_SET"));
          }
       }
       
+      private function cleanupKeyInput() : void
+      {
+         MainGame.I.stage.removeEventListener("keyDown",this.onKeyDown);
+         this._dialog.hide();
+      }
+      
       private function setNextKey() : void
       {
-         _setKeyIndex = _setKeyIndex + 1;
-         var _loc1_:KeyMapping = _keyMappings[_setKeyIndex];
-         if(_loc1_)
+         this._setKeyIndex += 1;
+         var _loc1_:KeyMapping = this._keyMappings[this._setKeyIndex];
+         if(Boolean(_loc1_))
          {
-            _dialog.show(_loc1_.name,_loc1_.cn);
+            this._dialog.show(_loc1_.name,_loc1_.cn);
          }
          else
          {
-            MainGame.I.stage.removeEventListener("keyDown",onKeyDown);
-            _btnGroup.keyEnable = true;
+            MainGame.I.stage.removeEventListener("keyDown",this.onKeyDown);
+            this._btnGroup.keyEnable = true;
          }
       }
       
       private function onKeyDown(param1:KeyboardEvent) : void
       {
-         if(!_dialog.isShow)
+         if(!this._dialog.isShow)
          {
             return;
          }
-         var _loc4_:KeyMapping = _keyMappings[_setKeyIndex];
-         if(!_loc4_)
-         {
-            return;
-         }
-         var _loc3_:String = _loc4_.keyId;
-         if(!_loc3_)
-         {
-            return;
-         }
-         var _loc2_:String = KyoKeyCode.code2name(param1.keyCode);
+         var _loc2_:KeyMapping = this._keyMappings[this._setKeyIndex];
          if(!_loc2_)
          {
             return;
          }
-         _tmpKeyConfig[_loc3_] = param1.keyCode;
-         _loc4_.setKey(param1.keyCode,_loc2_);
-         _dialog.hide();
-         setNextKey();
+         var _loc3_:String = _loc2_.keyId;
+         if(!_loc3_)
+         {
+            return;
+         }
+         var _loc4_:String = KyoKeyCode.code2name(param1.keyCode);
+         if(!_loc4_)
+         {
+            return;
+         }
+         this._tmpKeyConfig[_loc3_] = param1.keyCode;
+         _loc2_.setKey(param1.keyCode,_loc4_);
+         this._dialog.hide();
+         this.setNextKey();
       }
       
       public function fadIn() : void
       {
          var duration:Number = 0.3;
-         ui.y = GameConfig.GAME_SIZE.y;
-         TweenLite.to(ui,duration,{
+         this.ui.y = GameConfig.GAME_SIZE.y;
+         TweenLite.to(this.ui,duration,{
             "y":0,
             "onComplete":function():void
             {
                _btnGroup.keyEnable = true;
             }
          });
-         _btnGroup.setArrowIndex(0);
-         ui.visible = true;
+         this._btnGroup.setArrowIndex(0);
+         this.ui.visible = true;
       }
       
       public function fadOut() : void
       {
          var duration:Number = 0.3;
-         _btnGroup.keyEnable = false;
-         TweenLite.to(ui,duration,{
+         this._btnGroup.keyEnable = false;
+         this.cleanupKeyInput();
+         TweenLite.to(this.ui,duration,{
             "y":GameConfig.GAME_SIZE.y,
             "onComplete":function():void
             {

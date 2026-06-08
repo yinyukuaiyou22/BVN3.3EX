@@ -1,12 +1,10 @@
 package net.play5d.game.bvn.mob.views.lan
 {
-   import flash.display.Sprite;
-   import net.play5d.game.bvn.GameConfig;
+   import flash.display.*;
+   import net.play5d.game.bvn.*;
    import net.play5d.game.bvn.events.SetBtnEvent;
-   import net.play5d.game.bvn.mob.ctrls.LANClientCtrl;
-   import net.play5d.game.bvn.mob.ctrls.LANServerCtrl;
-   import net.play5d.game.bvn.ui.GameUI;
-   import net.play5d.game.bvn.ui.SetBtnGroup;
+   import net.play5d.game.bvn.mob.ctrls.*;
+   import net.play5d.game.bvn.ui.*;
    
    public class LANExitDialog extends Sprite
    {
@@ -18,38 +16,38 @@ package net.play5d.game.bvn.mob.views.lan
       public function LANExitDialog()
       {
          super();
-         _bg = new Sprite();
-         _bg.graphics.beginFill(0,0.5);
-         _bg.graphics.drawRect(0,0,GameConfig.GAME_SIZE.x,GameConfig.GAME_SIZE.y);
-         _bg.graphics.endFill();
-         addChild(_bg);
-         _btnGroup = new SetBtnGroup();
-         _btnGroup.setBtnData([{
+         this._bg = new Sprite();
+         this._bg.graphics.beginFill(0,0.5);
+         this._bg.graphics.drawRect(0,0,GameConfig.GAME_SIZE.x,GameConfig.GAME_SIZE.y);
+         this._bg.graphics.endFill();
+         addChild(this._bg);
+         this._btnGroup = new SetBtnGroup();
+         this._btnGroup.setBtnData([{
             "label":"CONTINUE",
             "cn":"继续游戏"
          },{
             "label":"EXIT",
             "cn":"退出联机"
          }],0);
-         _btnGroup.addEventListener("SELECT",btnGroupSelectHandler);
+         this._btnGroup.addEventListener("SELECT",this.btnGroupSelectHandler);
          if(LANClientCtrl.I.active)
          {
-            _btnGroup.gameInputType = "P2";
+            this._btnGroup.gameInputType = "P2";
          }
          if(LANServerCtrl.I.active)
          {
-            _btnGroup.gameInputType = "P1";
+            this._btnGroup.gameInputType = "P1";
          }
-         addChild(_btnGroup);
+         addChild(this._btnGroup);
       }
       
       public function destory() : void
       {
-         if(_btnGroup)
+         if(Boolean(this._btnGroup))
          {
-            _btnGroup.removeEventListener("SELECT",btnGroupSelectHandler);
-            _btnGroup.destory();
-            _btnGroup = null;
+            this._btnGroup.removeEventListener("SELECT",this.btnGroupSelectHandler);
+            this._btnGroup.destory();
+            this._btnGroup = null;
          }
       }
       
@@ -61,14 +59,14 @@ package net.play5d.game.bvn.mob.views.lan
       public function show() : void
       {
          this.visible = true;
-         _btnGroup.keyEnable = true;
-         _btnGroup.setArrowIndex(0);
+         this._btnGroup.keyEnable = true;
+         this._btnGroup.setArrowIndex(0);
       }
       
       public function hide() : void
       {
          this.visible = false;
-         _btnGroup.keyEnable = false;
+         this._btnGroup.keyEnable = false;
       }
       
       private function btnGroupSelectHandler(param1:SetBtnEvent) : void
@@ -90,7 +88,7 @@ package net.play5d.game.bvn.mob.views.lan
                }
                break;
             case "CONTINUE":
-               hide();
+               this.hide();
          }
       }
    }

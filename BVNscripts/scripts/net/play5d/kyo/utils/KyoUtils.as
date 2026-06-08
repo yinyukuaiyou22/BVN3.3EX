@@ -1,29 +1,14 @@
 package net.play5d.kyo.utils
 {
-   import com.adobe.utils.StringUtil;
-   import flash.display.Bitmap;
-   import flash.display.BitmapData;
-   import flash.display.DisplayObject;
-   import flash.display.DisplayObjectContainer;
-   import flash.display.MovieClip;
-   import flash.display.Sprite;
-   import flash.events.ContextMenuEvent;
-   import flash.filters.BitmapFilter;
-   import flash.filters.ColorMatrixFilter;
-   import flash.geom.ColorTransform;
-   import flash.geom.Matrix;
-   import flash.geom.Point;
-   import flash.geom.Rectangle;
+   import com.adobe.utils.*;
+   import flash.display.*;
+   import flash.events.*;
+   import flash.filters.*;
+   import flash.geom.*;
    import flash.media.SoundTransform;
-   import flash.text.TextField;
-   import flash.text.TextFieldAutoSize;
-   import flash.text.TextFormat;
-   import flash.ui.ContextMenu;
-   import flash.ui.ContextMenuItem;
-   import flash.utils.ByteArray;
-   import flash.utils.describeType;
-   import flash.utils.getDefinitionByName;
-   import flash.utils.getQualifiedClassName;
+   import flash.text.*;
+   import flash.ui.*;
+   import flash.utils.*;
    
    public class KyoUtils
    {
@@ -48,7 +33,7 @@ package net.play5d.kyo.utils
       
       public static function array_removeByPortal(param1:Array, param2:*, param3:*) : void
       {
-         var _loc4_:* = 0;
+         var _loc4_:int = 0;
          var _loc5_:* = undefined;
          while(_loc4_ < param1.length)
          {
@@ -63,21 +48,21 @@ package net.play5d.kyo.utils
       
       public static function array_findAllByPortal(param1:Array, param2:*, param3:*) : *
       {
-         var _loc5_:* = undefined;
-         var _loc4_:Array = [];
-         for each(_loc5_ in param1)
+         var _loc4_:* = undefined;
+         var _loc5_:Array = [];
+         for each(_loc4_ in param1)
          {
-            if(_loc5_[param2] == param3)
+            if(_loc4_[param2] == param3)
             {
-               _loc4_.push(_loc5_);
+               _loc5_.push(_loc4_);
             }
          }
-         return _loc4_;
+         return _loc5_;
       }
       
       public static function array_hasItem(param1:Array, param2:*) : Boolean
       {
-         var _loc3_:int = param1.indexOf(param2);
+         var _loc3_:int = int(param1.indexOf(param2));
          return _loc3_ != -1;
       }
       
@@ -87,7 +72,7 @@ package net.play5d.kyo.utils
          {
             return false;
          }
-         var _loc3_:int = param1.indexOf(param2);
+         var _loc3_:int = int(param1.indexOf(param2));
          if(_loc3_ == -1)
          {
             param1.push(param2);
@@ -99,7 +84,7 @@ package net.play5d.kyo.utils
       public static function array_pushAt(param1:Array, param2:*, param3:int) : void
       {
          var _loc4_:Array = null;
-         var _loc7_:int = 0;
+         var _loc5_:int = 0;
          if(param2 is Array)
          {
             _loc4_ = param2 as Array;
@@ -108,18 +93,18 @@ package net.play5d.kyo.utils
          {
             _loc4_ = [param2];
          }
-         var _loc5_:* = int(param1.length);
-         while(_loc5_ > param3)
+         var _loc6_:int = int(param1.length);
+         while(_loc6_ > param3)
          {
-            _loc7_ = _loc5_ + (_loc4_.length - 1);
-            param1[_loc7_] = param1[_loc5_ - 1];
-            _loc5_--;
+            _loc5_ = _loc6_ + (_loc4_.length - 1);
+            param1[_loc5_] = param1[_loc6_ - 1];
+            _loc6_--;
          }
-         var _loc6_:* = 0;
-         while(_loc6_ < _loc4_.length)
+         var _loc7_:int = 0;
+         while(_loc7_ < _loc4_.length)
          {
-            param1[param3 + _loc6_] = _loc4_[_loc6_];
-            _loc6_++;
+            param1[param3 + _loc7_] = _loc4_[_loc7_];
+            _loc7_++;
          }
       }
       
@@ -134,25 +119,25 @@ package net.play5d.kyo.utils
       
       public static function array_deleteSames(param1:Object) : void
       {
-         var _loc4_:Object = null;
-         var _loc2_:Object = param1.concat();
+         var _loc2_:Object = null;
+         var _loc3_:Object = param1.concat();
          param1.splice(0,param1.length);
-         var _loc3_:* = 0;
-         while(_loc3_ < _loc2_.length)
+         var _loc4_:int = 0;
+         while(_loc4_ < _loc3_.length)
          {
-            _loc4_ = _loc2_[_loc3_];
-            if(param1.indexOf(_loc4_) == -1)
+            _loc2_ = _loc3_[_loc4_];
+            if(param1.indexOf(_loc2_) == -1)
             {
-               param1.push(_loc4_);
+               param1.push(_loc2_);
             }
-            _loc3_++;
+            _loc4_++;
          }
       }
       
       public static function array_countItem(param1:Object, param2:*) : int
       {
-         var _loc3_:* = 0;
-         var _loc4_:* = 0;
+         var _loc3_:int = 0;
+         var _loc4_:int = 0;
          while(_loc4_ < param1.length)
          {
             if(param1[_loc4_] == param2)
@@ -174,131 +159,131 @@ package net.play5d.kyo.utils
       
       public static function array_fixID(param1:Array) : Array
       {
-         var _loc3_:* = undefined;
-         var _loc2_:Array = [];
-         for each(_loc3_ in param1)
+         var _loc2_:* = undefined;
+         var _loc3_:Array = [];
+         for each(_loc2_ in param1)
          {
-            _loc2_.push(_loc3_);
-         }
-         return _loc2_;
-      }
-      
-      public static function array_getSamePortalItems(param1:Array, param2:String) : Array
-      {
-         var _loc5_:* = undefined;
-         var _loc6_:Array = null;
-         var _loc7_:String = null;
-         var _loc8_:* = undefined;
-         var _loc3_:Object = {};
-         var _loc4_:Object = {};
-         for each(_loc5_ in param1)
-         {
-            _loc8_ = _loc5_[param2];
-            if(_loc3_[_loc8_])
-            {
-               _loc4_[_loc8_] = 1;
-            }
-            else
-            {
-               _loc3_[_loc8_] = 1;
-            }
-         }
-         _loc6_ = [];
-         for(_loc7_ in _loc4_)
-         {
-            for each(_loc5_ in param1)
-            {
-               if(_loc5_[param2] == _loc7_)
-               {
-                  _loc6_.push(_loc5_);
-               }
-            }
-         }
-         return _loc6_;
-      }
-      
-      public static function array_groupByPortal(param1:Array, param2:String) : Object
-      {
-         var _loc4_:* = undefined;
-         var _loc5_:* = undefined;
-         var _loc3_:Object = {};
-         for each(_loc4_ in param1)
-         {
-            _loc5_ = _loc4_[param2];
-            _loc3_[_loc5_] = _loc3_[_loc5_] || [];
-            (_loc3_[_loc5_] as Array).push(_loc4_);
+            _loc3_.push(_loc2_);
          }
          return _loc3_;
       }
       
+      public static function array_getSamePortalItems(param1:Array, param2:String) : Array
+      {
+         var _loc3_:* = undefined;
+         var _loc4_:Array = null;
+         var _loc5_:String = null;
+         var _loc6_:* = undefined;
+         var _loc7_:Object = {};
+         var _loc8_:Object = {};
+         for each(_loc3_ in param1)
+         {
+            _loc6_ = _loc3_[param2];
+            if(Boolean(_loc7_[_loc6_]))
+            {
+               _loc8_[_loc6_] = 1;
+            }
+            else
+            {
+               _loc7_[_loc6_] = 1;
+            }
+         }
+         _loc4_ = [];
+         for(_loc5_ in _loc8_)
+         {
+            for each(_loc3_ in param1)
+            {
+               if(_loc3_[param2] == _loc5_)
+               {
+                  _loc4_.push(_loc3_);
+               }
+            }
+         }
+         return _loc4_;
+      }
+      
+      public static function array_groupByPortal(param1:Array, param2:String) : Object
+      {
+         var _loc3_:* = undefined;
+         var _loc4_:* = undefined;
+         var _loc5_:Object = {};
+         for each(_loc3_ in param1)
+         {
+            _loc4_ = _loc3_[param2];
+            _loc5_[_loc4_] = _loc5_[_loc4_] || [];
+            (_loc5_[_loc4_] as Array).push(_loc3_);
+         }
+         return _loc5_;
+      }
+      
       public static function getBitmapDatasByMC(param1:DisplayObject) : Array
       {
-         var _loc3_:BitmapData = null;
-         var _loc4_:MovieClip = null;
-         var _loc5_:* = 0;
-         var _loc2_:Array = [];
+         var _loc2_:BitmapData = null;
+         var _loc3_:MovieClip = null;
+         var _loc4_:int = 0;
+         var _loc5_:Array = [];
          if(param1 is MovieClip)
          {
-            _loc4_ = param1 as MovieClip;
-            while(_loc5_ < _loc4_.totalFrames)
+            _loc3_ = param1 as MovieClip;
+            while(_loc4_ < _loc3_.totalFrames)
             {
-               _loc4_.gotoAndStop(_loc5_);
-               _loc3_ = new BitmapData(_loc4_.width,_loc4_.height,true,0);
-               _loc3_.draw(_loc4_);
-               _loc2_.push(_loc3_);
-               _loc5_++;
+               _loc3_.gotoAndStop(_loc4_);
+               _loc2_ = new BitmapData(_loc3_.width,_loc3_.height,true,0);
+               _loc2_.draw(_loc3_);
+               _loc5_.push(_loc2_);
+               _loc4_++;
             }
          }
          else
          {
-            _loc3_ = new BitmapData(param1.width,param1.height,true,0);
-            _loc3_.draw(param1);
-            _loc2_.push(_loc3_);
+            _loc2_ = new BitmapData(param1.width,param1.height,true,0);
+            _loc2_.draw(param1);
+            _loc5_.push(_loc2_);
          }
-         return _loc2_;
+         return _loc5_;
       }
       
       public static function drawDisplay(param1:DisplayObject, param2:Boolean = true, param3:Boolean = true, param4:uint = 0, param5:ColorTransform = null) : Bitmap
       {
-         var _loc7_:Matrix = null;
-         var _loc8_:Rectangle = null;
+         var _loc6_:Matrix = null;
+         var _loc7_:Rectangle = null;
          if(!param1 || param1.width <= 0 || param1.height <= 0)
          {
             return null;
          }
-         var _loc6_:Bitmap = new Bitmap(new BitmapData(param1.width,param1.height,param3,param4));
+         var _loc8_:Bitmap = new Bitmap(new BitmapData(param1.width,param1.height,param3,param4));
          if(param2)
          {
-            _loc8_ = param1.getBounds(param1);
-            _loc7_ = new Matrix(1,0,0,1,-_loc8_.x,-_loc8_.y);
+            _loc7_ = param1.getBounds(param1);
+            _loc6_ = new Matrix(1,0,0,1,-_loc7_.x,-_loc7_.y);
          }
-         _loc6_.bitmapData.draw(param1,_loc7_,param5);
-         return _loc6_;
+         _loc8_.bitmapData.draw(param1,_loc6_,param5);
+         return _loc8_;
       }
       
       public static function drawBitmapFilter(param1:DisplayObject, param2:BitmapFilter, param3:Boolean = true, param4:Point = null) : BitmapData
       {
-         var _loc6_:Matrix = null;
-         var _loc9_:Rectangle = null;
-         var _loc5_:BitmapData = new BitmapData(param1.width,param1.height,true,0);
+         var _loc5_:Matrix = null;
+         var _loc6_:Rectangle = null;
+         var _loc7_:BitmapData = new BitmapData(param1.width,param1.height,true,0);
          if(param3)
          {
-            _loc9_ = param1.getBounds(param1);
-            _loc6_ = new Matrix(1,0,0,1,-_loc9_.x,-_loc9_.y);
+            _loc6_ = param1.getBounds(param1);
+            _loc5_ = new Matrix(1,0,0,1,-_loc6_.x,-_loc6_.y);
          }
-         _loc5_.draw(param1,_loc6_);
-         var _loc7_:Rectangle = new Rectangle(0,0,param1.width,param1.height);
-         if(param4)
+         _loc7_.draw(param1,_loc5_);
+         var _loc8_:Rectangle = new Rectangle(0,0,param1.width,param1.height);
+         if(Boolean(param4))
          {
-            _loc7_.x -= param4.x;
-            _loc7_.y -= param4.y;
-            _loc7_.width += param4.x * 2;
-            _loc7_.height += param4.y * 2;
+            _loc8_.x -= param4.x;
+            _loc8_.y -= param4.y;
+            _loc8_.width += param4.x * 2;
+            _loc8_.height += param4.y * 2;
          }
-         var _loc8_:BitmapData = new BitmapData(_loc7_.width,_loc7_.height,true,0);
-         _loc8_.applyFilter(_loc5_,_loc7_,new Point(),param2);
-         _loc5_.dispose();
-         return _loc8_;
+         var _loc9_:BitmapData = new BitmapData(_loc8_.width,_loc8_.height,true,0);
+         _loc9_.applyFilter(_loc7_,_loc8_,new Point(),param2);
+         _loc7_.dispose();
+         return _loc9_;
       }
       
       public static function drawInverted(param1:DisplayObject, param2:Number, param3:Number = 0.3) : Bitmap
@@ -316,7 +301,7 @@ package net.play5d.kyo.utils
       public static function translateMC(param1:MovieClip, param2:String) : void
       {
          var _loc3_:Object = null;
-         var _loc4_:* = 0;
+         var _loc4_:int = 0;
          var _loc5_:DisplayObject = null;
          if(param2 == null)
          {
@@ -397,44 +382,44 @@ package net.play5d.kyo.utils
       
       public static function addZeroBeforNumber(param1:Number, param2:int = 2) : String
       {
-         var _loc8_:* = 0;
-         var _loc3_:String = param1.toString();
-         var _loc4_:int = _loc3_.indexOf(".",0);
-         var _loc5_:String = _loc4_ == -1 ? "" : _loc3_.substr(_loc4_);
-         var _loc6_:String = _loc4_ == -1 ? _loc3_ : _loc3_.substr(0,_loc4_);
-         var _loc7_:String = "";
-         while(_loc8_ < param2 - _loc6_.length)
+         var _loc3_:int = 0;
+         var _loc4_:String = param1.toString();
+         var _loc5_:int = int(_loc4_.indexOf(".",0));
+         var _loc6_:String = _loc5_ == -1 ? "" : _loc4_.substr(_loc5_);
+         var _loc7_:String = _loc5_ == -1 ? _loc4_ : _loc4_.substr(0,_loc5_);
+         var _loc8_:String = "";
+         while(_loc3_ < param2 - _loc7_.length)
          {
-            _loc7_ += "0";
-            _loc8_++;
+            _loc8_ += "0";
+            _loc3_++;
          }
-         return _loc7_ + _loc6_ + _loc5_;
+         return _loc8_ + _loc7_ + _loc6_;
       }
       
       public static function getPostfix(param1:String) : String
       {
-         var _loc3_:int = 0;
+         var _loc2_:int = 0;
+         var _loc3_:String = null;
          var _loc4_:String = null;
-         var _loc5_:String = null;
-         var _loc2_:int = param1.indexOf("?");
-         if(_loc2_ == -1)
+         var _loc5_:int = int(param1.indexOf("?"));
+         if(_loc5_ == -1)
          {
-            _loc3_ = param1.lastIndexOf(".");
-            _loc4_ = param1.substr(_loc3_ + 1);
+            _loc2_ = int(param1.lastIndexOf("."));
+            _loc3_ = param1.substr(_loc2_ + 1);
          }
          else
          {
-            _loc5_ = param1.substr(_loc2_ - 5,5);
-            _loc3_ = _loc5_.indexOf(".");
-            _loc4_ = _loc5_.substr(_loc3_ + 1);
+            _loc4_ = param1.substr(_loc5_ - 5,5);
+            _loc2_ = int(_loc4_.indexOf("."));
+            _loc3_ = _loc4_.substr(_loc2_ + 1);
          }
-         return _loc4_.toLowerCase();
+         return _loc3_.toLowerCase();
       }
       
       public static function removeAllChildren(param1:DisplayObjectContainer, param2:Function = null) : void
       {
          var _loc3_:DisplayObject = null;
-         while(param1.numChildren)
+         while(Boolean(param1.numChildren))
          {
             _loc3_ = param1.removeChildAt(0);
             if(param2 != null)
@@ -447,7 +432,7 @@ package net.play5d.kyo.utils
       public static function removeChildByName(param1:DisplayObjectContainer, param2:String) : void
       {
          var _loc3_:DisplayObject = param1.getChildByName(param2);
-         if(_loc3_)
+         if(Boolean(_loc3_))
          {
             param1.removeChild(_loc3_);
          }
@@ -537,10 +522,10 @@ package net.play5d.kyo.utils
       
       public static function appendTextBottom(param1:TextField, param2:String, param3:int, param4:Boolean = false) : void
       {
-         var _loc6_:* = 0;
+         var _loc5_:int = 0;
          if(param1.numLines <= 1)
          {
-            while(_loc6_ < param3)
+            while(_loc5_ < param3)
             {
                if(param4)
                {
@@ -550,7 +535,7 @@ package net.play5d.kyo.utils
                {
                   param1.appendText("\n");
                }
-               _loc6_++;
+               _loc5_++;
             }
          }
          if(param4)
@@ -561,10 +546,10 @@ package net.play5d.kyo.utils
          {
             param1.appendText("\n" + param2);
          }
-         var _loc5_:int = param1.getLineOffset(1);
-         if(_loc5_ != -1)
+         var _loc6_:int = param1.getLineOffset(1);
+         if(_loc6_ != -1)
          {
-            param1.replaceText(0,_loc5_,"");
+            param1.replaceText(0,_loc6_,"");
          }
       }
       
@@ -644,7 +629,7 @@ package net.play5d.kyo.utils
       {
          var _loc3_:int = int(param1);
          var _loc4_:String = param1.toString();
-         var _loc5_:int = _loc4_.indexOf(".");
+         var _loc5_:int = int(_loc4_.indexOf("."));
          if(_loc5_ == -1)
          {
             return _loc3_;
@@ -734,7 +719,7 @@ package net.play5d.kyo.utils
       {
          var _loc4_:String = null;
          var _loc5_:String = null;
-         if(param3)
+         if(Boolean(param3))
          {
             for each(_loc4_ in param3)
             {
@@ -753,13 +738,13 @@ package net.play5d.kyo.utils
       
       public static function cloneObject(param1:Object) : Object
       {
-         var _loc3_:String = null;
-         var _loc2_:Object = {};
-         for(_loc3_ in param1)
+         var _loc2_:String = null;
+         var _loc3_:Object = {};
+         for(_loc2_ in param1)
          {
-            _loc2_[_loc3_] = param1[_loc3_];
+            _loc3_[_loc2_] = param1[_loc2_];
          }
-         return _loc2_;
+         return _loc3_;
       }
       
       public static function setText(param1:TextField, param2:Object = "", param3:Boolean = false, param4:String = "null", param5:Boolean = false) : void
@@ -800,32 +785,32 @@ package net.play5d.kyo.utils
       
       public static function alignTexts(param1:Array, param2:Number = NaN, param3:int = 0, param4:String = null, param5:Point = null) : void
       {
+         var _loc6_:TextField = null;
          var _loc7_:TextField = null;
-         var _loc8_:TextField = null;
          param4 ||= TextFieldAutoSize.LEFT;
-         var _loc6_:Number = param2;
-         if(isNaN(_loc6_))
+         var _loc8_:Number = param2;
+         if(isNaN(_loc8_))
          {
-            _loc8_ = param1[0] as TextField;
-            _loc6_ = param3 == 0 ? _loc8_.x : _loc8_.y;
+            _loc7_ = param1[0] as TextField;
+            _loc8_ = param3 == 0 ? _loc7_.x : _loc7_.y;
          }
-         for each(_loc7_ in param1)
+         for each(_loc6_ in param1)
          {
-            _loc7_.autoSize = param4;
-            if(param5)
+            _loc6_.autoSize = param4;
+            if(Boolean(param5))
             {
-               _loc7_.width += param5.x;
-               _loc7_.height += param5.y;
+               _loc6_.width += param5.x;
+               _loc6_.height += param5.y;
             }
             switch(param3)
             {
                case 0:
-                  _loc7_.x = _loc6_;
-                  _loc6_ += _loc7_.width;
+                  _loc6_.x = _loc8_;
+                  _loc8_ += _loc6_.width;
                   break;
                case 1:
-                  _loc7_.y = _loc6_;
-                  _loc6_ += _loc7_.height;
+                  _loc6_.y = _loc8_;
+                  _loc8_ += _loc6_.height;
             }
          }
       }
@@ -850,7 +835,7 @@ package net.play5d.kyo.utils
       
       public static function rect_is_hit(param1:Rectangle, param2:Rectangle) : Rectangle
       {
-         var r:Rectangle;
+         var r:Rectangle = null;
          var rectA:Rectangle = param1;
          var rectB:Rectangle = param2;
          var checkRect:Function = function(param1:Rectangle):void
@@ -881,7 +866,7 @@ package net.play5d.kyo.utils
          var _loc4_:uint = 0;
          if(param3 == -1)
          {
-            _loc4_ = param1.totalFrames - 1;
+            _loc4_ = uint(param1.totalFrames - 1);
          }
          param1.addFrameScript(_loc4_,param2);
       }
@@ -895,7 +880,7 @@ package net.play5d.kyo.utils
       
       public static function str_removePrefix(param1:String) : String
       {
-         var _loc2_:int = param1.indexOf(".");
+         var _loc2_:int = int(param1.indexOf("."));
          if(_loc2_ == -1)
          {
             return param1;
@@ -910,79 +895,79 @@ package net.play5d.kyo.utils
       
       public static function str_matchALL(param1:String, param2:*) : Array
       {
-         var _loc4_:* = 0;
-         var _loc5_:Array = null;
-         var _loc6_:String = null;
-         var _loc3_:Array = [];
-         while(_loc4_ < 10000)
+         var _loc3_:int = 0;
+         var _loc4_:Array = null;
+         var _loc5_:String = null;
+         var _loc6_:Array = [];
+         while(_loc3_ < 10000)
          {
-            _loc5_ = param1.match(param2);
-            if(!_loc5_ || _loc5_.length < 1)
+            _loc4_ = param1.match(param2);
+            if(!_loc4_ || _loc4_.length < 1)
             {
                break;
             }
-            _loc6_ = _loc5_[1];
-            param1 = param1.replace(_loc6_,"");
-            _loc3_.push(_loc6_);
-            _loc4_++;
+            _loc5_ = _loc4_[1];
+            param1 = param1.replace(_loc5_,"");
+            _loc6_.push(_loc5_);
+            _loc3_++;
          }
-         return _loc3_.reverse();
+         return _loc6_.reverse();
       }
       
       public static function getPrefix(param1:String) : String
       {
-         var _loc2_:int = param1.indexOf(".");
+         var _loc2_:int = int(param1.indexOf("."));
          var _loc3_:String = param1.substr(_loc2_ + 1);
          return _loc3_.toLocaleLowerCase();
       }
       
       public static function grayMC(param1:DisplayObject, param2:Boolean = false) : void
       {
-         var _loc5_:Array = null;
-         var _loc6_:* = undefined;
+         var _loc3_:Array = null;
+         var _loc4_:* = undefined;
          if(!param1)
          {
             return;
          }
          if(param2)
          {
-            _loc5_ = param1.filters.concat();
+            _loc3_ = param1.filters.concat();
             param1.filters = null;
-            for each(_loc6_ in _loc5_)
+            for each(_loc4_ in _loc3_)
             {
-               if(_loc6_ is ColorMatrixFilter)
+               if(_loc4_ is ColorMatrixFilter)
                {
-                  array_removeItem(_loc5_,_loc6_);
+                  array_removeItem(_loc3_,_loc4_);
                }
             }
-            param1.filters = _loc5_;
+            param1.filters = _loc3_;
             return;
          }
-         var _loc3_:Array = new Array();
-         _loc3_ = _loc3_.concat([0.3086,0.6094,0.082,0,0]);
-         _loc3_ = _loc3_.concat([0.3086,0.6094,0.082,0,0]);
-         _loc3_ = _loc3_.concat([0.3086,0.6094,0.082,0,0]);
-         _loc3_ = _loc3_.concat([0,0,0,1,0]);
-         var _loc4_:ColorMatrixFilter = new ColorMatrixFilter(_loc3_);
-         param1.filters = [_loc4_];
+         var _loc5_:Array = new Array();
+         _loc5_ = _loc5_.concat([0.3086,0.6094,0.082,0,0]);
+         _loc5_ = _loc5_.concat([0.3086,0.6094,0.082,0,0]);
+         _loc5_ = _loc5_.concat([0.3086,0.6094,0.082,0,0]);
+         _loc5_ = _loc5_.concat([0,0,0,1,0]);
+         var _loc6_:ColorMatrixFilter = new ColorMatrixFilter(_loc5_);
+         param1.filters = [_loc6_];
       }
       
       public static function getObjLength(param1:Object) : int
       {
-         var _loc3_:* = undefined;
+         var _loc2_:* = undefined;
          if(!param1)
          {
             return 0;
          }
-         var _loc2_:* = 0;
-         for each(_loc3_ in param1)
+         var _loc3_:int = 0;
+         for each(_loc2_ in param1)
          {
-            if(_loc3_)
+            if(Boolean(_loc2_))
             {
-               _loc2_++;
+               _loc3_++;
             }
          }
-         return _loc2_;
+         return _loc3_;
       }
       
       public static function clone(param1:Object) : *
@@ -995,26 +980,26 @@ package net.play5d.kyo.utils
       
       public static function readTextVariables(param1:String) : Object
       {
+         var _loc2_:String = null;
+         var _loc3_:String = null;
+         var _loc4_:Array = null;
          var _loc5_:String = null;
-         var _loc6_:String = null;
-         var _loc7_:Array = null;
-         var _loc8_:String = null;
-         var _loc9_:Object = null;
-         var _loc2_:Object = {};
+         var _loc6_:Object = null;
+         var _loc7_:Object = {};
          param1 = StringUtil.replace(param1,"\r","");
-         var _loc3_:Array = param1.split("\n");
-         var _loc4_:Array = [];
-         for each(_loc6_ in _loc3_)
+         var _loc8_:Array = param1.split("\n");
+         var _loc9_:Array = [];
+         for each(_loc3_ in _loc8_)
          {
-            if(_loc6_.substr(0,2) != "//")
+            if(_loc3_.substr(0,2) != "//")
             {
-               _loc7_ = _loc6_.split("=");
-               _loc8_ = _loc7_[0];
-               _loc9_ = _loc7_[1];
-               _loc2_[_loc8_] = _loc9_;
+               _loc4_ = _loc3_.split("=");
+               _loc5_ = _loc4_[0];
+               _loc6_ = _loc4_[1];
+               _loc7_[_loc5_] = _loc6_;
             }
          }
-         return _loc2_;
+         return _loc7_;
       }
       
       public static function getClass(param1:Object) : Class
@@ -1043,7 +1028,7 @@ package net.play5d.kyo.utils
             }
             cm.customItems.push(menuItem);
          }
-         if(main.stage)
+         if(Boolean(main.stage))
          {
             main.stage.showDefaultContextMenu = false;
          }
@@ -1052,30 +1037,30 @@ package net.play5d.kyo.utils
       
       public static function itemToObject(param1:*) : Object
       {
-         var _loc4_:XML = null;
-         var _loc5_:String = null;
-         var _loc2_:XML = describeType(param1);
-         var _loc3_:Object = {};
-         for each(_loc4_ in _loc2_.variable)
+         var _loc2_:XML = null;
+         var _loc3_:String = null;
+         var _loc4_:XML = describeType(param1);
+         var _loc5_:Object = {};
+         for each(_loc2_ in _loc4_.variable)
          {
-            _loc5_ = _loc4_.@name;
-            _loc3_[_loc5_] = param1[_loc5_];
+            _loc3_ = _loc2_.@name;
+            _loc5_[_loc3_] = param1[_loc3_];
          }
-         return _loc3_;
+         return _loc5_;
       }
       
       public static function getItemVaribles(param1:*) : Array
       {
-         var _loc4_:XML = null;
-         var _loc5_:String = null;
-         var _loc2_:XML = describeType(param1);
-         var _loc3_:Array = [];
-         for each(_loc4_ in _loc2_.variable)
+         var _loc2_:XML = null;
+         var _loc3_:String = null;
+         var _loc4_:XML = describeType(param1);
+         var _loc5_:Array = [];
+         for each(_loc2_ in _loc4_.variable)
          {
-            _loc5_ = _loc4_.@name;
-            _loc3_.push(_loc5_);
+            _loc3_ = _loc2_.@name;
+            _loc5_.push(_loc3_);
          }
-         return _loc3_;
+         return _loc5_;
       }
       
       public static function cloneSimpleClassObject(param1:*) : *
@@ -1094,7 +1079,7 @@ package net.play5d.kyo.utils
             return;
          }
          var _loc3_:SoundTransform = param1.soundTransform;
-         if(_loc3_)
+         if(Boolean(_loc3_))
          {
             _loc3_.volume = param2;
             param1.soundTransform = _loc3_;

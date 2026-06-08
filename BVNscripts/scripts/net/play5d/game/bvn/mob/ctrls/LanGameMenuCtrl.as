@@ -1,9 +1,9 @@
 package net.play5d.game.bvn.mob.ctrls
 {
    import flash.events.KeyboardEvent;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.mob.views.lan.LANExitDialog;
-   import net.play5d.game.bvn.utils.KeyBoarder;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.mob.views.lan.*;
+   import net.play5d.game.bvn.utils.*;
    
    public class LanGameMenuCtrl
    {
@@ -30,53 +30,53 @@ package net.play5d.game.bvn.mob.ctrls
       
       public function init() : void
       {
-         _exitDialog = new LANExitDialog();
-         _exitDialog.hide();
-         KeyBoarder.listen(keyHandler);
+         this._exitDialog = new LANExitDialog();
+         this._exitDialog.hide();
+         KeyBoarder.listen(this.keyHandler);
       }
       
       public function dispose() : void
       {
-         if(_exitDialog)
+         if(Boolean(this._exitDialog))
          {
             try
             {
-               MainGame.I.root.removeChild(_exitDialog);
+               MainGame.I.root.removeChild(this._exitDialog);
             }
             catch(e:Error)
             {
                trace(e);
             }
-            _exitDialog.destory();
-            _exitDialog = null;
+            this._exitDialog.destory();
+            this._exitDialog = null;
          }
-         KeyBoarder.unListen(keyHandler);
-         _isKeyDown = false;
+         KeyBoarder.unListen(this.keyHandler);
+         this._isKeyDown = false;
       }
       
       private function keyHandler(param1:KeyboardEvent) : void
       {
          if(param1.type == "keyDown")
          {
-            if(_isKeyDown)
+            if(this._isKeyDown)
             {
                return;
             }
-            if(!_exitDialog)
+            if(!this._exitDialog)
             {
                return;
             }
             if(param1.keyCode == 27)
             {
-               _isKeyDown = true;
-               if(_exitDialog.isShowing())
+               this._isKeyDown = true;
+               if(this._exitDialog.isShowing())
                {
-                  _exitDialog.hide();
+                  this._exitDialog.hide();
                }
                else
                {
-                  MainGame.I.root.addChild(_exitDialog);
-                  _exitDialog.show();
+                  MainGame.I.root.addChild(this._exitDialog);
+                  this._exitDialog.show();
                }
             }
          }
@@ -84,7 +84,7 @@ package net.play5d.game.bvn.mob.ctrls
          {
             if(param1.keyCode == 27)
             {
-               _isKeyDown = false;
+               this._isKeyDown = false;
             }
          }
       }

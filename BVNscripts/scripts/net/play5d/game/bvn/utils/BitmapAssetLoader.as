@@ -1,9 +1,7 @@
 package net.play5d.game.bvn.utils
 {
-   import flash.display.Bitmap;
-   import flash.display.BitmapData;
-   import flash.display.DisplayObject;
-   import net.play5d.game.bvn.ctrl.AssetManager;
+   import flash.display.*;
+   import net.play5d.game.bvn.ctrl.*;
    
    public class BitmapAssetLoader
    {
@@ -25,7 +23,7 @@ package net.play5d.game.bvn.utils
       
       public function getBitmap(param1:*) : Bitmap
       {
-         var _loc2_:BitmapData = _cacheObj[param1];
+         var _loc2_:BitmapData = this._cacheObj[param1];
          if(_loc2_ == null)
          {
             return null;
@@ -33,36 +31,21 @@ package net.play5d.game.bvn.utils
          return new Bitmap(_loc2_);
       }
       
-      public function dispose() : void
-      {
-         var bmd:BitmapData = null;
-         for(var url in _cacheObj)
-         {
-            bmd = _cacheObj[url] as BitmapData;
-            if(bmd)
-            {
-               bmd.dispose();
-            }
-         }
-         _cacheObj = {};
-         _urls = null;
-         _successBack = null;
-         _processBack = null;
-      }
-      
       public function loadQueue(param1:Array, param2:Function, param3:Function = null) : void
       {
-         _successBack = param2;
-         _processBack = param3;
-         _urls = param1.concat();
-         _queueLength = param1.length;
-         loadNext();
+         this._successBack = param2;
+         this._processBack = param3;
+         this._urls = param1.concat();
+         this._queueLength = param1.length;
+         this.loadNext();
       }
       
       private function load(param1:String, param2:Function = null, param3:Function = null) : void
       {
-         var url:String = param1;
-         var back:Function = param2;
+         var url:String = null;
+         var back:Function = null;
+         url = param1;
+         back = param2;
          var process:Function = param3;
          var loadCom:* = function(param1:DisplayObject):void
          {
@@ -92,7 +75,7 @@ package net.play5d.game.bvn.utils
             trace("BitmapAssetLoader.cacheBitmap Error");
             return;
          }
-         if(_loc3_)
+         if(Boolean(_loc3_))
          {
             try
             {
@@ -103,38 +86,38 @@ package net.play5d.game.bvn.utils
                trace("BitmapAssetLoader.cacheBitmap::",e);
             }
          }
-         if(_loc4_)
+         if(Boolean(_loc4_))
          {
-            _cacheObj[param1] = _loc4_;
+            this._cacheObj[param1] = _loc4_;
          }
          AssetManager.I.disposeAsset(param1);
       }
       
       private function loadNext() : void
       {
-         var url:String;
+         var url:String = null;
          var loadProcess:* = function(param1:Number):void
          {
-            var _loc3_:Number = Number(NaN);
-            var _loc2_:Number = Number(NaN);
+            var _loc2_:Number = NaN;
+            var _loc3_:Number = NaN;
             if(_processBack != null)
             {
-               _loc3_ = _queueLength - _urls.length - 1 + param1;
-               _loc2_ = _loc3_ / _queueLength;
-               _processBack(_loc2_);
+               _loc2_ = _queueLength - _urls.length - 1 + param1;
+               _loc3_ = _loc2_ / _queueLength;
+               _processBack(_loc3_);
             }
          };
-         if(_urls.length < 1)
+         if(this._urls.length < 1)
          {
-            if(_successBack != null)
+            if(this._successBack != null)
             {
-               _successBack();
-               _successBack = null;
+               this._successBack();
+               this._successBack = null;
             }
             return;
          }
-         url = _urls.shift();
-         load(url,loadNext,loadProcess);
+         url = this._urls.shift();
+         this.load(url,this.loadNext,loadProcess);
       }
    }
 }

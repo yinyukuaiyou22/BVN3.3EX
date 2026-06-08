@@ -1,37 +1,25 @@
 package net.play5d.game.bvn.mob
 {
-   import flash.desktop.NativeApplication;
-   import flash.display.DisplayObject;
-   import flash.display.Sprite;
-   import flash.filesystem.File;
-   import flash.geom.Matrix;
-   import flash.text.TextField;
-   import flash.text.TextFormat;
-   import net.play5d.game.bvn.Debugger;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.EffectCtrl;
-   import net.play5d.game.bvn.ctrl.game_ctrls.GameCtrl;
-   import net.play5d.game.bvn.data.ConfigVO;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.data.GameMode;
-   import net.play5d.game.bvn.data.MessionModel;
-   import net.play5d.game.bvn.input.IGameInput;
-   import net.play5d.game.bvn.interfaces.IExtendConfig;
-   import net.play5d.game.bvn.interfaces.IFighterActionCtrl;
-   import net.play5d.game.bvn.interfaces.IGameInterface;
+   import flash.desktop.*;
+   import flash.display.*;
+   import flash.filesystem.*;
+   import flash.geom.*;
+   import flash.text.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.ctrl.game_ctrls.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.input.*;
+   import net.play5d.game.bvn.interfaces.*;
    import net.play5d.game.bvn.map.MapMain;
-   import net.play5d.game.bvn.mob.ctrls.LANClientCtrl;
-   import net.play5d.game.bvn.mob.ctrls.LANServerCtrl;
-   import net.play5d.game.bvn.mob.data.ExtendConfig;
-   import net.play5d.game.bvn.mob.data.ScreenPadConfigVO;
-   import net.play5d.game.bvn.mob.input.InputManager;
-   import net.play5d.game.bvn.mob.screenpad.ScreenPadManager;
-   import net.play5d.game.bvn.mob.utils.AdManager;
-   import net.play5d.game.bvn.mob.utils.FileUtils;
-   import net.play5d.game.bvn.mob.views.ViewManager;
-   import net.play5d.game.bvn.ui.GameUI;
-   import net.play5d.game.bvn.utils.URL;
+   import net.play5d.game.bvn.mob.ctrls.*;
+   import net.play5d.game.bvn.mob.data.*;
+   import net.play5d.game.bvn.mob.input.*;
+   import net.play5d.game.bvn.mob.screenpad.*;
+   import net.play5d.game.bvn.mob.utils.*;
+   import net.play5d.game.bvn.mob.views.*;
+   import net.play5d.game.bvn.ui.*;
+   import net.play5d.game.bvn.utils.*;
    
    public class GameInterfaceManager implements IGameInterface
    {
@@ -77,13 +65,13 @@ package net.play5d.game.bvn.mob
       
       public function loadGame() : Object
       {
-         var _loc2_:File = File.applicationStorageDirectory.resolvePath("bvnsave.sav");
-         var _loc1_:String = FileUtils.readTextFile(_loc2_.nativePath);
-         if(!_loc1_)
+         var _loc1_:File = File.applicationStorageDirectory.resolvePath("bvnsave.sav");
+         var _loc2_:String = FileUtils.readTextFile(_loc1_.nativePath);
+         if(!_loc2_)
          {
             return null;
          }
-         return JSON.parse(_loc1_);
+         return JSON.parse(_loc2_);
       }
       
       public function getFighterCtrl(param1:int) : IFighterActionCtrl
@@ -458,19 +446,19 @@ package net.play5d.game.bvn.mob
       public function afterBuildGame() : void
       {
          var _loc1_:MapMain = GameCtrl.I.gameState.getMap();
-         if(_loc1_.mapLayer)
+         if(Boolean(_loc1_.mapLayer))
          {
             _loc1_.mapLayer.cacheAsBitmapMatrix = new Matrix();
          }
-         if(_loc1_.frontLayer)
+         if(Boolean(_loc1_.frontLayer))
          {
             _loc1_.frontLayer.cacheAsBitmapMatrix = new Matrix();
          }
-         if(_loc1_.frontFixLayer)
+         if(Boolean(_loc1_.frontFixLayer))
          {
             _loc1_.frontFixLayer.cacheAsBitmapMatrix = new Matrix();
          }
-         if(_loc1_.bgLayer)
+         if(Boolean(_loc1_.bgLayer))
          {
             _loc1_.bgLayer.cacheAsBitmap = true;
          }
@@ -478,14 +466,14 @@ package net.play5d.game.bvn.mob
       
       public function updateInputConfig() : Boolean
       {
-         var keyEnabled:Boolean = _extendsConfig.ENABLE_KEYBOARD;
+         var keyEnabled:Boolean = Boolean(_extendsConfig.ENABLE_KEYBOARD);
          InputManager.I.key_menu.enabled = keyEnabled;
          InputManager.I.key_p1.enabled = keyEnabled;
          InputManager.I.key_p2.enabled = keyEnabled;
          InputManager.I.key_menu.setConfig(GameData.I.config.key_menu);
          InputManager.I.key_p1.setConfig(GameData.I.config.key_p1);
          InputManager.I.key_p2.setConfig(GameData.I.config.key_p2);
-         if(LANServerCtrl.I.active || LANClientCtrl.I.active)
+         if(Boolean(LANServerCtrl.I.active) || Boolean(LANClientCtrl.I.active))
          {
             InputManager.I.key_menu.enabled = false;
             InputManager.I.key_p1.enabled = false;
@@ -589,7 +577,7 @@ package net.play5d.game.bvn.mob
          }
          ScreenPadManager.reBuild();
          launch.I.updateSize();
-         updateInputConfig();
+         this.updateInputConfig();
          Debugger.log("=== [DEBUG] applyConfig finished ===\n");
       }
       
@@ -599,26 +587,26 @@ package net.play5d.game.bvn.mob
          param1 += "游戏官网 : <a href=\"" + URL.markURL("http://www.5dplay.net/") + "\" target=\"_blank\">www.5dplay.net</a>" + "<br/>";
          param1 += "面板BUG反馈 : <a href=\"" + URL.markURL("https://space.bilibili.com/485366223") + "\" target=\"_blank\">作者主页</a><br/>";
          param1 += "反馈邮箱 : <a href=\"mailto:yinyu7798@foxmail.com\">yinyu7798@foxmail.com</a><br/>";
-         var _loc4_:TextField = new TextField();
-         var _loc3_:TextFormat = new TextFormat();
-         _loc3_.font = "微软雅黑";
-         _loc3_.size = 20;
-         _loc3_.color = 16776960;
-         _loc3_.leading = 15;
-         _loc4_.defaultTextFormat = _loc3_;
-         _loc4_.multiline = true;
+         var _loc3_:TextField = new TextField();
+         var _loc4_:TextFormat = new TextFormat();
+         _loc4_.font = "微软雅黑";
+         _loc4_.size = 20;
+         _loc4_.color = 16776960;
+         _loc4_.leading = 15;
+         _loc3_.defaultTextFormat = _loc4_;
+         _loc3_.multiline = true;
          if(ENGLISH_VERSION)
          {
-            _loc4_.htmlText = "website : <a href=\"" + URL.markURL("http://www.5dplay.net/") + "\" target=\"_blank\">www.5dplay.net</a><br/>" + "BUG Report : <a href=\"" + URL.markURL("https://space.bilibili.com/485366223") + "\" target=\"_blank\">BiliBili Space</a><br/>" + "E-mail : <a href=\"mailto:yinyu7798@foxmail.com\">yinyu7798@foxmail.com</a><br/>";
+            _loc3_.htmlText = "website : <a href=\"" + URL.markURL("http://www.5dplay.net/") + "\" target=\"_blank\">www.5dplay.net</a><br/>" + "BUG Report : <a href=\"" + URL.markURL("https://space.bilibili.com/485366223") + "\" target=\"_blank\">BiliBili Space</a><br/>" + "E-mail : <a href=\"mailto:yinyu7798@foxmail.com\">yinyu7798@foxmail.com</a><br/>";
          }
          else
          {
-            _loc4_.htmlText = param1;
+            _loc3_.htmlText = param1;
          }
-         _loc4_.autoSize = "left";
-         _loc4_.x = 50;
-         _loc4_.y = 30;
-         _loc2_.addChild(_loc4_);
+         _loc3_.autoSize = "left";
+         _loc3_.x = 50;
+         _loc3_.y = 30;
+         _loc2_.addChild(_loc3_);
          return _loc2_;
       }
    }

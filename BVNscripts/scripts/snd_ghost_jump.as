@@ -2,7 +2,7 @@ package
 {
    import flash.media.Sound;
    
-   [Embed(source="/_assets/32_snd_ghost_jump.mp3")]
+   [Embed(source="_assets/32_snd_ghost_jump.mp3")]
    public dynamic class snd_ghost_jump extends Sound
    {
       

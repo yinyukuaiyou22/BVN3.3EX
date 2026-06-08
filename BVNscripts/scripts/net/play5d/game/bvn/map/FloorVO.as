@@ -16,12 +16,12 @@ package net.play5d.game.bvn.map
       
       public function toString() : String
       {
-         return "FloorVO::{xFrom:" + xFrom + ",xTo:" + xTo + ",y:" + y + "}";
+         return "FloorVO::{xFrom:" + this.xFrom + ",xTo:" + this.xTo + ",y:" + this.y + "}";
       }
       
       public function hitTest(param1:Number, param2:Number, param3:Number) : Boolean
       {
-         return param2 > y - param3 && param2 < y + param3 && param1 > xFrom && param1 < xTo;
+         return param2 > this.y - param3 && param2 < this.y + param3 && param1 > this.xFrom && param1 < this.xTo;
       }
    }
 }

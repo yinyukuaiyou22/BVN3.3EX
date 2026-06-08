@@ -1,7 +1,7 @@
 package net.play5d.game.bvn.mob.input
 {
    import flash.display.Stage;
-   import net.play5d.game.bvn.input.IGameInput;
+   import net.play5d.game.bvn.input.*;
    
    public class ScreenPadInput implements IGameInput
    {
@@ -17,15 +17,15 @@ package net.play5d.game.bvn.mob.input
       
       public function get enabled() : Boolean
       {
-         return _enabled;
+         return this._enabled;
       }
       
       public function set enabled(param1:Boolean) : void
       {
-         _enabled = param1;
+         this._enabled = param1;
          if(!param1)
          {
-            isDownObj = {};
+            this.isDownObj = {};
          }
       }
       
@@ -43,82 +43,82 @@ package net.play5d.game.bvn.mob.input
       
       public function setDown(param1:String, param2:Boolean) : void
       {
-         isDownObj[param1] = param2;
+         this.isDownObj[param1] = param2;
       }
       
       public function anyKey() : Boolean
       {
-         return Boolean(isDownObj["select"]) || Boolean(isDownObj["back"]);
+         return Boolean(this.isDownObj["select"]) || Boolean(this.isDownObj["back"]);
       }
       
       public function back() : Boolean
       {
-         return isDownObj["back"];
+         return this.isDownObj["back"];
       }
       
       public function select() : Boolean
       {
-         return isDownObj["select"];
+         return this.isDownObj["select"];
       }
       
       public function up() : Boolean
       {
-         return isDownObj["up"];
+         return this.isDownObj["up"];
       }
       
       public function down() : Boolean
       {
-         return isDownObj["down"];
+         return this.isDownObj["down"];
       }
       
       public function left() : Boolean
       {
-         return isDownObj["left"];
+         return this.isDownObj["left"];
       }
       
       public function right() : Boolean
       {
-         return isDownObj["right"];
+         return this.isDownObj["right"];
       }
       
       public function attack() : Boolean
       {
-         return isDownObj["attack"];
+         return this.isDownObj["attack"];
       }
       
       public function jump() : Boolean
       {
-         return isDownObj["jump"];
+         return this.isDownObj["jump"];
       }
       
       public function dash() : Boolean
       {
-         return isDownObj["dash"];
+         return this.isDownObj["dash"];
       }
       
       public function skill() : Boolean
       {
-         return isDownObj["skill"];
+         return this.isDownObj["skill"];
       }
       
       public function superSkill() : Boolean
       {
-         return isDownObj["superSkill"];
+         return this.isDownObj["superSkill"];
       }
       
       public function special() : Boolean
       {
-         return isDownObj["special"];
+         return this.isDownObj["special"];
       }
       
       public function wankai() : Boolean
       {
-         return isDownObj["wankai"];
+         return this.isDownObj["wankai"];
       }
       
       public function clear() : void
       {
-         isDownObj = {};
+         this.isDownObj = {};
       }
    }
 }

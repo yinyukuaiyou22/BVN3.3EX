@@ -1,8 +1,7 @@
 package net.play5d.game.bvn.state
 {
    import flash.display.DisplayObject;
-   import flash.geom.Point;
-   import flash.geom.Rectangle;
+   import flash.geom.*;
    
    public class GameCamera
    {
@@ -52,282 +51,282 @@ package net.play5d.game.bvn.state
       public function GameCamera(param1:DisplayObject, param2:Point, param3:Point = null, param4:Boolean = false)
       {
          super();
-         _stage = param1;
-         _rect = new Rectangle(0,0,param2.x,param2.y);
-         _noTweenRect = new Rectangle(0,0,param2.x,param2.y);
-         _screenSize = new Point(param2.x,param2.y);
+         this._stage = param1;
+         this._rect = new Rectangle(0,0,param2.x,param2.y);
+         this._noTweenRect = new Rectangle(0,0,param2.x,param2.y);
+         this._screenSize = new Point(param2.x,param2.y);
          if(param4)
          {
-            _fbR = new Rectangle();
+            this._fbR = new Rectangle();
          }
          this.stageSize = param3;
          if(!this.stageSize)
          {
-            setStageSizeFromDisplay(_stage);
+            this.setStageSizeFromDisplay(this._stage);
          }
-         setStageBounds();
+         this.setStageBounds();
       }
       
       public function getScreenRect(param1:Boolean = false) : Rectangle
       {
-         return param1 ? _rect : _noTweenRect;
+         return param1 ? this._rect : this._noTweenRect;
       }
       
       public function updateNow() : void
       {
-         var _loc1_:Number = tweenSpd;
-         tweenSpd = 0;
-         render();
-         tweenSpd = _loc1_;
+         var _loc1_:Number = this.tweenSpd;
+         this.tweenSpd = 0;
+         this.render();
+         this.tweenSpd = _loc1_;
       }
       
       public function setStageBounds(param1:Rectangle = null) : void
       {
          if(!param1)
          {
-            _stageBounds = _stage.getBounds(_stage);
+            this._stageBounds = this._stage.getBounds(this._stage);
          }
          else
          {
-            _stageBounds = param1;
+            this._stageBounds = param1;
          }
-         setZoom(_zoom);
+         this.setZoom(this._zoom);
       }
       
       public function setStageSizeFromDisplay(param1:DisplayObject) : void
       {
-         stageSize = new Point(param1.width / param1.scaleX + _stageBounds.x,param1.height / param1.scaleY + _stageBounds.y);
+         this.stageSize = new Point(param1.width / param1.scaleX + this._stageBounds.x,param1.height / param1.scaleY + this._stageBounds.y);
       }
       
       public function getZoom(param1:Boolean = false) : Number
       {
-         return param1 ? _stageScale : _zoom;
+         return param1 ? Number(this._stageScale) : Number(this._zoom);
       }
       
       public function setZoom(param1:Number) : void
       {
-         _zoom = param1;
-         _noTweenRect.width = _screenSize.x / _zoom;
-         _noTweenRect.height = _screenSize.y / _zoom;
-         _foffsetX = _screenSize.x / 2 / _zoom;
-         _foffsetY = _screenSize.y / 2 / _zoom;
-         if(_fbR)
+         this._zoom = param1;
+         this._noTweenRect.width = this._screenSize.x / this._zoom;
+         this._noTweenRect.height = this._screenSize.y / this._zoom;
+         this._foffsetX = this._screenSize.x / 2 / this._zoom;
+         this._foffsetY = this._screenSize.y / 2 / this._zoom;
+         if(Boolean(this._fbR))
          {
-            _fbR.x = _stageBounds.x * _zoom;
-            _fbR.y = _stageBounds.y * _zoom;
-            _fbR.width = _stageBounds.width - _screenSize.x / _zoom;
-            _fbR.height = _stageBounds.height - _screenSize.y / _zoom;
+            this._fbR.x = this._stageBounds.x * this._zoom;
+            this._fbR.y = this._stageBounds.y * this._zoom;
+            this._fbR.width = this._stageBounds.width - this._screenSize.x / this._zoom;
+            this._fbR.height = this._stageBounds.height - this._screenSize.y / this._zoom;
          }
       }
       
       public function focus(param1:Array, param2:Boolean = false) : void
       {
          var _loc3_:int = 0;
-         _focus = param1;
-         _point = _focus.length > 1 ? new Point() : null;
+         this._focus = param1;
+         this._point = this._focus.length > 1 ? new Point() : null;
          if(param2)
          {
-            _loc3_ = tweenSpd;
-            tweenSpd = 0;
-            render();
-            tweenSpd = _loc3_;
+            _loc3_ = this.tweenSpd;
+            this.tweenSpd = 0;
+            this.render();
+            this.tweenSpd = _loc3_;
          }
       }
       
       public function move(param1:Number, param2:Number) : void
       {
-         _focus = null;
-         _point = new Point(param1,param2);
+         this._focus = null;
+         this._point = new Point(param1,param2);
       }
       
       public function moveCenter() : void
       {
-         _focus = null;
-         _point = new Point(stageSize.x / 2,stageSize.y / 2);
+         this._focus = null;
+         this._point = new Point(this.stageSize.x / 2,this.stageSize.y / 2);
       }
       
       public function render() : void
       {
-         if(!_focus && !_point)
+         if(!this._focus && !this._point)
          {
             return;
          }
-         if(_focus.length > 1)
+         if(this._focus.length > 1)
          {
-            renderTwo(_focus[0],_focus[_focus.length - 1]);
+            this.renderTwo(this._focus[0],this._focus[this._focus.length - 1]);
          }
-         if(focusX)
+         if(this.focusX)
          {
-            renderX();
+            this.renderX();
          }
-         if(focusY)
+         if(this.focusY)
          {
-            renderY();
+            this.renderY();
          }
-         if(_stageScale != _zoom)
+         if(this._stageScale != this._zoom)
          {
-            renderZoom();
+            this.renderZoom();
          }
-         applySet();
+         this.applySet();
       }
       
       private function applySet() : void
       {
-         _stage.scrollRect = _rect;
-         _stage.scaleX = _stage.scaleY = _stageScale;
+         this._stage.scrollRect = this._rect;
+         this._stage.scaleX = this._stage.scaleY = this._stageScale;
       }
       
       private function renderTwo(param1:DisplayObject, param2:DisplayObject) : void
       {
-         var _loc7_:DisplayObject = null;
-         var _loc9_:DisplayObject = null;
-         var _loc4_:DisplayObject = null;
-         var _loc3_:DisplayObject = null;
-         var _loc10_:Number = Number(NaN);
-         var _loc11_:Number = Number(NaN);
-         var _loc8_:Number = Number(NaN);
-         var _loc5_:Number = 0;
-         var _loc6_:Number = 0;
-         if(focusX)
+         var _loc3_:* = null;
+         var _loc4_:* = null;
+         var _loc5_:* = null;
+         var _loc6_:* = null;
+         var _loc7_:Number = NaN;
+         var _loc8_:Number = NaN;
+         var _loc9_:Number = NaN;
+         var _loc10_:Number = 0;
+         var _loc11_:Number = 0;
+         if(this.focusX)
          {
             if(param1.x < param2.x)
             {
-               _loc9_ = param1;
-               _loc7_ = param2;
+               _loc4_ = param1;
+               _loc3_ = param2;
             }
             else
             {
-               _loc9_ = param2;
-               _loc7_ = param1;
+               _loc4_ = param2;
+               _loc3_ = param1;
             }
-            _loc5_ = _loc7_.x - _loc9_.x;
-            _point.x = _loc9_.x + _loc5_ / 2;
+            _loc10_ = _loc3_.x - _loc4_.x;
+            this._point.x = _loc4_.x + _loc10_ / 2;
          }
-         if(focusY)
+         if(this.focusY)
          {
             if(param1.y < param2.y)
             {
-               _loc3_ = param1;
-               _loc4_ = param2;
+               _loc6_ = param1;
+               _loc5_ = param2;
             }
             else
             {
-               _loc3_ = param2;
-               _loc4_ = param1;
+               _loc6_ = param2;
+               _loc5_ = param1;
             }
-            _loc6_ = _loc4_.y - _loc3_.y;
-            _point.y = _loc3_.y + _loc6_ / 2;
+            _loc11_ = _loc5_.y - _loc6_.y;
+            this._point.y = _loc6_.y + _loc11_ / 2;
          }
-         if(autoZoom)
+         if(this.autoZoom)
          {
-            _loc10_ = _zoom;
-            _loc11_ = _zoom;
-            if(focusX)
+            _loc7_ = Number(this._zoom);
+            _loc8_ = Number(this._zoom);
+            if(this.focusX)
             {
-               _loc10_ = _screenSize.x / _loc5_ * 0.8;
+               _loc7_ = this._screenSize.x / _loc10_ * 0.8;
             }
-            if(focusY)
+            if(this.focusY)
             {
-               _loc11_ = _screenSize.y / _loc6_ * 0.8;
+               _loc8_ = this._screenSize.y / _loc11_ * 0.8;
             }
-            _loc8_ = Math.min(_loc10_,_loc11_);
-            renderAutoZoom(_loc8_);
+            _loc9_ = Math.min(_loc7_,_loc8_);
+            this.renderAutoZoom(_loc9_);
          }
       }
       
       private function renderAutoZoom(param1:Number) : void
       {
-         if(param1 < autoZoomMin)
+         if(param1 < this.autoZoomMin)
          {
-            param1 = autoZoomMin;
+            param1 = this.autoZoomMin;
          }
-         if(param1 > autoZoomMax)
+         if(param1 > this.autoZoomMax)
          {
-            param1 = autoZoomMax;
+            param1 = this.autoZoomMax;
          }
-         setZoom(param1);
+         this.setZoom(param1);
       }
       
       private function renderX() : void
       {
-         var _loc1_:Number = Number(NaN);
-         _loc1_ = Number(_point ? _point.x : _focus[0].x);
-         _loc1_ -= _foffsetX + offsetX;
-         setX(_loc1_);
+         var _loc1_:Number = NaN;
+         _loc1_ = Number(this._point ? this._point.x : this._focus[0].x);
+         _loc1_ -= this._foffsetX + this.offsetX;
+         this.setX(_loc1_);
       }
       
       private function renderY() : void
       {
-         var _loc1_:Number = Number(NaN);
-         _loc1_ = Number(_point ? _point.y : _focus[0].y);
-         _loc1_ -= _foffsetY + offsetY;
-         setY(_loc1_);
+         var _loc1_:Number = NaN;
+         _loc1_ = Number(this._point ? this._point.y : this._focus[0].y);
+         _loc1_ -= this._foffsetY + this.offsetY;
+         this.setY(_loc1_);
       }
       
       public function setX(param1:Number) : void
       {
-         if(_fbR)
+         if(Boolean(this._fbR))
          {
-            if(param1 < _fbR.x)
+            if(param1 < this._fbR.x)
             {
-               param1 = _fbR.x;
+               param1 = Number(this._fbR.x);
             }
-            if(param1 > _fbR.width)
+            if(param1 > this._fbR.width)
             {
-               param1 = _fbR.width;
+               param1 = Number(this._fbR.width);
             }
          }
-         _noTweenRect.x = param1;
-         if(tweenSpd > 1)
+         this._noTweenRect.x = param1;
+         if(this.tweenSpd > 1)
          {
-            _rect.x += (param1 - _rect.x) / tweenSpd;
+            this._rect.x += (param1 - this._rect.x) / this.tweenSpd;
          }
          else
          {
-            _rect.x = param1;
+            this._rect.x = param1;
          }
       }
       
       public function setY(param1:Number) : void
       {
-         if(_fbR)
+         if(Boolean(this._fbR))
          {
-            if(param1 < _fbR.y)
+            if(param1 < this._fbR.y)
             {
-               param1 = _fbR.y;
+               param1 = Number(this._fbR.y);
             }
-            if(param1 > _fbR.height)
+            if(param1 > this._fbR.height)
             {
-               param1 = _fbR.height;
+               param1 = Number(this._fbR.height);
             }
          }
-         _noTweenRect.y = param1;
-         if(tweenSpd > 1)
+         this._noTweenRect.y = param1;
+         if(this.tweenSpd > 1)
          {
-            _rect.y += (param1 - _rect.y) / tweenSpd;
+            this._rect.y += (param1 - this._rect.y) / this.tweenSpd;
          }
          else
          {
-            _rect.y = param1;
+            this._rect.y = param1;
          }
       }
       
       private function renderZoom() : void
       {
-         if(_zoom <= 0)
+         if(this._zoom <= 0)
          {
             throw new Error("zoom 不能 <= 0 !");
          }
-         if(tweenSpd > 1)
+         if(this.tweenSpd > 1)
          {
-            _stageScale += (_zoom - _stageScale) / tweenSpd;
+            this._stageScale += (this._zoom - this._stageScale) / this.tweenSpd;
          }
          else
          {
-            _stageScale = _zoom;
+            this._stageScale = this._zoom;
          }
-         _rect.width = _screenSize.x / _stageScale + 1 >> 0;
-         _rect.height = _screenSize.y / _stageScale + 1 >> 0;
+         this._rect.width = this._screenSize.x / this._stageScale + 1 >> 0;
+         this._rect.height = this._screenSize.y / this._stageScale + 1 >> 0;
       }
    }
 }

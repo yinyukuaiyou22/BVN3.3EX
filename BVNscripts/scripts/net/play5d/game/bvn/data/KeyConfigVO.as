@@ -1,6 +1,6 @@
 package net.play5d.game.bvn.data
 {
-   import net.play5d.kyo.utils.KyoUtils;
+   import net.play5d.kyo.utils.*;
    
    public class KeyConfigVO
    {
@@ -48,9 +48,9 @@ package net.play5d.game.bvn.data
          this.dash = param7;
          this.superKill = param9;
          this.beckons = param10;
-         if(!selects)
+         if(!this.selects)
          {
-            selects = [param5];
+            this.selects = [param5];
          }
       }
       
@@ -68,10 +68,10 @@ package net.play5d.game.bvn.data
       
       public function clone() : KeyConfigVO
       {
-         var _loc2_:Object = toSaveObj();
-         var _loc1_:KeyConfigVO = new KeyConfigVO(id);
-         _loc1_.readSaveObj(_loc2_);
-         return _loc1_;
+         var _loc1_:Object = this.toSaveObj();
+         var _loc2_:KeyConfigVO = new KeyConfigVO(this.id);
+         _loc2_.readSaveObj(_loc1_);
+         return _loc2_;
       }
    }
 }

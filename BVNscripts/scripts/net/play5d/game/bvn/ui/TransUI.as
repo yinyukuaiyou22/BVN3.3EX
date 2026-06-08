@@ -1,13 +1,13 @@
 package net.play5d.game.bvn.ui
 {
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.GameRender;
-   import net.play5d.game.bvn.utils.ResUtils;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.utils.*;
    
    public class TransUI
    {
       
-      public var ui:trans_mc;
+      public var ui:*;
       
       private var _renderAnimateGap:int = 0;
       
@@ -22,84 +22,84 @@ package net.play5d.game.bvn.ui
       public function TransUI()
       {
          super();
-         ui = ResUtils.I.createDisplayObject(ResUtils.I.common_ui,"trans_mc");
+         this.ui = ResUtils.I.createDisplayObject(ResUtils.I.common_ui,"trans_mc");
       }
       
       public function destory() : void
       {
-         GameRender.remove(render);
+         GameRender.remove(this.render);
       }
       
       private function startRender() : void
       {
-         _renderAnimateGap = Math.ceil(MainGame.I.getFPS() / 30) - 1;
-         _renderAnimateFrame = 0;
-         _rendering = true;
-         GameRender.add(render);
+         this._renderAnimateGap = Math.ceil(MainGame.I.getFPS() / 30) - 1;
+         this._renderAnimateFrame = 0;
+         this._rendering = true;
+         GameRender.add(this.render);
       }
       
       private function stopRender() : void
       {
-         _rendering = false;
-         GameRender.remove(render);
+         this._rendering = false;
+         GameRender.remove(this.render);
       }
       
       private function render() : void
       {
-         if(!_rendering)
+         if(!this._rendering)
          {
             return;
          }
-         if(_renderAnimateGap > 0)
+         if(this._renderAnimateGap > 0)
          {
-            if(_renderAnimateFrame++ >= _renderAnimateGap)
+            if(this._renderAnimateFrame++ >= this._renderAnimateGap)
             {
-               _renderAnimateFrame = 0;
-               renderAnimate();
+               this._renderAnimateFrame = 0;
+               this.renderAnimate();
             }
          }
          else
          {
-            renderAnimate();
+            this.renderAnimate();
          }
       }
       
       private function renderAnimate() : void
       {
-         if(ui.currentFrameLabel == "stop")
+         if(this.ui.currentFrameLabel == "stop")
          {
-            if(_fadInBack != null)
+            if(this._fadInBack != null)
             {
-               _fadInBack();
-               _fadInBack = null;
+               this._fadInBack();
+               this._fadInBack = null;
                return;
             }
-            if(_fadOutBack != null)
+            if(this._fadOutBack != null)
             {
-               _fadOutBack();
-               _fadOutBack = null;
+               this._fadOutBack();
+               this._fadOutBack = null;
                return;
             }
-            stopRender();
+            this.stopRender();
             return;
          }
-         ui.nextFrame();
+         this.ui.nextFrame();
       }
       
       public function fadIn(param1:Function = null) : void
       {
-         _fadOutBack = null;
-         _fadInBack = param1;
-         ui.gotoAndStop("fadin");
-         startRender();
+         this._fadOutBack = null;
+         this._fadInBack = param1;
+         this.ui.gotoAndStop("fadin");
+         this.startRender();
       }
       
       public function fadOut(param1:Function = null) : void
       {
-         _fadInBack = null;
-         _fadOutBack = param1;
-         ui.gotoAndStop("fadout");
-         startRender();
+         this._fadInBack = null;
+         this._fadOutBack = param1;
+         this.ui.gotoAndStop("fadout");
+         this.startRender();
       }
    }
 }

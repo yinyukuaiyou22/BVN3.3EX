@@ -1,11 +1,11 @@
 package net.play5d.game.bvn.ui
 {
-   import fl.motion.ColorMatrix;
+   import fl.motion.*;
    import flash.display.Sprite;
-   import flash.filters.ColorMatrixFilter;
-   import net.play5d.game.bvn.ctrl.AssetManager;
-   import net.play5d.kyo.display.bitmap.BitmapFontText;
-   import net.play5d.kyo.input.KyoKeyCode;
+   import flash.filters.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.kyo.display.bitmap.*;
+   import net.play5d.kyo.input.*;
    
    public class KeyMapping
    {
@@ -27,12 +27,12 @@ package net.play5d.game.bvn.ui
          this.keyId = param2;
          this.name = param3;
          this.cn = param4;
-         _keyTxt = new BitmapFontText(AssetManager.I.getFont("font1"));
+         this._keyTxt = new BitmapFontText(AssetManager.I.getFont("font1"));
          var _loc5_:ColorMatrix = new ColorMatrix();
          _loc5_.SetBrightnessMatrix(-100);
          _loc5_.SetSaturationMatrix(0);
-         _keyTxt.filters = [new ColorMatrixFilter(_loc5_.GetFlatArray())];
-         param1.addChild(_keyTxt);
+         this._keyTxt.filters = [new ColorMatrixFilter(_loc5_.GetFlatArray())];
+         param1.addChild(this._keyTxt);
       }
       
       public function setKey(param1:int, param2:String = null) : void
@@ -41,31 +41,31 @@ package net.play5d.game.bvn.ui
          {
             param2 = KyoKeyCode.code2name(param1);
          }
-         _keyTxt.text = param2.toUpperCase();
-         var _loc5_:Number = 0;
-         var _loc4_:Number = 1;
+         this._keyTxt.text = param2.toUpperCase();
          var _loc3_:Number = 0;
-         if(keyId == "up" || keyId == "down" || keyId == "left" || keyId == "right")
+         var _loc4_:Number = 1;
+         var _loc5_:Number = 0;
+         if(this.keyId == "up" || this.keyId == "down" || this.keyId == "left" || this.keyId == "right")
          {
             _loc4_ = 0.8;
-            _loc5_ = 40;
-            _loc3_ = 5;
+            _loc3_ = 40;
+            _loc5_ = 5;
          }
          else
          {
-            _loc5_ = 60;
+            _loc3_ = 60;
          }
-         if(_keyTxt.width > _loc5_)
+         if(this._keyTxt.width > _loc3_)
          {
-            _keyTxt.width = _loc5_;
-            _keyTxt.scaleY = _keyTxt.scaleX;
+            this._keyTxt.width = _loc3_;
+            this._keyTxt.scaleY = this._keyTxt.scaleX;
          }
          else
          {
-            _keyTxt.scaleX = _keyTxt.scaleY = _loc4_;
+            this._keyTxt.scaleX = this._keyTxt.scaleY = _loc4_;
          }
-         _keyTxt.x = -_keyTxt.width / 2;
-         _keyTxt.y = -_keyTxt.height / 2 + _loc3_;
+         this._keyTxt.x = -this._keyTxt.width / 2;
+         this._keyTxt.y = -this._keyTxt.height / 2 + _loc5_;
       }
    }
 }

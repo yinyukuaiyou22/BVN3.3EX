@@ -4,9 +4,9 @@ package net.play5d.game.bvn.mob.sockets
    import flash.events.EventDispatcher;
    import flash.events.IOErrorEvent;
    import flash.events.ProgressEvent;
-   import flash.net.Socket;
-   import flash.utils.ByteArray;
-   import net.play5d.game.bvn.mob.sockets.events.SocketEvent;
+   import flash.net.*;
+   import flash.utils.*;
+   import net.play5d.game.bvn.mob.sockets.events.*;
    
    public class SocketClient extends EventDispatcher
    {
@@ -20,32 +20,32 @@ package net.play5d.game.bvn.mob.sockets
       public function SocketClient()
       {
          super();
-         _clientSocket = new Socket();
-         _clientSocket.objectEncoding = 3;
-         _clientSocket.addEventListener("connect",onConnect);
-         _clientSocket.addEventListener("close",onClose);
-         _clientSocket.addEventListener("ioError",onError);
-         _clientSocket.addEventListener("socketData",onSocketData);
-         _packetBuffer = new PacketBuffer();
+         this._clientSocket = new Socket();
+         this._clientSocket.objectEncoding = 3;
+         this._clientSocket.addEventListener("connect",this.onConnect);
+         this._clientSocket.addEventListener("close",this.onClose);
+         this._clientSocket.addEventListener("ioError",this.onError);
+         this._clientSocket.addEventListener("socketData",this.onSocketData);
+         this._packetBuffer = new PacketBuffer();
       }
       
       public function getSocketServer() : String
       {
-         return _clientSocket.remoteAddress + ":" + _clientSocket.remotePort;
+         return this._clientSocket.remoteAddress + ":" + this._clientSocket.remotePort;
       }
       
       public function connect(param1:String, param2:int) : void
       {
-         log("开始连接服务器 :: " + param1 + ":" + param2);
-         _clientSocket.connect(param1,param2);
+         this.log("开始连接服务器 :: " + param1 + ":" + param2);
+         this._clientSocket.connect(param1,param2);
       }
       
       public function close() : void
       {
-         log("关闭链接");
+         this.log("关闭链接");
          try
          {
-            _clientSocket.close();
+            this._clientSocket.close();
          }
          catch(e:Error)
          {
@@ -55,33 +55,34 @@ package net.play5d.game.bvn.mob.sockets
       
       private function onConnect(param1:Event) : void
       {
-         log("成功连接服务器!");
-         log("Connection from " + _clientSocket.remoteAddress + ":" + _clientSocket.remotePort);
-         isConnected = true;
+         this.log("成功连接服务器!");
+         this.log("Connection from " + this._clientSocket.remoteAddress + ":" + this._clientSocket.remotePort);
+         this.isConnected = true;
          dispatchEvent(new SocketEvent("SocketEvent_CLIENT_CONNECT"));
       }
       
       private function onClose(param1:Event) : void
       {
-         log("服务器断开!");
-         isConnected = false;
+         this.log("服务器断开!");
+         this.isConnected = false;
          dispatchEvent(new SocketEvent("SocketEvent_CLOSE"));
       }
       
       private function onSocketData(param1:ProgressEvent) : void
       {
-         var _loc5_:SocketEvent = null;
-         var _loc2_:ByteArray = new ByteArray();
-         _clientSocket.readBytes(_loc2_,0,_clientSocket.bytesAvailable);
-         PacketUtils.uncompress(_loc2_);
-         _packetBuffer.push(_loc2_);
-         var _loc4_:Array = _packetBuffer.getPackets();
-         for each(var _loc3_ in _loc4_)
+         var _loc5_:* = undefined;
+         var _loc2_:SocketEvent = null;
+         var _loc3_:ByteArray = new ByteArray();
+         this._clientSocket.readBytes(_loc3_,0,this._clientSocket.bytesAvailable);
+         PacketUtils.uncompress(_loc3_);
+         this._packetBuffer.push(_loc3_);
+         var _loc4_:Array = this._packetBuffer.getPackets();
+         for each(_loc5_ in _loc4_)
          {
-            _loc5_ = new SocketEvent("SocketEvent_RECEIVE_DATA");
-            _loc5_.data = _loc3_;
-            dispatchEvent(_loc5_);
-            log("Received from Server ::" + _loc3_);
+            _loc2_ = new SocketEvent("SocketEvent_RECEIVE_DATA");
+            _loc2_.data = _loc5_;
+            dispatchEvent(_loc2_);
+            this.log("Received from Server ::" + _loc5_);
          }
       }
       
@@ -90,7 +91,7 @@ package net.play5d.game.bvn.mob.sockets
          var _loc2_:ByteArray = null;
          try
          {
-            if(_clientSocket != null && _clientSocket.connected)
+            if(this._clientSocket != null && Boolean(this._clientSocket.connected))
             {
                if(param1 is ByteArray)
                {
@@ -105,13 +106,13 @@ package net.play5d.game.bvn.mob.sockets
                   return;
                }
                PacketUtils.compress(_loc2_);
-               _clientSocket.writeBytes(_loc2_,0,_loc2_.bytesAvailable);
-               _clientSocket.flush();
-               log("Sent message (" + param1 + " | length:" + _loc2_.length + ") to " + _clientSocket.remoteAddress + ":" + _clientSocket.remotePort);
+               this._clientSocket.writeBytes(_loc2_,0,_loc2_.bytesAvailable);
+               this._clientSocket.flush();
+               this.log("Sent message (" + param1 + " | length:" + _loc2_.length + ") to " + this._clientSocket.remoteAddress + ":" + this._clientSocket.remotePort);
             }
             else
             {
-               log("No socket connection.");
+               this.log("No socket connection.");
             }
          }
          catch(error:Error)
@@ -123,13 +124,13 @@ package net.play5d.game.bvn.mob.sockets
       public function sendJSON(param1:Object) : void
       {
          var _loc2_:String = JSON.stringify(param1);
-         send(_loc2_);
+         this.send(_loc2_);
       }
       
       private function onError(param1:IOErrorEvent) : void
       {
-         log(param1.toString());
-         isConnected = false;
+         this.log(param1.toString());
+         this.isConnected = false;
          var _loc2_:SocketEvent = new SocketEvent("SocketEvent_ERROR");
          _loc2_.error = param1.toString();
          dispatchEvent(_loc2_);

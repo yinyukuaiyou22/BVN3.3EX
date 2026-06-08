@@ -24,8 +24,8 @@ package net.play5d.game.bvn.mob.screenpad
       public function ScreenPadSelectFighter(param1:Stage)
       {
          super();
-         _stage = param1;
-         build();
+         this._stage = param1;
+         this.build();
       }
       
       public function reBuild() : void
@@ -33,26 +33,26 @@ package net.play5d.game.bvn.mob.screenpad
          var _loc1_:int = 0;
          try
          {
-            while(_loc1_ < _btns.length)
+            while(_loc1_ < this._btns.length)
             {
-               _stage.removeChild(_btns[_loc1_].display);
-               _btns[_loc1_].onRemove();
+               this._stage.removeChild(this._btns[_loc1_].display);
+               this._btns[_loc1_].onRemove();
                _loc1_++;
             }
          }
          catch(e:Error)
          {
          }
-         build();
+         this.build();
       }
       
       private function build() : void
       {
-         W = launch.FULL_SCREEN_SIZE.x;
-         H = launch.FULL_SCREEN_SIZE.y;
-         _btns = new Vector.<ScreenPadBtnBase>();
-         addBtn("back",ScreenPadAsset.cancel,0,0,0,0,0);
-         initBtns();
+         this.W = launch.FULL_SCREEN_SIZE.x;
+         this.H = launch.FULL_SCREEN_SIZE.y;
+         this._btns = new Vector.<ScreenPadBtnBase>();
+         this.addBtn("back",ScreenPadAsset.cancel,0,0,0,0,0);
+         this.initBtns();
       }
       
       private function addBtn(param1:String, param2:Class, param3:Number = 0, param4:Number = 0, param5:Number = 0, param6:Number = 0, param7:Number = 0) : ScreenPadBtn
@@ -71,19 +71,20 @@ package net.play5d.game.bvn.mob.screenpad
          }
          if(param5 != 0)
          {
-            _loc8_.display.x = W - _loc8_.display.width - ScreenPadUtils.cm2pixel(param5);
+            _loc8_.display.x = this.W - _loc8_.display.width - ScreenPadUtils.cm2pixel(param5);
          }
          if(param6 != 0)
          {
-            _loc8_.display.y = H - _loc8_.display.height - ScreenPadUtils.cm2pixel(param6);
+            _loc8_.display.y = this.H - _loc8_.display.height - ScreenPadUtils.cm2pixel(param6);
          }
-         _btns.push(_loc8_);
+         this._btns.push(_loc8_);
          return _loc8_;
       }
       
       private function initBtns() : void
       {
-         for each(var _loc1_ in _btns)
+         var _loc1_:* = undefined;
+         for each(_loc1_ in this._btns)
          {
             _loc1_.initArea();
          }
@@ -92,109 +93,110 @@ package net.play5d.game.bvn.mob.screenpad
       public function show() : void
       {
          var _loc1_:int = 0;
-         while(_loc1_ < _btns.length)
+         while(_loc1_ < this._btns.length)
          {
-            _stage.addChild(_btns[_loc1_].display);
-            _btns[_loc1_].onAdd();
+            this._stage.addChild(this._btns[_loc1_].display);
+            this._btns[_loc1_].onAdd();
             _loc1_++;
          }
       }
       
       public function hide() : void
       {
-         var _loc1_:*;
-         var _loc2_:int = 0;
+         var _loc2_:* = undefined;
+         var _loc1_:int = 0;
          try
          {
-            while(_loc2_ < _btns.length)
+            while(_loc1_ < this._btns.length)
             {
-               _stage.removeChild(_btns[_loc2_].display);
-               _btns[_loc2_].onRemove();
-               _loc2_++;
+               this._stage.removeChild(this._btns[_loc1_].display);
+               this._btns[_loc1_].onRemove();
+               _loc1_++;
             }
          }
          catch(e:Error)
          {
          }
-         for each(_loc1_ in inputers)
+         for each(_loc2_ in this.inputers)
          {
-            _loc1_.clear();
+            _loc2_.clear();
          }
       }
       
       public function touchHandler(param1:TouchEvent) : void
       {
-         var _loc3_:ScreenPadBtnBase = null;
-         var _loc6_:int = 0;
-         var _loc2_:int = param1.touchPointID;
+         var _loc7_:String = null;
+         var _loc2_:ScreenPadBtnBase = null;
+         var _loc3_:int = 0;
+         var _loc4_:int = param1.touchPointID;
          var _loc5_:Number = param1.stageX;
-         var _loc4_:Number = param1.stageY;
+         var _loc6_:Number = param1.stageY;
          if(param1.type == "touchEnd")
          {
-            if(_downCache[_loc2_])
+            if(Boolean(this._downCache[_loc4_]))
             {
-               _loc3_ = _downCache[_loc2_].btn;
-               _loc3_.touchUP();
-               setInputerDown(_downCache[_loc2_].key,false);
-               delete _downCache[_loc2_];
+               _loc2_ = this._downCache[_loc4_].btn;
+               _loc2_.touchUP();
+               this.setInputerDown(this._downCache[_loc4_].key,false);
+               delete this._downCache[_loc4_];
             }
             return;
          }
-         while(_loc6_ < _btns.length)
+         while(_loc3_ < this._btns.length)
          {
-            _loc3_ = _btns[_loc6_];
-            var _loc7_:String = param1.type;
+            _loc2_ = this._btns[_loc3_];
+            _loc7_ = param1.type;
             if("touchBegin" === _loc7_)
             {
-               if(_loc3_.checkArea(_loc5_,_loc4_))
+               if(_loc2_.checkArea(_loc5_,_loc6_))
                {
-                  _loc3_.touchDown(_loc5_,_loc4_);
-                  _downCache[_loc2_] = {
-                     "btn":_loc3_,
-                     "key":_loc3_.keyId
+                  _loc2_.touchDown(_loc5_,_loc6_);
+                  this._downCache[_loc4_] = {
+                     "btn":_loc2_,
+                     "key":_loc2_.keyId
                   };
-                  setInputerDown(_loc3_.keyId,true);
+                  this.setInputerDown(_loc2_.keyId,true);
                }
             }
-            _loc6_++;
+            _loc3_++;
          }
       }
       
       private function setInputerDown(param1:Object, param2:Boolean) : void
       {
          var _loc3_:ScreenPadInput = null;
-         var _loc6_:int = 0;
-         var _loc9_:int = 0;
-         var _loc4_:Array = null;
-         var _loc8_:String = null;
-         var _loc7_:int = 0;
+         var _loc4_:int = 0;
          var _loc5_:int = 0;
+         var _loc6_:Array = null;
+         var _loc7_:String = null;
+         var _loc8_:int = 0;
+         var _loc9_:int = 0;
          if(param1 == null)
          {
             return;
          }
-         _loc5_ = int(inputers.length);
-         _loc9_ = 0;
-         while(_loc9_ < _loc5_)
+         _loc9_ = int(this.inputers.length);
+         _loc5_ = 0;
+         while(_loc5_ < _loc9_)
          {
-            _loc3_ = inputers[_loc9_];
+            _loc3_ = this.inputers[_loc5_];
             if(param1 is String)
             {
                _loc3_.setDown(param1 as String,param2);
             }
             if(param1 is Array)
             {
-               _loc4_ = param1 as Array;
-               _loc7_ = int(_loc4_.length);
-               _loc6_ = 0;
-               while(_loc6_ < _loc7_)
+               _loc6_ = param1 as Array;
+               _loc8_ = int(_loc6_.length);
+               _loc4_ = 0;
+               while(_loc4_ < _loc8_)
                {
-                  _loc8_ = _loc4_[_loc6_];
-                  _loc3_.setDown(_loc8_,param2);
-                  _loc6_++;
+                  _loc7_ = _loc6_[_loc4_];
+                  _loc3_.setDown(_loc7_,param2);
+                  _loc4_++;
                }
             }
-            _loc9_++;
+            _loc5_++;
          }
       }
    }

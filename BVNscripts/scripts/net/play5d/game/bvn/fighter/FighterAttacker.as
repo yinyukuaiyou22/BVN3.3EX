@@ -2,13 +2,12 @@ package net.play5d.game.bvn.fighter
 {
    import flash.display.DisplayObject;
    import flash.display.MovieClip;
-   import flash.geom.Point;
-   import flash.geom.Rectangle;
-   import net.play5d.game.bvn.ctrl.GameLogic;
-   import net.play5d.game.bvn.fighter.ctrler.FighterAttackerCtrler;
+   import flash.geom.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.fighter.ctrler.*;
    import net.play5d.game.bvn.fighter.models.FighterHitModel;
    import net.play5d.game.bvn.fighter.models.HitVO;
-   import net.play5d.game.bvn.fighter.utils.McAreaCacher;
+   import net.play5d.game.bvn.fighter.utils.*;
    import net.play5d.game.bvn.interfaces.BaseGameSprite;
    import net.play5d.game.bvn.interfaces.IGameSprite;
    
@@ -52,35 +51,35 @@ package net.play5d.game.bvn.fighter
       public function FighterAttacker(param1:MovieClip, param2:Object = null)
       {
          super(param1);
-         _mcOrgPoint = new Point(param1.x,param1.y);
-         _startX = _mcOrgPoint.x;
-         _startY = _mcOrgPoint.y;
-         _x = _startX;
-         _y = _startY;
-         _ctrler = new FighterAttackerCtrler(this);
-         if(param1.setAttackerCtrler)
+         this._mcOrgPoint = new Point(param1.x,param1.y);
+         this._startX = this._mcOrgPoint.x;
+         this._startY = this._mcOrgPoint.y;
+         _x = this._startX;
+         _y = this._startY;
+         this._ctrler = new FighterAttackerCtrler(this);
+         if(Boolean(param1.setAttackerCtrler))
          {
-            param1.setAttackerCtrler(_ctrler);
+            param1.setAttackerCtrler(this._ctrler);
          }
-         if(param2)
+         if(Boolean(param2))
          {
             if(param2.x != undefined)
             {
                if(param2.x is Number)
                {
-                  _startX = param2.x + _mcOrgPoint.x;
+                  this._startX = param2.x + this._mcOrgPoint.x;
                }
                else
                {
-                  moveToTargetX = param2.x.moveToTarget == true;
-                  followTargetX = param2.x.followTarget == true;
+                  this.moveToTargetX = param2.x.moveToTarget == true;
+                  this.followTargetX = param2.x.followTarget == true;
                   if(param2.x.offset != undefined)
                   {
-                     _startX = param2.x.offset;
+                     this._startX = param2.x.offset;
                   }
                   if(param2.x.range != undefined && param2.x.range is Array)
                   {
-                     rangeX = new Point(param2.x.range[0],param2.x.range[1]);
+                     this.rangeX = new Point(param2.x.range[0],param2.x.range[1]);
                   }
                }
             }
@@ -88,19 +87,19 @@ package net.play5d.game.bvn.fighter
             {
                if(param2.y is Number)
                {
-                  _startY = param2.y + _mcOrgPoint.y;
+                  this._startY = param2.y + this._mcOrgPoint.y;
                }
                else
                {
-                  moveToTargetY = param2.y.moveToTarget == true;
-                  followTargetY = param2.y.followTarget == true;
+                  this.moveToTargetY = param2.y.moveToTarget == true;
+                  this.followTargetY = param2.y.followTarget == true;
                   if(param2.y.offset != undefined)
                   {
-                     _startY = param2.y.offset;
+                     this._startY = param2.y.offset;
                   }
                   if(param2.y.range != undefined && param2.y.range is Array)
                   {
-                     rangeY = new Point(param2.y.range[0],param2.y.range[1]);
+                     this.rangeY = new Point(param2.y.range[0],param2.y.range[1]);
                   }
                }
             }
@@ -113,7 +112,7 @@ package net.play5d.game.bvn.fighter
       
       public function getOwner() : IGameSprite
       {
-         return _owner;
+         return this._owner;
       }
       
       public function get name() : String
@@ -123,184 +122,184 @@ package net.play5d.game.bvn.fighter
       
       public function getCtrler() : FighterAttackerCtrler
       {
-         return _ctrler;
+         return this._ctrler;
       }
       
       override public function destory(param1:Boolean = true) : void
       {
-         if(_hitAreaCache)
+         if(Boolean(this._hitAreaCache))
          {
-            _hitAreaCache.destory();
-            _hitAreaCache = null;
+            this._hitAreaCache.destory();
+            this._hitAreaCache = null;
          }
-         if(_hitCheckAreaCache)
+         if(Boolean(this._hitCheckAreaCache))
          {
-            _hitCheckAreaCache.destory();
-            _hitCheckAreaCache = null;
+            this._hitCheckAreaCache.destory();
+            this._hitCheckAreaCache = null;
          }
-         if(_ctrler)
+         if(Boolean(this._ctrler))
          {
-            _ctrler.destory();
-            _ctrler = null;
+            this._ctrler.destory();
+            this._ctrler = null;
          }
-         _rectCache = null;
-         _owner = null;
-         _mcOrgPoint = null;
+         this._rectCache = null;
+         this._owner = null;
+         this._mcOrgPoint = null;
          super.destory(true);
       }
       
       public function setOwner(param1:IGameSprite) : void
       {
-         _owner = param1;
+         this._owner = param1;
          direct = param1.direct;
-         if(_owner is FighterMain)
+         if(this._owner is FighterMain)
          {
-            _ctrler.effect = (_owner as FighterMain).getCtrler().getEffectCtrl();
+            this._ctrler.effect = (this._owner as FighterMain).getCtrler().getEffectCtrl();
          }
-         if(_owner is Assister)
+         if(this._owner is Assister)
          {
-            _ctrler.effect = (_owner as Assister).getCtrler().effect;
+            this._ctrler.effect = (this._owner as Assister).getCtrler().effect;
          }
       }
       
       public function init() : void
       {
-         var _loc6_:FighterMC = null;
+         var _loc1_:FighterMC = null;
          var _loc2_:Number = NaN;
          var _loc3_:Number = NaN;
-         var _loc1_:Number = NaN;
          var _loc4_:Number = NaN;
-         if(!_owner)
+         var _loc5_:Number = NaN;
+         if(!this._owner)
          {
             return;
          }
          if(direct > 0)
          {
-            _x = _owner.x + _startX;
+            _x = this._owner.x + this._startX;
          }
          else
          {
-            _x = _owner.x - _startX;
+            _x = this._owner.x - this._startX;
          }
-         _y += _owner.y;
-         if(_owner is FighterMain)
+         _y += this._owner.y;
+         if(this._owner is FighterMain)
          {
-            _loc6_ = (_owner as FighterMain).getMC();
-            _x += _loc6_.x;
-            _y += _loc6_.y;
+            _loc1_ = (this._owner as FighterMain).getMC();
+            _x += _loc1_.x;
+            _y += _loc1_.y;
          }
-         if(!moveToTargetX && !moveToTargetY)
+         if(!this.moveToTargetX && !this.moveToTargetY)
          {
             return;
          }
-         var _loc5_:IGameSprite = getTarget();
-         if(_loc5_)
+         var _loc6_:IGameSprite = this.getTarget();
+         if(Boolean(_loc6_))
          {
-            if(moveToTargetX)
+            if(this.moveToTargetX)
             {
-               _loc2_ = _loc5_.x + _startX * direct;
-               if(rangeX)
+               _loc2_ = _loc6_.x + this._startX * direct;
+               if(Boolean(this.rangeX))
                {
                   if(direct > 0)
                   {
-                     _loc3_ = _loc2_ - _owner.x;
-                     if(_loc3_ < rangeX.x)
+                     _loc3_ = _loc2_ - this._owner.x;
+                     if(_loc3_ < this.rangeX.x)
                      {
-                        _loc2_ = _owner.x + rangeX.x;
+                        _loc2_ = this._owner.x + this.rangeX.x;
                      }
-                     if(_loc3_ > rangeX.y)
+                     if(_loc3_ > this.rangeX.y)
                      {
-                        _loc2_ = _owner.x + rangeX.y;
+                        _loc2_ = this._owner.x + this.rangeX.y;
                      }
                   }
                   else
                   {
-                     _loc3_ = _owner.x - _loc2_;
-                     if(_loc3_ < rangeX.x)
+                     _loc3_ = this._owner.x - _loc2_;
+                     if(_loc3_ < this.rangeX.x)
                      {
-                        _loc2_ = _owner.x - rangeX.x;
+                        _loc2_ = this._owner.x - this.rangeX.x;
                      }
-                     if(_loc3_ > rangeX.y)
+                     if(_loc3_ > this.rangeX.y)
                      {
-                        _loc2_ = _owner.x - rangeX.y;
+                        _loc2_ = this._owner.x - this.rangeX.y;
                      }
                   }
                }
                _x = _loc2_;
             }
-            if(moveToTargetY)
+            if(this.moveToTargetY)
             {
-               _loc1_ = _loc5_.y + _startY;
-               if(rangeY)
+               _loc4_ = _loc6_.y + this._startY;
+               if(Boolean(this.rangeY))
                {
-                  _loc4_ = _loc1_ - _owner.y;
-                  if(_loc4_ < rangeY.x)
+                  _loc5_ = _loc4_ - this._owner.y;
+                  if(_loc5_ < this.rangeY.x)
                   {
-                     _loc1_ = _loc5_.y + rangeY.x;
+                     _loc4_ = _loc6_.y + this.rangeY.x;
                   }
-                  if(_loc4_ > rangeY.y)
+                  if(_loc5_ > this.rangeY.y)
                   {
-                     _loc1_ = _loc5_.y + rangeY.y;
+                     _loc4_ = _loc6_.y + this.rangeY.y;
                   }
                }
-               _y = _loc1_;
+               _y = _loc4_;
             }
          }
-         isAttacking = true;
+         this.isAttacking = true;
       }
       
       override public function renderAnimate() : void
       {
-         if(!_isRenderMainAnimate)
+         if(!this._isRenderMainAnimate)
          {
             return;
          }
          super.renderAnimate();
          mc.nextFrame();
-         findHitArea();
+         this.findHitArea();
          if(mc.currentFrame == mc.totalFrames - 1)
          {
-            removeSelf();
+            this.removeSelf();
          }
       }
       
       override public function render() : void
       {
          super.render();
-         _ctrler.render();
-         renderFollowTarget();
+         this._ctrler.render();
+         this.renderFollowTarget();
       }
       
       public function stopFollowTarget() : void
       {
-         followTargetX = false;
-         followTargetY = false;
+         this.followTargetX = false;
+         this.followTargetY = false;
       }
       
       private function renderFollowTarget() : void
       {
-         if(!followTargetX && !followTargetY)
+         if(!this.followTargetX && !this.followTargetY)
          {
             return;
          }
-         var _loc1_:IGameSprite = getTarget();
+         var _loc1_:IGameSprite = this.getTarget();
          if(!_loc1_)
          {
             return;
          }
-         if(followTargetX)
+         if(this.followTargetX)
          {
-            _x = _loc1_.x + _startX * direct;
+            _x = _loc1_.x + this._startX * direct;
          }
-         if(followTargetY)
+         if(this.followTargetY)
          {
-            _y = _loc1_.y + _startY;
+            _y = _loc1_.y + this._startY;
          }
       }
       
       public function moveToTarget(param1:Number = NaN, param2:Number = NaN) : void
       {
-         var _loc3_:IGameSprite = getTarget();
+         var _loc3_:IGameSprite = this.getTarget();
          if(!_loc3_)
          {
             return;
@@ -317,98 +316,97 @@ package net.play5d.game.bvn.fighter
       
       public function stop() : void
       {
-         _isRenderMainAnimate = false;
+         this._isRenderMainAnimate = false;
       }
       
       public function gotoAndPlay(param1:String) : void
       {
          _mainMc.gotoAndStop(param1);
-         _isRenderMainAnimate = true;
+         this._isRenderMainAnimate = true;
       }
       
       public function gotoAndStop(param1:String) : void
       {
          _mainMc.gotoAndStop(param1);
-         _isRenderMainAnimate = false;
+         this._isRenderMainAnimate = false;
       }
       
       public function getTargets() : Vector.<IGameSprite>
       {
-         if(_owner is FighterMain)
+         if(this._owner is FighterMain)
          {
-            return (_owner as FighterMain).getTargets();
+            return (this._owner as FighterMain).getTargets();
          }
-         if(_owner is Assister)
+         if(this._owner is Assister)
          {
-            return (_owner as Assister).getTargets();
+            return (this._owner as Assister).getTargets();
          }
          return null;
       }
       
       private function getTarget() : IGameSprite
       {
-         if(_owner is FighterMain)
+         if(this._owner is FighterMain)
          {
-            return (_owner as FighterMain).getCurrentTarget();
+            return (this._owner as FighterMain).getCurrentTarget();
          }
-         if(_owner is Assister)
+         if(this._owner is Assister)
          {
-            return (_owner as Assister).getCurrentTarget();
+            return (this._owner as Assister).getCurrentTarget();
          }
          return null;
       }
       
       public function removeSelf() : void
       {
-         if(onRemove != null)
+         if(this.onRemove != null)
          {
-            onRemove(this);
+            this.onRemove(this);
          }
       }
       
       override public function getCurrentHits() : Array
       {
-         var _loc8_:int = 0;
-         var _loc7_:Object = null;
-         var _loc6_:HitVO = null;
+         var _loc1_:int = 0;
+         var _loc2_:Object = null;
+         var _loc3_:HitVO = null;
          var _loc4_:* = null;
-         var _loc2_:Rectangle = null;
-         var _loc3_:String = null;
-         if(!_hitAreaCache)
+         var _loc5_:Rectangle = null;
+         var _loc6_:String = null;
+         if(!this._hitAreaCache)
          {
             return null;
          }
-         var _loc5_:Array = _hitAreaCache.getAreaByFrame(_mainMc.currentFrame) as Array;
-         if(!_loc5_ || _loc5_.length < 1)
+         var _loc7_:Array = this._hitAreaCache.getAreaByFrame(_mainMc.currentFrame) as Array;
+         if(!_loc7_ || _loc7_.length < 1)
          {
             return null;
          }
-         var _loc1_:Array = [];
-         _loc8_;
-         while(_loc8_ < _loc5_.length)
+         var _loc8_:Array = [];
+         while(_loc1_ < _loc7_.length)
          {
-            _loc7_ = _loc5_[_loc8_];
-            _loc3_ = _loc7_.name;
-            _loc6_ = _loc7_.hitVO;
-            if(_loc6_)
+            _loc2_ = _loc7_[_loc1_];
+            _loc6_ = _loc2_.name;
+            _loc3_ = _loc2_.hitVO;
+            if(Boolean(_loc3_))
             {
-               _loc2_ = _loc7_.area;
-               _loc6_.currentArea = getCurrentRect(_loc2_,"hit" + _loc8_);
-               _loc1_.push(_loc6_);
+               _loc5_ = _loc2_.area;
+               _loc3_.currentArea = this.getCurrentRect(_loc5_,"hit" + _loc1_);
+               _loc8_.push(_loc3_);
             }
-            _loc8_++;
+            _loc1_++;
          }
-         return _loc1_;
+         return _loc8_;
       }
       
       public function getHitCheckRect(param1:String) : Rectangle
       {
-         var _loc2_:Rectangle = getCheckHitRect(param1);
+         var _loc2_:Rectangle = this.getCheckHitRect(param1);
          if(_loc2_ == null)
          {
             return null;
          }
-         return getCurrentRect(_loc2_,"hit_check");
+         return this.getCurrentRect(_loc2_,"hit_check");
       }
       
       public function getCheckHitRect(param1:String) : Rectangle
@@ -418,14 +416,14 @@ package net.play5d.game.bvn.fighter
          {
             return null;
          }
-         var _loc4_:Object = _hitCheckAreaCache.getAreaByDisplay(_loc2_);
-         if(_loc4_)
+         var _loc3_:Object = this._hitCheckAreaCache.getAreaByDisplay(_loc2_);
+         if(Boolean(_loc3_))
          {
-            return _loc4_.area;
+            return _loc3_.area;
          }
-         var _loc3_:Rectangle = _loc2_.getBounds(_mainMc);
-         _hitCheckAreaCache.cacheAreaByDisplay(_loc2_,_loc3_);
-         return _loc3_;
+         var _loc4_:Rectangle = _loc2_.getBounds(_mainMc);
+         this._hitCheckAreaCache.cacheAreaByDisplay(_loc2_,_loc4_);
+         return _loc4_;
       }
       
       private function getCurrentRect(param1:Rectangle, param2:String = null) : Rectangle
@@ -435,14 +433,14 @@ package net.play5d.game.bvn.fighter
          {
             _loc3_ = new Rectangle();
          }
-         else if(_rectCache[param2])
+         else if(Boolean(this._rectCache[param2]))
          {
-            _loc3_ = _rectCache[param2];
+            _loc3_ = this._rectCache[param2];
          }
          else
          {
             _loc3_ = new Rectangle();
-            _rectCache[param2] = _loc3_;
+            this._rectCache[param2] = _loc3_;
          }
          _loc3_.x = param1.x * direct + _x;
          if(direct < 0)
@@ -457,80 +455,80 @@ package net.play5d.game.bvn.fighter
       
       private function getHitModel() : FighterHitModel
       {
-         if(_owner is FighterMain)
+         if(this._owner is FighterMain)
          {
-            return (_owner as FighterMain).getCtrler().hitModel;
+            return (this._owner as FighterMain).getCtrler().hitModel;
          }
-         if(_owner is Assister)
+         if(this._owner is Assister)
          {
-            return (_owner as Assister).getCtrler().hitModel;
+            return (this._owner as Assister).getCtrler().hitModel;
          }
          throw new Error("不支持的owner类型!");
       }
       
       private function findHitArea() : void
       {
-         var _loc9_:int = 0;
+         var _loc1_:int = 0;
          var _loc2_:DisplayObject = null;
-         var _loc6_:HitVO = null;
-         var _loc7_:Object = null;
-         var _loc4_:Rectangle = null;
-         var _loc5_:Object = null;
-         if(!_hitAreaCache)
+         var _loc3_:HitVO = null;
+         var _loc4_:Object = null;
+         var _loc5_:Rectangle = null;
+         var _loc6_:Object = null;
+         if(!this._hitAreaCache)
          {
             return;
          }
-         var _loc8_:FighterHitModel = getHitModel();
-         if(!_loc8_)
+         var _loc7_:FighterHitModel = this.getHitModel();
+         if(!_loc7_)
          {
             return;
          }
-         if(_hitAreaCache.areaFrameDefined(_mainMc.currentFrame))
+         if(this._hitAreaCache.areaFrameDefined(_mainMc.currentFrame))
          {
             return;
          }
-         var _loc3_:Object = _hitAreaCache.getAreaByFrame(_mainMc.currentFrame);
-         if(_loc3_ != null)
+         var _loc8_:Object = this._hitAreaCache.getAreaByFrame(_mainMc.currentFrame);
+         if(_loc8_ != null)
          {
             return;
          }
-         var _loc1_:Array = [];
-         while(_loc9_ < _mainMc.numChildren)
+         var _loc9_:Array = [];
+         while(_loc1_ < _mainMc.numChildren)
          {
-            _loc2_ = _mainMc.getChildAt(_loc9_);
-            _loc6_ = _loc8_.getHitVOByDisplayName(_loc2_.name);
-            if(!(_loc2_ == null || _loc6_ == null))
+            _loc2_ = _mainMc.getChildAt(_loc1_);
+            _loc3_ = _loc7_.getHitVOByDisplayName(_loc2_.name);
+            if(!(_loc2_ == null || _loc3_ == null))
             {
-               _loc7_ = _hitAreaCache.getAreaByDisplay(_loc2_);
-               if(_loc7_ == null)
+               _loc4_ = this._hitAreaCache.getAreaByDisplay(_loc2_);
+               if(_loc4_ == null)
                {
-                  _loc4_ = _loc2_.getBounds(_mainMc);
-                  _loc5_ = _hitAreaCache.cacheAreaByDisplay(_loc2_,_loc4_,{"hitVO":_loc6_});
-                  _loc1_.push(_loc5_);
+                  _loc5_ = _loc2_.getBounds(_mainMc);
+                  _loc6_ = this._hitAreaCache.cacheAreaByDisplay(_loc2_,_loc5_,{"hitVO":_loc3_});
+                  _loc9_.push(_loc6_);
                }
                else
                {
-                  _loc1_.push(_loc7_);
+                  _loc9_.push(_loc4_);
                }
             }
-            _loc9_++;
+            _loc1_++;
          }
-         if(_loc1_.length < 1)
+         if(_loc9_.length < 1)
          {
-            _loc1_ = null;
+            _loc9_ = null;
          }
-         _hitAreaCache.cacheAreaByFrame(_mainMc.currentFrame,_loc1_);
+         this._hitAreaCache.cacheAreaByFrame(_mainMc.currentFrame,_loc9_);
       }
       
       private function getOwnerFighter() : FighterMain
       {
-         if(_owner is FighterMain)
+         if(this._owner is FighterMain)
          {
-            return _owner as FighterMain;
+            return this._owner as FighterMain;
          }
-         if(_owner is Assister)
+         if(this._owner is Assister)
          {
-            return (_owner as Assister).getOwner() as FighterMain;
+            return (this._owner as Assister).getOwner() as FighterMain;
          }
          return null;
       }
@@ -538,10 +536,10 @@ package net.play5d.game.bvn.fighter
       override public function hit(param1:HitVO, param2:IGameSprite) : void
       {
          var _loc3_:Number = NaN;
-         var _loc4_:FighterMain = getOwnerFighter();
-         if(param2 && _loc4_)
+         var _loc4_:FighterMain = this.getOwnerFighter();
+         if(Boolean(param2) && Boolean(_loc4_))
          {
-            _loc3_ = _owner is Assister ? 0.15 : 0.13;
+            _loc3_ = this._owner is Assister ? 0.15 : 0.13;
             _loc4_.addQi(param1.power * _loc3_);
             GameLogic.hitTarget(param1,_loc4_,param2);
          }

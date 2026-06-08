@@ -1,17 +1,14 @@
 package net.play5d.game.bvn.ui
 {
-   import com.greensock.TweenLite;
-   import com.greensock.easing.Back;
+   import com.greensock.*;
+   import com.greensock.easing.*;
    import flash.display.Sprite;
-   import flash.geom.Point;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.GameRender;
-   import net.play5d.game.bvn.data.GameMode;
-   import net.play5d.game.bvn.data.MessionModel;
-   import net.play5d.game.bvn.input.GameInputer;
-   import net.play5d.game.bvn.interfaces.GameInterface;
-   import net.play5d.game.bvn.utils.URL;
+   import flash.geom.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.input.*;
+   import net.play5d.game.bvn.interfaces.*;
    
    public class MenuBtnGroup extends Sprite
    {
@@ -45,228 +42,231 @@ package net.play5d.game.bvn.ui
       
       public function destory() : void
       {
-         GameRender.remove(render);
-         for each(var _loc1_ in _btns)
+         var _loc1_:* = undefined;
+         GameRender.remove(this.render);
+         for each(_loc1_ in this._btns)
          {
-            _loc1_.removeEventListener("touchTap",touchHandler);
-            _loc1_.removeEventListener("click",mouseHandler);
-            _loc1_.removeEventListener("mouseOver",mouseHandler);
+            _loc1_.removeEventListener("touchTap",this.touchHandler);
+            _loc1_.removeEventListener("click",this.mouseHandler);
+            _loc1_.removeEventListener("mouseOver",this.mouseHandler);
             _loc1_.dispose();
          }
-         _btns = null;
+         this._btns = null;
       }
       
       public function fadIn(param1:Number = 0.5, param2:Number = 0.05) : void
       {
-         var _loc4_:int = 0;
-         var _loc3_:MenuBtn = null;
-         while(_loc4_ < _btns.length)
+         var _loc3_:int = 0;
+         var _loc4_:* = null;
+         while(_loc3_ < this._btns.length)
          {
-            _loc3_ = _btns[_loc4_];
-            _loc3_.ui.scaleX = 0.01;
-            TweenLite.to(_loc3_.ui,param1,{
+            _loc4_ = this._btns[_loc3_];
+            _loc4_.ui.scaleX = 0.01;
+            TweenLite.to(_loc4_.ui,param1,{
                "scaleX":1,
-               "delay":_loc4_ * param2,
+               "delay":_loc3_ * param2,
                "ease":Back.easeOut
             });
-            _loc4_++;
+            _loc3_++;
          }
       }
       
       public function build() : void
       {
-         var _loc2_:int = 0;
-         var _loc1_:Object = null;
+         var _loc1_:int = 0;
+         var _loc2_:* = null;
          this.y -= 40;
-         _startPoint = new Point(x,y);
-         _btnConfig = GameInterface.instance.getGameMenu();
-         if(!_btnConfig)
+         this._startPoint = new Point(x,y);
+         this._btnConfig = GameInterface.instance.getGameMenu();
+         if(!this._btnConfig)
          {
-            _btnConfig = GameInterface.getDefaultMenu();
+            this._btnConfig = GameInterface.getDefaultMenu();
          }
-         while(_loc2_ < _btnConfig.length)
+         while(_loc1_ < this._btnConfig.length)
          {
-            _loc1_ = _btnConfig[_loc2_];
-            addMenuBtn(_loc1_);
-            _loc2_++;
+            _loc2_ = this._btnConfig[_loc1_];
+            this.addMenuBtn(_loc2_);
+            _loc1_++;
          }
-         setBtns(true,false);
+         this.setBtns(true,false);
          if(!GameConfig.TOUCH_MODE)
          {
-            hoverBtn(_btns[0]);
+            this.hoverBtn(this._btns[0]);
          }
          if(GameConfig.TOUCH_MODE)
          {
             this.y += 30;
          }
-         GameRender.add(render);
+         GameRender.add(this.render);
       }
       
       private function addMenuBtn(param1:Object, param2:Boolean = false) : MenuBtn
       {
-         var _loc7_:int = 0;
-         var _loc4_:Object = null;
-         var _loc3_:MenuBtn = null;
-         var _loc5_:MenuBtn = new MenuBtn(param1.txt,param1.cn,param1.func);
+         var _loc3_:Array = null;
+         var _loc4_:int = 0;
+         var _loc5_:* = null;
+         var _loc6_:* = null;
+         var _loc7_:MenuBtn = new MenuBtn(param1.txt,param1.cn,param1.func);
          if(GameConfig.TOUCH_MODE)
          {
-            _loc5_.addEventListener("touchTap",touchHandler);
+            _loc7_.addEventListener("touchTap",this.touchHandler);
          }
          else
          {
-            _loc5_.addEventListener("click",mouseHandler);
-            _loc5_.addEventListener("mouseOver",mouseHandler);
+            _loc7_.addEventListener("click",this.mouseHandler);
+            _loc7_.addEventListener("mouseOver",this.mouseHandler);
          }
          if(!param2)
          {
-            _loc5_.index = _btns.length;
-            _btns.push(_loc5_);
-            if(_btnHeight == 0)
+            _loc7_.index = this._btns.length;
+            this._btns.push(_loc7_);
+            if(this._btnHeight == 0)
             {
-               _btnHeight = _loc5_.height;
+               this._btnHeight = _loc7_.height;
             }
          }
-         var _loc6_:Array = param1.children;
-         if(_loc6_)
+         _loc3_ = param1.children;
+         if(Boolean(_loc3_))
          {
-            _loc5_.children = [];
-            _loc7_ = 0;
-            while(_loc7_ < _loc6_.length)
+            _loc7_.children = [];
+            _loc4_ = 0;
+            while(_loc4_ < _loc3_.length)
             {
-               _loc4_ = _loc6_[_loc7_];
-               _loc3_ = addMenuBtn(_loc4_,true);
-               _loc5_.children.push(_loc3_);
-               _loc3_.childMode();
-               _loc3_.index = _loc7_;
-               _loc7_++;
+               _loc5_ = _loc3_[_loc4_];
+               _loc6_ = this.addMenuBtn(_loc5_,true);
+               _loc7_.children.push(_loc6_);
+               _loc6_.childMode();
+               _loc6_.index = _loc4_;
+               _loc4_++;
             }
          }
-         return _loc5_;
+         return _loc7_;
       }
       
       protected function mouseHandler(param1:String, param2:MenuBtn) : void
       {
-         if(!enabled)
+         if(!this.enabled)
          {
             return;
          }
          switch(param1)
          {
             case "mouseOver":
-               hoverBtn(param2);
+               this.hoverBtn(param2);
                break;
             case "click":
-               selectBtn(param2);
+               this.selectBtn(param2);
          }
       }
       
       protected function touchHandler(param1:String, param2:MenuBtn) : void
       {
-         if(param2.children && param2.children.length > 0)
+         if(Boolean(param2.children) && param2.children.length > 0)
          {
-            hoverBtn(param2);
-            selectBtn(param2);
+            this.hoverBtn(param2);
+            this.selectBtn(param2);
             return;
          }
          if(!param2.isHover())
          {
-            hoverBtn(param2);
+            this.hoverBtn(param2);
          }
          else
          {
-            selectBtn(param2);
+            this.selectBtn(param2);
          }
       }
       
       private function moveScroll() : void
       {
-         if(!_startPoint)
+         if(!this._startPoint)
          {
             return;
          }
-         var _loc7_:int = int(_btns.length);
-         if(_showIngChildrenBtn)
+         var _loc1_:int = int(this._btns.length);
+         if(Boolean(this._showIngChildrenBtn))
          {
-            _loc7_ += _showIngChildrenBtn.children.length;
+            _loc1_ += this._showIngChildrenBtn.children.length;
          }
-         if(_loc7_ < 5)
+         if(_loc1_ < 5)
          {
             return;
          }
-         var _loc4_:Number = GameConfig.GAME_SIZE.y;
-         var _loc3_:Number = _startPoint.y + this.height;
-         if(_loc3_ < _loc4_)
+         var _loc2_:Number = Number(GameConfig.GAME_SIZE.y);
+         var _loc3_:Number = this._startPoint.y + this.height;
+         if(_loc3_ < _loc2_)
          {
             return;
          }
-         var _loc1_:Number = _loc4_ - _startPoint.y;
-         var _loc6_:Number = _loc1_ / _loc7_;
-         var _loc5_:Number = _btnHeight + _yadd;
-         var _loc8_:int = _btnIndex;
-         if(_showIngChildrenBtn)
+         var _loc4_:Number = _loc2_ - this._startPoint.y;
+         var _loc5_:Number = _loc4_ / _loc1_;
+         var _loc6_:Number = this._btnHeight + this._yadd;
+         var _loc7_:int = int(this._btnIndex);
+         if(Boolean(this._showIngChildrenBtn))
          {
-            if(_btnIndex < _showIngChildrenBtn.children.length && _showIngChildrenBtn.children[_btnIndex].isHover())
+            if(this._btnIndex < this._showIngChildrenBtn.children.length && Boolean(this._showIngChildrenBtn.children[this._btnIndex].isHover()))
             {
-               _loc8_ = _showIngChildrenBtn.index + 1 + _btnIndex;
+               _loc7_ = this._showIngChildrenBtn.index + 1 + this._btnIndex;
             }
-            else if(_btnIndex > _showIngChildrenBtn.index)
+            else if(this._btnIndex > this._showIngChildrenBtn.index)
             {
-               _loc8_ = _btnIndex + _showIngChildrenBtn.children.length;
+               _loc7_ = this._btnIndex + this._showIngChildrenBtn.children.length;
             }
          }
-         var _loc2_:Number = _loc8_ * (_loc6_ - _loc5_) + _startPoint.y;
-         TweenLite.to(this,0.2,{"y":_loc2_});
+         var _loc8_:Number = _loc7_ * (_loc5_ - _loc6_) + this._startPoint.y;
+         TweenLite.to(this,0.2,{"y":_loc8_});
       }
       
       private function hoverBtn(param1:MenuBtn) : void
       {
-         var _loc2_:MenuBtn = null;
+         var _loc2_:* = null;
+         var _loc3_:int = 0;
+         var _loc4_:* = null;
          var _loc5_:int = 0;
-         var _loc3_:Array = null;
-         var _loc4_:int = 0;
-         while(_loc5_ < _btns.length)
+         while(_loc3_ < this._btns.length)
          {
-            _loc2_ = _btns[_loc5_];
+            _loc2_ = this._btns[_loc3_];
             if(_loc2_ == param1)
             {
                _loc2_.hover();
-               _btnIndex = _loc5_;
-               moveScroll();
+               this._btnIndex = _loc3_;
+               this.moveScroll();
             }
             else
             {
                _loc2_.normal();
             }
-            _loc5_++;
+            _loc3_++;
          }
-         if(_showIngChildrenBtn)
+         if(Boolean(this._showIngChildrenBtn))
          {
-            _loc3_ = _showIngChildrenBtn.children;
-            while(_loc4_ < _loc3_.length)
+            _loc4_ = this._showIngChildrenBtn.children;
+            while(_loc5_ < _loc4_.length)
             {
-               _loc2_ = _loc3_[_loc4_];
+               _loc2_ = _loc4_[_loc5_];
                if(_loc2_ == param1)
                {
                   _loc2_.hover();
-                  _btnIndex = _loc4_;
+                  this._btnIndex = _loc5_;
                }
                else
                {
                   _loc2_.normal();
                }
-               _loc4_++;
+               _loc5_++;
             }
          }
       }
       
       protected function selectBtn(param1:MenuBtn) : void
       {
-         var func:Function;
-         var callFunc:Function;
+         var callFunc:Function = null;
+         var func:Function = null;
+         func = null;
          var target:MenuBtn = param1;
-         if(target.children)
+         if(Boolean(target.children))
          {
-            toogleChildren(target);
+            this.toogleChildren(target);
             return;
          }
          if(Boolean(target.func))
@@ -275,7 +275,7 @@ package net.play5d.game.bvn.ui
          }
          else
          {
-            func = getFucByLabel(target.label);
+            func = this.getFucByLabel(target.label);
          }
          callFunc = function():void
          {
@@ -286,13 +286,13 @@ package net.play5d.game.bvn.ui
             this.mouseEnabled = this.mouseChildren = true;
             enabled = true;
          };
-         enabled = false;
+         this.enabled = false;
          target.select(callFunc);
       }
       
       private function getFucByLabel(param1:String) : Function
       {
-         var func:Function;
+         var func:Function = null;
          var label:String = param1;
          switch(label)
          {
@@ -395,12 +395,6 @@ package net.play5d.game.bvn.ui
                   MainGame.I.goCredits();
                };
                break;
-            case "CHECK UPDATE":
-               func = function():void
-               {
-                  URL.miokoTech();
-               };
-               break;
             case "MORE GAMES":
                func = function():void
                {
@@ -412,92 +406,89 @@ package net.play5d.game.bvn.ui
       
       private function toogleChildren(param1:MenuBtn) : void
       {
-         var _loc2_:Boolean = false;
-         if(_showIngChildrenBtn)
+         var _loc2_:* = false;
+         if(Boolean(this._showIngChildrenBtn))
          {
-            _loc2_ = param1 == _showIngChildrenBtn;
+            _loc2_ = param1 == this._showIngChildrenBtn;
             if(!_loc2_)
             {
-               _showIngChildrenBtn.normal();
+               this._showIngChildrenBtn.normal();
             }
-            closeChildren(_loc2_,_loc2_);
-            if(_loc2_)
+            this.closeChildren(_loc2_,_loc2_);
+            if(Boolean(_loc2_))
             {
                return;
             }
          }
-         _showIngChildrenBtn = param1;
-         setBtns(true,true);
+         this._showIngChildrenBtn = param1;
+         this.setBtns(true,true);
          param1.openChild();
-         hoverBtn(param1.children[0]);
+         this.hoverBtn(param1.children[0]);
       }
       
       private function closeChildren(param1:Boolean, param2:Boolean) : void
       {
-         var _loc5_:int = 0;
-         var _loc3_:MenuBtn = null;
-         var _loc4_:Array = _showIngChildrenBtn.children;
-         _loc5_ = 0;
-         while(_loc5_ < _loc4_.length)
+         var _loc3_:int = 0;
+         var _loc4_:* = null;
+         var _loc5_:Array = this._showIngChildrenBtn.children;
+         _loc3_ = 0;
+         while(_loc3_ < _loc5_.length)
          {
-            _loc3_ = _loc4_[_loc5_];
-            try
+            _loc4_ = _loc5_[_loc3_];
+            if(Boolean(_loc4_) && Boolean(_loc4_.ui) && contains(_loc4_.ui))
             {
-               removeChild(_loc3_.ui);
+               removeChild(_loc4_.ui);
             }
-            catch(e:Error)
-            {
-            }
-            _loc5_++;
+            _loc3_++;
          }
-         _showIngChildrenBtn.closeChild();
-         _showIngChildrenBtn = null;
+         this._showIngChildrenBtn.closeChild();
+         this._showIngChildrenBtn = null;
          if(param1)
          {
-            setBtns(false,param2);
+            this.setBtns(false,param2);
          }
       }
       
       private function setBtns(param1:Boolean, param2:Boolean = false) : void
       {
-         var _loc7_:int = 0;
-         var _loc4_:MenuBtn = null;
+         var _loc3_:int = 0;
+         var _loc4_:* = null;
          var _loc5_:int = 0;
-         var _loc3_:MenuBtn = null;
-         var _loc8_:Number = 0;
-         var _loc6_:Number = 0;
-         while(_loc7_ < _btns.length)
+         var _loc6_:* = null;
+         var _loc7_:* = 0;
+         var _loc8_:* = 0;
+         while(_loc3_ < this._btns.length)
          {
-            _loc4_ = _btns[_loc7_];
+            _loc4_ = this._btns[_loc3_];
             if(param2)
             {
                TweenLite.to(_loc4_.ui,0.2,{
-                  "x":_loc8_,
-                  "y":_loc6_
+                  "x":_loc7_,
+                  "y":_loc8_
                });
             }
             else
             {
-               _loc4_.ui.x = _loc8_;
-               _loc4_.ui.y = _loc6_;
+               _loc4_.ui.x = _loc7_;
+               _loc4_.ui.y = _loc8_;
             }
-            _loc8_ += _xadd;
-            _loc6_ += _loc4_.height + _yadd;
+            _loc7_ += this._xadd;
+            _loc8_ += _loc4_.height + this._yadd;
             if(param1)
             {
                addChild(_loc4_.ui);
             }
-            if(_showIngChildrenBtn == _loc4_)
+            if(this._showIngChildrenBtn == _loc4_)
             {
                while(_loc5_ < _loc4_.children.length)
                {
-                  _loc3_ = _loc4_.children[_loc5_];
-                  _loc3_.ui.x = _loc8_;
-                  _loc3_.ui.y = _loc6_;
+                  _loc6_ = _loc4_.children[_loc5_];
+                  _loc6_.ui.x = _loc7_;
+                  _loc6_.ui.y = _loc8_;
                   if(param2)
                   {
-                     _loc3_.ui.scaleX = 0.01;
-                     TweenLite.to(_loc3_.ui,0.2,{
+                     _loc6_.ui.scaleX = 0.01;
+                     TweenLite.to(_loc6_.ui,0.2,{
                         "scaleX":1,
                         "delay":_loc5_ * 0.04,
                         "ease":Back.easeOut
@@ -505,20 +496,20 @@ package net.play5d.game.bvn.ui
                   }
                   if(param1)
                   {
-                     addChild(_loc3_.ui);
+                     addChild(_loc6_.ui);
                   }
-                  _loc8_ += _xadd;
-                  _loc6_ += _loc3_.height + _yadd;
+                  _loc7_ += this._xadd;
+                  _loc8_ += _loc6_.height + this._yadd;
                   _loc5_++;
                }
             }
-            _loc7_++;
+            _loc3_++;
          }
       }
       
       private function render() : void
       {
-         if(!enabled)
+         if(!this.enabled)
          {
             return;
          }
@@ -526,35 +517,35 @@ package net.play5d.game.bvn.ui
          {
             return;
          }
-         var _loc1_:Array = _showIngChildrenBtn ? _showIngChildrenBtn.children : _btns;
+         var _loc1_:Array = this._showIngChildrenBtn ? this._showIngChildrenBtn.children : this._btns;
          if(GameInputer.up("MENU",1))
          {
-            _btnIndex -= 1;
-            if(_btnIndex < 0)
+            --this._btnIndex;
+            if(this._btnIndex < 0)
             {
-               _btnIndex = _loc1_.length - 1;
+               this._btnIndex = _loc1_.length - 1;
             }
-            hoverBtn(_loc1_[_btnIndex]);
+            this.hoverBtn(_loc1_[this._btnIndex]);
          }
          if(GameInputer.down("MENU",1))
          {
-            _btnIndex += 1;
-            if(_btnIndex > _loc1_.length - 1)
+            ++this._btnIndex;
+            if(this._btnIndex > _loc1_.length - 1)
             {
-               _btnIndex = 0;
+               this._btnIndex = 0;
             }
-            hoverBtn(_loc1_[_btnIndex]);
+            this.hoverBtn(_loc1_[this._btnIndex]);
          }
          if(GameInputer.select("MENU",1))
          {
-            selectBtn(_loc1_[_btnIndex]);
+            this.selectBtn(_loc1_[this._btnIndex]);
          }
          if(GameInputer.back(1))
          {
-            if(_showIngChildrenBtn)
+            if(Boolean(this._showIngChildrenBtn))
             {
-               _btnIndex = _showIngChildrenBtn.index;
-               closeChildren(true,true);
+               this._btnIndex = this._showIngChildrenBtn.index;
+               this.closeChildren(true,true);
             }
          }
       }

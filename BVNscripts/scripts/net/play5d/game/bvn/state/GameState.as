@@ -1,24 +1,17 @@
 package net.play5d.game.bvn.state
 {
-   import flash.display.DisplayObject;
-   import flash.display.Sprite;
-   import flash.geom.Point;
-   import flash.geom.Rectangle;
-   import flash.utils.getDefinitionByName;
-   import flash.utils.getQualifiedClassName;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.ctrl.EffectCtrl;
-   import net.play5d.game.bvn.ctrl.GameLoader;
-   import net.play5d.game.bvn.ctrl.GameLogic;
-   import net.play5d.game.bvn.ctrl.game_ctrls.GameCtrl;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.data.GameMode;
-   import net.play5d.game.bvn.data.GameRunFighterGroup;
+   import flash.display.*;
+   import flash.geom.*;
+   import flash.utils.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.ctrl.game_ctrls.*;
+   import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.fighter.FighterMain;
-   import net.play5d.game.bvn.interfaces.IGameSprite;
+   import net.play5d.game.bvn.interfaces.*;
    import net.play5d.game.bvn.map.MapMain;
-   import net.play5d.game.bvn.ui.GameUI;
-   import net.play5d.kyo.stage.Istage;
+   import net.play5d.game.bvn.ui.*;
+   import net.play5d.kyo.stage.*;
    
    public class GameState extends Sprite implements Istage
    {
@@ -40,30 +33,31 @@ package net.play5d.game.bvn.state
       public function GameState()
       {
          super();
-         _gameLayer.mouseChildren = _gameLayer.mouseEnabled = false;
+         this._gameLayer.mouseChildren = this._gameLayer.mouseEnabled = false;
       }
       
       public function get gameLayer() : Sprite
       {
-         return _gameLayer;
+         return this._gameLayer;
       }
       
       public function getMap() : MapMain
       {
-         return _map;
+         return this._map;
       }
       
       public function setVisibleByClass(param1:Class, param2:*) : void
       {
-         var _loc4_:String = null;
-         var _loc5_:Class = null;
-         for each(var _loc3_ in _gameSprites)
+         var _loc5_:* = undefined;
+         var _loc3_:String = null;
+         var _loc4_:Class = null;
+         for each(_loc5_ in this._gameSprites)
          {
-            _loc4_ = getQualifiedClassName(_loc3_);
-            _loc5_ = getDefinitionByName(_loc4_) as Class;
-            if(_loc5_ == param1)
+            _loc3_ = getQualifiedClassName(_loc5_);
+            _loc4_ = getDefinitionByName(_loc3_) as Class;
+            if(_loc4_ == param1)
             {
-               _loc3_.getDisplay().visible = param2;
+               _loc5_.getDisplay().visible = param2;
             }
          }
       }
@@ -75,123 +69,117 @@ package net.play5d.game.bvn.state
       
       public function getGameSpriteGlobalPosition(param1:IGameSprite, param2:Number = 0, param3:Number = 0) : Point
       {
-         var _loc4_:Number = camera.getZoom(true);
-         var _loc5_:Rectangle = camera.getScreenRect(true);
+         var _loc4_:Number = this.camera.getZoom(true);
+         var _loc5_:Rectangle = this.camera.getScreenRect(true);
          return new Point((-_loc5_.x + param1.x + param2) * _loc4_,(-_loc5_.y + param1.y + param3) * _loc4_);
       }
       
       public function getGameSprites() : Vector.<IGameSprite>
       {
-         return _gameSprites;
+         return this._gameSprites;
       }
       
       public function addGameSprite(param1:IGameSprite) : void
       {
-         if(_gameSprites.indexOf(param1) != -1)
+         if(this._gameSprites.indexOf(param1) != -1)
          {
             return;
          }
-         _gameSprites.push(param1);
-         _playerLayer.addChild(param1.getDisplay());
+         this._gameSprites.push(param1);
+         this._playerLayer.addChild(param1.getDisplay());
          param1.setVolume(GameData.I.config.soundVolume);
       }
       
       public function addGameSpriteAt(param1:IGameSprite, param2:int) : void
       {
-         if(_gameSprites.indexOf(param1) != -1)
+         if(this._gameSprites.indexOf(param1) != -1)
          {
             return;
          }
-         _gameSprites.push(param1);
-         _playerLayer.addChildAt(param1.getDisplay(),param2);
+         this._gameSprites.push(param1);
+         this._playerLayer.addChildAt(param1.getDisplay(),param2);
          param1.setVolume(GameData.I.config.soundVolume);
       }
       
       public function removeGameSprite(param1:IGameSprite) : void
       {
-         var fm:FighterMain;
-         var _loc2_:int = _gameSprites.indexOf(param1);
+         var _loc2_:int = int(this._gameSprites.indexOf(param1));
          if(_loc2_ == -1)
          {
             return;
          }
-         _gameSprites.splice(_loc2_,1);
+         this._gameSprites.splice(_loc2_,1);
          try
          {
-            _playerLayer.removeChild(param1.getDisplay());
+            this._playerLayer.removeChild(param1.getDisplay());
          }
          catch(e:Error)
          {
-         }
-         fm = param1 as FighterMain;
-         if(fm)
-         {
-            GameLoader.disposeFighter(fm);
          }
       }
       
       public function build() : void
       {
          GameCtrl.I.initlize(this);
-         EffectCtrl.I.initlize(this,_playerLayer);
-         gameUI = new GameUI();
+         EffectCtrl.I.initlize(this,this._playerLayer);
+         this.gameUI = new GameUI();
       }
       
       public function initFight(param1:GameRunFighterGroup, param2:GameRunFighterGroup, param3:MapMain) : void
       {
-         var _loc6_:Point = null;
-         _map = param3;
-         _map.gameState = this;
-         if(_map.bgLayer)
+         var _loc4_:Point = null;
+         this._map = param3;
+         this._map.gameState = this;
+         if(Boolean(this._map.bgLayer))
          {
-            addChild(_map.bgLayer);
+            addChild(this._map.bgLayer);
          }
-         addChild(_gameLayer);
-         if(_map.mapLayer)
+         addChild(this._gameLayer);
+         if(Boolean(this._map.mapLayer))
          {
-            _gameLayer.addChild(_map.mapLayer);
+            this._gameLayer.addChild(this._map.mapLayer);
          }
-         _gameLayer.addChild(_playerLayer);
-         if(_map.frontFixLayer)
+         this._gameLayer.addChild(this._playerLayer);
+         if(Boolean(this._map.frontFixLayer))
          {
-            _gameLayer.addChild(_map.frontFixLayer);
+            this._gameLayer.addChild(this._map.frontFixLayer);
          }
-         if(_map.frontLayer)
+         if(Boolean(this._map.frontLayer))
          {
-            _gameLayer.addChild(_map.frontLayer);
+            this._gameLayer.addChild(this._map.frontLayer);
          }
-         _cameraFocus = [];
+         this._cameraFocus = [];
          var _loc5_:FighterMain = param1.currentFighter;
-         var _loc4_:FighterMain = param2.currentFighter;
-         if(_loc5_)
+         var _loc6_:FighterMain = param2.currentFighter;
+         if(Boolean(_loc5_))
          {
             GameLogic.resetFighterHP(_loc5_);
-            _loc5_.x = _map.p1pos.x;
-            _loc5_.y = _map.p1pos.y;
+            _loc5_.x = this._map.p1pos.x;
+            _loc5_.y = this._map.p1pos.y;
             _loc5_.direct = 1;
             _loc5_.updatePosition();
-            _cameraFocus.push(_loc5_.getDisplay());
+            this._cameraFocus.push(_loc5_.getDisplay());
          }
-         if(_loc4_)
+         if(Boolean(_loc6_))
          {
-            GameLogic.resetFighterHP(_loc4_);
+            GameLogic.resetFighterHP(_loc6_);
             if(GameMode.isAcrade())
             {
-               GameLogic.setMessionEnemyAttack(_loc4_);
+               GameLogic.setMessionEnemyAttack(_loc6_);
             }
-            _loc4_.x = _map.p2pos.x;
-            _loc4_.y = _map.p2pos.y;
-            _loc4_.direct = -1;
-            _loc4_.updatePosition();
-            _cameraFocus.push(_loc4_.getDisplay());
+            _loc6_.x = this._map.p2pos.x;
+            _loc6_.y = this._map.p2pos.y;
+            _loc6_.direct = -1;
+            _loc6_.updatePosition();
+            this._cameraFocus.push(_loc6_.getDisplay());
          }
-         if(_map.mapLayer)
+         if(Boolean(this._map.mapLayer))
          {
-            _loc6_ = new Point(_map.mapLayer.width,GameConfig.GAME_SIZE.y);
-            initCamera();
-            camera.focus(_cameraFocus);
-            gameUI.initFight(param1,param2);
-            addChild(gameUI.getUIDisplay());
+            _loc4_ = new Point(this._map.mapLayer.width,GameConfig.GAME_SIZE.y);
+            this.initCamera();
+            this.camera.focus(this._cameraFocus);
+            this.gameUI.initFight(param1,param2);
+            addChild(this.gameUI.getUIDisplay());
             return;
          }
          throw new Error("map is error! :: mapLayer is null!");
@@ -199,86 +187,86 @@ package net.play5d.game.bvn.state
       
       public function resetFight(param1:GameRunFighterGroup, param2:GameRunFighterGroup) : void
       {
-         var _loc4_:FighterMain = param1.currentFighter;
-         var _loc3_:FighterMain = param2.currentFighter;
-         _cameraFocus = [];
-         if(_loc4_)
-         {
-            GameLogic.resetFighterHP(_loc4_);
-            _loc4_.x = _map.p1pos.x;
-            _loc4_.y = _map.p1pos.y;
-            _loc4_.direct = 1;
-            _loc4_.idle();
-            _loc4_.updatePosition();
-            _cameraFocus.push(_loc4_.getDisplay());
-         }
-         if(_loc3_)
+         var _loc3_:FighterMain = param1.currentFighter;
+         var _loc4_:FighterMain = param2.currentFighter;
+         this._cameraFocus = [];
+         if(Boolean(_loc3_))
          {
             GameLogic.resetFighterHP(_loc3_);
-            _loc3_.x = _map.p2pos.x;
-            _loc3_.y = _map.p2pos.y;
-            _loc3_.direct = -1;
+            _loc3_.x = this._map.p1pos.x;
+            _loc3_.y = this._map.p1pos.y;
+            _loc3_.direct = 1;
             _loc3_.idle();
             _loc3_.updatePosition();
-            _cameraFocus.push(_loc3_.getDisplay());
+            this._cameraFocus.push(_loc3_.getDisplay());
          }
-         gameUI.initFight(param1,param2);
-         cameraResume();
+         if(Boolean(_loc4_))
+         {
+            GameLogic.resetFighterHP(_loc4_);
+            _loc4_.x = this._map.p2pos.x;
+            _loc4_.y = this._map.p2pos.y;
+            _loc4_.direct = -1;
+            _loc4_.idle();
+            _loc4_.updatePosition();
+            this._cameraFocus.push(_loc4_.getDisplay());
+         }
+         this.gameUI.initFight(param1,param2);
+         this.cameraResume();
       }
       
       public function cameraFocusOne(param1:DisplayObject) : void
       {
-         camera.focus([param1]);
-         camera.setZoom(3.5);
-         camera.tweenSpd = 2.5 / GameConfig.SPEED_PLUS_DEFAULT;
+         this.camera.focus([param1]);
+         this.camera.setZoom(3.5);
+         this.camera.tweenSpd = 2.5 / GameConfig.SPEED_PLUS_DEFAULT;
       }
       
       public function cameraResume() : void
       {
-         camera.focus(_cameraFocus);
-         camera.tweenSpd = 2.5 / GameConfig.SPEED_PLUS_DEFAULT;
+         this.camera.focus(this._cameraFocus);
+         this.camera.tweenSpd = 2.5 / GameConfig.SPEED_PLUS_DEFAULT;
       }
       
       private function initCamera() : void
       {
-         if(camera)
+         if(Boolean(this.camera))
          {
             throw new Error("camera inited!");
          }
-         var _loc4_:Point = _map.getStageSize();
-         camera = new GameCamera(_gameLayer,GameConfig.GAME_SIZE,_loc4_,true);
-         camera.focusX = true;
-         camera.focusY = true;
-         camera.offsetY = _map.getMapBottomDistance();
-         camera.setStageBounds(new Rectangle(0,-1000,_loc4_.x,_loc4_.y));
-         camera.autoZoom = true;
-         camera.autoZoomMin = 1;
-         camera.autoZoomMax = 2.5;
-         camera.tweenSpd = 2.5 / GameConfig.SPEED_PLUS_DEFAULT;
-         var _loc3_:Number = 2;
-         var _loc1_:Number = _loc4_.x / 2 * _loc3_ - 350;
-         var _loc2_:Number = _map.bottom - 200;
-         camera.setZoom(_loc3_);
-         camera.setX(-_loc1_);
-         camera.setY(-_loc2_);
-         camera.updateNow();
+         var _loc1_:Point = this._map.getStageSize();
+         this.camera = new GameCamera(this._gameLayer,GameConfig.GAME_SIZE,_loc1_,true);
+         this.camera.focusX = true;
+         this.camera.focusY = true;
+         this.camera.offsetY = this._map.getMapBottomDistance();
+         this.camera.setStageBounds(new Rectangle(0,-1000,_loc1_.x,_loc1_.y));
+         this.camera.autoZoom = true;
+         this.camera.autoZoomMin = 1;
+         this.camera.autoZoomMax = 2.5;
+         this.camera.tweenSpd = 2.5 / GameConfig.SPEED_PLUS_DEFAULT;
+         var _loc2_:Number = 2;
+         var _loc3_:Number = _loc1_.x / 2 * _loc2_ - 350;
+         var _loc4_:Number = this._map.bottom - 200;
+         this.camera.setZoom(_loc2_);
+         this.camera.setX(-_loc3_);
+         this.camera.setY(-_loc4_);
+         this.camera.updateNow();
       }
       
       public function render() : void
       {
          var _loc1_:Rectangle = null;
-         if(camera)
+         if(Boolean(this.camera))
          {
-            camera.render();
+            this.camera.render();
          }
-         if(gameUI)
+         if(Boolean(this.gameUI))
          {
-            gameUI.render();
+            this.gameUI.render();
          }
-         if(_map && camera)
+         if(Boolean(this._map) && Boolean(this.camera))
          {
-            _loc1_ = camera.getScreenRect(true);
-            _map.render(-_loc1_.x,-_loc1_.y,camera.getZoom(true));
+            _loc1_ = this.camera.getScreenRect(true);
+            this._map.render(-_loc1_.x,-_loc1_.y,this.camera.getZoom(true));
          }
       }
       
@@ -286,16 +274,16 @@ package net.play5d.game.bvn.state
       {
          if(param4)
          {
-            _gameLayer.graphics.clear();
+            this._gameLayer.graphics.clear();
          }
-         _gameLayer.graphics.beginFill(param2,param3);
-         _gameLayer.graphics.drawRect(param1.x,param1.y,param1.width,param1.height);
-         _gameLayer.graphics.endFill();
+         this._gameLayer.graphics.beginFill(param2,param3);
+         this._gameLayer.graphics.drawRect(param1.x,param1.y,param1.width,param1.height);
+         this._gameLayer.graphics.endFill();
       }
       
       public function clearDrawGameRect() : void
       {
-         _gameLayer.graphics.clear();
+         this._gameLayer.graphics.clear();
       }
       
       public function afterBuild() : void
@@ -305,41 +293,40 @@ package net.play5d.game.bvn.state
       public function destory(param1:Function = null) : void
       {
          this.removeChildren();
-         if(_gameSprites)
+         if(Boolean(this._gameSprites))
          {
-            while(_gameSprites.length > 0)
+            while(this._gameSprites.length > 0)
             {
-               removeGameSprite(_gameSprites.shift());
+               this.removeGameSprite(this._gameSprites.shift());
             }
-            _gameSprites = null;
+            this._gameSprites = null;
          }
-         if(_playerLayer)
+         if(Boolean(this._playerLayer))
          {
-            _playerLayer.removeChildren();
-            _playerLayer = null;
+            this._playerLayer.removeChildren();
+            this._playerLayer = null;
          }
-         if(_gameLayer)
+         if(Boolean(this._gameLayer))
          {
-            _gameLayer.removeChildren();
-            _gameLayer = null;
+            this._gameLayer.removeChildren();
+            this._gameLayer = null;
          }
-         if(camera)
+         if(Boolean(this.camera))
          {
-            camera = null;
+            this.camera = null;
          }
-         if(gameUI)
+         if(Boolean(this.gameUI))
          {
-            gameUI.destory();
-            gameUI = null;
+            this.gameUI.destory();
+            this.gameUI = null;
          }
          EffectCtrl.I.destory();
          GameCtrl.I.destory();
-         if(_map)
+         if(Boolean(this._map))
          {
-            _map.destory();
-            _map = null;
+            this._map.destory();
+            this._map = null;
          }
-         GameLoader.dispose();
       }
    }
 }

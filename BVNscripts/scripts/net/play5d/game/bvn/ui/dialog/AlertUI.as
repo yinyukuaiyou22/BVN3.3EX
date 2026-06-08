@@ -1,16 +1,14 @@
 package net.play5d.game.bvn.ui.dialog
 {
-   import com.greensock.TweenLite;
-   import flash.display.Sprite;
-   import flash.text.TextField;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.ctrl.AssetManager;
+   import com.greensock.*;
+   import flash.display.*;
+   import flash.text.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.events.SetBtnEvent;
-   import net.play5d.game.bvn.ui.GameUI;
-   import net.play5d.game.bvn.ui.SetBtnGroup;
-   import net.play5d.game.bvn.ui.UIUtils;
-   import net.play5d.kyo.display.bitmap.BitmapFontText;
-   import net.play5d.kyo.display.shapes.Box;
+   import net.play5d.game.bvn.ui.*;
+   import net.play5d.kyo.display.bitmap.*;
+   import net.play5d.kyo.display.shapes.*;
    
    public class AlertUI extends Sprite
    {
@@ -26,21 +24,21 @@ package net.play5d.game.bvn.ui.dialog
       public function AlertUI()
       {
          super();
-         build();
+         this.build();
       }
       
       public function destory() : void
       {
-         if(_enTxt)
+         if(Boolean(this._enTxt))
          {
-            _enTxt.dispose();
-            _enTxt = null;
+            this._enTxt.dispose();
+            this._enTxt = null;
          }
-         if(_btnGroup)
+         if(Boolean(this._btnGroup))
          {
-            _btnGroup.removeEventListener("SELECT",selectHandler);
-            _btnGroup.destory();
-            _btnGroup = null;
+            this._btnGroup.removeEventListener("SELECT",this.selectHandler);
+            this._btnGroup.destory();
+            this._btnGroup = null;
          }
       }
       
@@ -54,36 +52,36 @@ package net.play5d.game.bvn.ui.dialog
          var _loc2_:Box = new Box(GameConfig.GAME_SIZE.x,400,0,0.8);
          _loc2_.y = (GameConfig.GAME_SIZE.y - _loc2_.height) / 2;
          addChild(_loc2_);
-         _enTxt = new BitmapFontText(AssetManager.I.getFont("font1"));
-         _enTxt.y = 18;
-         _loc2_.addChild(_enTxt);
+         this._enTxt = new BitmapFontText(AssetManager.I.getFont("font1"));
+         this._enTxt.y = 18;
+         _loc2_.addChild(this._enTxt);
          if(GameUI.SHOW_CN_TEXT)
          {
-            _cnTxt = new TextField();
-            UIUtils.formatText(_cnTxt,{
+            this._cnTxt = new TextField();
+            UIUtils.formatText(this._cnTxt,{
                "align":"center",
                "color":16777215,
                "size":20,
                "leading":10
             });
-            _cnTxt.y = _enTxt.y + _enTxt.height + 80;
-            _cnTxt.width = GameConfig.GAME_SIZE.x;
-            _cnTxt.height = 300;
-            _cnTxt.mouseEnabled = false;
-            _loc2_.addChild(_cnTxt);
+            this._cnTxt.y = this._enTxt.y + this._enTxt.height + 80;
+            this._cnTxt.width = GameConfig.GAME_SIZE.x;
+            this._cnTxt.height = 300;
+            this._cnTxt.mouseEnabled = false;
+            _loc2_.addChild(this._cnTxt);
          }
-         _btnGroup = new SetBtnGroup();
-         _btnGroup.startX = _btnGroup.startY = 0;
-         _btnGroup.direct = 0;
-         _btnGroup.gap = 200;
-         _btnGroup.setBtnData([{
+         this._btnGroup = new SetBtnGroup();
+         this._btnGroup.startX = this._btnGroup.startY = 0;
+         this._btnGroup.direct = 0;
+         this._btnGroup.gap = 200;
+         this._btnGroup.setBtnData([{
             "label":"OK",
             "cn":"知道了"
          }],1);
-         _btnGroup.addEventListener("SELECT",selectHandler);
-         _btnGroup.x = (GameConfig.GAME_SIZE.x - _btnGroup.width) / 2 + 30;
-         _btnGroup.y = _loc2_.height - 80;
-         _loc2_.addChild(_btnGroup);
+         this._btnGroup.addEventListener("SELECT",this.selectHandler);
+         this._btnGroup.x = (GameConfig.GAME_SIZE.x - this._btnGroup.width) / 2 + 30;
+         this._btnGroup.y = _loc2_.height - 80;
+         _loc2_.addChild(this._btnGroup);
          var _loc3_:Number = _loc2_.y;
          _loc2_.y = GameConfig.GAME_SIZE.y;
          TweenLite.to(_loc2_,0.2,{"y":_loc3_});
@@ -91,21 +89,21 @@ package net.play5d.game.bvn.ui.dialog
       
       private function selectHandler(param1:SetBtnEvent) : void
       {
-         var _loc2_:String = param1.selectedLabel;
+         var _loc2_:* = param1.selectedLabel;
          if("OK" === _loc2_)
          {
-            if(closeBack != null)
+            if(this.closeBack != null)
             {
-               closeBack();
+               this.closeBack();
             }
          }
       }
       
       public function setMsg(param1:String = null, param2:String = null) : void
       {
-         _enTxt.text = param1 ? param1 : "";
-         _enTxt.x = (GameConfig.GAME_SIZE.x - _enTxt.width) / 2;
-         _cnTxt.text = param2 ? param2 : "";
+         this._enTxt.text = param1 ? param1 : "";
+         this._enTxt.x = (GameConfig.GAME_SIZE.x - this._enTxt.width) / 2;
+         this._cnTxt.text = param2 ? param2 : "";
       }
    }
 }

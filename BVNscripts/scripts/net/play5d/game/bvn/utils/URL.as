@@ -1,6 +1,6 @@
 package net.play5d.game.bvn.utils
 {
-   import net.play5d.kyo.utils.WebUtils;
+   import net.play5d.kyo.utils.*;
    
    public class URL
    {

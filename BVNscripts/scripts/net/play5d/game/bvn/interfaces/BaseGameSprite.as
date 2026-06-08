@@ -4,16 +4,13 @@ package net.play5d.game.bvn.interfaces
    import flash.display.DisplayObjectContainer;
    import flash.display.MovieClip;
    import flash.events.EventDispatcher;
-   import flash.geom.Point;
-   import flash.geom.Rectangle;
+   import flash.geom.*;
    import flash.media.SoundTransform;
-   import net.play5d.game.bvn.Debugger;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.ctrl.GameRender;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.data.TeamVO;
    import net.play5d.game.bvn.fighter.models.HitVO;
-   import net.play5d.kyo.utils.KyoUtils;
-   import net.play5d.kyo.utils.UUID;
+   import net.play5d.kyo.utils.*;
    
    public class BaseGameSprite extends EventDispatcher implements IGameSprite
    {
@@ -89,361 +86,361 @@ package net.play5d.game.bvn.interfaces
       public function BaseGameSprite(param1:MovieClip)
       {
          super();
-         _mainMc = param1;
-         if(_mainMc)
+         this._mainMc = param1;
+         if(Boolean(this._mainMc))
          {
-            _area = _mainMc.getBounds(_mainMc);
+            this._area = this._mainMc.getBounds(this._mainMc);
          }
       }
       
       public function get attackRate() : Number
       {
-         return _attackRate;
+         return this._attackRate;
       }
       
       public function set attackRate(param1:Number) : void
       {
-         _attackRate = param1;
+         this._attackRate = param1;
       }
       
       public function get defenseRate() : Number
       {
-         return _defenseRate;
+         return this._defenseRate;
       }
       
       public function set defenseRate(param1:Number) : void
       {
-         _defenseRate = param1;
+         this._defenseRate = param1;
       }
       
       public function get mc() : MovieClip
       {
-         return _mainMc;
+         return this._mainMc;
       }
       
       public function get x() : Number
       {
-         return _x;
+         return this._x;
       }
       
       public function set x(param1:Number) : void
       {
-         _x = param1;
+         this._x = param1;
       }
       
       public function get y() : Number
       {
-         return _y;
+         return this._y;
       }
       
       public function set y(param1:Number) : void
       {
-         _y = param1;
+         this._y = param1;
       }
       
       public function get scale() : Number
       {
-         return _scale;
+         return this._scale;
       }
       
       public function set scale(param1:Number) : void
       {
-         _scale = param1;
-         _mainMc.scaleX = _mainMc.scaleY = param1;
+         this._scale = param1;
+         this._mainMc.scaleX = this._mainMc.scaleY = param1;
       }
       
       public function get direct() : int
       {
-         return _direct;
+         return this._direct;
       }
       
       public function set direct(param1:int) : void
       {
-         _direct = param1;
-         _mainMc.scaleX = _direct * _scale;
+         this._direct = param1;
+         this._mainMc.scaleX = this._direct * this._scale;
       }
       
       public function get team() : TeamVO
       {
-         return _team;
+         return this._team;
       }
       
       public function set team(param1:TeamVO) : void
       {
-         _team = param1;
+         this._team = param1;
       }
       
       public function updatePosition() : void
       {
-         _mainMc.x = _x;
-         _mainMc.y = _y;
+         this._mainMc.x = this._x;
+         this._mainMc.y = this._y;
       }
       
       public function setVolume(param1:Number) : void
       {
          var _loc2_:SoundTransform = null;
-         if(_mainMc)
+         if(Boolean(this._mainMc))
          {
-            _loc2_ = _mainMc.soundTransform;
-            if(_loc2_)
+            _loc2_ = this._mainMc.soundTransform;
+            if(Boolean(_loc2_))
             {
                _loc2_.volume = param1;
-               _mainMc.soundTransform = _loc2_;
+               this._mainMc.soundTransform = _loc2_;
             }
          }
       }
       
       public function isDestoryed() : Boolean
       {
-         return _destoryed;
+         return this._destoryed;
       }
       
       public function destory(param1:Boolean = true) : void
       {
-         _destoryed = true;
-         isAlive = false;
-         isAllowBeHit = false;
-         stopRenderSelf();
+         this._destoryed = true;
+         this.isAlive = false;
+         this.isAllowBeHit = false;
+         this.stopRenderSelf();
          if(param1)
          {
-            if(_mainMc)
+            if(Boolean(this._mainMc))
             {
                try
                {
-                  _mainMc.stopAllMovieClips();
+                  this._mainMc.stopAllMovieClips();
                }
                catch(e:Error)
                {
                   trace(e);
                }
-               _mainMc = null;
+               this._mainMc = null;
             }
          }
       }
       
       public function renderAnimate() : void
       {
-         if(_destoryed)
+         if(this._destoryed)
          {
             return;
          }
-         renderAnimateFrameOut();
+         this.renderAnimateFrameOut();
       }
       
       public function render() : void
       {
-         if(_destoryed)
+         if(this._destoryed)
          {
             return;
          }
-         renderVelocity();
-         renderFrameOut();
-         _mainMc.x = _x;
-         _mainMc.y = _y;
+         this.renderVelocity();
+         this.renderFrameOut();
+         this._mainMc.x = this._x;
+         this._mainMc.y = this._y;
       }
       
       public function getDisplay() : DisplayObject
       {
-         return _mainMc;
+         return this._mainMc;
       }
       
       public function move(param1:Number = 0, param2:Number = 0) : void
       {
          if(param1 != 0)
          {
-            _x += param1 * _speedPlus;
+            this._x += param1 * this._speedPlus;
          }
          if(param2 != 0)
          {
-            _y += param2 * _speedPlus;
+            this._y += param2 * this._speedPlus;
          }
       }
       
       public function setSpeedRate(param1:Number) : void
       {
-         _speedPlus = param1;
-         _dampingRate = param1 / GameConfig.SPEED_PLUS_DEFAULT;
+         this._speedPlus = param1;
+         this._dampingRate = param1 / GameConfig.SPEED_PLUS_DEFAULT;
       }
       
       public function getVelocity() : Point
       {
-         return _velocity;
+         return this._velocity;
       }
       
       public function getVecX() : Number
       {
-         return _velocity.x;
+         return this._velocity.x;
       }
       
       public function getVecY() : Number
       {
-         return _velocity.y;
+         return this._velocity.y;
       }
       
       public function setVecX(param1:Number) : void
       {
-         _velocity.x = param1;
+         this._velocity.x = param1;
       }
       
       public function setVecY(param1:Number) : void
       {
-         _velocity.y = param1;
+         this._velocity.y = param1;
       }
       
       public function setVelocity(param1:Number = 0, param2:Number = 0) : void
       {
-         _velocity.x = param1;
-         _velocity.y = param2;
-         setDamping(0,0);
+         this._velocity.x = param1;
+         this._velocity.y = param2;
+         this.setDamping(0,0);
       }
       
       public function addVelocity(param1:Number = 0, param2:Number = 0) : void
       {
-         _velocity.x += param1;
-         _velocity.y += param2;
+         this._velocity.x += param1;
+         this._velocity.y += param2;
       }
       
       public function setVec2(param1:Number = 0, param2:Number = 0, param3:Number = 0, param4:Number = 0) : void
       {
-         _velocity2.x = param1;
-         _velocity2.y = param2;
-         _damping2.x = param3 * GameConfig.SPEED_PLUS_DEFAULT * 6;
-         _damping2.y = param4 * GameConfig.SPEED_PLUS_DEFAULT * 6;
+         this._velocity2.x = param1;
+         this._velocity2.y = param2;
+         this._damping2.x = param3 * GameConfig.SPEED_PLUS_DEFAULT * 6;
+         this._damping2.y = param4 * GameConfig.SPEED_PLUS_DEFAULT * 6;
       }
       
       public function getVec2() : Point
       {
-         return _velocity2;
+         return this._velocity2;
       }
       
       public function getDampingX() : Number
       {
-         return _damping.x;
+         return this._damping.x;
       }
       
       public function getDampingY() : Number
       {
-         return _damping.y;
+         return this._damping.y;
       }
       
       public function setDampingX(param1:Number) : void
       {
-         _damping.x = param1;
+         this._damping.x = param1;
       }
       
       public function setDampingY(param1:Number) : void
       {
-         _damping.y = param1;
+         this._damping.y = param1;
       }
       
       public function setDamping(param1:Number = 0, param2:Number = 0) : void
       {
-         _damping.x = param1 * GameConfig.SPEED_PLUS_DEFAULT * 2;
-         _damping.y = param2 * GameConfig.SPEED_PLUS_DEFAULT * 2;
+         this._damping.x = param1 * GameConfig.SPEED_PLUS_DEFAULT * 2;
+         this._damping.y = param2 * GameConfig.SPEED_PLUS_DEFAULT * 2;
       }
       
       public function addDamping(param1:Number = 0, param2:Number = 0) : void
       {
-         _damping.x += param1;
-         _damping.y += param2;
+         this._damping.x += param1;
+         this._damping.y += param2;
       }
       
       private function renderVelocity() : void
       {
          var _loc1_:Number = 0;
          var _loc2_:Number = 0;
-         if(_velocity.x != 0)
+         if(this._velocity.x != 0)
          {
-            _loc1_ += _velocity.x;
-            if(_damping.x > 0)
+            _loc1_ += this._velocity.x;
+            if(this._damping.x > 0)
             {
-               _velocity.x = KyoUtils.num_wake(_velocity.x,_damping.x * _dampingRate);
+               this._velocity.x = KyoUtils.num_wake(this._velocity.x,this._damping.x * this._dampingRate);
             }
          }
-         if(_velocity.y != 0)
+         if(this._velocity.y != 0)
          {
-            _loc2_ += _velocity.y;
-            if(_damping.y > 0)
+            _loc2_ += this._velocity.y;
+            if(this._damping.y > 0)
             {
-               _velocity.y = KyoUtils.num_wake(_velocity.y,_damping.y * _dampingRate);
+               this._velocity.y = KyoUtils.num_wake(this._velocity.y,this._damping.y * this._dampingRate);
             }
          }
-         if(_velocity2.x != 0)
+         if(this._velocity2.x != 0)
          {
-            _loc1_ += _velocity2.x;
-            if(_damping2.x > 0)
+            _loc1_ += this._velocity2.x;
+            if(this._damping2.x > 0)
             {
-               _velocity2.x = KyoUtils.num_wake(_velocity2.x,_damping2.x * _dampingRate);
+               this._velocity2.x = KyoUtils.num_wake(this._velocity2.x,this._damping2.x * this._dampingRate);
             }
          }
-         if(_velocity2.y != 0)
+         if(this._velocity2.y != 0)
          {
-            _loc2_ += _velocity2.y;
-            if(_damping2.y > 0)
+            _loc2_ += this._velocity2.y;
+            if(this._damping2.y > 0)
             {
-               _velocity2.y = KyoUtils.num_wake(_velocity2.y,_damping2.y * _dampingRate);
+               this._velocity2.y = KyoUtils.num_wake(this._velocity2.y,this._damping2.y * this._dampingRate);
             }
          }
          if(_loc1_ != 0 || _loc2_ != 0)
          {
-            move(_loc1_,_loc2_);
+            this.move(_loc1_,_loc2_);
          }
       }
       
       public function applayG(param1:Number) : void
       {
-         var _loc2_:Number = Number(NaN);
-         if(!isApplyG)
+         var _loc2_:Number = NaN;
+         if(!this.isApplyG)
          {
-            _g = 0;
+            this._g = 0;
             return;
          }
-         if(_velocity.y < 0)
+         if(this._velocity.y < 0)
          {
-            _g = 0;
+            this._g = 0;
             return;
          }
-         if(_g < param1)
+         if(this._g < param1)
          {
             _loc2_ = 1.2 * GameConfig.SPEED_PLUS;
-            _g += _loc2_;
-            if(_g > param1)
+            this._g += _loc2_;
+            if(this._g > param1)
             {
-               _g = param1;
+               this._g = param1;
             }
          }
-         move(0,_g);
+         this.move(0,this._g);
       }
       
       public function setInAir(param1:Boolean) : void
       {
          if(!param1)
          {
-            _g = 4;
+            this._g = 4;
          }
-         isInAir = param1;
+         this.isInAir = param1;
       }
       
       public function hit(param1:HitVO, param2:IGameSprite) : void
       {
          var _loc3_:DisplayObject = null;
-         var _loc6_:DisplayObject = null;
-         var _loc7_:DisplayObjectContainer = null;
-         var _loc4_:int = 0;
-         var _loc5_:int = 0;
-         if(param2 && param2.getDisplay())
+         var _loc4_:DisplayObject = null;
+         var _loc5_:DisplayObjectContainer = null;
+         var _loc6_:int = 0;
+         var _loc7_:int = 0;
+         if(Boolean(param2) && Boolean(param2.getDisplay()))
          {
-            _loc3_ = getDisplay();
-            _loc6_ = param2.getDisplay();
-            if(_loc3_ && _loc6_ && _loc3_.parent && _loc3_.parent == _loc6_.parent)
+            _loc3_ = this.getDisplay();
+            _loc4_ = param2.getDisplay();
+            if(Boolean(_loc3_ && _loc4_) && Boolean(_loc3_.parent) && _loc3_.parent == _loc4_.parent)
             {
-               _loc7_ = _loc3_.parent;
-               _loc4_ = _loc7_.getChildIndex(_loc3_);
-               _loc5_ = _loc7_.getChildIndex(_loc6_);
-               if(_loc4_ != -1 && _loc5_ != -1 && _loc4_ < _loc5_)
+               _loc5_ = _loc3_.parent;
+               _loc6_ = _loc5_.getChildIndex(_loc3_);
+               _loc7_ = _loc5_.getChildIndex(_loc4_);
+               if(_loc6_ != -1 && _loc7_ != -1 && _loc6_ < _loc7_)
                {
-                  _loc7_.setChildIndex(_loc6_,_loc4_);
-                  _loc7_.setChildIndex(_loc3_,_loc5_);
+                  _loc5_.setChildIndex(_loc4_,_loc6_);
+                  _loc5_.setChildIndex(_loc3_,_loc7_);
                }
             }
          }
@@ -460,13 +457,13 @@ package net.play5d.game.bvn.interfaces
       
       public function getArea() : Rectangle
       {
-         if(!_area)
+         if(!this._area)
          {
             return null;
          }
-         var _loc1_:Rectangle = _area.clone();
-         _loc1_.x += _x;
-         _loc1_.y += _y;
+         var _loc1_:Rectangle = this._area.clone();
+         _loc1_.x += this._x;
+         _loc1_.y += this._y;
          return _loc1_;
       }
       
@@ -477,63 +474,63 @@ package net.play5d.game.bvn.interfaces
       
       public function allowCrossMapXY() : Boolean
       {
-         return isAllowCrossX;
+         return this.isAllowCrossX;
       }
       
       public function allowCrossMapBottom() : Boolean
       {
-         return isAllowCrossBottom;
+         return this.isAllowCrossBottom;
       }
       
       public function getIsTouchSide() : Boolean
       {
-         return _isTouchSide;
+         return this._isTouchSide;
       }
       
       public function setIsTouchSide(param1:Boolean) : void
       {
-         _isTouchSide = param1;
+         this._isTouchSide = param1;
       }
       
       public function addHp(param1:Number) : void
       {
-         hp += param1;
-         if(hp > hpMax)
+         this.hp += param1;
+         if(this.hp > this.hpMax)
          {
-            hp = hpMax;
+            this.hp = this.hpMax;
          }
       }
       
       public function loseHp(param1:Number) : void
       {
-         if(!isAllowLoseHP)
+         if(!this.isAllowLoseHP)
          {
             return;
          }
-         var _loc3_:Number = 2 - defenseRate;
-         if(_loc3_ < 0.1)
+         var _loc2_:Number = 2 - this.defenseRate;
+         if(_loc2_ < 0.1)
          {
-            _loc3_ = 0.1;
+            _loc2_ = 0.1;
          }
-         if(_loc3_ > 1)
+         if(_loc2_ > 1)
          {
-            _loc3_ = 1;
+            _loc2_ = 1;
          }
-         var _loc2_:Number = param1 * _loc3_ - defense;
-         if(_loc2_ < 0)
+         var _loc3_:Number = param1 * _loc2_ - this.defense;
+         if(_loc3_ < 0)
          {
             return;
          }
-         hp -= _loc2_;
-         if(hp < 0)
+         this.hp -= _loc3_;
+         if(this.hp < 0)
          {
-            hp = 0;
+            this.hp = 0;
          }
       }
       
       public function delayCall(param1:Function, param2:int) : void
       {
-         _frameFuncs.push({
+         this._frameFuncs.push({
             "func":param1,
             "frame":param2
          });
@@ -541,19 +538,19 @@ package net.play5d.game.bvn.interfaces
       
       public function renderSelf() : void
       {
-         GameRender.add(renderSelfEnterFrame,this);
+         GameRender.add(this.renderSelfEnterFrame,this);
       }
       
       private function renderSelfEnterFrame() : void
       {
-         if(_destoryed)
+         if(this._destoryed)
          {
             return;
          }
          try
          {
-            render();
-            renderAnimate();
+            this.render();
+            this.renderAnimate();
          }
          catch(e:Error)
          {
@@ -563,12 +560,12 @@ package net.play5d.game.bvn.interfaces
       
       public function stopRenderSelf() : void
       {
-         GameRender.remove(renderSelfEnterFrame,this);
+         GameRender.remove(this.renderSelfEnterFrame,this);
       }
       
       public function setAnimateFrameOut(param1:Function, param2:int) : void
       {
-         _frameAnimateFuncs.push({
+         this._frameAnimateFuncs.push({
             "func":param1,
             "frame":param2
          });
@@ -576,47 +573,43 @@ package net.play5d.game.bvn.interfaces
       
       private function renderAnimateFrameOut() : void
       {
-         var _loc2_:int = 0;
-         var _loc1_:Object = null;
-         if(_frameAnimateFuncs.length < 1)
+         var _loc1_:int = 0;
+         var _loc2_:Object = null;
+         if(this._frameAnimateFuncs.length < 1)
          {
             return;
          }
-         while(_loc2_ < _frameAnimateFuncs.length)
+         while(_loc1_ < this._frameAnimateFuncs.length)
          {
-            _loc1_ = _frameAnimateFuncs[_loc2_];
-            var _loc3_:Object = _loc1_;
-            var _loc4_:Number = Number(_loc3_.frame) - 1;
-            _loc3_.frame = _loc4_;
-            if(_loc1_.frame < 1)
+            _loc2_ = this._frameAnimateFuncs[_loc1_];
+            --_loc2_.frame;
+            if(_loc2_.frame < 1)
             {
-               _loc1_.func();
-               _frameAnimateFuncs.splice(_loc2_,1);
+               _loc2_.func();
+               this._frameAnimateFuncs.splice(_loc1_,1);
             }
-            _loc2_++;
+            _loc1_++;
          }
       }
       
       private function renderFrameOut() : void
       {
-         var _loc2_:int = 0;
-         var _loc1_:Object = null;
-         if(_frameFuncs.length < 1)
+         var _loc1_:int = 0;
+         var _loc2_:Object = null;
+         if(this._frameFuncs.length < 1)
          {
             return;
          }
-         while(_loc2_ < _frameFuncs.length)
+         while(_loc1_ < this._frameFuncs.length)
          {
-            _loc1_ = _frameFuncs[_loc2_];
-            var _loc3_:Object = _loc1_;
-            var _loc4_:Number = Number(_loc3_.frame) - 1;
-            _loc3_.frame = _loc4_;
-            if(_loc1_.frame < 1)
+            _loc2_ = this._frameFuncs[_loc1_];
+            --_loc2_.frame;
+            if(_loc2_.frame < 1)
             {
-               _loc1_.func();
-               _frameFuncs.splice(_loc2_,1);
+               _loc2_.func();
+               this._frameFuncs.splice(_loc1_,1);
             }
-            _loc2_++;
+            _loc1_++;
          }
       }
    }

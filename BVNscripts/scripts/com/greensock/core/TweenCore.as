@@ -53,18 +53,18 @@ package com.greensock.core
       
       public var data:*;
       
-      public function TweenCore(param1:Number = 0, param2:Object = null)
+      public function TweenCore(duration:Number = 0, vars:Object = null)
       {
          super();
-         this.vars = param2 != null ? param2 : {};
-         if(this.vars.isGSVars)
+         this.vars = vars != null ? vars : {};
+         if(Boolean(this.vars.isGSVars))
          {
             this.vars = this.vars.vars;
          }
-         this.cachedDuration = this.cachedTotalDuration = param1;
-         this._delay = this.vars.delay ? Number(this.vars.delay) : 0;
-         this.cachedTimeScale = this.vars.timeScale ? Number(this.vars.timeScale) : 1;
-         this.active = param1 == 0 && this._delay == 0 && this.vars.immediateRender != false;
+         this.cachedDuration = this.cachedTotalDuration = duration;
+         this._delay = Boolean(this.vars.delay) ? Number(this.vars.delay) : 0;
+         this.cachedTimeScale = Boolean(this.vars.timeScale) ? Number(this.vars.timeScale) : 1;
+         this.active = Boolean(duration == 0 && this._delay == 0 && this.vars.immediateRender != false);
          this.cachedTotalTime = this.cachedTime = 0;
          this.data = this.vars.data;
          if(!_classInitted)
@@ -76,13 +76,13 @@ package com.greensock.core
             TweenLite.initClass();
             _classInitted = true;
          }
-         var _loc3_:SimpleTimeline = this.vars.timeline is SimpleTimeline ? this.vars.timeline : (this.vars.useFrames ? TweenLite.rootFramesTimeline : TweenLite.rootTimeline);
-         _loc3_.insert(this,_loc3_.cachedTotalTime);
-         if(this.vars.reversed)
+         var tl:SimpleTimeline = this.vars.timeline is SimpleTimeline ? this.vars.timeline : (Boolean(this.vars.useFrames) ? TweenLite.rootFramesTimeline : TweenLite.rootTimeline);
+         tl.insert(this,tl.cachedTotalTime);
+         if(Boolean(this.vars.reversed))
          {
             this.cachedReversed = true;
          }
-         if(this.vars.paused)
+         if(Boolean(this.vars.paused))
          {
             this.paused = true;
          }
@@ -104,17 +104,17 @@ package com.greensock.core
          this.paused = false;
       }
       
-      public function restart(param1:Boolean = false, param2:Boolean = true) : void
+      public function restart(includeDelay:Boolean = false, suppressEvents:Boolean = true) : void
       {
          this.reversed = false;
          this.paused = false;
-         this.setTotalTime(param1 ? -this._delay : 0,param2);
+         this.setTotalTime(includeDelay ? -this._delay : 0,suppressEvents);
       }
       
-      public function reverse(param1:Boolean = true) : void
+      public function reverse(forceResume:Boolean = true) : void
       {
          this.reversed = true;
-         if(param1)
+         if(forceResume)
          {
             this.paused = false;
          }
@@ -124,15 +124,15 @@ package com.greensock.core
          }
       }
       
-      public function renderTime(param1:Number, param2:Boolean = false, param3:Boolean = false) : void
+      public function renderTime(time:Number, suppressEvents:Boolean = false, force:Boolean = false) : void
       {
       }
       
-      public function complete(param1:Boolean = false, param2:Boolean = false) : void
+      public function complete(skipRender:Boolean = false, suppressEvents:Boolean = false) : void
       {
-         if(!param1)
+         if(!skipRender)
          {
-            this.renderTime(this.totalDuration,param2,false);
+            this.renderTime(this.totalDuration,suppressEvents,false);
             return;
          }
          if(this.timeline.autoRemoveChildren)
@@ -143,9 +143,9 @@ package com.greensock.core
          {
             this.active = false;
          }
-         if(!param2)
+         if(!suppressEvents)
          {
-            if(Boolean(this.vars.onComplete) && this.cachedTotalTime >= this.cachedTotalDuration && !this.cachedReversed)
+            if(Boolean(this.vars.onComplete) && Boolean(this.cachedTotalTime >= this.cachedTotalDuration) && !this.cachedReversed)
             {
                this.vars.onComplete.apply(null,this.vars.onCompleteParams);
             }
@@ -160,13 +160,13 @@ package com.greensock.core
       {
       }
       
-      public function setEnabled(param1:Boolean, param2:Boolean = false) : Boolean
+      public function setEnabled(enabled:Boolean, ignoreTimeline:Boolean = false) : Boolean
       {
-         this.gc = !param1;
-         if(param1)
+         this.gc = !enabled;
+         if(enabled)
          {
-            this.active = !this.cachedPaused && this.cachedTotalTime > 0 && this.cachedTotalTime < this.cachedTotalDuration;
-            if(!param2 && this.cachedOrphan)
+            this.active = Boolean(!this.cachedPaused && this.cachedTotalTime > 0 && this.cachedTotalTime < this.cachedTotalDuration);
+            if(!ignoreTimeline && this.cachedOrphan)
             {
                this.timeline.insert(this,this.cachedStartTime - this._delay);
             }
@@ -174,7 +174,7 @@ package com.greensock.core
          else
          {
             this.active = false;
-            if(!param2 && !this.cachedOrphan)
+            if(!ignoreTimeline && !this.cachedOrphan)
             {
                this.timeline.remove(this,true);
             }
@@ -187,39 +187,39 @@ package com.greensock.core
          this.setEnabled(false,false);
       }
       
-      protected function setDirtyCache(param1:Boolean = true) : void
+      protected function setDirtyCache(includeSelf:Boolean = true) : void
       {
-         var _loc2_:TweenCore = param1 ? this : this.timeline;
-         while(_loc2_)
+         var tween:TweenCore = includeSelf ? this : this.timeline;
+         while(Boolean(tween))
          {
-            _loc2_.cacheIsDirty = true;
-            _loc2_ = _loc2_.timeline;
+            tween.cacheIsDirty = true;
+            tween = tween.timeline;
          }
       }
       
-      protected function setTotalTime(param1:Number, param2:Boolean = false) : void
+      protected function setTotalTime(time:Number, suppressEvents:Boolean = false) : void
       {
-         var _loc3_:Number = Number(NaN);
-         var _loc4_:Number = Number(NaN);
-         if(this.timeline)
+         var tlTime:Number = NaN;
+         var dur:Number = NaN;
+         if(Boolean(this.timeline))
          {
-            _loc3_ = this.cachedPaused ? this.cachedPauseTime : this.timeline.cachedTotalTime;
+            tlTime = this.cachedPaused ? this.cachedPauseTime : this.timeline.cachedTotalTime;
             if(this.cachedReversed)
             {
-               _loc4_ = this.cacheIsDirty ? this.totalDuration : this.cachedTotalDuration;
-               this.cachedStartTime = _loc3_ - (_loc4_ - param1) / this.cachedTimeScale;
+               dur = this.cacheIsDirty ? this.totalDuration : this.cachedTotalDuration;
+               this.cachedStartTime = tlTime - (dur - time) / this.cachedTimeScale;
             }
             else
             {
-               this.cachedStartTime = _loc3_ - param1 / this.cachedTimeScale;
+               this.cachedStartTime = tlTime - time / this.cachedTimeScale;
             }
             if(!this.timeline.cacheIsDirty)
             {
                this.setDirtyCache(false);
             }
-            if(this.cachedTotalTime != param1)
+            if(this.cachedTotalTime != time)
             {
-               this.renderTime(param1,param2,false);
+               this.renderTime(time,suppressEvents,false);
             }
          }
       }
@@ -229,10 +229,10 @@ package com.greensock.core
          return this._delay;
       }
       
-      public function set delay(param1:Number) : void
+      public function set delay(n:Number) : void
       {
-         this.startTime += param1 - this._delay;
-         this._delay = param1;
+         this.startTime += n - this._delay;
+         this._delay = n;
       }
       
       public function get duration() : Number
@@ -240,14 +240,14 @@ package com.greensock.core
          return this.cachedDuration;
       }
       
-      public function set duration(param1:Number) : void
+      public function set duration(n:Number) : void
       {
-         var _loc2_:Number = param1 / this.cachedDuration;
-         this.cachedDuration = this.cachedTotalDuration = param1;
+         var ratio:Number = n / this.cachedDuration;
+         this.cachedDuration = this.cachedTotalDuration = n;
          this.setDirtyCache(true);
-         if(this.active && !this.cachedPaused && param1 != 0)
+         if(this.active && !this.cachedPaused && n != 0)
          {
-            this.setTotalTime(this.cachedTotalTime * _loc2_,true);
+            this.setTotalTime(this.cachedTotalTime * ratio,true);
          }
       }
       
@@ -256,9 +256,9 @@ package com.greensock.core
          return this.cachedTotalDuration;
       }
       
-      public function set totalDuration(param1:Number) : void
+      public function set totalDuration(n:Number) : void
       {
-         this.duration = param1;
+         this.duration = n;
       }
       
       public function get currentTime() : Number
@@ -266,9 +266,9 @@ package com.greensock.core
          return this.cachedTime;
       }
       
-      public function set currentTime(param1:Number) : void
+      public function set currentTime(n:Number) : void
       {
-         this.setTotalTime(param1,false);
+         this.setTotalTime(n,false);
       }
       
       public function get totalTime() : Number
@@ -276,9 +276,9 @@ package com.greensock.core
          return this.cachedTotalTime;
       }
       
-      public function set totalTime(param1:Number) : void
+      public function set totalTime(n:Number) : void
       {
-         this.setTotalTime(param1,false);
+         this.setTotalTime(n,false);
       }
       
       public function get startTime() : Number
@@ -286,15 +286,15 @@ package com.greensock.core
          return this.cachedStartTime;
       }
       
-      public function set startTime(param1:Number) : void
+      public function set startTime(n:Number) : void
       {
-         if(this.timeline != null && (param1 != this.cachedStartTime || this.gc))
+         if(this.timeline != null && (n != this.cachedStartTime || this.gc))
          {
-            this.timeline.insert(this,param1 - this._delay);
+            this.timeline.insert(this,n - this._delay);
          }
          else
          {
-            this.cachedStartTime = param1;
+            this.cachedStartTime = n;
          }
       }
       
@@ -303,11 +303,11 @@ package com.greensock.core
          return this.cachedReversed;
       }
       
-      public function set reversed(param1:Boolean) : void
+      public function set reversed(b:Boolean) : void
       {
-         if(param1 != this.cachedReversed)
+         if(b != this.cachedReversed)
          {
-            this.cachedReversed = param1;
+            this.cachedReversed = b;
             this.setTotalTime(this.cachedTotalTime,true);
          }
       }
@@ -317,11 +317,11 @@ package com.greensock.core
          return this.cachedPaused;
       }
       
-      public function set paused(param1:Boolean) : void
+      public function set paused(b:Boolean) : void
       {
-         if(param1 != this.cachedPaused && Boolean(this.timeline))
+         if(b != this.cachedPaused && Boolean(this.timeline))
          {
-            if(param1)
+            if(b)
             {
                this.cachedPauseTime = this.timeline.rawTime;
             }
@@ -331,10 +331,10 @@ package com.greensock.core
                this.cachedPauseTime = NaN;
                this.setDirtyCache(false);
             }
-            this.cachedPaused = param1;
-            this.active = !this.cachedPaused && this.cachedTotalTime > 0 && this.cachedTotalTime < this.cachedTotalDuration;
+            this.cachedPaused = b;
+            this.active = Boolean(!this.cachedPaused && this.cachedTotalTime > 0 && this.cachedTotalTime < this.cachedTotalDuration);
          }
-         if(!param1 && this.gc)
+         if(!b && this.gc)
          {
             this.setEnabled(true,false);
          }

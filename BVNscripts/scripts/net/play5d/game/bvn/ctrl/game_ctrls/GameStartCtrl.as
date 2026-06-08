@@ -1,8 +1,7 @@
 package net.play5d.game.bvn.ctrl.game_ctrls
 {
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
-   import net.play5d.game.bvn.ctrl.StateCtrl;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.fighter.FighterMain;
    import net.play5d.game.bvn.state.GameState;
    
@@ -30,35 +29,35 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       public function GameStartCtrl(param1:GameState)
       {
          super();
-         _state = param1;
+         this._state = param1;
       }
       
       public function destory() : void
       {
-         _p1 = null;
-         _p2 = null;
-         _state = null;
+         this._p1 = null;
+         this._p2 = null;
+         this._state = null;
       }
       
       public function render() : Boolean
       {
-         if(_isStart1v1)
+         if(this._isStart1v1)
          {
-            return renderStart1v1();
+            return this.renderStart1v1();
          }
-         if(_isStartNextRound)
+         if(this._isStartNextRound)
          {
-            return renderNextRound();
+            return this.renderNextRound();
          }
          return false;
       }
       
       public function start1v1(param1:FighterMain, param2:FighterMain, param3:int = -1) : void
       {
-         _p1 = param1;
-         _p2 = param2;
-         _isStart1v1 = true;
-         _introTeamId = param3;
+         this._p1 = param1;
+         this._p2 = param2;
+         this._isStart1v1 = true;
+         this._introTeamId = param3;
          switch(param3 - 1)
          {
             case 0:
@@ -70,27 +69,28 @@ package net.play5d.game.bvn.ctrl.game_ctrls
             default:
                SoundCtrl.I.playFightBGM(param2.data.id);
          }
-         preRenderStart();
+         this.preRenderStart();
       }
       
       private function preRenderStart() : void
       {
-         _step = -1;
          var initStep:int = 0;
-         switch(_introTeamId - -1)
+         this._step = -1;
+         initStep = 0;
+         switch(this._introTeamId - -1)
          {
             case 0:
                initStep = 0;
                break;
             case 2:
-               _state.cameraFocusOne(_p1.getDisplay());
+               this._state.cameraFocusOne(this._p1.getDisplay());
                initStep = 1;
                break;
             case 3:
-               _state.cameraFocusOne(_p2.getDisplay());
+               this._state.cameraFocusOne(this._p2.getDisplay());
                initStep = 2;
          }
-         _state.camera.updateNow();
+         this._state.camera.updateNow();
          StateCtrl.I.transOut(function():void
          {
             _step = initStep;
@@ -99,70 +99,70 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       private function renderStart1v1() : Boolean
       {
-         if(_uiPlaying)
+         if(this._uiPlaying)
          {
             return false;
          }
-         if(_p1.actionState == 60 || _p2.actionState == 60)
+         if(this._p1.actionState == 60 || this._p2.actionState == 60)
          {
             return false;
          }
-         if(_holdFrame-- > 0)
+         if(this._holdFrame-- > 0)
          {
             return false;
          }
-         switch(_step)
+         switch(this._step)
          {
             case 0:
-               if(_introTeamId == -1 || _introTeamId == 1)
+               if(this._introTeamId == -1 || this._introTeamId == 1)
                {
-                  _state.cameraFocusOne(_p1.getDisplay());
-                  _holdFrame = 0.5 * GameConfig.FPS_GAME;
-                  _step = 1;
+                  this._state.cameraFocusOne(this._p1.getDisplay());
+                  this._holdFrame = 0.5 * GameConfig.FPS_GAME;
+                  this._step = 1;
                }
                else
                {
-                  _step = 2;
+                  this._step = 2;
                }
                break;
             case 1:
-               _p1.sayIntro();
-               _holdFrame = 0.3 * GameConfig.FPS_GAME;
-               _step = 2;
+               this._p1.sayIntro();
+               this._holdFrame = 0.3 * GameConfig.FPS_GAME;
+               this._step = 2;
                break;
             case 2:
-               if(_introTeamId == -1 || _introTeamId == 2)
+               if(this._introTeamId == -1 || this._introTeamId == 2)
                {
-                  _state.cameraFocusOne(_p2.getDisplay());
-                  _holdFrame = 0.5 * GameConfig.FPS_GAME;
-                  _step = 3;
+                  this._state.cameraFocusOne(this._p2.getDisplay());
+                  this._holdFrame = 0.5 * GameConfig.FPS_GAME;
+                  this._step = 3;
                }
                else
                {
-                  _step = 4;
+                  this._step = 4;
                }
                break;
             case 3:
-               _p2.sayIntro();
-               _holdFrame = 0.3 * GameConfig.FPS_GAME;
-               _step = 4;
+               this._p2.sayIntro();
+               this._holdFrame = 0.3 * GameConfig.FPS_GAME;
+               this._step = 4;
                break;
             case 4:
-               _state.cameraResume();
-               _holdFrame = 0.1 * GameConfig.FPS_GAME;
-               _step = 5;
+               this._state.cameraResume();
+               this._holdFrame = 0.1 * GameConfig.FPS_GAME;
+               this._step = 5;
                break;
             case 5:
-               _uiPlaying = true;
-               _state.gameUI.getUI().showStart(function():void
+               this._uiPlaying = true;
+               this._state.gameUI.getUI().showStart(function():void
                {
                   _uiPlaying = false;
                });
-               _step = 6;
+               this._step = 6;
                break;
             case 6:
-               _p1 = null;
-               _p2 = null;
+               this._p1 = null;
+               this._p2 = null;
                return true;
          }
          return false;
@@ -170,10 +170,10 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       public function startNextRound() : void
       {
-         _isStartNextRound = true;
-         _uiPlaying = true;
+         this._isStartNextRound = true;
+         this._uiPlaying = true;
          StateCtrl.I.transOut(null,true);
-         _state.gameUI.getUI().showStart(function():void
+         this._state.gameUI.getUI().showStart(function():void
          {
             _uiPlaying = false;
          });
@@ -181,28 +181,28 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       public function skip() : void
       {
-         if(_isStart1v1)
+         if(this._isStart1v1)
          {
-            if(_step < 5)
+            if(this._step < 5)
             {
                StateCtrl.I.quickTrans();
-               _state.cameraResume();
-               _uiPlaying = false;
-               _step = 6;
-               _state.gameUI.getUI().fadIn(true);
-               _p1.idle();
-               _p2.idle();
-               _holdFrame = 0.5 * GameConfig.FPS_GAME;
+               this._state.cameraResume();
+               this._uiPlaying = false;
+               this._step = 6;
+               this._state.gameUI.getUI().fadIn(true);
+               this._p1.idle();
+               this._p2.idle();
+               this._holdFrame = 0.5 * GameConfig.FPS_GAME;
             }
          }
-         if(_isStartNextRound)
+         if(!this._isStartNextRound)
          {
          }
       }
       
       private function renderNextRound() : Boolean
       {
-         return _uiPlaying == false;
+         return this._uiPlaying == false;
       }
    }
 }

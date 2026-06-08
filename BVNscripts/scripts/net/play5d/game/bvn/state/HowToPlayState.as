@@ -4,22 +4,19 @@ package net.play5d.game.bvn.state
    import flash.events.Event;
    import flash.events.MouseEvent;
    import flash.text.TextField;
-   import flash.utils.setTimeout;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.AssetManager;
-   import net.play5d.game.bvn.ctrl.GameRender;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.data.KeyConfigVO;
-   import net.play5d.game.bvn.input.GameInputer;
-   import net.play5d.game.bvn.utils.ResUtils;
-   import net.play5d.kyo.input.KyoKeyCode;
-   import net.play5d.kyo.stage.Istage;
+   import flash.utils.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.input.*;
+   import net.play5d.game.bvn.utils.*;
+   import net.play5d.kyo.input.*;
+   import net.play5d.kyo.stage.*;
    
    public class HowToPlayState implements Istage
    {
       
-      private var _ui:movie_howtoplay;
+      private var _ui:*;
       
       public function HowToPlayState()
       {
@@ -28,27 +25,27 @@ package net.play5d.game.bvn.state
       
       public function get display() : DisplayObject
       {
-         return _ui;
+         return this._ui;
       }
       
       public function build() : void
       {
-         var kc:KeyConfigVO;
-         _ui = ResUtils.I.createDisplayObject(ResUtils.I.howtoplay,"movie_howtoplay");
-         _ui.addEventListener("complete",uiComplete);
-         _ui.gotoAndPlay(2);
+         var kc:KeyConfigVO = null;
+         this._ui = ResUtils.I.createDisplayObject(ResUtils.I.howtoplay,"movie_howtoplay");
+         this._ui.addEventListener("complete",this.uiComplete);
+         this._ui.gotoAndPlay(2);
          SoundCtrl.I.BGM(AssetManager.I.getSound("back"));
          kc = GameData.I.config.key_p1;
-         setKeyText(_ui.txt_up,kc.up);
-         setKeyText(_ui.txt_down,kc.down);
-         setKeyText(_ui.txt_left,kc.left);
-         setKeyText(_ui.txt_right,kc.right);
-         setKeyText(_ui.txt_attack,kc.attack);
-         setKeyText(_ui.txt_jump,kc.jump);
-         setKeyText(_ui.txt_dash,kc.dash);
-         setKeyText(_ui.txt_skill,kc.skill);
-         setKeyText(_ui.txt_bisha,kc.superKill);
-         setKeyText(_ui.txt_special,kc.beckons);
+         this.setKeyText(this._ui.txt_up,kc.up);
+         this.setKeyText(this._ui.txt_down,kc.down);
+         this.setKeyText(this._ui.txt_left,kc.left);
+         this.setKeyText(this._ui.txt_right,kc.right);
+         this.setKeyText(this._ui.txt_attack,kc.attack);
+         this.setKeyText(this._ui.txt_jump,kc.jump);
+         this.setKeyText(this._ui.txt_dash,kc.dash);
+         this.setKeyText(this._ui.txt_skill,kc.skill);
+         this.setKeyText(this._ui.txt_bisha,kc.superKill);
+         this.setKeyText(this._ui.txt_special,kc.beckons);
          setTimeout(function():void
          {
             GameRender.add(render);
@@ -60,29 +57,29 @@ package net.play5d.game.bvn.state
       
       private function render() : void
       {
-         if(GameInputer.back(1) || GameInputer.select("MENU",1))
+         if(Boolean(GameInputer.back(1)) || Boolean(GameInputer.select("MENU",1)))
          {
-            GameRender.remove(render);
-            _ui.gotoAndPlay("skip");
+            GameRender.remove(this.render);
+            this._ui.gotoAndPlay("skip");
          }
       }
       
       private function skipBtnHandler(param1:MouseEvent) : void
       {
-         GameRender.remove(render);
-         _ui.gotoAndPlay("skip");
+         GameRender.remove(this.render);
+         this._ui.gotoAndPlay("skip");
       }
       
       private function uiComplete(param1:Event) : void
       {
-         _ui.removeEventListener("complete",uiComplete);
+         this._ui.removeEventListener("complete",this.uiComplete);
          MainGame.I.goSelect();
       }
       
       private function setKeyText(param1:TextField, param2:int) : void
       {
          var _loc3_:String = KyoKeyCode.code2name(param2);
-         if(_loc3_)
+         if(Boolean(_loc3_))
          {
             param1.text = _loc3_;
          }
@@ -95,9 +92,9 @@ package net.play5d.game.bvn.state
       public function destory(param1:Function = null) : void
       {
          SoundCtrl.I.BGM(null);
-         GameRender.remove(render);
-         _ui.removeEventListener("complete",uiComplete);
-         _ui.gotoAndStop("destory");
+         GameRender.remove(this.render);
+         this._ui.removeEventListener("complete",this.uiComplete);
+         this._ui.gotoAndStop("destory");
       }
    }
 }

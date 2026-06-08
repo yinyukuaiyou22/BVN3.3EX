@@ -6,7 +6,7 @@ package net.play5d.game.bvn.ui.fight
    public class EnergyBar
    {
       
-      private var _ui:energy_bar;
+      private var _ui:*;
       
       private var _fighter:FighterMain;
       
@@ -18,58 +18,58 @@ package net.play5d.game.bvn.ui.fight
       
       private var _renderFlashInt:int;
       
-      public function EnergyBar(param1:energy_bar)
+      public function EnergyBar(param1:*)
       {
          super();
-         _ui = param1;
-         _bar = new InsBar(_ui.barmc.bar);
-         _txt = new InsTxt(_ui.txtmc);
+         this._ui = param1;
+         this._bar = new InsBar(this._ui.barmc.bar);
+         this._txt = new InsTxt(this._ui.txtmc);
       }
       
       public function get ui() : DisplayObject
       {
-         return _ui;
+         return this._ui;
       }
       
       public function destory() : void
       {
-         _fighter = null;
+         this._fighter = null;
       }
       
       public function setFighter(param1:FighterMain) : void
       {
-         _fighter = param1;
-         if(param1.data)
+         this._fighter = param1;
+         if(Boolean(param1.data))
          {
-            _txt.setType(param1.data.comicType);
+            this._txt.setType(param1.data.comicType);
          }
       }
       
       public function setDirect(param1:int) : void
       {
-         _txt.setDirect(param1);
+         this._txt.setDirect(param1);
       }
       
       public function render() : void
       {
-         _bar.rate = _fighter.energy / _fighter.energyMax;
-         if(_fighter.energyOverLoad)
+         this._bar.rate = this._fighter.energy / this._fighter.energyMax;
+         if(this._fighter.energyOverLoad)
          {
-            _bar.overLoad();
-            _txt.overLoad();
+            this._bar.overLoad();
+            this._txt.overLoad();
          }
-         else if(_bar.rate < 0.3)
+         else if(this._bar.rate < 0.3)
          {
-            _bar.flash();
-            _txt.flash();
+            this._bar.flash();
+            this._txt.flash();
          }
          else
          {
-            _bar.normal();
-            _txt.normal();
+            this._bar.normal();
+            this._txt.normal();
          }
-         _bar.render();
-         _txt.render();
+         this._bar.render();
+         this._txt.render();
       }
    }
 }
@@ -96,67 +96,67 @@ class InsBar
    public function InsBar(param1:MovieClip)
    {
       super();
-      _mc = param1;
+      this._mc = param1;
    }
    
    public function render() : void
    {
-      var _loc1_:Number = rate - _mc.scaleX;
+      var _loc1_:Number = this.rate - this._mc.scaleX;
       if(Math.abs(_loc1_) < 0.01)
       {
-         _mc.scaleX = rate;
+         this._mc.scaleX = this.rate;
       }
       else
       {
-         _mc.scaleX += _loc1_ * 0.4;
+         this._mc.scaleX += _loc1_ * 0.4;
       }
-      if(_isFlash)
+      if(this._isFlash)
       {
-         renderFlash();
+         this.renderFlash();
       }
    }
    
    private function renderFlash() : void
    {
-      if(++_renderFlashInt > 2)
+      if(++this._renderFlashInt > 2)
       {
-         _renderFlashInt = 0;
-         _mc.gotoAndStop(_renderFlashFrame);
-         _renderFlashFrame = _renderFlashFrame == 1 ? 2 : 1;
+         this._renderFlashInt = 0;
+         this._mc.gotoAndStop(this._renderFlashFrame);
+         this._renderFlashFrame = this._renderFlashFrame == 1 ? 2 : 1;
       }
    }
    
    public function normal() : void
    {
-      if(!_isOverLoad && !_isFlash)
+      if(!this._isOverLoad && !this._isFlash)
       {
          return;
       }
-      _isOverLoad = false;
-      _isFlash = false;
-      _mc.gotoAndStop(1);
+      this._isOverLoad = false;
+      this._isFlash = false;
+      this._mc.gotoAndStop(1);
    }
    
    public function flash() : void
    {
-      if(_isFlash)
+      if(this._isFlash)
       {
          return;
       }
-      _isFlash = true;
-      _renderFlashInt = 0;
-      _renderFlashFrame = 2;
+      this._isFlash = true;
+      this._renderFlashInt = 0;
+      this._renderFlashFrame = 2;
    }
    
    public function overLoad() : void
    {
-      if(_isOverLoad)
+      if(this._isOverLoad)
       {
          return;
       }
-      _isOverLoad = true;
-      _isFlash = false;
-      _mc.gotoAndStop(2);
+      this._isOverLoad = true;
+      this._isFlash = false;
+      this._mc.gotoAndStop(2);
    }
 }
 
@@ -176,12 +176,12 @@ class InsTxt
    public function InsTxt(param1:MovieClip)
    {
       super();
-      _mc = param1;
+      this._mc = param1;
    }
    
    public function setDirect(param1:int) : void
    {
-      _mc.scaleX = param1 > 0 ? 1 : -1;
+      this._mc.scaleX = param1 > 0 ? 1 : -1;
    }
    
    public function setType(param1:int) : void
@@ -189,71 +189,71 @@ class InsTxt
       switch(param1)
       {
          case 0:
-            _mc.gotoAndStop(1);
+            this._mc.gotoAndStop(1);
             break;
          case 1:
-            _mc.gotoAndStop(2);
+            this._mc.gotoAndStop(2);
       }
    }
    
    public function render() : void
    {
-      if(_isFlash)
+      if(this._isFlash)
       {
-         renderFlash();
+         this.renderFlash();
       }
    }
    
    private function renderFlash() : void
    {
-      if(!_mc.mc)
+      if(!this._mc.mc)
       {
          return;
       }
-      if(++_renderFlashInt > 2)
+      if(++this._renderFlashInt > 2)
       {
-         _renderFlashInt = 0;
-         _mc.mc.gotoAndStop(_renderFlashFrame);
-         _renderFlashFrame = _renderFlashFrame == 1 ? 2 : 1;
+         this._renderFlashInt = 0;
+         this._mc.mc.gotoAndStop(this._renderFlashFrame);
+         this._renderFlashFrame = this._renderFlashFrame == 1 ? 2 : 1;
       }
    }
    
    public function normal() : void
    {
-      if(!_isOverLoad && !_isFlash)
+      if(!this._isOverLoad && !this._isFlash)
       {
          return;
       }
-      _isOverLoad = false;
-      _isFlash = false;
-      if(_mc.mc)
+      this._isOverLoad = false;
+      this._isFlash = false;
+      if(Boolean(this._mc.mc))
       {
-         _mc.mc.gotoAndStop(1);
+         this._mc.mc.gotoAndStop(1);
       }
    }
    
    public function flash() : void
    {
-      if(_isFlash)
+      if(this._isFlash)
       {
          return;
       }
-      _isFlash = true;
-      _renderFlashInt = 0;
-      _renderFlashFrame = 2;
+      this._isFlash = true;
+      this._renderFlashInt = 0;
+      this._renderFlashFrame = 2;
    }
    
    public function overLoad() : void
    {
-      if(_isOverLoad)
+      if(this._isOverLoad)
       {
          return;
       }
-      _isOverLoad = true;
-      _isFlash = false;
-      if(_mc.mc)
+      this._isOverLoad = true;
+      this._isFlash = false;
+      if(Boolean(this._mc.mc))
       {
-         _mc.mc.gotoAndStop(2);
+         this._mc.mc.gotoAndStop(2);
       }
    }
 }

@@ -1,10 +1,9 @@
 package net.play5d.game.bvn.mob.ctrls
 {
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.events.GameEvent;
-   import net.play5d.game.bvn.state.LoadingState;
-   import net.play5d.game.bvn.state.SelectFighterStage;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.events.*;
+   import net.play5d.game.bvn.state.*;
    
    public class SelectFighterClientLogic
    {
@@ -18,19 +17,19 @@ package net.play5d.game.bvn.mob.ctrls
       {
          SelectFighterStage.AUTO_FINISH = false;
          LoadingState.AUTO_START_GAME = false;
-         GameEvent.addEventListener("SELECT_FIGHTER_STEP",onSelectStep);
-         GameEvent.addEventListener("SELECT_FIGHTER_INDEX",onSelectIndex);
+         GameEvent.addEventListener("SELECT_FIGHTER_STEP",this.onSelectStep);
+         GameEvent.addEventListener("SELECT_FIGHTER_INDEX",this.onSelectIndex);
       }
       
       public function dispose() : void
       {
-         GameEvent.removeEventListener("SELECT_FIGHTER_STEP",onSelectStep);
-         GameEvent.removeEventListener("SELECT_FIGHTER_INDEX",onSelectIndex);
+         GameEvent.removeEventListener("SELECT_FIGHTER_STEP",this.onSelectStep);
+         GameEvent.removeEventListener("SELECT_FIGHTER_INDEX",this.onSelectIndex);
       }
       
       public function receiveSelect(param1:Object) : Boolean
       {
-         var _loc4_:int;
+         var _loc4_:int = 0;
          var _loc2_:SelectFighterStage = null;
          var _loc3_:Array = param1 as Array;
          if(!_loc3_ || _loc3_[0] != "SELECT")
@@ -60,13 +59,13 @@ package net.play5d.game.bvn.mob.ctrls
                }
                break;
             case 2:
-               onSelectFighter(_loc3_);
+               this.onSelectFighter(_loc3_);
                break;
             case 3:
-               receiveSelectIndex(_loc3_);
+               this.receiveSelectIndex(_loc3_);
                break;
             case 4:
-               onSelectFighterIndexFinish(_loc3_);
+               this.onSelectFighterIndexFinish(_loc3_);
          }
          return true;
       }
@@ -103,7 +102,7 @@ package net.play5d.game.bvn.mob.ctrls
       private function receiveSelectIndex(param1:Array) : void
       {
          var _loc2_:LoadingState = MainGame.stageCtrl.currentStage as LoadingState;
-         if(_loc2_)
+         if(Boolean(_loc2_))
          {
             _loc2_.setOrder(1,param1[2]);
          }

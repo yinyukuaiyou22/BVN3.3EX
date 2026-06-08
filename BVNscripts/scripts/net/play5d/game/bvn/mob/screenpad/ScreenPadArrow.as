@@ -3,9 +3,8 @@ package net.play5d.game.bvn.mob.screenpad
    import flash.display.Bitmap;
    import flash.display.BitmapData;
    import flash.events.TimerEvent;
-   import flash.geom.Point;
-   import flash.geom.Rectangle;
-   import flash.utils.Timer;
+   import flash.geom.*;
+   import flash.utils.*;
    
    public class ScreenPadArrow extends ScreenPadBtnBase
    {
@@ -46,44 +45,44 @@ package net.play5d.game.bvn.mob.screenpad
       override public function initArea() : void
       {
          super.initArea();
-         _center = new Rectangle(_orgBounds.x + _orgBounds.width * 0.3,_orgBounds.y + _orgBounds.height * 0.3,_orgBounds.x + _orgBounds.width * 0.7,_orgBounds.y + _orgBounds.height * 0.7);
-         _resetPoint = new Point(_orgBounds.x,_orgBounds.y);
-         _lightH = new ScreenPadAsset.light();
-         _lightV = new ScreenPadAsset.light();
-         _lightH.scaleX = _lightH.scaleY = _orgScale;
-         _lightV.scaleX = _lightV.scaleY = _orgScale;
-         _lightH.alpha = display.alpha;
-         _lightV.alpha = display.alpha;
-         _lightH.visible = false;
-         _lightV.visible = false;
+         this._center = new Rectangle(_orgBounds.x + _orgBounds.width * 0.3,_orgBounds.y + _orgBounds.height * 0.3,_orgBounds.x + _orgBounds.width * 0.7,_orgBounds.y + _orgBounds.height * 0.7);
+         this._resetPoint = new Point(_orgBounds.x,_orgBounds.y);
+         this._lightH = new ScreenPadAsset.light();
+         this._lightV = new ScreenPadAsset.light();
+         this._lightH.scaleX = this._lightH.scaleY = _orgScale;
+         this._lightV.scaleX = this._lightV.scaleY = _orgScale;
+         this._lightH.alpha = display.alpha;
+         this._lightV.alpha = display.alpha;
+         this._lightH.visible = false;
+         this._lightV.visible = false;
          if(moveAble)
          {
-            _resetTimer = new Timer(1000,1);
-            _resetTimer.addEventListener("timerComplete",resetTimeHandler);
+            this._resetTimer = new Timer(1000,1);
+            this._resetTimer.addEventListener("timerComplete",this.resetTimeHandler);
          }
       }
       
       private function resetTimeHandler(param1:TimerEvent) : void
       {
-         display.x = _resetPoint.x;
-         display.y = _resetPoint.y;
-         updateBounds();
+         display.x = this._resetPoint.x;
+         display.y = this._resetPoint.y;
+         this.updateBounds();
       }
       
       override public function updateBounds() : void
       {
          super.updateBounds();
-         _center.x = _orgBounds.x + _orgBounds.width * 0.4;
-         _center.y = _orgBounds.y + _orgBounds.height * 0.3;
-         _center.width = _orgBounds.x + _orgBounds.width * 0.6;
-         _center.height = _orgBounds.y + _orgBounds.height * 0.7;
+         this._center.x = _orgBounds.x + _orgBounds.width * 0.4;
+         this._center.y = _orgBounds.y + _orgBounds.height * 0.3;
+         this._center.width = _orgBounds.x + _orgBounds.width * 0.6;
+         this._center.height = _orgBounds.y + _orgBounds.height * 0.7;
       }
       
       override public function onAdd() : void
       {
          super.onAdd();
-         display.parent.addChild(_lightH);
-         display.parent.addChild(_lightV);
+         display.parent.addChild(this._lightH);
+         display.parent.addChild(this._lightV);
       }
       
       override public function onRemove() : void
@@ -91,122 +90,122 @@ package net.play5d.game.bvn.mob.screenpad
          super.onRemove();
          try
          {
-            _lightH.parent.removeChild(_lightH);
-            _lightV.parent.removeChild(_lightV);
+            this._lightH.parent.removeChild(this._lightH);
+            this._lightV.parent.removeChild(this._lightV);
          }
          catch(e:Error)
          {
          }
-         if(_resetTimer)
+         if(Boolean(this._resetTimer))
          {
-            _resetTimer.stop();
+            this._resetTimer.stop();
          }
       }
       
       public function setKeyIds(param1:String, param2:String, param3:String, param4:String) : void
       {
-         _keyUP = param1;
-         _keyDOWN = param2;
-         _keyLEFT = param3;
-         _keyRIGHT = param4;
+         this._keyUP = param1;
+         this._keyDOWN = param2;
+         this._keyLEFT = param3;
+         this._keyRIGHT = param4;
       }
       
       override protected function onTouchDown(param1:Number, param2:Number) : void
       {
-         if(param2 < _center.y)
+         if(param2 < this._center.y)
          {
-            _downV = _keyUP;
+            this._downV = this._keyUP;
          }
-         if(param2 > _center.height)
+         if(param2 > this._center.height)
          {
-            _downV = _keyDOWN;
+            this._downV = this._keyDOWN;
          }
-         if(param1 < _center.x)
+         if(param1 < this._center.x)
          {
-            _downH = _keyLEFT;
+            this._downH = this._keyLEFT;
          }
-         if(param1 > _center.width)
+         if(param1 > this._center.width)
          {
-            _downH = _keyRIGHT;
+            this._downH = this._keyRIGHT;
          }
-         updateKeyId();
+         this.updateKeyId();
       }
       
       override protected function onTouchUp() : void
       {
          super.touchUP();
-         _downV = null;
-         _downH = null;
-         updateKeyId();
+         this._downV = null;
+         this._downH = null;
+         this.updateKeyId();
       }
       
       private function updateKeyId() : void
       {
-         if(!_downV && !_downH)
+         if(!this._downV && !this._downH)
          {
             keyId = null;
          }
-         keyId = [_downV,_downH];
+         keyId = [this._downV,this._downH];
       }
       
       public function getAllKeyIds() : Array
       {
-         return [_keyUP,_keyDOWN,_keyLEFT,_keyRIGHT];
+         return [this._keyUP,this._keyDOWN,this._keyLEFT,this._keyRIGHT];
       }
       
       public function clearKey() : void
       {
-         _downV = null;
-         _downH = null;
-         _lightH.visible = false;
-         _lightV.visible = false;
+         this._downV = null;
+         this._downH = null;
+         this._lightH.visible = false;
+         this._lightV.visible = false;
       }
       
       public function getNotDownKeyIds() : Array
       {
-         var _loc3_:Array = [_keyUP,_keyDOWN,_keyLEFT,_keyRIGHT];
-         var _loc2_:int = _loc3_.indexOf(_downV);
+         var _loc1_:Array = [this._keyUP,this._keyDOWN,this._keyLEFT,this._keyRIGHT];
+         var _loc2_:int = _loc1_.indexOf(this._downV);
          if(_loc2_ != -1)
          {
-            _loc3_.splice(_loc2_,1);
+            _loc1_.splice(_loc2_,1);
          }
-         var _loc1_:int = _loc3_.indexOf(_downH);
-         if(_loc1_ != -1)
+         var _loc3_:int = _loc1_.indexOf(this._downH);
+         if(_loc3_ != -1)
          {
-            _loc3_.splice(_loc1_,1);
+            _loc1_.splice(_loc3_,1);
          }
-         return _loc3_;
+         return _loc1_;
       }
       
       override protected function downState() : void
       {
-         if(_downH == _keyLEFT)
+         if(this._downH == this._keyLEFT)
          {
-            _lightH.visible = true;
-            _lightH.x = _orgBounds.x - _lightH.width / 2;
-            _lightH.y = _orgBounds.y - _lightH.height / 2 + _orgBounds.width / 2;
+            this._lightH.visible = true;
+            this._lightH.x = _orgBounds.x - this._lightH.width / 2;
+            this._lightH.y = _orgBounds.y - this._lightH.height / 2 + _orgBounds.width / 2;
          }
-         if(_downH == _keyRIGHT)
+         if(this._downH == this._keyRIGHT)
          {
-            _lightH.visible = true;
-            _lightH.x = _orgBounds.x - _lightH.width / 2 + _orgBounds.width;
-            _lightH.y = _orgBounds.y - _lightH.height / 2 + _orgBounds.width / 2;
+            this._lightH.visible = true;
+            this._lightH.x = _orgBounds.x - this._lightH.width / 2 + _orgBounds.width;
+            this._lightH.y = _orgBounds.y - this._lightH.height / 2 + _orgBounds.width / 2;
          }
-         if(_downV == _keyUP)
+         if(this._downV == this._keyUP)
          {
-            _lightV.visible = true;
-            _lightV.x = _orgBounds.x - _lightV.width / 2 + _orgBounds.width / 2;
-            _lightV.y = _orgBounds.y - _lightV.height / 2;
+            this._lightV.visible = true;
+            this._lightV.x = _orgBounds.x - this._lightV.width / 2 + _orgBounds.width / 2;
+            this._lightV.y = _orgBounds.y - this._lightV.height / 2;
          }
-         if(_downV == _keyDOWN)
+         if(this._downV == this._keyDOWN)
          {
-            _lightV.visible = true;
-            _lightV.x = _orgBounds.x - _lightV.width / 2 + _orgBounds.width / 2;
-            _lightV.y = _orgBounds.y - _lightV.height / 2 + _orgBounds.height;
+            this._lightV.visible = true;
+            this._lightV.x = _orgBounds.x - this._lightV.width / 2 + _orgBounds.width / 2;
+            this._lightV.y = _orgBounds.y - this._lightV.height / 2 + _orgBounds.height;
          }
-         if(_resetTimer)
+         if(Boolean(this._resetTimer))
          {
-            _resetTimer.stop();
+            this._resetTimer.stop();
          }
       }
       
@@ -216,49 +215,49 @@ package net.play5d.game.bvn.mob.screenpad
          {
             return;
          }
-         _downV = null;
-         _downH = null;
-         if(param2 < _center.y)
+         this._downV = null;
+         this._downH = null;
+         if(param2 < this._center.y)
          {
-            _downV = _keyUP;
+            this._downV = this._keyUP;
          }
-         if(param2 > _center.height)
+         if(param2 > this._center.height)
          {
-            _downV = _keyDOWN;
+            this._downV = this._keyDOWN;
          }
-         if(param1 < _center.x)
+         if(param1 < this._center.x)
          {
-            _downH = _keyLEFT;
+            this._downH = this._keyLEFT;
          }
-         if(param1 > _center.width)
+         if(param1 > this._center.width)
          {
-            _downH = _keyRIGHT;
+            this._downH = this._keyRIGHT;
          }
-         updateKeyId();
+         this.updateKeyId();
          if(moveAble)
          {
-            updateMovePosition(param1,param2);
+            this.updateMovePosition(param1,param2);
          }
       }
       
       private function updateMovePosition(param1:Number, param2:Number) : void
       {
          var _loc3_:Boolean = false;
-         if(!_touchMoving)
+         if(!this._touchMoving)
          {
-            if(!_startTouchPoint)
+            if(!this._startTouchPoint)
             {
-               _startTouchPoint = new Point(param1,param2);
+               this._startTouchPoint = new Point(param1,param2);
             }
-            if(Math.abs(param1 - _startTouchPoint.x) + Math.abs(param2 - _startTouchPoint.y) > ScreenPadUtils.cm2pixel(0.3))
+            if(Math.abs(param1 - this._startTouchPoint.x) + Math.abs(param2 - this._startTouchPoint.y) > ScreenPadUtils.cm2pixel(0.3))
             {
-               _touchMoving = true;
+               this._touchMoving = true;
             }
             return;
          }
-         var _loc5_:Number = _orgBounds.x + _orgBounds.width;
-         var _loc4_:Number = _orgBounds.y + _orgBounds.height;
-         if(param1 > _loc5_)
+         var _loc4_:Number = _orgBounds.x + _orgBounds.width;
+         var _loc5_:Number = _orgBounds.y + _orgBounds.height;
+         if(param1 > _loc4_)
          {
             _loc3_ = true;
             display.x = param1 - display.width;
@@ -268,7 +267,7 @@ package net.play5d.game.bvn.mob.screenpad
             _loc3_ = true;
             display.x = param1;
          }
-         if(param2 > _loc4_)
+         if(param2 > _loc5_)
          {
             _loc3_ = true;
             display.y = param2 - display.height;
@@ -280,7 +279,7 @@ package net.play5d.game.bvn.mob.screenpad
          }
          if(_loc3_)
          {
-            updateBounds();
+            this.updateBounds();
          }
       }
       
@@ -290,22 +289,22 @@ package net.play5d.game.bvn.mob.screenpad
          {
             return;
          }
-         _lightH.visible = false;
-         _lightV.visible = false;
-         downState();
+         this._lightH.visible = false;
+         this._lightV.visible = false;
+         this.downState();
       }
       
       override protected function upState() : void
       {
          super.upState();
-         _lightH.visible = false;
-         _lightV.visible = false;
-         _startTouchPoint = null;
-         _touchMoving = false;
-         if(_resetTimer)
+         this._lightH.visible = false;
+         this._lightV.visible = false;
+         this._startTouchPoint = null;
+         this._touchMoving = false;
+         if(Boolean(this._resetTimer))
          {
-            _resetTimer.reset();
-            _resetTimer.start();
+            this._resetTimer.reset();
+            this._resetTimer.start();
          }
       }
    }

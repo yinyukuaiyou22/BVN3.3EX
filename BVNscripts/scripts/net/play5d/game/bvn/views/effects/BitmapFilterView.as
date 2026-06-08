@@ -1,16 +1,14 @@
 package net.play5d.game.bvn.views.effects
 {
-   import flash.display.Bitmap;
-   import flash.display.DisplayObject;
+   import flash.display.*;
    import flash.filters.BitmapFilter;
    import flash.geom.Point;
    import flash.geom.Rectangle;
    import net.play5d.game.bvn.data.TeamVO;
-   import net.play5d.game.bvn.fighter.FighterMain;
+   import net.play5d.game.bvn.fighter.*;
    import net.play5d.game.bvn.fighter.models.HitVO;
-   import net.play5d.game.bvn.interfaces.BaseGameSprite;
-   import net.play5d.game.bvn.interfaces.IGameSprite;
-   import net.play5d.kyo.utils.KyoUtils;
+   import net.play5d.game.bvn.interfaces.*;
+   import net.play5d.kyo.utils.*;
    
    public class BitmapFilterView implements IGameSprite
    {
@@ -36,15 +34,15 @@ package net.play5d.game.bvn.views.effects
       public function BitmapFilterView(param1:BaseGameSprite, param2:BitmapFilter, param3:Point = null)
       {
          super();
-         _bitmap = new Bitmap(null,"auto",false);
+         this._bitmap = new Bitmap(null,"auto",false);
          this.target = param1;
          if(param1 is FighterMain)
          {
-            _targetFighter = param1 as FighterMain;
+            this._targetFighter = param1 as FighterMain;
          }
-         _targetDisplay = param1.getDisplay();
-         _filter = param2;
-         _filterOffset = param3;
+         this._targetDisplay = param1.getDisplay();
+         this._filter = param2;
+         this._filterOffset = param3;
       }
       
       public function setVolume(param1:Number) : void
@@ -53,8 +51,8 @@ package net.play5d.game.bvn.views.effects
       
       public function update(param1:BitmapFilter, param2:Point = null) : void
       {
-         _filter = param1;
-         _filterOffset = param2;
+         this._filter = param1;
+         this._filterOffset = param2;
       }
       
       public function renderAnimate() : void
@@ -63,62 +61,62 @@ package net.play5d.game.bvn.views.effects
       
       public function render() : void
       {
-         if(!target || !_targetDisplay)
+         if(!this.target || !this._targetDisplay)
          {
             return;
          }
-         if(_isDestoryed)
+         if(this._isDestoryed)
          {
             return;
          }
-         renderBitmapData();
-         _bitmap.scaleX = _targetDisplay.scaleX;
-         _bitmap.scaleY = _targetDisplay.scaleY;
-         if(target.direct > 0)
+         this.renderBitmapData();
+         this._bitmap.scaleX = this._targetDisplay.scaleX;
+         this._bitmap.scaleY = this._targetDisplay.scaleY;
+         if(this.target.direct > 0)
          {
-            _bitmap.x = _targetDisplay.x - _filterOffset.x + _targetBounds.x;
+            this._bitmap.x = this._targetDisplay.x - this._filterOffset.x + this._targetBounds.x;
          }
          else
          {
-            _bitmap.x = _targetDisplay.x + _filterOffset.x - _targetBounds.x;
+            this._bitmap.x = this._targetDisplay.x + this._filterOffset.x - this._targetBounds.x;
          }
-         _bitmap.y = _targetDisplay.y - _filterOffset.y + _targetBounds.y;
+         this._bitmap.y = this._targetDisplay.y - this._filterOffset.y + this._targetBounds.y;
       }
       
       private function renderBitmapData() : void
       {
          var _loc1_:int = 0;
-         if(_targetFighter)
+         if(Boolean(this._targetFighter))
          {
-            _loc1_ = _targetFighter.getMC().getCurrentFrameCount();
-            if(_loc1_ == _bitmapFrame)
+            _loc1_ = int(this._targetFighter.getMC().getCurrentFrameCount());
+            if(_loc1_ == this._bitmapFrame)
             {
                return;
             }
-            _bitmapFrame = _loc1_;
+            this._bitmapFrame = _loc1_;
          }
-         if(_bitmap.bitmapData)
+         if(Boolean(this._bitmap.bitmapData))
          {
-            _bitmap.bitmapData.dispose();
-            _bitmap.bitmapData = null;
+            this._bitmap.bitmapData.dispose();
+            this._bitmap.bitmapData = null;
          }
-         _bitmap.bitmapData = KyoUtils.drawBitmapFilter(_targetDisplay,_filter,true,_filterOffset);
-         _targetBounds = _targetDisplay.getBounds(_targetDisplay);
+         this._bitmap.bitmapData = KyoUtils.drawBitmapFilter(this._targetDisplay,this._filter,true,this._filterOffset);
+         this._targetBounds = this._targetDisplay.getBounds(this._targetDisplay);
       }
       
       public function isDestoryed() : Boolean
       {
-         return _isDestoryed;
+         return this._isDestoryed;
       }
       
       public function getDisplay() : DisplayObject
       {
-         return _bitmap;
+         return this._bitmap;
       }
       
       public function get direct() : int
       {
-         return target.direct;
+         return this.target.direct;
       }
       
       public function set direct(param1:int) : void
@@ -127,22 +125,22 @@ package net.play5d.game.bvn.views.effects
       
       public function get x() : Number
       {
-         return _bitmap.x;
+         return this._bitmap.x;
       }
       
       public function set x(param1:Number) : void
       {
-         _bitmap.x = param1;
+         this._bitmap.x = param1;
       }
       
       public function get y() : Number
       {
-         return _bitmap.y;
+         return this._bitmap.y;
       }
       
       public function set y(param1:Number) : void
       {
-         _bitmap.y = param1;
+         this._bitmap.y = param1;
       }
       
       public function get team() : TeamVO
@@ -204,18 +202,18 @@ package net.play5d.game.bvn.views.effects
       {
          if(param1)
          {
-            if(_bitmap.bitmapData)
+            if(Boolean(this._bitmap.bitmapData))
             {
-               _bitmap.bitmapData.dispose();
-               _bitmap.bitmapData = null;
+               this._bitmap.bitmapData.dispose();
+               this._bitmap.bitmapData = null;
             }
-            _isDestoryed = true;
+            this._isDestoryed = true;
             this.target = null;
-            _filter = null;
-            _filterOffset = null;
-            _targetFighter = null;
-            _targetBounds = null;
-            _targetDisplay = null;
+            this._filter = null;
+            this._filterOffset = null;
+            this._targetFighter = null;
+            this._targetBounds = null;
+            this._targetDisplay = null;
          }
       }
    }

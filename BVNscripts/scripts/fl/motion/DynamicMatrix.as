@@ -13,32 +13,28 @@ package fl.motion
       
       protected var m_matrix:Array;
       
-      public function DynamicMatrix(param1:int, param2:int)
+      public function DynamicMatrix(width:int, height:int)
       {
          super();
-         this.Create(param1,param2);
+         this.Create(width,height);
       }
       
-      protected function Create(param1:int, param2:int) : void
+      protected function Create(width:int, height:int) : void
       {
-         var _loc3_:* = 0;
-         var _loc4_:* = 0;
-         if(param1 > 0 && param2 > 0)
+         var i:int = 0;
+         var j:int = 0;
+         if(width > 0 && height > 0)
          {
-            this.m_width = param1;
-            this.m_height = param2;
-            this.m_matrix = new Array(param2);
-            _loc3_ = 0;
-            while(_loc3_ < param2)
+            this.m_width = width;
+            this.m_height = height;
+            this.m_matrix = new Array(height);
+            for(i = 0; i < height; i++)
             {
-               this.m_matrix[_loc3_] = new Array(param1);
-               _loc4_ = 0;
-               while(_loc4_ < param2)
+               this.m_matrix[i] = new Array(width);
+               for(j = 0; j < height; j++)
                {
-                  this.m_matrix[_loc3_][_loc4_] = 0;
-                  _loc4_++;
+                  this.m_matrix[i][j] = 0;
                }
-               _loc3_++;
             }
          }
       }
@@ -58,220 +54,188 @@ package fl.motion
          return this.m_height;
       }
       
-      public function GetValue(param1:int, param2:int) : Number
+      public function GetValue(row:int, col:int) : Number
       {
-         var _loc3_:Number = 0;
-         if(param1 >= 0 && param1 < this.m_height && param2 >= 0 && param2 <= this.m_width)
+         var value:Number = 0;
+         if(row >= 0 && row < this.m_height && col >= 0 && col <= this.m_width)
          {
-            _loc3_ = Number(this.m_matrix[param1][param2]);
+            value = Number(this.m_matrix[row][col]);
          }
-         return _loc3_;
+         return value;
       }
       
-      public function SetValue(param1:int, param2:int, param3:Number) : void
+      public function SetValue(row:int, col:int, value:Number) : void
       {
-         if(param1 >= 0 && param1 < this.m_height && param2 >= 0 && param2 <= this.m_width)
+         if(row >= 0 && row < this.m_height && col >= 0 && col <= this.m_width)
          {
-            this.m_matrix[param1][param2] = param3;
+            this.m_matrix[row][col] = value;
          }
       }
       
       public function LoadIdentity() : void
       {
-         var _loc1_:* = 0;
-         var _loc2_:* = 0;
-         if(this.m_matrix)
+         var i:int = 0;
+         var j:int = 0;
+         if(Boolean(this.m_matrix))
          {
-            _loc1_ = 0;
-            while(_loc1_ < this.m_height)
+            for(i = 0; i < this.m_height; i++)
             {
-               _loc2_ = 0;
-               while(_loc2_ < this.m_width)
+               for(j = 0; j < this.m_width; j++)
                {
-                  if(_loc1_ == _loc2_)
+                  if(i == j)
                   {
-                     this.m_matrix[_loc1_][_loc2_] = 1;
+                     this.m_matrix[i][j] = 1;
                   }
                   else
                   {
-                     this.m_matrix[_loc1_][_loc2_] = 0;
+                     this.m_matrix[i][j] = 0;
                   }
-                  _loc2_++;
                }
-               _loc1_++;
             }
          }
       }
       
       public function LoadZeros() : void
       {
-         var _loc1_:* = 0;
-         var _loc2_:* = 0;
-         if(this.m_matrix)
+         var i:int = 0;
+         var j:int = 0;
+         if(Boolean(this.m_matrix))
          {
-            _loc1_ = 0;
-            while(_loc1_ < this.m_height)
+            for(i = 0; i < this.m_height; i++)
             {
-               _loc2_ = 0;
-               while(_loc2_ < this.m_width)
+               for(j = 0; j < this.m_width; j++)
                {
-                  this.m_matrix[_loc1_][_loc2_] = 0;
-                  _loc2_++;
+                  this.m_matrix[i][j] = 0;
                }
-               _loc1_++;
             }
          }
       }
       
-      public function Multiply(param1:DynamicMatrix, param2:int = 0) : Boolean
+      public function Multiply(inMatrix:DynamicMatrix, order:int = 0) : Boolean
       {
-         var _loc5_:DynamicMatrix = null;
-         var _loc6_:* = 0;
-         var _loc7_:* = 0;
-         var _loc8_:Number = Number(NaN);
-         var _loc9_:* = 0;
-         var _loc10_:* = 0;
-         if(!this.m_matrix || !param1)
+         var result:DynamicMatrix = null;
+         var i:int = 0;
+         var j:int = 0;
+         var total:Number = NaN;
+         var k:int = 0;
+         var m:int = 0;
+         if(!this.m_matrix || !inMatrix)
          {
             return false;
          }
-         var _loc3_:int = param1.GetHeight();
-         var _loc4_:int = param1.GetWidth();
-         if(param2 == MATRIX_ORDER_APPEND)
+         var inHeight:int = inMatrix.GetHeight();
+         var inWidth:int = inMatrix.GetWidth();
+         if(order == MATRIX_ORDER_APPEND)
          {
-            if(this.m_width != _loc3_)
+            if(this.m_width != inHeight)
             {
                return false;
             }
-            _loc5_ = new DynamicMatrix(_loc4_,this.m_height);
-            _loc6_ = 0;
-            while(_loc6_ < this.m_height)
+            result = new DynamicMatrix(inWidth,this.m_height);
+            for(i = 0; i < this.m_height; i++)
             {
-               _loc7_ = 0;
-               while(_loc7_ < _loc4_)
+               for(j = 0; j < inWidth; j++)
                {
-                  _loc8_ = 0;
-                  _loc9_ = 0;
-                  _loc10_ = 0;
-                  while(_loc9_ < Math.max(this.m_height,_loc3_) && _loc10_ < Math.max(this.m_width,_loc4_))
+                  total = 0;
+                  k = 0;
+                  m = 0;
+                  while(k < Math.max(this.m_height,inHeight) && m < Math.max(this.m_width,inWidth))
                   {
-                     _loc8_ += param1.GetValue(_loc9_,_loc7_) * this.m_matrix[_loc6_][_loc10_];
-                     _loc9_++;
-                     _loc10_++;
+                     total += inMatrix.GetValue(k,j) * this.m_matrix[i][m];
+                     k++;
+                     m++;
                   }
-                  _loc5_.SetValue(_loc6_,_loc7_,_loc8_);
-                  _loc7_++;
+                  result.SetValue(i,j,total);
                }
-               _loc6_++;
             }
             this.Destroy();
-            this.Create(_loc4_,this.m_height);
-            _loc6_ = 0;
-            while(_loc6_ < _loc3_)
+            this.Create(inWidth,this.m_height);
+            for(i = 0; i < inHeight; i++)
             {
-               _loc7_ = 0;
-               while(_loc7_ < this.m_width)
+               for(j = 0; j < this.m_width; j++)
                {
-                  this.m_matrix[_loc6_][_loc7_] = _loc5_.GetValue(_loc6_,_loc7_);
-                  _loc7_++;
+                  this.m_matrix[i][j] = result.GetValue(i,j);
                }
-               _loc6_++;
             }
          }
          else
          {
-            if(this.m_height != _loc4_)
+            if(this.m_height != inWidth)
             {
                return false;
             }
-            _loc5_ = new DynamicMatrix(this.m_width,_loc3_);
-            _loc6_ = 0;
-            while(_loc6_ < _loc3_)
+            result = new DynamicMatrix(this.m_width,inHeight);
+            for(i = 0; i < inHeight; i++)
             {
-               _loc7_ = 0;
-               while(_loc7_ < this.m_width)
+               for(j = 0; j < this.m_width; j++)
                {
-                  _loc8_ = 0;
-                  _loc9_ = 0;
-                  _loc10_ = 0;
-                  while(_loc9_ < Math.max(_loc3_,this.m_height) && _loc10_ < Math.max(_loc4_,this.m_width))
+                  total = 0;
+                  k = 0;
+                  m = 0;
+                  while(k < Math.max(inHeight,this.m_height) && m < Math.max(inWidth,this.m_width))
                   {
-                     _loc8_ += this.m_matrix[_loc9_][_loc7_] * param1.GetValue(_loc6_,_loc10_);
-                     _loc9_++;
-                     _loc10_++;
+                     total += this.m_matrix[k][j] * inMatrix.GetValue(i,m);
+                     k++;
+                     m++;
                   }
-                  _loc5_.SetValue(_loc6_,_loc7_,_loc8_);
-                  _loc7_++;
+                  result.SetValue(i,j,total);
                }
-               _loc6_++;
             }
             this.Destroy();
-            this.Create(this.m_width,_loc3_);
-            _loc6_ = 0;
-            while(_loc6_ < _loc3_)
+            this.Create(this.m_width,inHeight);
+            for(i = 0; i < inHeight; i++)
             {
-               _loc7_ = 0;
-               while(_loc7_ < this.m_width)
+               for(j = 0; j < this.m_width; j++)
                {
-                  this.m_matrix[_loc6_][_loc7_] = _loc5_.GetValue(_loc6_,_loc7_);
-                  _loc7_++;
+                  this.m_matrix[i][j] = result.GetValue(i,j);
                }
-               _loc6_++;
             }
          }
          return true;
       }
       
-      public function MultiplyNumber(param1:Number) : Boolean
+      public function MultiplyNumber(value:Number) : Boolean
       {
-         var _loc3_:* = 0;
-         var _loc4_:Number = Number(NaN);
+         var j:int = 0;
+         var total:Number = NaN;
          if(!this.m_matrix)
          {
             return false;
          }
-         var _loc2_:* = 0;
-         while(_loc2_ < this.m_height)
+         for(var i:int = 0; i < this.m_height; i++)
          {
-            _loc3_ = 0;
-            while(_loc3_ < this.m_width)
+            for(j = 0; j < this.m_width; j++)
             {
-               _loc4_ = 0;
-               _loc4_ = this.m_matrix[_loc2_][_loc3_] * param1;
-               this.m_matrix[_loc2_][_loc3_] = _loc4_;
-               _loc3_++;
+               total = 0;
+               total = this.m_matrix[i][j] * value;
+               this.m_matrix[i][j] = total;
             }
-            _loc2_++;
          }
          return true;
       }
       
-      public function Add(param1:DynamicMatrix) : Boolean
+      public function Add(inMatrix:DynamicMatrix) : Boolean
       {
-         var _loc5_:* = 0;
-         var _loc6_:Number = Number(NaN);
-         if(!this.m_matrix || !param1)
+         var j:int = 0;
+         var total:Number = NaN;
+         if(!this.m_matrix || !inMatrix)
          {
             return false;
          }
-         var _loc2_:int = param1.GetHeight();
-         var _loc3_:int = param1.GetWidth();
-         if(this.m_width != _loc3_ || this.m_height != _loc2_)
+         var inHeight:int = inMatrix.GetHeight();
+         var inWidth:int = inMatrix.GetWidth();
+         if(this.m_width != inWidth || this.m_height != inHeight)
          {
             return false;
          }
-         var _loc4_:* = 0;
-         while(_loc4_ < this.m_height)
+         for(var i:int = 0; i < this.m_height; i++)
          {
-            _loc5_ = 0;
-            while(_loc5_ < this.m_width)
+            for(j = 0; j < this.m_width; j++)
             {
-               _loc6_ = 0;
-               _loc6_ = this.m_matrix[_loc4_][_loc5_] + param1.GetValue(_loc4_,_loc5_);
-               this.m_matrix[_loc4_][_loc5_] = _loc6_;
-               _loc5_++;
+               total = 0;
+               total = this.m_matrix[i][j] + inMatrix.GetValue(i,j);
+               this.m_matrix[i][j] = total;
             }
-            _loc4_++;
          }
          return true;
       }

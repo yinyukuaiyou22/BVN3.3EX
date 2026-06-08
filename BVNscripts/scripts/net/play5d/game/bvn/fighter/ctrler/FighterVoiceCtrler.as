@@ -1,10 +1,8 @@
 package net.play5d.game.bvn.fighter.ctrler
 {
-   import flash.media.Sound;
-   import flash.media.SoundChannel;
-   import flash.media.SoundTransform;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.kyo.utils.KyoRandom;
+   import flash.media.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.kyo.utils.*;
    
    public class FighterVoiceCtrler
    {
@@ -20,33 +18,33 @@ package net.play5d.game.bvn.fighter.ctrler
       public function FighterVoiceCtrler()
       {
          super();
-         _soundTransform = new SoundTransform();
-         _soundTransform.volume = GameData.I.config.soundVolume;
+         this._soundTransform = new SoundTransform();
+         this._soundTransform.volume = GameData.I.config.soundVolume;
       }
       
       public function destory() : void
       {
-         if(_voiceObj)
+         if(Boolean(this._voiceObj))
          {
-            _voiceObj = null;
+            this._voiceObj = null;
          }
-         if(_channel)
+         if(Boolean(this._channel))
          {
-            _channel.stop();
-            _channel = null;
+            this._channel.stop();
+            this._channel = null;
          }
       }
       
       public function setVoice(param1:int, param2:Array) : void
       {
-         _voiceObj[param1] = param2;
+         this._voiceObj[param1] = param2;
       }
       
       public function playVoice(param1:int, param2:Number = 1) : void
       {
-         var _loc4_:Class = null;
-         var _loc3_:Sound = null;
-         if(_channel && _channel.position < _curLength)
+         var _loc3_:Class = null;
+         var _loc4_:Sound = null;
+         if(Boolean(this._channel) && this._channel.position < this._curLength)
          {
             return;
          }
@@ -54,15 +52,15 @@ package net.play5d.game.bvn.fighter.ctrler
          {
             return;
          }
-         var _loc5_:Array = _voiceObj[param1];
-         if(_loc5_ && _loc5_.length > 0)
+         var _loc5_:Array = this._voiceObj[param1];
+         if(Boolean(_loc5_) && _loc5_.length > 0)
          {
-            _loc4_ = _loc5_.length > 1 ? KyoRandom.getRandomInArray(_loc5_) : _loc5_[0];
-            if(_loc4_)
+            _loc3_ = _loc5_.length > 1 ? KyoRandom.getRandomInArray(_loc5_) : _loc5_[0];
+            if(Boolean(_loc3_))
             {
-               _loc3_ = new _loc4_();
-               _curLength = _loc3_.length;
-               _channel = _loc3_.play(0,0,_soundTransform);
+               _loc4_ = new _loc3_();
+               this._curLength = _loc4_.length;
+               this._channel = _loc4_.play(0,0,this._soundTransform);
             }
          }
       }

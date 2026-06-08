@@ -15,136 +15,128 @@ package fl.motion
          LoadIdentity();
       }
       
-      public function SetBrightnessMatrix(param1:Number) : void
+      public function SetBrightnessMatrix(value:Number) : void
       {
          if(!m_matrix)
          {
             return;
          }
-         m_matrix[0][4] = param1;
-         m_matrix[1][4] = param1;
-         m_matrix[2][4] = param1;
+         m_matrix[0][4] = value;
+         m_matrix[1][4] = value;
+         m_matrix[2][4] = value;
       }
       
-      public function SetContrastMatrix(param1:Number) : void
+      public function SetContrastMatrix(value:Number) : void
       {
          if(!m_matrix)
          {
             return;
          }
-         var _loc2_:Number = 0.5 * (127 - param1);
-         param1 /= 127;
-         m_matrix[0][0] = param1;
-         m_matrix[1][1] = param1;
-         m_matrix[2][2] = param1;
-         m_matrix[0][4] = _loc2_;
-         m_matrix[1][4] = _loc2_;
-         m_matrix[2][4] = _loc2_;
+         var brightness:Number = 0.5 * (127 - value);
+         value /= 127;
+         m_matrix[0][0] = value;
+         m_matrix[1][1] = value;
+         m_matrix[2][2] = value;
+         m_matrix[0][4] = brightness;
+         m_matrix[1][4] = brightness;
+         m_matrix[2][4] = brightness;
       }
       
-      public function SetSaturationMatrix(param1:Number) : void
+      public function SetSaturationMatrix(value:Number) : void
       {
          if(!m_matrix)
          {
             return;
          }
-         var _loc2_:Number = 1 - param1;
-         var _loc3_:Number = _loc2_ * LUMINANCER;
-         m_matrix[0][0] = _loc3_ + param1;
-         m_matrix[1][0] = _loc3_;
-         m_matrix[2][0] = _loc3_;
-         _loc3_ = _loc2_ * LUMINANCEG;
-         m_matrix[0][1] = _loc3_;
-         m_matrix[1][1] = _loc3_ + param1;
-         m_matrix[2][1] = _loc3_;
-         _loc3_ = _loc2_ * LUMINANCEB;
-         m_matrix[0][2] = _loc3_;
-         m_matrix[1][2] = _loc3_;
-         m_matrix[2][2] = _loc3_ + param1;
+         var subVal:Number = 1 - value;
+         var mulVal:Number = subVal * LUMINANCER;
+         m_matrix[0][0] = mulVal + value;
+         m_matrix[1][0] = mulVal;
+         m_matrix[2][0] = mulVal;
+         mulVal = subVal * LUMINANCEG;
+         m_matrix[0][1] = mulVal;
+         m_matrix[1][1] = mulVal + value;
+         m_matrix[2][1] = mulVal;
+         mulVal = subVal * LUMINANCEB;
+         m_matrix[0][2] = mulVal;
+         m_matrix[1][2] = mulVal;
+         m_matrix[2][2] = mulVal + value;
       }
       
-      public function SetHueMatrix(param1:Number) : void
+      public function SetHueMatrix(angle:Number) : void
       {
-         var _loc11_:* = 0;
+         var j:int = 0;
          if(!m_matrix)
          {
             return;
          }
          LoadIdentity();
-         var _loc2_:DynamicMatrix = new DynamicMatrix(3,3);
-         var _loc3_:DynamicMatrix = new DynamicMatrix(3,3);
-         var _loc4_:DynamicMatrix = new DynamicMatrix(3,3);
-         var _loc5_:Number = Math.cos(param1);
-         var _loc6_:Number = Math.sin(param1);
-         var _loc7_:Number = 0.213;
-         var _loc8_:Number = 0.715;
-         var _loc9_:Number = 0.072;
-         _loc2_.SetValue(0,0,_loc7_);
-         _loc2_.SetValue(1,0,_loc7_);
-         _loc2_.SetValue(2,0,_loc7_);
-         _loc2_.SetValue(0,1,_loc8_);
-         _loc2_.SetValue(1,1,_loc8_);
-         _loc2_.SetValue(2,1,_loc8_);
-         _loc2_.SetValue(0,2,_loc9_);
-         _loc2_.SetValue(1,2,_loc9_);
-         _loc2_.SetValue(2,2,_loc9_);
-         _loc3_.SetValue(0,0,1 - _loc7_);
-         _loc3_.SetValue(1,0,-_loc7_);
-         _loc3_.SetValue(2,0,-_loc7_);
-         _loc3_.SetValue(0,1,-_loc8_);
-         _loc3_.SetValue(1,1,1 - _loc8_);
-         _loc3_.SetValue(2,1,-_loc8_);
-         _loc3_.SetValue(0,2,-_loc9_);
-         _loc3_.SetValue(1,2,-_loc9_);
-         _loc3_.SetValue(2,2,1 - _loc9_);
-         _loc3_.MultiplyNumber(_loc5_);
-         _loc4_.SetValue(0,0,-_loc7_);
-         _loc4_.SetValue(1,0,0.143);
-         _loc4_.SetValue(2,0,-(1 - _loc7_));
-         _loc4_.SetValue(0,1,-_loc8_);
-         _loc4_.SetValue(1,1,0.14);
-         _loc4_.SetValue(2,1,_loc8_);
-         _loc4_.SetValue(0,2,1 - _loc9_);
-         _loc4_.SetValue(1,2,-0.283);
-         _loc4_.SetValue(2,2,_loc9_);
-         _loc4_.MultiplyNumber(_loc6_);
-         _loc2_.Add(_loc3_);
-         _loc2_.Add(_loc4_);
-         var _loc10_:* = 0;
-         while(_loc10_ < 3)
+         var baseMat:DynamicMatrix = new DynamicMatrix(3,3);
+         var cosBaseMat:DynamicMatrix = new DynamicMatrix(3,3);
+         var sinBaseMat:DynamicMatrix = new DynamicMatrix(3,3);
+         var cosValue:Number = Math.cos(angle);
+         var sinValue:Number = Math.sin(angle);
+         var lumR:Number = 0.213;
+         var lumG:Number = 0.715;
+         var lumB:Number = 0.072;
+         baseMat.SetValue(0,0,lumR);
+         baseMat.SetValue(1,0,lumR);
+         baseMat.SetValue(2,0,lumR);
+         baseMat.SetValue(0,1,lumG);
+         baseMat.SetValue(1,1,lumG);
+         baseMat.SetValue(2,1,lumG);
+         baseMat.SetValue(0,2,lumB);
+         baseMat.SetValue(1,2,lumB);
+         baseMat.SetValue(2,2,lumB);
+         cosBaseMat.SetValue(0,0,1 - lumR);
+         cosBaseMat.SetValue(1,0,-lumR);
+         cosBaseMat.SetValue(2,0,-lumR);
+         cosBaseMat.SetValue(0,1,-lumG);
+         cosBaseMat.SetValue(1,1,1 - lumG);
+         cosBaseMat.SetValue(2,1,-lumG);
+         cosBaseMat.SetValue(0,2,-lumB);
+         cosBaseMat.SetValue(1,2,-lumB);
+         cosBaseMat.SetValue(2,2,1 - lumB);
+         cosBaseMat.MultiplyNumber(cosValue);
+         sinBaseMat.SetValue(0,0,-lumR);
+         sinBaseMat.SetValue(1,0,0.143);
+         sinBaseMat.SetValue(2,0,-(1 - lumR));
+         sinBaseMat.SetValue(0,1,-lumG);
+         sinBaseMat.SetValue(1,1,0.14);
+         sinBaseMat.SetValue(2,1,lumG);
+         sinBaseMat.SetValue(0,2,1 - lumB);
+         sinBaseMat.SetValue(1,2,-0.283);
+         sinBaseMat.SetValue(2,2,lumB);
+         sinBaseMat.MultiplyNumber(sinValue);
+         baseMat.Add(cosBaseMat);
+         baseMat.Add(sinBaseMat);
+         for(var i:int = 0; i < 3; i++)
          {
-            _loc11_ = 0;
-            while(_loc11_ < 3)
+            for(j = 0; j < 3; j++)
             {
-               m_matrix[_loc10_][_loc11_] = _loc2_.GetValue(_loc10_,_loc11_);
-               _loc11_++;
+               m_matrix[i][j] = baseMat.GetValue(i,j);
             }
-            _loc10_++;
          }
       }
       
       public function GetFlatArray() : Array
       {
-         var _loc4_:* = 0;
+         var j:int = 0;
          if(!m_matrix)
          {
             return null;
          }
-         var _loc1_:Array = new Array();
-         var _loc2_:* = 0;
-         var _loc3_:* = 0;
-         while(_loc3_ < 4)
+         var ptr:Array = new Array();
+         var index:int = 0;
+         for(var i:int = 0; i < 4; i++)
          {
-            _loc4_ = 0;
-            while(_loc4_ < 5)
+            for(j = 0; j < 5; j++)
             {
-               _loc1_[_loc2_] = m_matrix[_loc3_][_loc4_];
-               _loc2_++;
-               _loc4_++;
+               ptr[index] = m_matrix[i][j];
+               index++;
             }
-            _loc3_++;
          }
-         return _loc1_;
+         return ptr;
       }
    }
 }

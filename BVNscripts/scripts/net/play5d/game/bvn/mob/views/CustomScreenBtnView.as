@@ -1,19 +1,15 @@
 package net.play5d.game.bvn.mob.views
 {
-   import com.greensock.TweenLite;
-   import flash.display.DisplayObject;
-   import flash.display.Sprite;
+   import com.greensock.*;
+   import flash.display.*;
    import flash.events.TouchEvent;
-   import flash.geom.Point;
-   import flash.utils.Dictionary;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
-   import net.play5d.game.bvn.mob.GameInterfaceManager;
+   import flash.geom.*;
+   import flash.utils.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.mob.*;
    import net.play5d.game.bvn.mob.events.ScreenPadEvent;
-   import net.play5d.game.bvn.mob.screenpad.ScreenPadBtnBase;
-   import net.play5d.game.bvn.mob.screenpad.ScreenPadGame;
-   import net.play5d.game.bvn.mob.screenpad.ScreenPadManager;
-   import net.play5d.game.bvn.mob.screenpad.ScreenPadUtils;
-   import net.play5d.game.bvn.mob.utils.UIAssetUtil;
+   import net.play5d.game.bvn.mob.screenpad.*;
+   import net.play5d.game.bvn.mob.utils.*;
    
    public class CustomScreenBtnView
    {
@@ -41,135 +37,136 @@ package net.play5d.game.bvn.mob.views
       public function CustomScreenBtnView()
       {
          super();
-         _ui = UIAssetUtil.I.createDisplayObject("screen_pad_set_ui_mc");
-         _ui.graphics.beginFill(0,0.8);
-         _ui.graphics.drawRect(0,0,launch.FULL_SCREEN_SIZE.x,launch.FULL_SCREEN_SIZE.y);
-         _ui.graphics.endFill();
-         _width = launch.FULL_SCREEN_SIZE.x;
-         _height = ScreenPadUtils.cm2pixel(0.8);
-         _scale = _height / 55;
-         _btnItemSetUI = new CustomSetBtnItemUI(_scale);
-         _ui.addChild(_btnItemSetUI.getUI());
-         initBtns("close","up","down","left","right","center","side","zoomin","zoomout","ok");
-         initView();
-         initPad();
+         this._ui = UIAssetUtil.I.createDisplayObject("screen_pad_set_ui_mc");
+         this._ui.graphics.beginFill(0,0.8);
+         this._ui.graphics.drawRect(0,0,launch.FULL_SCREEN_SIZE.x,launch.FULL_SCREEN_SIZE.y);
+         this._ui.graphics.endFill();
+         this._width = launch.FULL_SCREEN_SIZE.x;
+         this._height = ScreenPadUtils.cm2pixel(0.8);
+         this._scale = this._height / 55;
+         this._btnItemSetUI = new CustomSetBtnItemUI(this._scale);
+         this._ui.addChild(this._btnItemSetUI.getUI());
+         this.initBtns("close","up","down","left","right","center","side","zoomin","zoomout","ok");
+         this.initView();
+         this.initPad();
       }
       
       public function getDisplay() : Sprite
       {
-         return _ui;
+         return this._ui;
       }
       
       private function initView() : void
       {
-         var _loc2_:DisplayObject = null;
-         var _loc10_:int = 0;
-         var _loc9_:DisplayObject = _ui.getChildByName("btnbg");
-         if(_loc9_)
+         var _loc1_:DisplayObject = null;
+         var _loc2_:int = 0;
+         var _loc3_:DisplayObject = this._ui.getChildByName("btnbg");
+         if(Boolean(_loc3_))
          {
-            _loc9_.width = _width;
-            _loc9_.height = _height;
+            _loc3_.width = this._width;
+            _loc3_.height = this._height;
          }
-         var _loc1_:DisplayObject = _ui.getChildByName("up");
-         var _loc4_:int = _loc1_.width * 0.15;
-         var _loc8_:Number = 0;
-         _loc10_ = 0;
-         while(_loc10_ < _btns.length)
+         var _loc4_:DisplayObject = this._ui.getChildByName("up");
+         var _loc5_:int = _loc4_.width * 0.15;
+         var _loc6_:Number = 0;
+         _loc2_ = 0;
+         while(_loc2_ < this._btns.length)
          {
-            _loc2_ = _btns[_loc10_];
-            _loc2_.x = _loc8_;
-            _loc8_ += _loc4_ + _loc2_.width;
-            if(_loc10_ == 0 || _loc10_ == _btns.length - 2)
+            _loc1_ = this._btns[_loc2_];
+            _loc1_.x = _loc6_;
+            _loc6_ += _loc5_ + _loc1_.width;
+            if(_loc2_ == 0 || _loc2_ == this._btns.length - 2)
             {
-               _loc8_ += _loc4_;
+               _loc6_ += _loc5_;
             }
-            _loc10_++;
+            _loc2_++;
          }
-         var _loc3_:Number = _loc8_;
-         var _loc6_:int = _btns.length - 2;
-         var _loc5_:Number = launch.FULL_SCREEN_SIZE.x;
-         var _loc7_:Number = (_loc5_ - _loc3_) / 2;
-         _loc10_ = 0;
-         while(_loc10_ < _btns.length)
+         var _loc7_:Number = _loc6_;
+         var _loc8_:int = this._btns.length - 2;
+         var _loc9_:Number = launch.FULL_SCREEN_SIZE.x;
+         var _loc10_:Number = (_loc9_ - _loc7_) / 2;
+         _loc2_ = 0;
+         while(_loc2_ < this._btns.length)
          {
-            _loc2_ = _btns[_loc10_];
-            _loc2_.x += _loc7_;
-            _loc10_++;
+            _loc1_ = this._btns[_loc2_];
+            _loc1_.x += _loc10_;
+            _loc2_++;
          }
       }
       
       private function initBtns(... rest) : void
       {
+         var _loc3_:* = undefined;
          var _loc2_:DisplayObject = null;
-         _btns = [];
-         for each(var _loc3_ in rest)
+         this._btns = [];
+         for each(_loc3_ in rest)
          {
-            _loc2_ = _ui.getChildByName(_loc3_);
-            if(_loc2_)
+            _loc2_ = this._ui.getChildByName(_loc3_);
+            if(Boolean(_loc2_))
             {
-               _btnPos[_loc2_] = new Point(_loc2_.x,_loc2_.y);
-               _btns.push(_loc2_);
-               _loc2_.scaleX = _loc2_.scaleY = _scale;
-               _loc2_.addEventListener("touchTap",btnTouchHandler);
+               this._btnPos[_loc2_] = new Point(_loc2_.x,_loc2_.y);
+               this._btns.push(_loc2_);
+               _loc2_.scaleX = _loc2_.scaleY = this._scale;
+               _loc2_.addEventListener("touchTap",this.btnTouchHandler);
             }
          }
       }
       
       private function btnTouchHandler(param1:TouchEvent) : void
       {
-         var _loc4_:Number = Number(NaN);
+         var _loc2_:Number = NaN;
          var _loc3_:DisplayObject = param1.currentTarget as DisplayObject;
          if(!_loc3_)
          {
             return;
          }
-         var _loc2_:Point = _btnPos[_loc3_];
-         if(!_loc2_)
+         var _loc4_:Point = this._btnPos[_loc3_];
+         if(!_loc4_)
          {
             _loc3_.alpha = 0.5;
             TweenLite.to(_loc3_,0.2,{"alpha":1});
          }
          else
          {
-            _loc4_ = _loc2_.y;
-            _loc3_.y += 5 * _scale;
+            _loc2_ = _loc4_.y;
+            _loc3_.y += 5 * this._scale;
             _loc3_.alpha = 0.5;
             TweenLite.to(_loc3_,0.2,{
                "alpha":1,
-               "y":_loc4_
+               "y":_loc2_
             });
          }
          switch(_loc3_.name)
          {
             case "close":
-               removeSelf();
+               this.removeSelf();
                break;
             case "up":
-               moveAllBtns(0,-_moveStep.x);
+               this.moveAllBtns(0,-this._moveStep.x);
                break;
             case "down":
-               moveAllBtns(0,_moveStep.x);
+               this.moveAllBtns(0,this._moveStep.x);
                break;
             case "left":
-               moveAllBtns(-_moveStep.x,0);
+               this.moveAllBtns(-this._moveStep.x,0);
                break;
             case "right":
-               moveAllBtns(_moveStep.x,0);
+               this.moveAllBtns(this._moveStep.x,0);
                break;
             case "center":
-               moveLRBtns(_moveStep.x);
+               this.moveLRBtns(this._moveStep.x);
                break;
             case "side":
-               moveLRBtns(-_moveStep.x);
+               this.moveLRBtns(-this._moveStep.x);
                break;
             case "zoomin":
-               zoomBtns(0.1);
+               this.zoomBtns(0.1);
                break;
             case "zoomout":
-               zoomBtns(-0.1);
+               this.zoomBtns(-0.1);
                break;
             case "ok":
-               doOK();
+               this.doOK();
          }
          if(_loc3_.name == "ok")
          {
@@ -183,51 +180,51 @@ package net.play5d.game.bvn.mob.views
       
       private function removeSelf() : void
       {
-         var _loc1_:*;
-         if(_screenPad)
+         var _loc1_:* = undefined;
+         if(Boolean(this._screenPad))
          {
-            _screenPad.destory();
-            _screenPad = null;
+            this._screenPad.destory();
+            this._screenPad = null;
          }
-         if(_btns)
+         if(Boolean(this._btns))
          {
-            for each(_loc1_ in _btns)
+            for each(_loc1_ in this._btns)
             {
-               _loc1_.removeEventListener("touchTap",btnTouchHandler);
+               _loc1_.removeEventListener("touchTap",this.btnTouchHandler);
             }
-            _btns = null;
+            this._btns = null;
          }
-         if(_ui)
+         if(Boolean(this._ui))
          {
             try
             {
-               _ui.parent.removeChild(_ui);
+               this._ui.parent.removeChild(this._ui);
             }
             catch(e:Error)
             {
                trace(e);
             }
-            _ui = null;
+            this._ui = null;
          }
       }
       
       private function doOK() : void
       {
-         GameInterfaceManager.config.screenPadConfig.joySet = _screenPad.getBtnPosData();
+         GameInterfaceManager.config.screenPadConfig.joySet = this._screenPad.getBtnPosData();
          ScreenPadManager.reBuild();
-         removeSelf();
+         this.removeSelf();
       }
       
       private function initPad() : void
       {
-         _screenPad = new ScreenPadGame(launch.STAGE);
-         _screenPad.showEditMode();
-         _screenPad.addEventListener("ScreenPadEvent_CUSTOM_MOVING",screenPadCustomHandler);
-         _screenPad.addEventListener("ScreenPadEvent_CUSTOM_SELECT",screenPadCustomHandler);
-         _screenBtns = _screenPad.getBtns();
-         _moveStep = new Point();
-         _moveStep.x = launch.FULL_SCREEN_SIZE.x * 0.01;
-         _moveStep.y = launch.FULL_SCREEN_SIZE.y * 0.01;
+         this._screenPad = new ScreenPadGame(launch.STAGE);
+         this._screenPad.showEditMode();
+         this._screenPad.addEventListener("ScreenPadEvent_CUSTOM_MOVING",this.screenPadCustomHandler);
+         this._screenPad.addEventListener("ScreenPadEvent_CUSTOM_SELECT",this.screenPadCustomHandler);
+         this._screenBtns = this._screenPad.getBtns();
+         this._moveStep = new Point();
+         this._moveStep.x = launch.FULL_SCREEN_SIZE.x * 0.01;
+         this._moveStep.y = launch.FULL_SCREEN_SIZE.y * 0.01;
       }
       
       private function screenPadCustomHandler(param1:ScreenPadEvent) : void
@@ -235,16 +232,17 @@ package net.play5d.game.bvn.mob.views
          switch(param1.type)
          {
             case "ScreenPadEvent_CUSTOM_MOVING":
-               _btnItemSetUI.show(param1.screenPadBtn);
+               this._btnItemSetUI.show(param1.screenPadBtn);
                break;
             case "ScreenPadEvent_CUSTOM_SELECT":
-               _btnItemSetUI.show(param1.screenPadBtn);
+               this._btnItemSetUI.show(param1.screenPadBtn);
          }
       }
       
       private function moveAllBtns(param1:Number = 0, param2:Number = 0) : void
       {
-         for each(var _loc3_ in _screenBtns)
+         var _loc3_:* = undefined;
+         for each(_loc3_ in this._screenBtns)
          {
             _loc3_.display.x += param1;
             _loc3_.display.y += param2;
@@ -253,8 +251,9 @@ package net.play5d.game.bvn.mob.views
       
       private function moveLRBtns(param1:Number = 0) : void
       {
+         var _loc3_:* = undefined;
          var _loc2_:Number = launch.FULL_SCREEN_SIZE.x / 2;
-         for each(var _loc3_ in _screenBtns)
+         for each(_loc3_ in this._screenBtns)
          {
             if(_loc3_.display.x < _loc2_)
             {
@@ -269,9 +268,10 @@ package net.play5d.game.bvn.mob.views
       
       private function zoomBtns(param1:Number) : void
       {
-         for each(var _loc2_ in _screenBtns)
+         var _loc2_:* = undefined;
+         for each(_loc2_ in this._screenBtns)
          {
-            zoomBtn(_loc2_,param1);
+            this.zoomBtn(_loc2_,param1);
          }
       }
       

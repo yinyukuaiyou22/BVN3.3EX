@@ -1,25 +1,21 @@
 package net.play5d.game.bvn.ctrl
 {
    import flash.geom.Rectangle;
-   import flash.utils.Dictionary;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.ctrl.game_ctrls.GameCtrl;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.data.GameMode;
-   import net.play5d.game.bvn.data.MessionModel;
-   import net.play5d.game.bvn.data.MessionStageVO;
-   import net.play5d.game.bvn.data.SelectCharListConfigVO;
-   import net.play5d.game.bvn.events.GameEvent;
-   import net.play5d.game.bvn.fighter.FighterMain;
-   import net.play5d.game.bvn.fighter.events.FighterEventDispatcher;
+   import flash.utils.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.game_ctrls.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.events.*;
+   import net.play5d.game.bvn.fighter.*;
+   import net.play5d.game.bvn.fighter.events.*;
    import net.play5d.game.bvn.fighter.models.HitVO;
    import net.play5d.game.bvn.interfaces.BaseGameSprite;
    import net.play5d.game.bvn.interfaces.IGameSprite;
    import net.play5d.game.bvn.map.FloorVO;
    import net.play5d.game.bvn.map.MapMain;
    import net.play5d.game.bvn.state.GameCamera;
-   import net.play5d.game.bvn.ui.select.SelectIndexUI;
-   import net.play5d.game.bvn.utils.ResUtils;
+   import net.play5d.game.bvn.ui.select.*;
+   import net.play5d.game.bvn.utils.*;
    
    public class GameLogic
    {
@@ -68,28 +64,28 @@ package net.play5d.game.bvn.ctrl
             return false;
          }
          param1.isTouchBottom = false;
-         var _loc2_:Boolean = param1.getVecY() < 5 * GameConfig.SPEED_PLUS;
+         var _loc2_:* = param1.getVecY() < 5 * GameConfig.SPEED_PLUS;
          if(!_loc2_)
          {
             return true;
          }
-         var _loc4_:Number = 10 * GameConfig.SPEED_PLUS_DEFAULT;
-         var _loc3_:FloorVO = _floorContact[param1];
-         if(_loc3_)
+         var _loc3_:Number = 10 * GameConfig.SPEED_PLUS_DEFAULT;
+         var _loc4_:FloorVO = _floorContact[param1];
+         if(Boolean(_loc4_))
          {
-            if(_loc3_.hitTest(param1.x,param1.y,_loc4_))
+            if(_loc4_.hitTest(param1.x,param1.y,_loc3_))
             {
-               param1.y = _loc3_.y;
+               param1.y = _loc4_.y;
                return false;
             }
             delete _floorContact[param1];
             return true;
          }
-         _loc3_ = _map.getFloorHitTest(param1.x,param1.y,_loc4_);
-         if(_loc3_)
+         _loc4_ = _map.getFloorHitTest(param1.x,param1.y,_loc3_);
+         if(Boolean(_loc4_))
          {
-            param1.y = _loc3_.y;
-            _floorContact[param1] = _loc3_;
+            param1.y = _loc4_.y;
+            _floorContact[param1] = _loc4_;
             return false;
          }
          return true;
@@ -127,9 +123,7 @@ package net.play5d.game.bvn.ctrl
             };
          }
          _hitsObj[param1].targetID = param2;
-         var _loc4_:* = _hitsObj[param1];
-         var _loc5_:Number = Number(_loc4_.hits) + 1;
-         _loc4_.hits = _loc5_;
+         ++_hitsObj[param1].hits;
          return _hitsObj[param1].hits;
       }
       
@@ -147,7 +141,8 @@ package net.play5d.game.bvn.ctrl
       
       public static function getHitsObjByTargetId(param1:Object) : Object
       {
-         for each(var _loc2_ in _hitsObj)
+         var _loc2_:* = undefined;
+         for each(_loc2_ in _hitsObj)
          {
             if(_loc2_.targetID == param1)
             {
@@ -159,7 +154,8 @@ package net.play5d.game.bvn.ctrl
       
       public static function clearHitsByTargetId(param1:Object) : void
       {
-         for(var _loc2_ in _hitsObj)
+         var _loc2_:* = undefined;
+         for(_loc2_ in _hitsObj)
          {
             if(_hitsObj[_loc2_].targetID == param1)
             {
@@ -203,42 +199,42 @@ package net.play5d.game.bvn.ctrl
       
       public static function addScoreByHitTarget(param1:HitVO) : void
       {
-         var _loc4_:int;
-         var _loc5_:int = _loc4_ = param1.power;
+         var _loc2_:int = 0;
+         var _loc3_:* = _loc2_ = param1.power;
          if(param1.isBisha())
          {
-            _loc5_ = _loc4_ * 2;
+            _loc3_ = _loc2_ * 2;
          }
          if(param1.id == "sh1" || param1.id == "sh2")
          {
-            _loc5_ += 500;
+            _loc3_ += 500;
          }
          if(param1.isBreakDef)
          {
-            _loc5_ += 200;
+            _loc3_ += 200;
          }
          if(param1.hurtType == 1)
          {
-            _loc5_ += 200;
+            _loc3_ += 200;
          }
-         var _loc3_:Object = getHitsObj(1);
-         var _loc2_:int = int(_loc3_ ? _loc3_.hits : 0);
-         if(_loc2_ < 4)
+         var _loc4_:Object = getHitsObj(1);
+         var _loc5_:int = int(_loc4_ ? _loc4_.hits : 0);
+         if(_loc5_ < 4)
          {
-            _loc5_ += _loc2_ * 50;
+            _loc3_ += _loc5_ * 50;
          }
          else
          {
-            _loc5_ += _loc2_ * 100;
+            _loc3_ += _loc5_ * 100;
          }
-         addScore(_loc5_);
+         addScore(_loc3_);
          GameEvent.dispatchEvent("SCORE_UPDATE");
       }
       
       public static function addScoreByKO() : void
       {
          var _loc1_:int = 0;
-         if(GameCtrl.I.gameRunData.p1FighterGroup.currentFighter.lastHitVO && GameCtrl.I.gameRunData.p1FighterGroup.currentFighter.lastHitVO.isBisha())
+         if(Boolean(GameCtrl.I.gameRunData.p1FighterGroup.currentFighter.lastHitVO) && Boolean(GameCtrl.I.gameRunData.p1FighterGroup.currentFighter.lastHitVO.isBisha()))
          {
             addScore(2000);
          }
@@ -282,52 +278,52 @@ package net.play5d.game.bvn.ctrl
       
       public static function fixGameSpritePosition(param1:IGameSprite) : void
       {
-         var _loc7_:Number = Number(NaN);
-         var _loc9_:Number = Number(NaN);
-         var _loc5_:Number = Number(NaN);
-         var _loc4_:Number = Number(NaN);
+         var _loc2_:* = NaN;
+         var _loc3_:* = NaN;
+         var _loc4_:Number = NaN;
+         var _loc5_:Number = NaN;
          var _loc6_:Rectangle = null;
-         var _loc3_:Number = Number(NaN);
-         var _loc2_:Number = Number(NaN);
-         var _loc8_:Boolean = false;
+         var _loc7_:Number = NaN;
+         var _loc8_:Number = NaN;
+         var _loc9_:Boolean = false;
          if(param1.allowCrossMapXY() == false)
          {
-            _loc7_ = _map.left + 10;
-            _loc9_ = _map.right - 10;
-            _loc5_ = 10;
-            _loc4_ = _camera.getZoom();
+            _loc2_ = _map.left + 10;
+            _loc3_ = _map.right - 10;
+            _loc4_ = 10;
+            _loc5_ = Number(_camera.getZoom());
             _loc6_ = _camera.getScreenRect();
             if(param1 is FighterMain)
             {
                if((param1 as FighterMain).getVecX() != 0)
                {
-                  if(_loc4_ == _camera.autoZoomMin)
+                  if(_loc5_ == _camera.autoZoomMin)
                   {
-                     _loc3_ = _loc6_.x / _loc4_ + _loc5_;
-                     _loc2_ = _loc3_ + _loc6_.width - _loc5_;
-                     if(_loc7_ < _loc3_)
+                     _loc7_ = _loc6_.x / _loc5_ + _loc4_;
+                     _loc8_ = _loc7_ + _loc6_.width - _loc4_;
+                     if(_loc2_ < _loc7_)
                      {
-                        _loc7_ = _loc3_;
+                        _loc2_ = _loc7_;
                      }
-                     if(_loc9_ > _loc2_)
+                     if(_loc3_ > _loc8_)
                      {
-                        _loc9_ = _loc2_;
+                        _loc3_ = _loc8_;
                      }
                   }
                }
             }
-            _loc8_ = false;
-            if(param1.x <= _loc7_)
+            _loc9_ = false;
+            if(param1.x <= _loc2_)
             {
-               param1.x = _loc7_;
-               _loc8_ = true;
+               param1.x = _loc2_;
+               _loc9_ = true;
             }
-            if(param1.x >= _loc9_)
+            if(param1.x >= _loc3_)
             {
-               param1.x = _loc9_;
-               _loc8_ = true;
+               param1.x = _loc3_;
+               _loc9_ = true;
             }
-            param1.setIsTouchSide(_loc8_);
+            param1.setIsTouchSide(_loc9_);
          }
          if(param1.allowCrossMapBottom() == false)
          {
@@ -341,9 +337,9 @@ package net.play5d.game.bvn.ctrl
       public static function resetFighterHP(param1:FighterMain) : void
       {
          var _loc2_:Number = 1;
-         if(GameMode.isAcrade() && MessionModel.I.getCurrentMessionStage())
+         if(Boolean(GameMode.isAcrade()) && Boolean(MessionModel.I.getCurrentMessionStage()))
          {
-            _loc2_ = MessionModel.I.getCurrentMessionStage().hpRate;
+            _loc2_ = Number(MessionModel.I.getCurrentMessionStage().hpRate);
          }
          if(param1.customHpMax > 0)
          {
@@ -359,7 +355,7 @@ package net.play5d.game.bvn.ctrl
       public static function setMessionEnemyAttack(param1:FighterMain) : void
       {
          var _loc2_:MessionStageVO = MessionModel.I.getCurrentMessionStage();
-         if(_loc2_)
+         if(Boolean(_loc2_))
          {
             param1.attackRate = _loc2_.attackRate;
          }
@@ -367,10 +363,11 @@ package net.play5d.game.bvn.ctrl
       
       public static function canSelectFighter(param1:String) : Boolean
       {
-         var _loc3_:SelectCharListConfigVO = GameData.I.config.select_config.charList;
-         for each(var _loc2_ in _loc3_.list)
+         var _loc3_:* = undefined;
+         var _loc2_:SelectCharListConfigVO = GameData.I.config.select_config.charList;
+         for each(_loc3_ in _loc2_.list)
          {
-            if(_loc2_.fighterID == param1)
+            if(_loc3_.fighterID == param1)
             {
                return true;
             }
@@ -380,10 +377,11 @@ package net.play5d.game.bvn.ctrl
       
       public static function canSelectAssist(param1:String) : Boolean
       {
-         var _loc3_:SelectCharListConfigVO = GameData.I.config.select_config.assistList;
-         for each(var _loc2_ in _loc3_.list)
+         var _loc3_:* = undefined;
+         var _loc2_:SelectCharListConfigVO = GameData.I.config.select_config.assistList;
+         for each(_loc3_ in _loc2_.list)
          {
-            if(_loc2_.fighterID == param1)
+            if(_loc3_.fighterID == param1)
             {
                return true;
             }

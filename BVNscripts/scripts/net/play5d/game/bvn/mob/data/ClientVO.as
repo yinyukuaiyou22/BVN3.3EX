@@ -20,7 +20,7 @@ package net.play5d.game.bvn.mob.data
       
       public function get id() : String
       {
-         return ip;
+         return this.ip;
       }
    }
 }

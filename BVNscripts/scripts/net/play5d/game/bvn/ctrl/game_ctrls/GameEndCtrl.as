@@ -1,12 +1,10 @@
 package net.play5d.game.bvn.ctrl.game_ctrls
 {
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.ctrl.StateCtrl;
-   import net.play5d.game.bvn.data.GameMode;
-   import net.play5d.game.bvn.data.GameRunDataVO;
-   import net.play5d.game.bvn.fighter.FighterActionState;
-   import net.play5d.game.bvn.fighter.FighterMain;
-   import net.play5d.game.bvn.ui.GameUI;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.fighter.*;
+   import net.play5d.game.bvn.ui.*;
    
    public class GameEndCtrl
    {
@@ -31,57 +29,57 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       public function initlize(param1:FighterMain, param2:FighterMain) : void
       {
          GameCtrl.I.gameRunData.setAllowLoseHP(false);
-         _winner = param1;
-         _loser = param2;
-         _step = 0;
-         _isRender = true;
+         this._winner = param1;
+         this._loser = param2;
+         this._step = 0;
+         this._isRender = true;
       }
       
       public function drawGame() : void
       {
          GameCtrl.I.gameRunData.setAllowLoseHP(false);
-         _drawGame = true;
-         _step = 0;
-         _isRender = true;
+         this._drawGame = true;
+         this._step = 0;
+         this._isRender = true;
       }
       
       public function destory() : void
       {
-         _winner = null;
-         _loser = null;
+         this._winner = null;
+         this._loser = null;
       }
       
       public function render() : Boolean
       {
-         if(!_isRender)
+         if(!this._isRender)
          {
             return false;
          }
-         if(_holdFrame-- > 0)
+         if(this._holdFrame-- > 0)
          {
             return false;
          }
-         if(_drawGame)
+         if(this._drawGame)
          {
-            return renderDrawGame();
+            return this.renderDrawGame();
          }
-         return renderEND();
+         return this.renderEND();
       }
       
       private function renderDrawGame() : Boolean
       {
-         switch(_step)
+         switch(this._step)
          {
             case 0:
                GameUI.I.getUI().showEnd(function():void
                {
                   _holdFrame = 0;
                },{"drawGame":true});
-               _step = 1;
-               _holdFrame = 10 * GameConfig.FPS_GAME;
+               this._step = 1;
+               this._holdFrame = 10 * GameConfig.FPS_GAME;
                break;
             case 1:
-               _isRender = false;
+               this._isRender = false;
                GameUI.I.getUI().clearStartAndEnd();
                return true;
          }
@@ -90,35 +88,35 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       private function renderEND() : Boolean
       {
-         var rundata:GameRunDataVO;
-         var winner:FighterMain;
-         var timeRate:Number;
-         var addHPMax:int;
-         var addHP:int;
-         switch(_step)
+         var rundata:GameRunDataVO = null;
+         var winner:FighterMain = null;
+         var timeRate:Number = NaN;
+         var addHPMax:int = 0;
+         var addHP:int = 0;
+         switch(this._step)
          {
             case 0:
                GameUI.I.getUI().showEnd(function():void
                {
                   _holdFrame = 0;
                },{
-                  "winner":_winner,
-                  "loser":_loser
+                  "winner":this._winner,
+                  "loser":this._loser
                });
-               _step = 1;
-               _holdFrame = 10 * GameConfig.FPS_GAME;
+               this._step = 1;
+               this._holdFrame = 10 * GameConfig.FPS_GAME;
                break;
             case 1:
-               if(!FighterActionState.isAllowWinState(_winner.actionState))
+               if(!FighterActionState.isAllowWinState(this._winner.actionState))
                {
                   return false;
                }
-               _winner.win();
-               _holdFrame = 3 * GameConfig.FPS_GAME;
-               _step = 2;
+               this._winner.win();
+               this._holdFrame = 3 * GameConfig.FPS_GAME;
+               this._step = 2;
                rundata = GameCtrl.I.gameRunData;
                winner = rundata.lastWinner;
-               if(GameMode.isTeamMode() || GameMode.currentMode == 30)
+               if(Boolean(GameMode.isTeamMode()) || GameMode.currentMode == 30)
                {
                   timeRate = rundata.gameTime == -1 ? 1 : rundata.gameTime / rundata.gameTimeMax;
                   addHPMax = winner.hpMax * 0.2;
@@ -132,16 +130,16 @@ package net.play5d.game.bvn.ctrl.game_ctrls
                rundata.lastWinnerHp = winner.hp;
                break;
             case 2:
-               _step = 22;
-               _winner = null;
-               _loser = null;
+               this._step = 22;
+               this._winner = null;
+               this._loser = null;
                StateCtrl.I.transIn(function():void
                {
                   _step = 3;
                },false);
                break;
             case 3:
-               _isRender = false;
+               this._isRender = false;
                GameUI.I.getUI().clearStartAndEnd();
                GameUI.I.getUI().fadOut(false);
                return true;
@@ -151,9 +149,9 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       public function skip() : void
       {
-         if(_step == 2)
+         if(this._step == 2)
          {
-            _holdFrame = 0;
+            this._holdFrame = 0;
          }
       }
    }

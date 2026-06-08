@@ -1,11 +1,11 @@
 package net.play5d.game.bvn
 {
-   import flash.geom.Point;
+   import flash.geom.*;
    
    public class GameConfig
    {
       
-      public static var TOUCH_MODE:Boolean = false;
+      public static var TOUCH_MODE:Boolean = true;
       
       public static var INFINITE_ENERGY:Boolean = false;
       
@@ -141,29 +141,20 @@ package net.play5d.game.bvn
       
       public static var SPEED_PLUS:Number = SPEED_PLUS_DEFAULT;
       
-      public var extend_config:Object;
-      
       public function GameConfig()
       {
          super();
-         trace("[GameConfig] Constructor called, static INFINITE_ENERGY = " + INFINITE_ENERGY);
       }
       
       public static function setGameFps(param1:int) : void
       {
          FPS_GAME = param1;
          SPEED_PLUS = SPEED_PLUS_DEFAULT;
-         trace("[GameConfig] setGameFps called, FPS_GAME = " + FPS_GAME);
       }
       
       public static function get SPEED_PLUS_DEFAULT() : Number
       {
          return 30 / FPS_GAME;
-      }
-      
-      public static function debugInfiniteEnergy() : void
-      {
-         trace("[GameConfig] static INFINITE_ENERGY = " + INFINITE_ENERGY);
       }
    }
 }

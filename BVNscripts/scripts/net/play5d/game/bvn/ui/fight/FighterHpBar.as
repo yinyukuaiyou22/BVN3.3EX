@@ -1,13 +1,13 @@
 package net.play5d.game.bvn.ui.fight
 {
    import flash.display.DisplayObject;
-   import net.play5d.game.bvn.GameConfig;
+   import net.play5d.game.bvn.*;
    import net.play5d.game.bvn.fighter.FighterMain;
    
    public class FighterHpBar
    {
       
-      private var _ui:hpbar_barmc;
+      private var _ui:*;
       
       private var _bar:DisplayObject;
       
@@ -23,87 +23,87 @@ package net.play5d.game.bvn.ui.fight
       
       private var _justHurtFly:Boolean;
       
-      public function FighterHpBar(param1:hpbar_barmc)
+      public function FighterHpBar(param1:*)
       {
          super();
-         _ui = param1;
-         _bar = _ui.bar;
-         _redbar = _ui.redbar;
+         this._ui = param1;
+         this._bar = this._ui.bar;
+         this._redbar = this._ui.redbar;
       }
       
       public function get ui() : DisplayObject
       {
-         return _ui;
+         return this._ui;
       }
       
       public function destory() : void
       {
-         _fighter = null;
+         this._fighter = null;
       }
       
       public function setFighter(param1:FighterMain) : void
       {
-         _fighter = param1;
+         this._fighter = param1;
       }
       
       public function render() : void
       {
+         var _loc1_:Number = NaN;
          var _loc2_:Number = NaN;
-         var _loc4_:Number = NaN;
-         var _loc1_:Number = _fighter.hp / _fighter.hpMax;
-         if(_redBarMoving && _loc1_ != _hprate)
+         var _loc3_:Number = this._fighter.hp / this._fighter.hpMax;
+         if(Boolean(this._redBarMoving) && _loc3_ != this._hprate)
          {
-            _redbar.scaleX = _hprate;
-            _redBarMoving = false;
+            this._redbar.scaleX = this._hprate;
+            this._redBarMoving = false;
          }
-         _hprate = _loc1_;
-         var _loc3_:Number = _hprate - _bar.scaleX;
-         var _loc5_:Number = _loc3_ < 0 ? 0.4 : 0.04;
-         if(Math.abs(_loc3_) < 0.01)
+         this._hprate = _loc3_;
+         var _loc4_:Number = this._hprate - this._bar.scaleX;
+         var _loc5_:Number = _loc4_ < 0 ? 0.4 : 0.04;
+         if(Math.abs(_loc4_) < 0.01)
          {
-            _bar.scaleX = _hprate;
+            this._bar.scaleX = this._hprate;
          }
          else
          {
-            _bar.scaleX += _loc3_ * _loc5_;
+            this._bar.scaleX += _loc4_ * _loc5_;
          }
-         switch(_fighter.actionState - 21)
+         switch(this._fighter.actionState - 21)
          {
             case 0:
-               _redBarMoveDelay = 100;
+               this._redBarMoveDelay = 100;
                break;
             case 1:
             case 2:
-               if(_redBarMoveDelay > 0)
+               if(this._redBarMoveDelay > 0)
                {
-                  if(!_justHurtFly)
+                  if(!this._justHurtFly)
                   {
-                     _redBarMoveDelay = 1.5 * GameConfig.FPS_GAME;
-                     _justHurtFly = true;
+                     this._redBarMoveDelay = 1.5 * GameConfig.FPS_GAME;
+                     this._justHurtFly = true;
                   }
-                  else if(_redBarMoveDelay > 0)
+                  else if(this._redBarMoveDelay > 0)
                   {
-                     _redBarMoveDelay = _redBarMoveDelay - 1;
+                     --this._redBarMoveDelay;
                   }
                }
                break;
             default:
-               _redBarMoveDelay = 0;
-               _justHurtFly = false;
+               this._redBarMoveDelay = 0;
+               this._justHurtFly = false;
          }
-         if(_redBarMoveDelay <= 0)
+         if(this._redBarMoveDelay <= 0)
          {
-            _loc2_ = _hprate - _redbar.scaleX;
-            _loc4_ = _loc2_ < 0 ? 0.1 : 0.02;
-            if(Math.abs(_loc2_) < 0.01)
+            _loc1_ = this._hprate - this._redbar.scaleX;
+            _loc2_ = _loc1_ < 0 ? 0.1 : 0.02;
+            if(Math.abs(_loc1_) < 0.01)
             {
-               _redbar.scaleX = _hprate;
-               _redBarMoving = false;
+               this._redbar.scaleX = this._hprate;
+               this._redBarMoving = false;
             }
             else
             {
-               _redbar.scaleX += _loc2_ * _loc4_;
-               _redBarMoving = true;
+               this._redbar.scaleX += _loc1_ * _loc2_;
+               this._redBarMoving = true;
             }
          }
       }

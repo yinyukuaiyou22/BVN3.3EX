@@ -1,8 +1,8 @@
 package net.play5d.game.bvn.mob.input
 {
    import flash.display.Stage;
-   import net.play5d.game.bvn.input.IGameInput;
-   import net.play5d.game.bvn.mob.data.SocketInputData;
+   import net.play5d.game.bvn.input.*;
+   import net.play5d.game.bvn.mob.data.*;
    
    public class GameSocketInput implements IGameInput
    {
@@ -38,141 +38,142 @@ package net.play5d.game.bvn.mob.input
       public function GameSocketInput()
       {
          super();
-         initK();
+         this.initK();
       }
       
       private function initK() : void
       {
-         _upK = parseInt("1000000000",2);
-         _downK = parseInt("0100000000",2);
-         _leftK = parseInt("0010000000",2);
-         _rightK = parseInt("0001000000",2);
-         _attackK = parseInt("0000100000",2);
-         _jumpK = parseInt("0000010000",2);
-         _dashK = parseInt("0000001000",2);
-         _skillK = parseInt("0000000100",2);
-         _bishaK = parseInt("0000000010",2);
-         _specialK = parseInt("0000000001",2);
+         this._upK = parseInt("1000000000",2);
+         this._downK = parseInt("0100000000",2);
+         this._leftK = parseInt("0010000000",2);
+         this._rightK = parseInt("0001000000",2);
+         this._attackK = parseInt("0000100000",2);
+         this._jumpK = parseInt("0000010000",2);
+         this._dashK = parseInt("0000001000",2);
+         this._skillK = parseInt("0000000100",2);
+         this._bishaK = parseInt("0000000010",2);
+         this._specialK = parseInt("0000000001",2);
       }
       
       public function get enabled() : Boolean
       {
-         return _enabled;
+         return this._enabled;
       }
       
       public function set enabled(param1:Boolean) : void
       {
-         _enabled = param1;
+         this._enabled = param1;
          if(param1)
          {
-            _data = new SocketInputData();
+            this._data = new SocketInputData();
          }
          else
          {
-            _data = null;
+            this._data = null;
          }
       }
       
       public function setInputers(param1:Array) : void
       {
-         _inputers = new Vector.<IGameInput>();
-         for each(var _loc2_ in param1)
+         var _loc2_:* = undefined;
+         this._inputers = new Vector.<IGameInput>();
+         for each(_loc2_ in param1)
          {
-            _inputers.push(_loc2_);
+            this._inputers.push(_loc2_);
          }
       }
       
       public function renderInput() : void
       {
-         var _loc3_:int = 0;
-         var _loc1_:IGameInput = null;
-         if(!_inputers || _inputers.length < 1)
+         var _loc1_:int = 0;
+         var _loc2_:IGameInput = null;
+         if(!this._inputers || this._inputers.length < 1)
          {
             return;
          }
-         var _loc2_:int = int(_inputers.length);
-         _loc3_ = 0;
-         while(_loc3_ < _loc2_)
+         var _loc3_:int = int(this._inputers.length);
+         _loc1_ = 0;
+         while(_loc1_ < _loc3_)
          {
-            _loc1_ = _inputers[_loc3_];
-            _loc1_.up() && (_inputData = _inputData | _upK);
-            _loc1_.down() && (_inputData = _inputData | _downK);
-            _loc1_.left() && (_inputData = _inputData | _leftK);
-            _loc1_.right() && (_inputData = _inputData | _rightK);
-            _loc1_.attack() && (_inputData = _inputData | _attackK);
-            _loc1_.jump() && (_inputData = _inputData | _jumpK);
-            _loc1_.dash() && (_inputData = _inputData | _dashK);
-            _loc1_.skill() && (_inputData = _inputData | _skillK);
-            _loc1_.superSkill() && (_inputData = _inputData | _bishaK);
-            _loc1_.special() && (_inputData = _inputData | _specialK);
-            _loc3_++;
+            _loc2_ = this._inputers[_loc1_];
+            _loc2_.up() && (this._inputData = this._inputData | this._upK);
+            _loc2_.down() && (this._inputData = this._inputData | this._downK);
+            _loc2_.left() && (this._inputData = this._inputData | this._leftK);
+            _loc2_.right() && (this._inputData = this._inputData | this._rightK);
+            _loc2_.attack() && (this._inputData = this._inputData | this._attackK);
+            _loc2_.jump() && (this._inputData = this._inputData | this._jumpK);
+            _loc2_.dash() && (this._inputData = this._inputData | this._dashK);
+            _loc2_.skill() && (this._inputData = this._inputData | this._skillK);
+            _loc2_.superSkill() && (this._inputData = this._inputData | this._bishaK);
+            _loc2_.special() && (this._inputData = this._inputData | this._specialK);
+            _loc1_++;
          }
       }
       
       public function freeRender() : void
       {
-         var _loc3_:int = 0;
-         var _loc1_:IGameInput = null;
-         if(!_inputers || _inputers.length < 1)
+         var _loc1_:int = 0;
+         var _loc2_:IGameInput = null;
+         if(!this._inputers || this._inputers.length < 1)
          {
             return;
          }
-         if(!_data)
+         if(!this._data)
          {
             return;
          }
-         _data.clear();
-         var _loc2_:int = int(_inputers.length);
-         _loc3_ = 0;
-         while(_loc3_ < _loc2_)
+         this._data.clear();
+         var _loc3_:int = int(this._inputers.length);
+         _loc1_ = 0;
+         while(_loc1_ < _loc3_)
          {
-            _loc1_ = _inputers[_loc3_];
-            _data.up = _data.up || _loc1_.up();
-            _data.down = _data.down || _loc1_.down();
-            _data.left = _data.left || _loc1_.left();
-            _data.right = _data.right || _loc1_.right();
-            _data.attack = _data.attack || _loc1_.attack();
-            _data.jump = _data.jump || _loc1_.jump();
-            _data.dash = _data.dash || _loc1_.dash();
-            _data.skill = _data.skill || _loc1_.skill();
-            _data.superSkill = _data.superSkill || _loc1_.superSkill();
-            _data.special = _data.special || _loc1_.special();
-            _data.select = _data.select || _loc1_.select();
-            _data.back = _data.back || _loc1_.back();
-            _loc3_++;
+            _loc2_ = this._inputers[_loc1_];
+            this._data.up = Boolean(this._data.up) || _loc2_.up();
+            this._data.down = Boolean(this._data.down) || _loc2_.down();
+            this._data.left = Boolean(this._data.left) || _loc2_.left();
+            this._data.right = Boolean(this._data.right) || _loc2_.right();
+            this._data.attack = Boolean(this._data.attack) || _loc2_.attack();
+            this._data.jump = Boolean(this._data.jump) || _loc2_.jump();
+            this._data.dash = Boolean(this._data.dash) || _loc2_.dash();
+            this._data.skill = Boolean(this._data.skill) || _loc2_.skill();
+            this._data.superSkill = Boolean(this._data.superSkill) || _loc2_.superSkill();
+            this._data.special = Boolean(this._data.special) || _loc2_.special();
+            this._data.select = Boolean(this._data.select) || _loc2_.select();
+            this._data.back = Boolean(this._data.back) || _loc2_.back();
+            _loc1_++;
          }
       }
       
       public function resetInput() : void
       {
-         _inputData = 0;
-         renderInput();
+         this._inputData = 0;
+         this.renderInput();
       }
       
       public function setSocketData(param1:int) : void
       {
-         if(!_data)
+         if(!this._data)
          {
             trace("GameSocketInput.data is null!");
             return;
          }
-         var _loc3_:String = param1.toString(2);
-         var _loc2_:int = _loc3_.length;
-         _data.special = _loc3_.charAt(_loc2_ - 1) == "1";
-         _data.superSkill = _loc3_.charAt(_loc2_ - 2) == "1";
-         _data.skill = _loc3_.charAt(_loc2_ - 3) == "1";
-         _data.dash = _loc3_.charAt(_loc2_ - 4) == "1";
-         _data.jump = _loc3_.charAt(_loc2_ - 5) == "1";
-         _data.attack = _loc3_.charAt(_loc2_ - 6) == "1";
-         _data.right = _loc3_.charAt(_loc2_ - 7) == "1";
-         _data.left = _loc3_.charAt(_loc2_ - 8) == "1";
-         _data.down = _loc3_.charAt(_loc2_ - 9) == "1";
-         _data.up = _loc3_.charAt(_loc2_ - 10) == "1";
+         var _loc2_:String = param1.toString(2);
+         var _loc3_:int = _loc2_.length;
+         this._data.special = _loc2_.charAt(_loc3_ - 1) == "1";
+         this._data.superSkill = _loc2_.charAt(_loc3_ - 2) == "1";
+         this._data.skill = _loc2_.charAt(_loc3_ - 3) == "1";
+         this._data.dash = _loc2_.charAt(_loc3_ - 4) == "1";
+         this._data.jump = _loc2_.charAt(_loc3_ - 5) == "1";
+         this._data.attack = _loc2_.charAt(_loc3_ - 6) == "1";
+         this._data.right = _loc2_.charAt(_loc3_ - 7) == "1";
+         this._data.left = _loc2_.charAt(_loc3_ - 8) == "1";
+         this._data.down = _loc2_.charAt(_loc3_ - 9) == "1";
+         this._data.up = _loc2_.charAt(_loc3_ - 10) == "1";
       }
       
       public function getSocketData() : int
       {
-         return _inputData;
+         return this._inputData;
       }
       
       public function initlize(param1:Stage) : void
@@ -199,68 +200,68 @@ package net.play5d.game.bvn.mob.input
       
       public function select() : Boolean
       {
-         return Boolean(_data) && (_data.attack || _data.select);
+         return Boolean(this._data) && (Boolean(this._data.attack) || Boolean(this._data.select));
       }
       
       public function up() : Boolean
       {
-         return Boolean(_data) && _data.up;
+         return Boolean(this._data) && Boolean(this._data.up);
       }
       
       public function down() : Boolean
       {
-         return Boolean(_data) && _data.down;
+         return Boolean(this._data) && Boolean(this._data.down);
       }
       
       public function left() : Boolean
       {
-         return Boolean(_data) && _data.left;
+         return Boolean(this._data) && Boolean(this._data.left);
       }
       
       public function right() : Boolean
       {
-         return Boolean(_data) && _data.right;
+         return Boolean(this._data) && Boolean(this._data.right);
       }
       
       public function attack() : Boolean
       {
-         return Boolean(_data) && _data.attack;
+         return Boolean(this._data) && Boolean(this._data.attack);
       }
       
       public function jump() : Boolean
       {
-         return Boolean(_data) && _data.jump;
+         return Boolean(this._data) && Boolean(this._data.jump);
       }
       
       public function dash() : Boolean
       {
-         return Boolean(_data) && _data.dash;
+         return Boolean(this._data) && Boolean(this._data.dash);
       }
       
       public function skill() : Boolean
       {
-         return Boolean(_data) && _data.skill;
+         return Boolean(this._data) && Boolean(this._data.skill);
       }
       
       public function superSkill() : Boolean
       {
-         return Boolean(_data) && _data.superSkill;
+         return Boolean(this._data) && Boolean(this._data.superSkill);
       }
       
       public function special() : Boolean
       {
-         return Boolean(_data) && _data.special;
+         return Boolean(this._data) && Boolean(this._data.special);
       }
       
       public function wankai() : Boolean
       {
-         return Boolean(_data) && _data.attack && _data.jump;
+         return Boolean(this._data) && Boolean(this._data.attack) && Boolean(this._data.jump);
       }
       
       public function clear() : void
       {
-         _data && _data.clear();
-         resetInput();
+         this._data && this._data.clear();
+         this.resetInput();
       }
    }
 }

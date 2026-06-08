@@ -1,8 +1,8 @@
 package net.play5d.game.bvn.views.effects
 {
-   import flash.geom.ColorTransform;
+   import flash.geom.*;
    import net.play5d.game.bvn.data.EffectVO;
-   import net.play5d.game.bvn.fighter.FighterMain;
+   import net.play5d.game.bvn.fighter.*;
    import net.play5d.game.bvn.fighter.vos.FighterBuffVO;
    import net.play5d.game.bvn.interfaces.IGameSprite;
    
@@ -21,7 +21,7 @@ package net.play5d.game.bvn.views.effects
       
       public function setBuff(param1:FighterBuffVO) : void
       {
-         _buff = param1;
+         this._buff = param1;
       }
       
       override public function setTarget(param1:IGameSprite) : void
@@ -30,32 +30,32 @@ package net.play5d.game.bvn.views.effects
          super.setTarget(param1);
          if(param1 is FighterMain)
          {
-            _fighter = param1 as FighterMain;
+            this._fighter = param1 as FighterMain;
          }
-         if(_fighter && _data.targetColorOffset)
+         if(Boolean(this._fighter) && Boolean(_data.targetColorOffset))
          {
             _loc2_ = new ColorTransform();
             _loc2_.redOffset = _data.targetColorOffset[0];
             _loc2_.greenOffset = _data.targetColorOffset[1];
             _loc2_.blueOffset = _data.targetColorOffset[2];
-            _fighter.changeColor(_loc2_);
+            this._fighter.changeColor(_loc2_);
          }
       }
       
       override public function render() : void
       {
          super.render();
-         if(_buff.finished)
+         if(this._buff.finished)
          {
-            if(_data.targetColorOffset && _fighter)
+            if(Boolean(_data.targetColorOffset) && Boolean(this._fighter))
             {
-               _fighter.resumeColor();
+               this._fighter.resumeColor();
             }
             remove();
          }
-         else if(_fighter)
+         else if(Boolean(this._fighter))
          {
-            setPos(_fighter.x,_fighter.y);
+            setPos(this._fighter.x,this._fighter.y);
          }
       }
    }

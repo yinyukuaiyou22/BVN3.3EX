@@ -2,7 +2,7 @@ package net.play5d.game.bvn.ctrl
 {
    import flash.display.Stage;
    import flash.events.Event;
-   import flash.utils.Dictionary;
+   import flash.utils.*;
    
    public class GameRender
    {
@@ -27,12 +27,12 @@ package net.play5d.game.bvn.ctrl
          {
             param2 = "anyone";
          }
-         if(_fucs[param2] && _fucs[param2].indexOf(param1) != -1)
+         if(Boolean(_fucs[param2]) && _fucs[param2].indexOf(param1) != -1)
          {
             return;
          }
          var _loc3_:* = param2;
-         _fucs[_loc3_] ||= new Vector.<Function>();
+         _fucs[_loc3_] = _fucs[_loc3_] || new Vector.<Function>();
          _fucs[param2].push(param1);
       }
       
@@ -55,24 +55,24 @@ package net.play5d.game.bvn.ctrl
       
       private static function render(param1:Event) : void
       {
-         var _loc3_:int = 0;
-         var _loc2_:* = undefined;
+         var _loc2_:int = 0;
+         var _loc3_:* = undefined;
          if(!isRender)
          {
             return;
          }
          var _loc4_:int = 0;
-         for each(_loc2_ in _fucs)
+         for each(_loc3_ in _fucs)
          {
-            _loc3_ = int(_loc2_.length);
+            _loc2_ = int(_loc3_.length);
             _loc4_ = 0;
-            while(_loc4_ < _loc3_)
+            while(_loc4_ < _loc2_)
             {
-               if(_loc4_ > _loc2_.length - 1)
+               if(_loc4_ > _loc3_.length - 1)
                {
                   break;
                }
-               _loc2_[_loc4_]();
+               _loc3_[_loc4_]();
                _loc4_++;
             }
          }

@@ -7,20 +7,20 @@ package net.play5d.game.bvn.ui
    public class WinUI
    {
       
-      private var _ui:winmc;
+      private var _ui:*;
       
       private var _team:int;
       
-      public function WinUI(param1:winmc, param2:int)
+      public function WinUI(param1:*, param2:int)
       {
          super();
-         _ui = param1;
-         _team = param2;
+         this._ui = param1;
+         this._team = param2;
       }
       
       public function get ui() : DisplayObject
       {
-         return _ui;
+         return this._ui;
       }
       
       public function show(param1:FighterVO, param2:int) : void
@@ -33,10 +33,10 @@ package net.play5d.game.bvn.ui
          switch(param2 - 1)
          {
             case 0:
-               _loc3_ = _team == 1 ? _ui.w1 : _ui.w2;
+               _loc3_ = this._team == 1 ? this._ui.w1 : this._ui.w2;
                break;
             case 1:
-               _loc3_ = _team == 1 ? _ui.w2 : _ui.w1;
+               _loc3_ = this._team == 1 ? this._ui.w2 : this._ui.w1;
          }
          if(!_loc3_)
          {

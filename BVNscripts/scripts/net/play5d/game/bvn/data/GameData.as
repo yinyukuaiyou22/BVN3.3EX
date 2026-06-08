@@ -1,8 +1,8 @@
 package net.play5d.game.bvn.data
 {
-   import net.play5d.game.bvn.Debugger;
-   import net.play5d.game.bvn.ctrl.AssetManager;
-   import net.play5d.game.bvn.interfaces.GameInterface;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.interfaces.*;
    
    public class GameData
    {
@@ -41,29 +41,38 @@ package net.play5d.game.bvn.data
       
       public function loadConfig(param1:Function, param2:Function = null) : void
       {
+         var fail:Function = null;
+         var loadAssetsBack:* = undefined;
+         var loadSelectBack:* = undefined;
+         var loadMapBack:* = undefined;
+         var loadMessionBack:* = undefined;
+         var loadAssisterFail:* = undefined;
+         var loadSelectFail:* = undefined;
+         var loadMapFail:* = undefined;
+         var loadMessionFail:* = undefined;
          var back:Function = param1;
-         var fail:Function = param2;
+         fail = param2;
          var loadFighterBack:* = function(param1:XML):void
          {
             FighterModel.I.initByXML(param1);
             AssetManager.I.loadXML("assets/config/assist.xml",loadAssetsBack,loadAssisterFail);
          };
-         var loadAssetsBack:* = function(param1:XML):void
+         loadAssetsBack = function(param1:XML):void
          {
             AssisterModel.I.initByXML(param1);
             AssetManager.I.loadXML("assets/config/select.xml",loadSelectBack,loadSelectFail);
          };
-         var loadSelectBack:* = function(param1:XML):void
+         loadSelectBack = function(param1:XML):void
          {
             config.select_config.setByXML(param1);
             AssetManager.I.loadXML("assets/config/map.xml",loadMapBack,loadMapFail);
          };
-         var loadMapBack:* = function(param1:XML):void
+         loadMapBack = function(param1:XML):void
          {
             MapModel.I.initByXML(param1);
             AssetManager.I.loadXML("assets/config/mission.xml",loadMessionBack,loadMessionFail);
          };
-         var loadMessionBack:* = function(param1:String):void
+         loadMessionBack = function(param1:String):void
          {
             MessionModel.I.initByXML(new XML(param1));
             back();
@@ -76,7 +85,7 @@ package net.play5d.game.bvn.data
                fail("读取人物数据出错");
             }
          };
-         var loadAssisterFail:* = function():void
+         loadAssisterFail = function():void
          {
             Debugger.log("读取辅助角色数据出错");
             if(fail != null)
@@ -84,7 +93,7 @@ package net.play5d.game.bvn.data
                fail("读取辅助角色数据出错");
             }
          };
-         var loadSelectFail:* = function():void
+         loadSelectFail = function():void
          {
             Debugger.log("读取选人场景数据出错");
             if(fail != null)
@@ -92,7 +101,7 @@ package net.play5d.game.bvn.data
                fail("读取选人场景数据出错");
             }
          };
-         var loadMapFail:* = function():void
+         loadMapFail = function():void
          {
             Debugger.log("读取地图场景数据出错");
             if(fail != null)
@@ -100,7 +109,7 @@ package net.play5d.game.bvn.data
                fail("读取地图场景数据出错");
             }
          };
-         var loadMessionFail:* = function():void
+         loadMessionFail = function():void
          {
             Debugger.log("读取头卡数据出错");
             if(fail != null)
@@ -115,7 +124,7 @@ package net.play5d.game.bvn.data
       {
          var _loc1_:Object = {};
          _loc1_.id = "bvn3.01";
-         _loc1_.config = config.toSaveObj();
+         _loc1_.config = this.config.toSaveObj();
          GameInterface.instance.saveGame(_loc1_);
       }
       
@@ -126,7 +135,7 @@ package net.play5d.game.bvn.data
          {
             return;
          }
-         config.readSaveObj(_loc1_.config);
+         this.config.readSaveObj(_loc1_.config);
       }
       
       public function loadSelect(param1:String) : void
@@ -143,7 +152,7 @@ package net.play5d.game.bvn.data
       
       public function setSelectData(param1:XML) : void
       {
-         config.select_config.setByXML(param1);
+         this.config.select_config.setByXML(param1);
       }
    }
 }

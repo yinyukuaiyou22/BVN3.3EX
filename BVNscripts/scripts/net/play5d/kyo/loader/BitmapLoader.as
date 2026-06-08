@@ -1,10 +1,8 @@
 package net.play5d.kyo.loader
 {
-   import flash.display.Bitmap;
-   import flash.display.Loader;
-   import flash.events.Event;
-   import flash.events.IOErrorEvent;
-   import flash.net.URLRequest;
+   import flash.display.*;
+   import flash.events.*;
+   import flash.net.*;
    
    public class BitmapLoader
    {
@@ -23,9 +21,14 @@ package net.play5d.kyo.loader
          var loader:Loader = null;
          var loadComplete:Function = null;
          var loadFail:Function = null;
+         var back:Function = null;
+         var fail:Function = null;
+         loader = null;
+         loadComplete = null;
+         loadFail = null;
          var url:String = param1;
-         var back:Function = param2;
-         var fail:Function = param3;
+         back = param2;
+         fail = param3;
          loadComplete = function(param1:Event):void
          {
             bitmap = loader.content as Bitmap;

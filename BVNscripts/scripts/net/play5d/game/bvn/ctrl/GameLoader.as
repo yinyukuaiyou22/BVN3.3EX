@@ -1,18 +1,10 @@
 package net.play5d.game.bvn.ctrl
 {
-   import flash.display.DisplayObject;
-   import flash.display.Loader;
-   import flash.display.MovieClip;
-   import flash.display.Sprite;
-   import net.play5d.game.bvn.Debugger;
-   import net.play5d.game.bvn.data.AssisterModel;
-   import net.play5d.game.bvn.data.FighterModel;
-   import net.play5d.game.bvn.data.FighterVO;
-   import net.play5d.game.bvn.data.MapModel;
-   import net.play5d.game.bvn.data.MapVO;
-   import net.play5d.game.bvn.fighter.Assister;
-   import net.play5d.game.bvn.fighter.FighterMain;
-   import net.play5d.game.bvn.map.MapMain;
+   import flash.display.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.fighter.*;
+   import net.play5d.game.bvn.map.*;
    
    public class GameLoader
    {
@@ -24,20 +16,16 @@ package net.play5d.game.bvn.ctrl
          super();
       }
       
-      public static function loadFighter(param1:String, param2:Function, param3:Function = null, param4:Function = null, param5:Object = null) : void
+      public static function loadFighter(fighterId:String, back:Function, fail:Function = null, process:Function = null, customBackParam:Object = null) : void
       {
-         var fighterId:String = param1;
-         var back:Function = param2;
-         var fail:Function = param3;
-         var process:Function = param4;
-         var customBackParam:Object = param5;
+         var fv:FighterVO = null;
          var loadComplete:* = function(param1:DisplayObject):void
          {
             var _loc2_:FighterMain = new FighterMain(param1 as MovieClip);
             _loc2_.data = fv;
             if(back != null)
             {
-               if(customBackParam)
+               if(Boolean(customBackParam))
                {
                   back(_loc2_,customBackParam);
                }
@@ -48,7 +36,7 @@ package net.play5d.game.bvn.ctrl
                back = null;
             }
          };
-         var fv:FighterVO = FighterModel.I.getFighter(fighterId,true);
+         fv = FighterModel.I.getFighter(fighterId,true);
          if(!fv)
          {
             trace("GameLoader.loadFighter :: ID不存在:",fighterId);
@@ -61,20 +49,16 @@ package net.play5d.game.bvn.ctrl
          loadSWF(fv.fileUrl,loadComplete,fail,process);
       }
       
-      public static function loadAssister(param1:String, param2:Function, param3:Function = null, param4:Function = null, param5:Object = null) : void
+      public static function loadAssister(fighterId:String, back:Function, fail:Function = null, process:Function = null, customBackParam:Object = null) : void
       {
-         var fighterId:String = param1;
-         var back:Function = param2;
-         var fail:Function = param3;
-         var process:Function = param4;
-         var customBackParam:Object = param5;
+         var fv:FighterVO = null;
          var loadComplete:* = function(param1:DisplayObject):void
          {
             var _loc2_:Assister = new Assister(param1 as MovieClip);
             _loc2_.data = fv;
             if(back != null)
             {
-               if(customBackParam)
+               if(Boolean(customBackParam))
                {
                   back(_loc2_,customBackParam);
                }
@@ -85,7 +69,7 @@ package net.play5d.game.bvn.ctrl
                back = null;
             }
          };
-         var fv:FighterVO = AssisterModel.I.getAssister(fighterId,true);
+         fv = AssisterModel.I.getAssister(fighterId,true);
          if(!fv)
          {
             trace("GameLoader.loadAssister :: ID不存在:",fighterId);
@@ -98,20 +82,16 @@ package net.play5d.game.bvn.ctrl
          loadSWF(fv.fileUrl,loadComplete,fail,process);
       }
       
-      public static function loadMap(param1:String, param2:Function, param3:Function = null, param4:Function = null, param5:Object = null) : void
+      public static function loadMap(mapId:String, back:Function, fail:Function = null, process:Function = null, customBackParam:Object = null) : void
       {
-         var mapId:String = param1;
-         var back:Function = param2;
-         var fail:Function = param3;
-         var process:Function = param4;
-         var customBackParam:Object = param5;
+         var mv:MapVO = null;
          var loadComplete:* = function(param1:DisplayObject):void
          {
             var _loc2_:MapMain = new MapMain(param1 as Sprite);
             _loc2_.data = mv;
             if(back != null)
             {
-               if(customBackParam)
+               if(Boolean(customBackParam))
                {
                   back(_loc2_,customBackParam);
                }
@@ -122,7 +102,7 @@ package net.play5d.game.bvn.ctrl
                back = null;
             }
          };
-         var mv:MapVO = MapModel.I.getMap(mapId);
+         mv = MapModel.I.getMap(mapId);
          if(!mv)
          {
             trace("GameLoader.loadMap :: ID不存在:",mapId);
@@ -137,8 +117,9 @@ package net.play5d.game.bvn.ctrl
       
       public static function dispose() : void
       {
-         var _loc1_:Loader = null;
-         while(_loaderCache.length)
+         var _loc1_:* = undefined;
+         _loc1_ = null;
+         while(Boolean(_loaderCache.length))
          {
             _loc1_ = _loaderCache.shift();
             try
@@ -151,37 +132,10 @@ package net.play5d.game.bvn.ctrl
                _loc1_.unload();
             }
          }
-         _loaderCache = new Vector.<Loader>();
       }
       
-      public static function disposeFighter(param1:FighterMain) : void
+      private static function loadSWF(url:String, back:Function, fail:Function = null, process:Function = null) : void
       {
-         var mc:MovieClip;
-         if(!param1)
-         {
-            return;
-         }
-         mc = param1.getDisplay() as MovieClip;
-         if(mc)
-         {
-            try
-            {
-               mc.stop();
-               mc.dispose();
-            }
-            catch(e:Error)
-            {
-               trace("GameLoader.disposeFighter ::",e);
-            }
-         }
-      }
-      
-      private static function loadSWF(param1:String, param2:Function, param3:Function = null, param4:Function = null) : void
-      {
-         var url:String = param1;
-         var back:Function = param2;
-         var fail:Function = param3;
-         var process:Function = param4;
          var loadComplete:* = function(param1:Loader):void
          {
             if(back != null)

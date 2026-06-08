@@ -2,7 +2,7 @@ package
 {
    import flash.media.Sound;
    
-   [Embed(source="/_assets/5_snd_ko.mp3")]
+   [Embed(source="_assets/5_snd_ko.mp3")]
    public dynamic class snd_ko extends Sound
    {
       

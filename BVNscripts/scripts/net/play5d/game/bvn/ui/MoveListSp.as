@@ -1,17 +1,16 @@
 package net.play5d.game.bvn.ui
 {
-   import flash.display.Bitmap;
    import flash.display.Sprite;
    import flash.events.Event;
-   import flash.utils.setTimeout;
-   import net.play5d.game.bvn.GameConfig;
+   import flash.utils.*;
+   import net.play5d.game.bvn.*;
    
    public class MoveListSp extends Sprite
    {
       
-      private var _picClass:Class = §movelist_jpg$3c22acb3cd853a5c0e8a636f154cc1bd-1736392622§;
+      private var _picClass:Class = EmbeddedAssets.movelist_jpg;
       
-      private var _pic:Bitmap;
+      private var _pic:*;
       
       private var _btns:SetBtnGroup;
       
@@ -20,28 +19,28 @@ package net.play5d.game.bvn.ui
       public function MoveListSp()
       {
          super();
-         _pic = new _picClass();
-         _pic.width = GameConfig.GAME_SIZE.x;
-         _pic.height = GameConfig.GAME_SIZE.y;
-         addChild(_pic);
-         _btns = new SetBtnGroup();
-         _btns.setBtnData([{
+         this._pic = new this._picClass();
+         this._pic.width = GameConfig.GAME_SIZE.x;
+         this._pic.height = GameConfig.GAME_SIZE.y;
+         addChild(this._pic);
+         this._btns = new SetBtnGroup();
+         this._btns.setBtnData([{
             "label":"BACK",
             "cn":"返回"
          }]);
-         _btns.addEventListener("SELECT",onSelect);
-         _btns.x = 250;
-         _btns.y = GameConfig.GAME_SIZE.y - 130;
-         addChild(_btns);
+         this._btns.addEventListener("SELECT",this.onSelect);
+         this._btns.x = 250;
+         this._btns.y = GameConfig.GAME_SIZE.y - 130;
+         addChild(this._btns);
       }
       
       public function destory() : void
       {
-         if(_btns)
+         if(Boolean(this._btns))
          {
-            _btns.removeEventListener("SELECT",onSelect);
-            _btns.destory();
-            _btns = null;
+            this._btns.removeEventListener("SELECT",this.onSelect);
+            this._btns.destory();
+            this._btns = null;
          }
       }
       
@@ -56,15 +55,15 @@ package net.play5d.game.bvn.ui
       
       public function hide() : void
       {
-         _btns.keyEnable = false;
+         this._btns.keyEnable = false;
          this.visible = false;
       }
       
       private function onSelect(param1:Event) : void
       {
-         if(onBackSelect != null)
+         if(this.onBackSelect != null)
          {
-            onBackSelect();
+            this.onBackSelect();
          }
       }
    }

@@ -1,15 +1,13 @@
 package net.play5d.game.bvn.ui
 {
-   import flash.display.Sprite;
-   import flash.events.DataEvent;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.EffectCtrl;
-   import net.play5d.game.bvn.ctrl.game_ctrls.GameCtrl;
-   import net.play5d.game.bvn.data.GameMode;
-   import net.play5d.game.bvn.events.GameEvent;
-   import net.play5d.game.bvn.events.SetBtnEvent;
-   import net.play5d.kyo.utils.KyoUtils;
+   import flash.display.*;
+   import flash.events.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.ctrl.game_ctrls.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.events.*;
+   import net.play5d.kyo.utils.*;
    
    public class PauseDialog extends Sprite
    {
@@ -27,25 +25,25 @@ package net.play5d.game.bvn.ui
       public function PauseDialog()
       {
          super();
-         _bg = new Sprite();
-         _bg.graphics.beginFill(0,0.5);
-         _bg.graphics.drawRect(0,0,GameConfig.GAME_SIZE.x,GameConfig.GAME_SIZE.y);
-         _bg.graphics.endFill();
-         addChild(_bg);
-         updateBtnData();
+         this._bg = new Sprite();
+         this._bg.graphics.beginFill(0,0.5);
+         this._bg.graphics.drawRect(0,0,GameConfig.GAME_SIZE.x,GameConfig.GAME_SIZE.y);
+         this._bg.graphics.endFill();
+         addChild(this._bg);
+         this.updateBtnData();
       }
       
       private function updateBtnData() : void
       {
-         if(_btnGroup != null)
+         if(this._btnGroup != null)
          {
-            removeChild(_btnGroup);
-            _btnGroup.destory();
-            _btnGroup = null;
+            removeChild(this._btnGroup);
+            this._btnGroup.destory();
+            this._btnGroup = null;
          }
-         _btnGroup = new SetBtnGroup();
-         addChild(_btnGroup);
-         _btnData = [{
+         this._btnGroup = new SetBtnGroup();
+         addChild(this._btnGroup);
+         this._btnData = [{
             "label":"GAME TITLE",
             "cn":"返回标题"
          },{
@@ -60,27 +58,27 @@ package net.play5d.game.bvn.ui
          }];
          if(GameMode.currentMode == 40)
          {
-            KyoUtils.array_pushAt(_btnData,{
-               "label":"P2 AI CTRLER-" + (_bIsOpenAI ? "NO" : "OFF"),
-               "cn":"P2 AI 控制:" + (_bIsOpenAI ? "启用" : "关闭")
+            KyoUtils.array_pushAt(this._btnData,{
+               "label":"P2 AI CTRLER-" + (this._bIsOpenAI ? "NO" : "OFF"),
+               "cn":"P2 AI 控制:" + (this._bIsOpenAI ? "启用" : "关闭")
             },4);
          }
-         _btnGroup.setBtnData(_btnData,_btnData.length - 1);
-         _btnGroup.addEventListener("SELECT",btnGroupSelectHandler);
+         this._btnGroup.setBtnData(this._btnData,this._btnData.length - 1);
+         this._btnGroup.addEventListener("SELECT",this.btnGroupSelectHandler);
       }
       
       public function destory() : void
       {
-         if(_btnGroup)
+         if(Boolean(this._btnGroup))
          {
-            _btnGroup.removeEventListener("SELECT",btnGroupSelectHandler);
-            _btnGroup.destory();
-            _btnGroup = null;
+            this._btnGroup.removeEventListener("SELECT",this.btnGroupSelectHandler);
+            this._btnGroup.destory();
+            this._btnGroup = null;
          }
-         if(_moveList)
+         if(Boolean(this._moveList))
          {
-            _moveList.destory();
-            _moveList = null;
+            this._moveList.destory();
+            this._moveList = null;
          }
       }
       
@@ -91,55 +89,31 @@ package net.play5d.game.bvn.ui
       
       public function show() : void
       {
-         updateBtnData();
+         this.updateBtnData();
          this.visible = true;
-         _btnGroup.keyEnable = true;
-         _btnGroup.setArrowIndex(2);
+         this._btnGroup.keyEnable = true;
+         this._btnGroup.setArrowIndex(2);
       }
       
       public function hide() : void
       {
          this.visible = false;
-         _btnGroup.keyEnable = false;
+         this._btnGroup.keyEnable = false;
          GameUI.closeConfrim();
       }
       
       private function btnGroupSelectHandler(e:SetBtnEvent) : void
       {
-         var _loc3_:String;
+         var sel:String;
          if(GameUI.showingDialog())
          {
             return;
          }
-         _loc3_ = e.selectedLabel;
-         switch(_loc3_)
+         sel = e.selectedLabel;
+         switch(sel)
          {
             case "GAME TITLE":
-               §§push(0);
-               break;
-            case "MOVE LIST":
-               §§push(1);
-               break;
-            case "BERAK SELECT":
-               §§push(2);
-               break;
-            default:
-               switch(_loc3_)
-               {
-                  case "P2 AI CTRLER-" + (_bIsOpenAI ? "NO" : "OFF"):
-                     §§push(3);
-                     break;
-                  case "CONTINUE":
-                     §§push(4);
-                     break;
-                  default:
-                     §§push(-1);
-               }
-         }
-         switch(§§pop())
-         {
-            case 0:
-               _btnGroup.keyEnable = false;
+               this._btnGroup.keyEnable = false;
                GameUI.confrim("BACK TITLE?","返回到主菜单？",function():void
                {
                   EffectCtrl.I.endShake();
@@ -151,39 +125,46 @@ package net.play5d.game.bvn.ui
                   MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["back_title_cancel"])));
                });
                break;
-            case 1:
-               showMoveList();
+            case "MOVE LIST":
+               this.showMoveList();
                MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["move_list"])));
                break;
-            case 2:
+            case "BERAK SELECT":
                GameEvent.dispatchEvent("GAME_END");
                EffectCtrl.I.endShake();
                MainGame.I.goSelect();
                break;
-            case 3:
-               _bIsOpenAI = !_bIsOpenAI;
-               GameCtrl.I.setFighterActionCtrl(GameCtrl.I.gameRunData.p2FighterGroup.currentFighter,2,_bIsOpenAI);
-            case 4:
+            case "CONTINUE":
                GameCtrl.I.resume(true);
+               break;
+            default:
+               if(sel.indexOf("P2 AI CTRLER-") == 0)
+               {
+                  this._bIsOpenAI = !this._bIsOpenAI;
+                  GameCtrl.I.toggleFighterAI(GameCtrl.I.gameRunData.p2FighterGroup.currentFighter,2,this._bIsOpenAI);
+                  GameCtrl.I.resume(true);
+               }
          }
       }
       
       private function showMoveList() : void
       {
-         if(!_moveList)
+         if(!this._moveList)
          {
-            _moveList = new MoveListSp();
-            _moveList.onBackSelect = hideMoveList;
-            addChild(_moveList);
+            this._moveList = new MoveListSp();
+            this._moveList.onBackSelect = this.hideMoveList;
+            addChild(this._moveList);
          }
-         _btnGroup.keyEnable = false;
-         _moveList.show();
+         this._btnGroup.keyEnable = false;
+         this._btnGroup.visible = false;
+         this._moveList.show();
       }
       
       private function hideMoveList() : void
       {
-         _moveList.hide();
-         _btnGroup.keyEnable = true;
+         this._moveList.hide();
+         this._btnGroup.visible = true;
+         this._btnGroup.keyEnable = true;
          MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["move_list_cancel"])));
       }
    }

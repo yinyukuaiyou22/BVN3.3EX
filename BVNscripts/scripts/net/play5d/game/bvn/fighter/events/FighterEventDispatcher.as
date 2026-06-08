@@ -1,6 +1,6 @@
 package net.play5d.game.bvn.fighter.events
 {
-   import flash.events.EventDispatcher;
+   import flash.events.*;
    import net.play5d.game.bvn.interfaces.BaseGameSprite;
    
    public class FighterEventDispatcher
@@ -34,7 +34,8 @@ package net.play5d.game.bvn.fighter.events
       
       public static function removeAllListeners() : void
       {
-         for(var _loc1_ in _addedEvents)
+         var _loc1_:* = undefined;
+         for(_loc1_ in _addedEvents)
          {
             _dispatcher.removeEventListener(_loc1_,_addedEvents[_loc1_]);
          }

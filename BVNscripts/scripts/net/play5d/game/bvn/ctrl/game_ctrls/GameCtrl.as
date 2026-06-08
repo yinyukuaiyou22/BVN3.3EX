@@ -1,35 +1,19 @@
 package net.play5d.game.bvn.ctrl.game_ctrls
 {
-   import flash.events.DataEvent;
-   import flash.geom.ColorTransform;
-   import net.play5d.game.bvn.Debugger;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.EffectCtrl;
-   import net.play5d.game.bvn.ctrl.GameLoader;
-   import net.play5d.game.bvn.ctrl.GameLogic;
-   import net.play5d.game.bvn.ctrl.GameRender;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.data.GameMode;
-   import net.play5d.game.bvn.data.GameRunDataVO;
-   import net.play5d.game.bvn.data.GameRunFighterGroup;
-   import net.play5d.game.bvn.data.MessionModel;
-   import net.play5d.game.bvn.data.TeamMap;
-   import net.play5d.game.bvn.data.TeamVO;
-   import net.play5d.game.bvn.events.GameEvent;
-   import net.play5d.game.bvn.fighter.FighterAttacker;
-   import net.play5d.game.bvn.fighter.FighterMain;
-   import net.play5d.game.bvn.fighter.ctrler.FighterAICtrl;
-   import net.play5d.game.bvn.fighter.ctrler.FighterKeyCtrl;
-   import net.play5d.game.bvn.input.GameInputer;
-   import net.play5d.game.bvn.interfaces.GameInterface;
-   import net.play5d.game.bvn.interfaces.IFighterActionCtrl;
-   import net.play5d.game.bvn.interfaces.IGameSprite;
+   import flash.events.*;
+   import flash.geom.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.events.*;
+   import net.play5d.game.bvn.fighter.*;
+   import net.play5d.game.bvn.fighter.ctrler.*;
+   import net.play5d.game.bvn.input.*;
+   import net.play5d.game.bvn.interfaces.*;
    import net.play5d.game.bvn.map.MapMain;
    import net.play5d.game.bvn.state.GameState;
-   import net.play5d.game.bvn.ui.GameUI;
-   import net.play5d.game.bvn.utils.KeyBoarder;
+   import net.play5d.game.bvn.ui.*;
+   import net.play5d.game.bvn.utils.*;
    
    public class GameCtrl
    {
@@ -45,8 +29,6 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       public var autoStartAble:Boolean = true;
       
       public var autoEndRoundAble:Boolean = true;
-      
-      public var slowRate:Number = 0;
       
       private var _teamMap:TeamMap = new TeamMap();
       
@@ -74,6 +56,8 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       public var fightFinished:Boolean;
       
+      private var _gameStartAndPause:Boolean;
+      
       public function GameCtrl()
       {
          super();
@@ -90,113 +74,114 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       public function getAttacker(param1:String, param2:int) : FighterAttacker
       {
-         return _fighterEventCtrl.getAttacker(param1,param2);
+         return this._fighterEventCtrl.getAttacker(param1,param2);
       }
       
       public function setRenderHit(param1:Boolean) : void
       {
-         if(_mainLogicCtrl)
+         if(Boolean(this._mainLogicCtrl))
          {
-            _mainLogicCtrl.renderHit = param1;
+            this._mainLogicCtrl.renderHit = param1;
          }
       }
       
       public function initlize(param1:GameState) : void
       {
          this.gameState = param1;
-         _isPauseGame = false;
-         _isRenderGame = true;
-         _gameRunning = true;
-         _fighterEventCtrl = new FighterEventCtrl();
-         _fighterEventCtrl.initlize();
-         _renderAnimateGap = Math.ceil(GameConfig.FPS_GAME / 30) - 1;
+         this._isPauseGame = false;
+         this._isRenderGame = true;
+         this._gameRunning = true;
+         this._gameStartAndPause = false;
+         this._fighterEventCtrl = new FighterEventCtrl();
+         this._fighterEventCtrl.initlize();
+         this._renderAnimateGap = Math.ceil(GameConfig.FPS_GAME / 30) - 1;
          KeyBoarder.focus();
       }
       
       private function renderPause() : void
       {
-         if(_startCtrl || _endCtrl)
+         if(Boolean(this._startCtrl) || Boolean(this._endCtrl))
          {
-            if(GameInputer.back(1) || GameInputer.select("MENU",1))
+            if(Boolean(GameInputer.back(1)) || Boolean(GameInputer.select("MENU",1)))
             {
-               if(_startCtrl)
+               if(Boolean(this._startCtrl))
                {
-                  _startCtrl.skip();
+                  this._startCtrl.skip();
                }
-               if(_endCtrl)
+               if(Boolean(this._endCtrl))
                {
-                  _endCtrl.skip();
+                  this._endCtrl.skip();
                }
             }
             return;
          }
          if(GameInputer.back(1))
          {
-            if(_isPauseGame)
+            if(this._isPauseGame)
             {
-               resume(true);
+               this.resume(true);
             }
             else
             {
-               pause(true);
+               this.pause(true);
             }
          }
       }
       
       public function destory() : void
       {
-         GameRender.remove(render);
+         GameRender.remove(this.render);
          GameLogic.clear();
          GameInputer.clearInput();
-         if(_fighterEventCtrl)
+         if(Boolean(this._fighterEventCtrl))
          {
-            _fighterEventCtrl.destory();
-            _fighterEventCtrl = null;
+            this._fighterEventCtrl.destory();
+            this._fighterEventCtrl = null;
          }
-         if(_mainLogicCtrl)
+         if(Boolean(this._mainLogicCtrl))
          {
-            _mainLogicCtrl.destory();
-            _mainLogicCtrl = null;
+            this._mainLogicCtrl.destory();
+            this._mainLogicCtrl = null;
          }
-         if(_trainingCtrl)
+         if(Boolean(this._trainingCtrl))
          {
-            _trainingCtrl.destory();
-            _trainingCtrl = null;
+            this._trainingCtrl.destory();
+            this._trainingCtrl = null;
          }
-         if(_startCtrl)
+         if(Boolean(this._startCtrl))
          {
-            _startCtrl.destory();
-            _startCtrl = null;
+            this._startCtrl.destory();
+            this._startCtrl = null;
          }
-         if(_endCtrl)
+         if(Boolean(this._endCtrl))
          {
-            _endCtrl.destory();
-            _endCtrl = null;
+            this._endCtrl.destory();
+            this._endCtrl = null;
          }
-         if(gameState)
+         if(Boolean(this.gameState))
          {
-            gameState = null;
+            this.gameState = null;
          }
-         gameRunData.p1FighterGroup.destoryFighters(gameRunData.continueLoser);
-         gameRunData.p2FighterGroup.destoryFighters(null);
-         if(gameRunData.continueLoser == null)
+         this.gameRunData.p1FighterGroup.destoryFighters(this.gameRunData.continueLoser);
+         this.gameRunData.p2FighterGroup.destoryFighters(null);
+         if(this.gameRunData.continueLoser == null)
          {
-            gameRunData.clear();
+            this.gameRunData.clear();
             GameLoader.dispose();
          }
-         _gameRunning = false;
+         this._gameRunning = false;
       }
       
       public function getEnemyTeam(param1:IGameSprite) : TeamVO
       {
-         if(param1.team)
+         if(Boolean(param1.team))
          {
-            switch(param1.team.id - 1)
+            switch(int(param1.team.id) - 1)
             {
                case 0:
-                  return _teamMap.getTeam(2);
+                  return this._teamMap.getTeam(2);
                case 1:
-                  return _teamMap.getTeam(1);
+                  return this._teamMap.getTeam(1);
             }
          }
          return null;
@@ -204,47 +189,36 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       public function addGameSprite(param1:int, param2:IGameSprite, param3:int = -1) : void
       {
+         var _loc4_:TeamVO = null;
          if(param3 != -1)
          {
-            gameState.addGameSpriteAt(param2,param3);
+            this.gameState.addGameSpriteAt(param2,param3);
          }
          else
          {
-            gameState.addGameSprite(param2);
+            this.gameState.addGameSprite(param2);
          }
-         var _loc4_:TeamVO = _teamMap.getTeam(param1);
-         if(!_loc4_)
+         _loc4_ = this._teamMap.getTeam(param1);
+         if(Boolean(_loc4_))
          {
-            if(param1 == -1)
+            param2.team = _loc4_;
+            _loc4_.addChild(param2);
+            if(param2 is FighterMain)
             {
-               return;
-            }
-            Debugger.log("GameCtrl.addGameSprite :: team is null! param1=" + param1 + " _teamMap keys:" + _teamMap.getTeam(1) + "," + _teamMap.getTeam(2));
-            if(!(param1 == 1 || param1 == 2))
-            {
-               return;
-            }
-            Debugger.log("GameCtrl.addGameSprite :: 强制重新初始化队伍");
-            initTeam();
-            _loc4_ = _teamMap.getTeam(param1);
-            if(!_loc4_)
-            {
-               return;
+               (param2 as FighterMain).targetTeams = this._teamMap.getOtherTeams(param1);
             }
          }
-         param2.team = _loc4_;
-         _loc4_.addChild(param2);
-         if(param2 is FighterMain)
+         else
          {
-            (param2 as FighterMain).targetTeams = _teamMap.getOtherTeams(param1);
+            Debugger.log("GameCtrl.addGameSprite :: team is null!");
          }
       }
       
       public function removeGameSprite(param1:IGameSprite, param2:Boolean = false) : void
       {
-         gameState.removeGameSprite(param1);
+         this.gameState.removeGameSprite(param1);
          var _loc3_:TeamVO = param1.team;
-         if(_loc3_)
+         if(Boolean(_loc3_))
          {
             _loc3_.removeChild(param1);
          }
@@ -253,114 +227,84 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       public function startGame() : void
       {
-         if(!autoStartAble)
+         if(!this.autoStartAble)
          {
             return;
          }
-         fightFinished = false;
-         doStartGame();
+         this.fightFinished = false;
+         this.doStartGame();
       }
       
       public function doStartGame() : void
       {
-         _isPauseGame = false;
+         this._isPauseGame = false;
          GameInputer.enabled = true;
-         gameRunData.reset();
-         initTeam();
-         buildGame();
+         this.gameRunData.reset();
+         this.initTeam();
+         this.buildGame();
          GameEvent.dispatchEvent("GAME_START");
-         GameRender.add(render);
+         GameRender.add(this.render);
       }
       
       private function buildGame() : void
       {
-         var _loc4_:ColorTransform = null;
-         var _loc2_:FighterMain = gameRunData.p1FighterGroup.currentFighter;
-         var _loc1_:FighterMain = gameRunData.p2FighterGroup.currentFighter;
+         var _loc1_:* = null;
+         var _loc2_:FighterMain = this.gameRunData.p1FighterGroup.currentFighter;
+         var _loc3_:FighterMain = this.gameRunData.p2FighterGroup.currentFighter;
          if(GameMode.currentMode == 40)
          {
-            _trainingCtrl = new TrainingCtrler();
-            _trainingCtrl.initlize([_loc2_,_loc1_]);
-            gameRunData.gameTimeMax = -1;
+            this._trainingCtrl = new TrainingCtrler();
+            this._trainingCtrl.initlize([_loc2_,_loc3_]);
+            this.gameRunData.gameTimeMax = -1;
          }
-         var _loc3_:MapMain = gameRunData.map;
-         if(!_loc2_ || !_loc1_ || !_loc3_)
+         var _loc4_:MapMain = this.gameRunData.map;
+         if(!_loc2_ || !_loc3_ || !_loc4_)
          {
             throw new Error("创建游戏失败");
          }
-         if(_loc2_.data.id == _loc1_.data.id)
+         if(_loc2_.data.id == _loc3_.data.id)
          {
-            _loc4_ = new ColorTransform();
-            _loc4_.greenOffset = -85;
-            _loc1_.colorTransform = _loc4_;
+            _loc1_ = new ColorTransform();
+            _loc1_.greenOffset = -85;
+            _loc3_.colorTransform = _loc1_;
          }
          else
          {
-            _loc1_.colorTransform = null;
+            _loc3_.colorTransform = null;
          }
-         addFighter(_loc2_,1);
-         addFighter(_loc1_,2);
-         var _loc7_:FighterMain = null;
-         var _loc8_:FighterMain = null;
-         if(GameMode.currentMode == 14 || GameMode.currentMode == 15)
+         this.addFighter(_loc2_,1);
+         this.addFighter(_loc3_,2);
+         _loc4_.initlize();
+         this.gameState.initFight(this.gameRunData.p1FighterGroup,this.gameRunData.p2FighterGroup,_loc4_);
+         GameLogic.initGameLogic(_loc4_,this.gameState.camera);
+         this._mainLogicCtrl = new GameMainLogicCtrler();
+         this._mainLogicCtrl.initlize(this.gameState,this._teamMap,_loc4_);
+         if(GameMode.currentMode != 40 || GameMode.currentMode == 40 && Boolean(TrainingCtrler.SAY_INTRO))
          {
-            _loc7_ = gameRunData.p1FighterGroup.getNextFighter();
-            _loc8_ = gameRunData.p2FighterGroup.getNextFighter();
-         }
-         if(GameMode.currentMode == 24 || GameMode.currentMode == 25)
-         {
-            _loc8_ = gameRunData.p2FighterGroup.getNextFighter();
-         }
-         if(_loc7_)
-         {
-            addFighter(_loc7_,3);
-         }
-         if(_loc8_)
-         {
-            addFighter(_loc8_,2);
-         }
-         _loc3_.initlize();
-         gameState.initFight(gameRunData.p1FighterGroup,gameRunData.p2FighterGroup,_loc3_);
-         GameLogic.initGameLogic(_loc3_,gameState.camera);
-         _mainLogicCtrl = new GameMainLogicCtrler();
-         _mainLogicCtrl.initlize(gameState,_teamMap,_loc3_);
-         if(GameMode.currentMode == 40)
-         {
-            actionEnable = true;
+            this.actionEnable = true;
             GameUI.I.fadIn();
             SoundCtrl.I.playFightBGM("map");
          }
          else
          {
-            _startCtrl = new GameStartCtrl(gameState);
-            actionEnable = false;
-            if(GameMode.currentMode == 24 || GameMode.currentMode == 25)
-            {
-               _startCtrl.start1v2(_loc2_,_loc1_,_loc8_);
-            }
-            else if(GameMode.currentMode == 14 || GameMode.currentMode == 15)
-            {
-               _startCtrl.start2v2(_loc2_,_loc7_,_loc1_,_loc8_);
-            }
-            else
-            {
-               _startCtrl.start1v1(_loc2_,_loc1_);
-            }
+            this._startCtrl = new GameStartCtrl(this.gameState);
+            this.actionEnable = false;
+            this._startCtrl.start1v1(_loc2_,_loc3_);
          }
          GameInterface.instance.afterBuildGame();
       }
       
       private function addFighter(param1:FighterMain, param2:int) : void
       {
-         var _loc3_:IFighterActionCtrl = null;
+         var _loc3_:* = null;
          if(!param1)
          {
             return;
          }
-         switch(param2 - 1)
+         switch(int(param2) - 1)
          {
             case 0:
-               if(GameMode.isWatch())
+               if(GameMode.isWatch(false))
                {
                   _loc3_ = new FighterAICtrl();
                   (_loc3_ as FighterAICtrl).AILevel = MessionModel.I.AI_LEVEL;
@@ -372,7 +316,7 @@ package net.play5d.game.bvn.ctrl.game_ctrls
                (_loc3_ as FighterKeyCtrl).classicMode = GameData.I.config.keyInputMode == 1;
                break;
             case 1:
-               if(GameMode.isWatch() || GameMode.isVsCPU(false) || GameMode.isAcrade())
+               if(Boolean(GameMode.isVsCPU(false)) || Boolean(GameMode.isWatch(false)) || Boolean(GameMode.isAcrade()))
                {
                   _loc3_ = new FighterAICtrl();
                   (_loc3_ as FighterAICtrl).AILevel = MessionModel.I.AI_LEVEL;
@@ -382,41 +326,10 @@ package net.play5d.game.bvn.ctrl.game_ctrls
                _loc3_ = new FighterKeyCtrl();
                (_loc3_ as FighterKeyCtrl).inputType = "P2";
                (_loc3_ as FighterKeyCtrl).classicMode = GameData.I.config.keyInputMode == 1;
-               break;
-            case 2:
-               _loc3_ = new FighterAICtrl();
-               (_loc3_ as FighterAICtrl).AILevel = MessionModel.I.AI_LEVEL;
-               (_loc3_ as FighterAICtrl).fighter = param1;
-         }
-         if(param2 == 3)
-         {
-            param2 = 1;
          }
          param1.initlize();
          param1.setActionCtrl(_loc3_);
-         addGameSprite(param2,param1);
-      }
-      
-      public function setFighterActionCtrl(param1:FighterMain, param2:int, param3:Boolean = false) : void
-      {
-         var _loc4_:IFighterActionCtrl = null;
-         if(!param1)
-         {
-            return;
-         }
-         if(param3 || GameMode.isWatch() || param2 == 2 && (GameMode.isVsCPU(false) || GameMode.isAcrade()))
-         {
-            _loc4_ = new FighterAICtrl();
-            (_loc4_ as FighterAICtrl).AILevel = MessionModel.I.AI_LEVEL;
-            (_loc4_ as FighterAICtrl).fighter = param1;
-         }
-         else
-         {
-            _loc4_ = new FighterKeyCtrl();
-            (_loc4_ as FighterKeyCtrl).inputType = param2 == 1 ? "P1" : "P2";
-            (_loc4_ as FighterKeyCtrl).classicMode = GameData.I.config.keyInputMode == 1;
-         }
-         param1.setActionCtrl(_loc4_);
+         this.addGameSprite(param2,param1);
       }
       
       private function removeFighter(param1:FighterMain) : void
@@ -425,74 +338,74 @@ package net.play5d.game.bvn.ctrl.game_ctrls
          {
             return;
          }
-         removeGameSprite(param1);
+         this.removeGameSprite(param1);
       }
       
       public function startNextRound() : void
       {
-         doBuildNextRound(GameMode.isTeamMode());
+         this.doBuildNextRound(GameMode.isTeamMode());
       }
       
       private function buildNextRound(param1:Boolean) : void
       {
-         doBuildNextRound(param1);
+         this.doBuildNextRound(param1);
       }
       
       private function doBuildNextRound(param1:Boolean) : void
       {
-         var _loc2_:int = 0;
-         gameState.resetFight(gameRunData.p1FighterGroup,gameRunData.p2FighterGroup);
-         _startCtrl = new GameStartCtrl(gameState);
+         var _loc2_:* = 0;
+         this.gameState.resetFight(this.gameRunData.p1FighterGroup,this.gameRunData.p2FighterGroup);
+         this._startCtrl = new GameStartCtrl(this.gameState);
          if(param1)
          {
-            if(gameRunData.lastWinner)
+            if(Boolean(this.gameRunData.lastWinner))
             {
-               gameRunData.lastWinner.hp = gameRunData.lastWinnerHp;
+               this.gameRunData.lastWinner.hp = this.gameRunData.lastWinnerHp;
             }
             _loc2_ = -1;
-            if(gameRunData.lastWinnerTeam)
+            if(Boolean(this.gameRunData.lastWinnerTeam))
             {
-               _loc2_ = gameRunData.lastWinnerTeam.id == 1 ? 2 : 1;
+               _loc2_ = this.gameRunData.lastWinnerTeam.id == 1 ? 2 : 1;
             }
-            _startCtrl.start1v1(gameRunData.p1FighterGroup.currentFighter,gameRunData.p2FighterGroup.currentFighter,_loc2_);
+            this._startCtrl.start1v1(this.gameRunData.p1FighterGroup.currentFighter,this.gameRunData.p2FighterGroup.currentFighter,_loc2_);
          }
          else
          {
-            _startCtrl.startNextRound();
+            this._startCtrl.startNextRound();
          }
-         gameRunData.isDrawGame = false;
+         this.gameRunData.isDrawGame = false;
          GameEvent.dispatchEvent("ROUND_START");
       }
       
       public function fightFinish() : void
       {
-         fightFinished = true;
+         this.fightFinished = true;
          if(GameMode.isAcrade())
          {
-            if(gameRunData.lastWinnerTeam.id == 1)
+            if(this.gameRunData.lastWinnerTeam.id == 1)
             {
                if(MessionModel.I.missionAllComplete())
                {
-                  Debugger.log("通关！");
+                  trace("通关！");
                   MainGame.I.goCongratulations();
                }
                else
                {
-                  Debugger.log("下一关");
-                  GameData.I.winnerId = gameRunData.p1FighterGroup.currentFighter.data.id;
+                  trace("下一关");
+                  GameData.I.winnerId = this.gameRunData.p1FighterGroup.currentFighter.data.id;
                   MainGame.I.goWinner();
                }
             }
             else
             {
-               Debugger.log("跳转是否继续");
-               gameRunData.continueLoser = gameRunData.p1FighterGroup.currentFighter;
+               trace("跳转是否继续");
+               this.gameRunData.continueLoser = this.gameRunData.p1FighterGroup.currentFighter;
                MainGame.I.goContinue();
             }
          }
-         if(GameMode.isVsCPU() || GameMode.isVsPeople())
+         if(Boolean(GameMode.isVsCPU()) || Boolean(GameMode.isVsPeople()))
          {
-            Debugger.log("返回选人");
+            trace("返回选人");
             GameEvent.dispatchEvent("GAME_END");
             MainGame.I.goSelect();
          }
@@ -500,107 +413,88 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       private function initTeam() : void
       {
-         _teamMap.clear();
-         var _loc1_:Array = GameMode.getTeams();
-         for each(var _loc2_ in _loc1_)
+         var _loc1_:* = undefined;
+         this._teamMap.clear();
+         var _loc2_:Array = GameMode.getTeams();
+         for each(_loc1_ in _loc2_)
          {
-            _teamMap.add(new TeamVO(_loc2_.id,_loc2_.name));
+            this._teamMap.add(new TeamVO(_loc1_.id,_loc1_.name));
          }
       }
       
       public function pause(param1:Boolean = false) : void
       {
-         if(!_gameRunning)
+         if(!this._gameRunning)
          {
             return;
          }
-         if(param1 && !_isPauseGame)
+         if(param1 && !this._isPauseGame)
          {
+            if(Boolean(this._startCtrl) || Boolean(this._endCtrl))
+            {
+               this._gameStartAndPause = true;
+               return;
+            }
             GameEvent.dispatchEvent("PAUSE_GAME");
-            _isPauseGame = true;
+            this._isPauseGame = true;
             GameUI.I.getUI().pause();
             MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["game_pause"])));
          }
-         _isRenderGame = false;
+         this._isRenderGame = false;
       }
       
       public function resume(param1:Boolean = false) : void
       {
-         if(!_gameRunning)
+         if(!this._gameRunning)
          {
             return;
          }
-         if(param1 && _isPauseGame)
+         this._gameStartAndPause = false;
+         if(param1 && Boolean(this._isPauseGame))
          {
             GameEvent.dispatchEvent("RESUME_GAME");
-            _isPauseGame = false;
+            this._isPauseGame = false;
             GameUI.I.getUI().resume();
             MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["game_resume"])));
          }
          KeyBoarder.focus();
-         _isRenderGame = true;
+         this._isRenderGame = true;
       }
       
       public function gameEnd(param1:FighterMain, param2:FighterMain) : void
       {
-         if(!autoEndRoundAble)
+         if(!this.autoEndRoundAble)
          {
             return;
          }
-         if(_endCtrl)
+         if(Boolean(this._endCtrl))
          {
             return;
          }
-         doGameEnd(param1,param2);
+         this.doGameEnd(param1,param2);
       }
       
       public function doGameEnd(param1:FighterMain, param2:FighterMain) : void
       {
-         gameRunData.lastWinnerTeam = param1.team;
-         gameRunData.lastWinner = param1;
-         gameRunData.lastLoserData = param2.data;
-         gameRunData.lastLoserQi = param2.qi;
-         switch(param1.team.id - 1)
+         this.gameRunData.lastWinnerTeam = param1.team;
+         this.gameRunData.lastWinner = param1;
+         this.gameRunData.lastLoserData = param2.data;
+         this.gameRunData.lastLoserQi = param2.qi;
+         switch(int(param1.team.id) - 1)
          {
             case 0:
-               if(GameMode.currentMode == 24 || GameMode.currentMode == 14 || GameMode.currentMode == 15 || GameMode.currentMode == 25)
-               {
-                  var _loc5_:FighterMain = gameRunData.p2FighterGroup.currentFighter;
-                  var _loc4_:FighterMain = gameRunData.p2FighterGroup.getNextFighter();
-                  if(!(_loc5_.hp <= 0 && _loc4_.hp <= 0))
-                  {
-                     return;
-                  }
-                  ++gameRunData.p1Wins;
-               }
-               else
-               {
-                  ++gameRunData.p1Wins;
-               }
-               if(param2.hp <= 0 && GameMode.isAcrade())
+               ++this.gameRunData.p1Wins;
+               if(param2.hp <= 0 && Boolean(GameMode.isAcrade()))
                {
                   GameLogic.addScoreByKO();
                }
                break;
             case 1:
-               if(GameMode.currentMode == 14 || GameMode.currentMode == 15)
-               {
-                  var _loc9_:FighterMain = gameRunData.p1FighterGroup.currentFighter;
-                  var _loc3_:FighterMain = gameRunData.p1FighterGroup.getNextFighter();
-                  if(!(_loc9_.hp <= 0 && _loc3_.hp <= 0))
-                  {
-                     return;
-                  }
-                  ++gameRunData.p2Wins;
-               }
-               else
-               {
-                  ++gameRunData.p2Wins;
-               }
+               ++this.gameRunData.p2Wins;
          }
-         _endCtrl = new GameEndCtrl();
-         _endCtrl.initlize(param1,param2);
-         actionEnable = false;
+         this._endCtrl = new GameEndCtrl();
+         this._endCtrl.initlize(param1,param2);
+         this.actionEnable = false;
          GameEvent.dispatchEvent("ROUND_END");
       }
       
@@ -608,89 +502,94 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       {
          var _loc1_:Boolean = false;
          var _loc2_:Boolean = false;
-         renderPause();
-         if(_isPauseGame)
+         this.renderPause();
+         if(this._isPauseGame)
          {
             return;
          }
          EffectCtrl.I.render();
-         gameState.render();
-         if(!_isRenderGame)
+         this.gameState.render();
+         if(!this._isRenderGame)
          {
             return;
          }
-         checkRenderAnimate();
-         if(_mainLogicCtrl)
+         this.checkRenderAnimate();
+         if(Boolean(this._mainLogicCtrl))
          {
-            _mainLogicCtrl.render();
+            this._mainLogicCtrl.render();
          }
-         if(_startCtrl)
+         if(Boolean(this._startCtrl))
          {
-            actionEnable = false;
-            _loc1_ = _startCtrl.render();
+            this.actionEnable = false;
+            _loc1_ = Boolean(this._startCtrl.render());
             if(_loc1_)
             {
-               _startCtrl.destory();
-               _startCtrl = null;
-               actionEnable = true;
-               gameRunData.setAllowLoseHP(true);
+               this._startCtrl.destory();
+               this._startCtrl = null;
+               this.actionEnable = true;
+               this.gameRunData.setAllowLoseHP(true);
+               if(this._gameStartAndPause)
+               {
+                  this.pause(true);
+                  this._gameStartAndPause = false;
+               }
             }
          }
-         if(_endCtrl)
+         if(Boolean(this._endCtrl))
          {
-            _loc2_ = _endCtrl.render();
+            _loc2_ = Boolean(this._endCtrl.render());
             if(_loc2_)
             {
-               _endCtrl.destory();
-               _endCtrl = null;
-               runNext();
+               this._endCtrl.destory();
+               this._endCtrl = null;
+               this.runNext();
             }
          }
-         if(_trainingCtrl)
+         if(Boolean(this._trainingCtrl))
          {
-            _trainingCtrl.render();
+            this._trainingCtrl.render();
          }
       }
       
       private function checkRenderAnimate() : void
       {
-         if(_renderAnimateGap > 0)
+         if(this._renderAnimateGap > 0)
          {
-            if(_renderAnimateFrame++ >= _renderAnimateGap)
+            if(this._renderAnimateFrame++ >= this._renderAnimateGap)
             {
-               _renderAnimateFrame = 0;
-               renderAnimate();
+               this._renderAnimateFrame = 0;
+               this.renderAnimate();
             }
          }
          else
          {
-            renderAnimate();
+            this.renderAnimate();
          }
       }
       
       private function renderAnimate() : void
       {
-         if(_mainLogicCtrl)
+         if(Boolean(this._mainLogicCtrl))
          {
-            _mainLogicCtrl.renderAnimate();
+            this._mainLogicCtrl.renderAnimate();
          }
-         if(actionEnable && !_startCtrl && !_endCtrl)
+         if(this.actionEnable && !this._startCtrl && !this._endCtrl)
          {
-            renderGameTime();
+            this.renderGameTime();
          }
       }
       
       private function renderGameTime() : void
       {
-         if(gameRunData.gameTimeMax != -1)
+         if(this.gameRunData.gameTimeMax != -1)
          {
-            if(++_renderTimeFrame > 30)
+            if(++this._renderTimeFrame > 30)
             {
-               _renderTimeFrame = 0;
-               --gameRunData.gameTime;
-               if(gameRunData.gameTime <= 0)
+               this._renderTimeFrame = 0;
+               --this.gameRunData.gameTime;
+               if(this.gameRunData.gameTime <= 0)
                {
-                  timeover();
+                  this.timeover();
                }
             }
          }
@@ -698,99 +597,99 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       private function timeover() : void
       {
-         Debugger.log("time over!!!");
-         actionEnable = false;
-         var _loc1_:FighterMain = gameRunData.p1FighterGroup.currentFighter;
-         var _loc2_:FighterMain = gameRunData.p2FighterGroup.currentFighter;
-         gameRunData.isTimerOver = true;
+         trace("time over!!!");
+         this.actionEnable = false;
+         var _loc1_:FighterMain = this.gameRunData.p1FighterGroup.currentFighter;
+         var _loc2_:FighterMain = this.gameRunData.p2FighterGroup.currentFighter;
+         this.gameRunData.isTimerOver = true;
          if(_loc1_.hp == _loc2_.hp)
          {
-            drawGame();
+            this.drawGame();
             return;
          }
          if(_loc1_.hp > _loc2_.hp)
          {
-            gameEnd(_loc1_,_loc2_);
+            this.gameEnd(_loc1_,_loc2_);
          }
          else
          {
-            gameEnd(_loc2_,_loc1_);
+            this.gameEnd(_loc2_,_loc1_);
          }
       }
       
       public function drawGame() : void
       {
-         if(_endCtrl)
+         if(Boolean(this._endCtrl))
          {
             return;
          }
-         gameRunData.lastWinnerTeam = null;
-         gameRunData.lastWinner = null;
-         gameRunData.isDrawGame = true;
-         _endCtrl = new GameEndCtrl();
-         _endCtrl.drawGame();
-         actionEnable = false;
+         this.gameRunData.lastWinnerTeam = null;
+         this.gameRunData.lastWinner = null;
+         this.gameRunData.isDrawGame = true;
+         this._endCtrl = new GameEndCtrl();
+         this._endCtrl.drawGame();
+         this.actionEnable = false;
       }
       
       private function runNext() : void
       {
-         Debugger.log("GameMode.currentMode",GameMode.currentMode);
-         gameRunData.nextRound();
+         trace("GameMode.currentMode",GameMode.currentMode);
+         this.gameRunData.nextRound();
          if(GameMode.isTeamMode())
          {
-            if(startNextTeamFight())
+            if(this.startNextTeamFight())
             {
-               buildNextRound(true);
-               gameRunData.lastWinner = null;
+               this.buildNextRound(true);
+               this.gameRunData.lastWinner = null;
                return;
             }
          }
          if(GameMode.isSingleMode())
          {
-            if(gameRunData.p1Wins < 2 && gameRunData.p2Wins < 2)
+            if(this.gameRunData.p1Wins < 2 && this.gameRunData.p2Wins < 2)
             {
-               buildNextRound(false);
-               gameRunData.lastWinner = null;
+               this.buildNextRound(false);
+               this.gameRunData.lastWinner = null;
                return;
             }
          }
-         fightFinish();
+         this.fightFinish();
       }
       
       private function startNextTeamFight() : Boolean
       {
-         var _loc1_:FighterMain = null;
-         var _loc2_:FighterMain = null;
-         if(gameRunData.isDrawGame)
+         var _loc1_:* = null;
+         var _loc2_:* = null;
+         if(this.gameRunData.isDrawGame)
          {
-            _loc1_ = gameRunData.p1FighterGroup.getNextFighter();
-            _loc2_ = gameRunData.p2FighterGroup.getNextFighter();
+            _loc1_ = this.gameRunData.p1FighterGroup.getNextFighter();
+            _loc2_ = this.gameRunData.p2FighterGroup.getNextFighter();
             if(!_loc1_ && !_loc2_)
             {
                return true;
             }
-            if(_loc1_ && !_loc2_)
+            if(Boolean(_loc1_) && !_loc2_)
             {
-               gameRunData.lastWinnerTeam = gameRunData.p1FighterGroup.currentFighter.team;
+               this.gameRunData.lastWinnerTeam = this.gameRunData.p1FighterGroup.currentFighter.team;
                return false;
             }
-            if(!_loc1_ && _loc2_)
+            if(!_loc1_ && Boolean(_loc2_))
             {
-               gameRunData.lastWinnerTeam = gameRunData.p2FighterGroup.currentFighter.team;
+               this.gameRunData.lastWinnerTeam = this.gameRunData.p2FighterGroup.currentFighter.team;
                return false;
             }
-            nextFighter(gameRunData.p1FighterGroup);
-            nextFighter(gameRunData.p2FighterGroup);
+            this.nextFighter(this.gameRunData.p1FighterGroup);
+            this.nextFighter(this.gameRunData.p2FighterGroup);
             return true;
          }
-         switch(gameRunData.lastWinnerTeam.id - 1)
+         switch(int(this.gameRunData.lastWinnerTeam.id) - 1)
          {
             case 0:
-               return nextFighter(gameRunData.p2FighterGroup);
+               return this.nextFighter(this.gameRunData.p2FighterGroup);
             case 1:
-               return nextFighter(gameRunData.p1FighterGroup);
+               return this.nextFighter(this.gameRunData.p1FighterGroup);
             default:
-               gameRunData.lastWinnerTeam = null;
+               this.gameRunData.lastWinnerTeam = null;
                return true;
          }
       }
@@ -807,45 +706,87 @@ package net.play5d.game.bvn.ctrl.game_ctrls
          {
             return false;
          }
-         if(gameRunData.lastLoserData)
+         if(Boolean(this.gameRunData.lastLoserData))
          {
-            if(gameRunData.lastLoserData.comicType == _loc3_.data.comicType)
+            if(this.gameRunData.lastLoserData.comicType == _loc3_.data.comicType)
             {
-               _loc3_.qi = gameRunData.lastLoserQi + 100;
+               _loc3_.qi = this.gameRunData.lastLoserQi + 100;
                if(_loc3_.qi > 300)
                {
                   _loc3_.qi = 300;
                }
             }
          }
-         removeFighter(param1.currentFighter);
+         this.removeFighter(param1.currentFighter);
          param1.removeCurrentFighter();
          param1.currentFighter = _loc3_;
-         addFighter(param1.currentFighter,_loc2_.id);
+         this.addFighter(param1.currentFighter,_loc2_.id);
          return true;
       }
       
       public function slow(param1:Number) : void
       {
-         this.slowRate = param1;
          var _loc2_:Number = 30 / param1;
-         setAnimateFPS(_loc2_);
-         _mainLogicCtrl.setSpeedPlus(GameConfig.SPEED_PLUS_DEFAULT / param1);
-         gameState.camera.tweenSpd = 2.5 * param1;
+         this.setAnimateFPS(_loc2_);
+         this._mainLogicCtrl.setSpeedPlus(GameConfig.SPEED_PLUS_DEFAULT / param1);
+         this.gameState.camera.tweenSpd = 2.5 * param1;
       }
       
       public function slowResume() : void
       {
-         this.slowRate = 0;
-         setAnimateFPS(30);
-         _mainLogicCtrl.setSpeedPlus(GameConfig.SPEED_PLUS_DEFAULT);
-         gameState.camera.tweenSpd = 2.5;
+         this.setAnimateFPS(30);
+         this._mainLogicCtrl.setSpeedPlus(GameConfig.SPEED_PLUS_DEFAULT);
+         this.gameState.camera.tweenSpd = 2.5;
+      }
+      
+      public function setFighterActionCtrl(param1:FighterMain, param2:int, param3:Boolean = false) : void
+      {
+         var _loc4_:* = null;
+         if(!param1)
+         {
+            return;
+         }
+         if(param3 || Boolean(GameMode.isWatch()) || param2 == 2 && (Boolean(GameMode.isVsCPU(false)) || Boolean(GameMode.isAcrade())))
+         {
+            _loc4_ = new FighterAICtrl();
+            (_loc4_ as FighterAICtrl).AILevel = MessionModel.I.AI_LEVEL;
+            (_loc4_ as FighterAICtrl).fighter = param1;
+         }
+         else
+         {
+            _loc4_ = new FighterKeyCtrl();
+            (_loc4_ as FighterKeyCtrl).inputType = param2 == 1 ? "P1" : "P2";
+            (_loc4_ as FighterKeyCtrl).classicMode = GameData.I.config.keyInputMode == 1;
+         }
+         param1.setActionCtrl(_loc4_);
+      }
+      
+      public function toggleFighterAI(param1:FighterMain, param2:int, param3:Boolean) : void
+      {
+         var _loc4_:* = null;
+         if(!param1)
+         {
+            return;
+         }
+         if(param3)
+         {
+            _loc4_ = new FighterAICtrl();
+            (_loc4_ as FighterAICtrl).AILevel = MessionModel.I.AI_LEVEL;
+            (_loc4_ as FighterAICtrl).fighter = param1;
+         }
+         else
+         {
+            _loc4_ = new FighterKeyCtrl();
+            (_loc4_ as FighterKeyCtrl).inputType = param2 == 1 ? "P1" : "P2";
+            (_loc4_ as FighterKeyCtrl).classicMode = GameData.I.config.keyInputMode == 1;
+         }
+         param1.setActionCtrl(_loc4_);
       }
       
       private function setAnimateFPS(param1:Number) : void
       {
-         _renderAnimateGap = Math.ceil(GameConfig.FPS_GAME / param1) - 1;
-         _renderAnimateFrame = 0;
+         this._renderAnimateGap = Math.ceil(GameConfig.FPS_GAME / param1) - 1;
+         this._renderAnimateFrame = 0;
       }
    }
 }

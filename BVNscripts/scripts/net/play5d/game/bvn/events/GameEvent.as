@@ -1,7 +1,6 @@
 package net.play5d.game.bvn.events
 {
-   import flash.events.Event;
-   import flash.events.EventDispatcher;
+   import flash.events.*;
    
    public class GameEvent extends Event
    {

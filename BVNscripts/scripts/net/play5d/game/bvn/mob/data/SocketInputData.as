@@ -34,18 +34,18 @@ package net.play5d.game.bvn.mob.data
       
       public function clear() : void
       {
-         up = false;
-         down = false;
-         left = false;
-         right = false;
-         attack = false;
-         jump = false;
-         dash = false;
-         skill = false;
-         superSkill = false;
-         special = false;
-         select = false;
-         back = false;
+         this.up = false;
+         this.down = false;
+         this.left = false;
+         this.right = false;
+         this.attack = false;
+         this.jump = false;
+         this.dash = false;
+         this.skill = false;
+         this.superSkill = false;
+         this.special = false;
+         this.select = false;
+         this.back = false;
       }
    }
 }

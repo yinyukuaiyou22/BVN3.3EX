@@ -8,98 +8,91 @@ package com.adobe.utils
          super();
       }
       
-      public static function stringsAreEqual(param1:String, param2:String, param3:Boolean) : Boolean
+      public static function stringsAreEqual(s1:String, s2:String, caseSensitive:Boolean) : Boolean
       {
-         if(param3)
+         if(caseSensitive)
          {
-            return param1 == param2;
+            return s1 == s2;
          }
-         return param1.toUpperCase() == param2.toUpperCase();
+         return s1.toUpperCase() == s2.toUpperCase();
       }
       
-      public static function trim(param1:String) : String
+      public static function trim(input:String) : String
       {
-         return StringUtil.ltrim(StringUtil.rtrim(param1));
+         return StringUtil.ltrim(StringUtil.rtrim(input));
       }
       
-      public static function ltrim(param1:String) : String
+      public static function ltrim(input:String) : String
       {
-         var _loc2_:Number = param1.length;
-         var _loc3_:Number = 0;
-         while(_loc3_ < _loc2_)
+         var size:Number = input.length;
+         for(var i:Number = 0; i < size; i++)
          {
-            if(param1.charCodeAt(_loc3_) > 32)
+            if(input.charCodeAt(i) > 32)
             {
-               return param1.substring(_loc3_);
+               return input.substring(i);
             }
-            _loc3_++;
          }
          return "";
       }
       
-      public static function rtrim(param1:String) : String
+      public static function rtrim(input:String) : String
       {
-         var _loc2_:Number = param1.length;
-         var _loc3_:Number = _loc2_;
-         while(_loc3_ > 0)
+         var size:Number = input.length;
+         for(var i:Number = size; i > 0; i--)
          {
-            if(param1.charCodeAt(_loc3_ - 1) > 32)
+            if(input.charCodeAt(i - 1) > 32)
             {
-               return param1.substring(0,_loc3_);
+               return input.substring(0,i);
             }
-            _loc3_--;
          }
          return "";
       }
       
-      public static function beginsWith(param1:String, param2:String) : Boolean
+      public static function beginsWith(input:String, prefix:String) : Boolean
       {
-         return param2 == param1.substring(0,param2.length);
+         return prefix == input.substring(0,prefix.length);
       }
       
-      public static function endsWith(param1:String, param2:String) : Boolean
+      public static function endsWith(input:String, suffix:String) : Boolean
       {
-         return param2 == param1.substring(param1.length - param2.length);
+         return suffix == input.substring(input.length - suffix.length);
       }
       
-      public static function remove(param1:String, param2:String) : String
+      public static function remove(input:String, remove:String) : String
       {
-         return StringUtil.replace(param1,param2,"");
+         return StringUtil.replace(input,remove,"");
       }
       
-      public static function replace(param1:String, param2:String, param3:String) : String
+      public static function replace(input:String, replace:String, replaceWith:String) : String
       {
-         var _loc9_:Number = Number(NaN);
-         var _loc4_:String = new String();
-         var _loc5_:Boolean = false;
-         var _loc6_:Number = param1.length;
-         var _loc7_:Number = param2.length;
-         var _loc8_:Number = 0;
-         for(; _loc8_ < _loc6_; _loc8_++)
+         var j:Number = NaN;
+         var sb:String = new String();
+         var found:Boolean = false;
+         var sLen:Number = input.length;
+         var rLen:Number = replace.length;
+         for(var i:Number = 0; i < sLen; i++)
          {
-            if(param1.charAt(_loc8_) == param2.charAt(0))
+            if(input.charAt(i) == replace.charAt(0))
             {
-               _loc5_ = true;
-               _loc9_ = 0;
-               while(_loc9_ < _loc7_)
+               found = true;
+               for(j = 0; j < rLen; j++)
                {
-                  if(param1.charAt(_loc8_ + _loc9_) != param2.charAt(_loc9_))
+                  if(input.charAt(i + j) != replace.charAt(j))
                   {
-                     _loc5_ = false;
+                     found = false;
                      break;
                   }
-                  _loc9_++;
                }
-               if(_loc5_)
+               if(found)
                {
-                  _loc4_ += param3;
-                  _loc8_ += _loc7_ - 1;
+                  sb += replaceWith;
+                  i += rLen - 1;
                   continue;
                }
             }
-            _loc4_ += param1.charAt(_loc8_);
+            sb += input.charAt(i);
          }
-         return _loc4_;
+         return sb;
       }
    }
 }

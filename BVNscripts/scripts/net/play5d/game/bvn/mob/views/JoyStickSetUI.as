@@ -1,27 +1,21 @@
 package net.play5d.game.bvn.mob.views
 {
-   import com.greensock.TweenLite;
-   import flash.display.Bitmap;
-   import flash.display.DisplayObject;
-   import flash.display.Sprite;
+   import com.greensock.*;
+   import flash.display.*;
    import flash.events.EventDispatcher;
    import flash.ui.GameInputDevice;
-   import net.play5d.game.bvn.ctrl.GameRender;
-   import net.play5d.game.bvn.events.SetBtnEvent;
-   import net.play5d.game.bvn.interfaces.IInnerSetUI;
-   import net.play5d.game.bvn.mob.GameInterfaceManager;
-   import net.play5d.game.bvn.mob.input.JoyStickConfigVO;
-   import net.play5d.game.bvn.mob.input.JoyStickSetVO;
-   import net.play5d.game.bvn.mob.input.JoySticker;
-   import net.play5d.game.bvn.ui.GameUI;
-   import net.play5d.game.bvn.ui.SetBtnDialog;
-   import net.play5d.game.bvn.ui.SetBtnGroup;
-   import net.play5d.game.bvn.utils.URL;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.events.*;
+   import net.play5d.game.bvn.interfaces.*;
+   import net.play5d.game.bvn.mob.*;
+   import net.play5d.game.bvn.mob.input.*;
+   import net.play5d.game.bvn.ui.*;
+   import net.play5d.game.bvn.utils.*;
    
    public class JoyStickSetUI extends EventDispatcher implements IInnerSetUI
    {
       
-      private var _joybitmap:Class = setting_joy_png$d24ce82d618e00c0602e6ef63fe9e70b1460697224;
+      private var _joybitmap:Class = EmbeddedAssets.setting_joy_png;
       
       private var _btnGroup:SetBtnGroup;
       
@@ -48,13 +42,13 @@ package net.play5d.game.bvn.mob.views
       public function JoyStickSetUI()
       {
          super();
-         _ui = new Sprite();
-         _bp = new _joybitmap();
-         _bp.x = 170;
-         _bp.y = 250;
-         _ui.addChild(_bp);
-         _tmpJoyConfig = new JoyStickConfigVO();
-         initKeyMapping();
+         this._ui = new Sprite();
+         this._bp = new this._joybitmap();
+         this._bp.x = 170;
+         this._bp.y = 250;
+         this._ui.addChild(this._bp);
+         this._tmpJoyConfig = new JoyStickConfigVO();
+         this.initKeyMapping();
       }
       
       private function subString(param1:String, param2:int) : String
@@ -72,32 +66,32 @@ package net.play5d.game.bvn.mob.views
       
       private function initBtns() : void
       {
-         var _loc4_:int = 0;
-         var _loc1_:GameInputDevice = null;
-         var _loc2_:Vector.<GameInputDevice> = JoySticker.getAllDeivces();
-         var _loc3_:Array = [{
+         var _loc1_:int = 0;
+         var _loc2_:GameInputDevice = null;
+         var _loc3_:Vector.<GameInputDevice> = JoySticker.getAllDeivces();
+         var _loc4_:Array = [{
             "label":"NONE",
             "cn":"不使用",
             "value":null
          }];
-         while(_loc4_ < _loc2_.length)
+         while(_loc1_ < _loc3_.length)
          {
-            _loc1_ = _loc2_[_loc4_];
-            _loc3_.push({
-               "label":subString(_loc1_.name,15),
-               "cn":subString(_loc1_.name,45),
-               "value":_loc1_.id
+            _loc2_ = _loc3_[_loc1_];
+            _loc4_.push({
+               "label":this.subString(_loc2_.name,15),
+               "cn":this.subString(_loc2_.name,45),
+               "value":_loc2_.id
             });
-            _loc4_++;
+            _loc1_++;
          }
-         _btnGroup = new SetBtnGroup();
-         _btnGroup.startY = 30;
-         _btnGroup.setBtnData([{
+         this._btnGroup = new SetBtnGroup();
+         this._btnGroup.startY = 30;
+         this._btnGroup.setBtnData([{
             "label":"USE JOY",
             "cn":"绑定手柄",
-            "options":_loc3_,
+            "options":_loc4_,
             "optoinKey":"deviceId",
-            "optionValue":_tmpJoyConfig.deviceId
+            "optionValue":this._tmpJoyConfig.deviceId
          },{
             "label":"SET ALL",
             "cn":"设置全部"
@@ -114,18 +108,18 @@ package net.play5d.game.bvn.mob.views
             "label":"CANCEL",
             "cn":"取消"
          }]);
-         _btnGroup.addEventListener("SELECT",onBtnSelect);
-         _btnGroup.addEventListener("OPTION_CHANGE",onOptoinChange);
-         _ui.addChild(_btnGroup);
+         this._btnGroup.addEventListener("SELECT",this.onBtnSelect);
+         this._btnGroup.addEventListener("OPTION_CHANGE",this.onOptoinChange);
+         this._ui.addChild(this._btnGroup);
       }
       
       public function setConfig(param1:int, param2:JoyStickConfigVO) : void
       {
-         _player = param1;
-         _joyConfig = param2;
-         _tmpJoyConfig.readObj(param2.toObj());
-         _deviceId = _tmpJoyConfig.deviceId;
-         initBtns();
+         this._player = param1;
+         this._joyConfig = param2;
+         this._tmpJoyConfig.readObj(param2.toObj());
+         this._deviceId = this._tmpJoyConfig.deviceId;
+         this.initBtns();
       }
       
       private function onBtnSelect(param1:SetBtnEvent) : void
@@ -133,28 +127,28 @@ package net.play5d.game.bvn.mob.views
          switch(param1.selectedLabel)
          {
             case "SET ALL":
-               if(!JoySticker.isActive(_tmpJoyConfig.deviceId))
+               if(!JoySticker.isActive(this._tmpJoyConfig.deviceId))
                {
                   GameUI.alert("NO JOYSTICK CONNECT","未检测到可用的手柄");
                   return;
                }
-               _setIndex = -1;
-               _btnGroup.keyEnable = false;
-               _startSet = false;
-               GameRender.add(renderSet);
-               setNextKey();
+               this._setIndex = -1;
+               this._btnGroup.keyEnable = false;
+               this._startSet = false;
+               GameRender.add(this.renderSet);
+               this.setNextKey();
                break;
             case "SET DEFAULT":
-               _tmpJoyConfig = new JoyStickConfigVO();
-               _tmpJoyConfig.deviceId = _deviceId;
+               this._tmpJoyConfig = new JoyStickConfigVO();
+               this._tmpJoyConfig.deviceId = this._deviceId;
                GameUI.alert("SET JOYSTICK DEFAULT SUCCESS","已设置为默认按键");
                break;
             case "BUY JOY":
                URL.buyJoystick();
                break;
             case "APPLY":
-               _joyConfig.readObj(_tmpJoyConfig.toObj());
-               if(_player == 1)
+               this._joyConfig.readObj(this._tmpJoyConfig.toObj());
+               if(this._player == 1)
                {
                   GameInterfaceManager.config.updateJoyConfig();
                }
@@ -169,38 +163,38 @@ package net.play5d.game.bvn.mob.views
       {
          if(param1.optionKey == "deviceId")
          {
-            _tmpJoyConfig.deviceId = param1.optionValue;
-            _tmpJoyConfig.deviceIsSet = true;
-            _deviceId = param1.optionValue;
+            this._tmpJoyConfig.deviceId = param1.optionValue;
+            this._tmpJoyConfig.deviceIsSet = true;
+            this._deviceId = param1.optionValue;
          }
       }
       
       private function renderSet() : void
       {
-         var _loc2_:Object = null;
-         if(!_startSet)
+         var _loc1_:Object = null;
+         if(!this._startSet)
          {
-            if(JoySticker.isDownAnyKey(_tmpJoyConfig.deviceId) == false)
+            if(JoySticker.isDownAnyKey(this._tmpJoyConfig.deviceId) == false)
             {
-               _startSet = true;
+               this._startSet = true;
             }
             return;
          }
-         var _loc1_:JoyStickSetVO = JoySticker.getDownKey(_tmpJoyConfig.deviceId,true);
-         if(_loc1_)
+         var _loc2_:JoyStickSetVO = JoySticker.getDownKey(this._tmpJoyConfig.deviceId,true);
+         if(Boolean(_loc2_))
          {
-            _loc2_ = _mappings[_setIndex];
-            if(_loc2_)
+            _loc1_ = this._mappings[this._setIndex];
+            if(Boolean(_loc1_))
             {
-               _tmpJoyConfig[_loc2_.id] = _loc1_;
+               this._tmpJoyConfig[_loc1_.id] = _loc2_;
             }
-            setNextKey();
+            this.setNextKey();
          }
       }
       
       private function initKeyMapping() : void
       {
-         _mappings = [{
+         this._mappings = [{
             "id":"up2",
             "name":"UP roker",
             "cn":"上(摇杆)"
@@ -273,55 +267,55 @@ package net.play5d.game.bvn.mob.views
       
       private function setNextKey() : void
       {
-         _setIndex += 1;
-         var _loc1_:Object = _mappings[_setIndex];
-         if(_loc1_)
+         this._setIndex += 1;
+         var _loc1_:Object = this._mappings[this._setIndex];
+         if(Boolean(_loc1_))
          {
-            if(!_dialog)
+            if(!this._dialog)
             {
-               _dialog = new SetBtnDialog();
-               _ui.addChild(_dialog.ui);
+               this._dialog = new SetBtnDialog();
+               this._ui.addChild(this._dialog.ui);
             }
-            _dialog.show(_loc1_.name,_loc1_.cn);
+            this._dialog.show(_loc1_.name,_loc1_.cn);
          }
          else
          {
-            _dialog.hide();
-            _btnGroup.keyEnable = true;
-            GameRender.remove(renderSet);
+            this._dialog.hide();
+            this._btnGroup.keyEnable = true;
+            GameRender.remove(this.renderSet);
          }
       }
       
       public function fadIn() : void
       {
-         _bp.y = 600;
-         TweenLite.to(_bp,0.3,{"y":240});
+         this._bp.y = 600;
+         TweenLite.to(this._bp,0.3,{"y":240});
       }
       
       public function fadOut() : void
       {
-         TweenLite.to(_ui,0.3,{"y":600});
+         TweenLite.to(this._ui,0.3,{"y":600});
       }
       
       public function getUI() : DisplayObject
       {
-         return _ui;
+         return this._ui;
       }
       
       public function destory() : void
       {
-         GameRender.remove(renderSet);
-         if(_btnGroup)
+         GameRender.remove(this.renderSet);
+         if(Boolean(this._btnGroup))
          {
             try
             {
-               _ui.removeChild(_btnGroup);
+               this._ui.removeChild(this._btnGroup);
             }
             catch(e:Error)
             {
             }
-            _btnGroup.destory();
-            _btnGroup = null;
+            this._btnGroup.destory();
+            this._btnGroup = null;
          }
       }
    }

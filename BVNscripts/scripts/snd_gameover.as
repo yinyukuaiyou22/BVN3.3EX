@@ -2,7 +2,7 @@ package
 {
    import flash.media.Sound;
    
-   [Embed(source="/_assets/31_snd_gameover.mp3")]
+   [Embed(source="_assets/31_snd_gameover.mp3")]
    public dynamic class snd_gameover extends Sound
    {
       

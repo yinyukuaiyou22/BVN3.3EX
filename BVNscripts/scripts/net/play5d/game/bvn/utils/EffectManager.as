@@ -1,14 +1,9 @@
 package net.play5d.game.bvn.utils
 {
-   import flash.utils.Dictionary;
-   import net.play5d.game.bvn.data.EffectModel;
-   import net.play5d.game.bvn.data.EffectVO;
+   import flash.utils.*;
+   import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.fighter.models.HitVO;
-   import net.play5d.game.bvn.views.effects.BuffEffectView;
-   import net.play5d.game.bvn.views.effects.EffectView;
-   import net.play5d.game.bvn.views.effects.ShineEffectView;
-   import net.play5d.game.bvn.views.effects.SpecialEffectView;
-   import net.play5d.game.bvn.views.effects.SteelHitEffect;
+   import net.play5d.game.bvn.views.effects.*;
    
    public class EffectManager
    {
@@ -26,36 +21,39 @@ package net.play5d.game.bvn.utils
       
       public function destory() : void
       {
-         for each(var _loc3_ in _viewCache)
+         var _loc1_:* = undefined;
+         var _loc2_:* = undefined;
+         var _loc3_:* = undefined;
+         for each(_loc1_ in this._viewCache)
          {
-            for each(var _loc1_ in _loc3_)
+            for each(_loc3_ in _loc1_)
             {
-               _loc1_.destory();
+               _loc3_.destory();
             }
          }
-         for each(var _loc2_ in _shineCache)
+         for each(_loc2_ in this._shineCache)
          {
             _loc2_.destory();
          }
-         _viewCache = null;
-         _hitCache = null;
-         _shineCache = null;
+         this._viewCache = null;
+         this._hitCache = null;
+         this._shineCache = null;
       }
       
       public function getEffectVOByHitVO(param1:HitVO) : EffectVO
       {
-         if(_hitCache[param1] != undefined)
+         if(this._hitCache[param1] != undefined)
          {
-            return _hitCache[param1];
+            return this._hitCache[param1];
          }
          var _loc2_:EffectVO = EffectModel.I.getHitEffect(param1.hitType);
          if(!_loc2_)
          {
-            _hitCache[param1] = null;
+            this._hitCache[param1] = null;
             return null;
          }
          _loc2_ = _loc2_.clone();
-         if(_loc2_.shake)
+         if(Boolean(_loc2_.shake))
          {
             if(_loc2_.shake.pow != undefined && _loc2_.shake.pow != 0)
             {
@@ -66,68 +64,68 @@ package net.play5d.game.bvn.utils
                _loc2_.shake.x = 3;
             }
          }
-         _hitCache[param1] = _loc2_;
+         this._hitCache[param1] = _loc2_;
          return _loc2_;
       }
       
       public function getEffectView(param1:EffectVO) : EffectView
       {
-         var _loc4_:int = 0;
-         var _loc5_:int = 0;
-         var _loc3_:EffectView = null;
-         var _loc2_:Vector.<EffectView> = _viewCache[param1];
-         if(_loc2_)
+         var _loc2_:int = 0;
+         var _loc3_:int = 0;
+         var _loc4_:EffectView = null;
+         var _loc5_:Vector.<EffectView> = this._viewCache[param1];
+         if(Boolean(_loc5_))
          {
-            _loc4_ = int(_loc2_.length);
-            while(_loc5_ < _loc4_)
+            _loc2_ = int(_loc5_.length);
+            while(_loc3_ < _loc2_)
             {
-               if(!_loc2_[_loc5_].isActive)
+               if(!_loc5_[_loc3_].isActive)
                {
-                  return _loc2_[_loc5_];
+                  return _loc5_[_loc3_];
                }
-               _loc5_++;
+               _loc3_++;
             }
          }
          else
          {
-            _loc2_ = new Vector.<EffectView>();
-            _viewCache[param1] = _loc2_;
+            _loc5_ = new Vector.<EffectView>();
+            this._viewCache[param1] = _loc5_;
          }
          if(param1.isSpecial)
          {
-            _loc3_ = new SpecialEffectView(param1);
+            _loc4_ = new SpecialEffectView(param1);
          }
          else if(param1.isBuff)
          {
-            _loc3_ = new BuffEffectView(param1);
+            _loc4_ = new BuffEffectView(param1);
          }
          else if(param1.isSteelHit)
          {
-            _loc3_ = new SteelHitEffect(param1);
+            _loc4_ = new SteelHitEffect(param1);
          }
          else
          {
-            _loc3_ = new EffectView(param1);
+            _loc4_ = new EffectView(param1);
          }
-         _loc2_.push(_loc3_);
-         return _loc3_;
+         _loc5_.push(_loc4_);
+         return _loc4_;
       }
       
       public function getShine() : ShineEffectView
       {
-         var _loc3_:int = 0;
-         var _loc1_:int = int(_shineCache.length);
-         while(_loc3_ < _loc1_)
+         var _loc1_:int = 0;
+         var _loc2_:int = int(this._shineCache.length);
+         while(_loc1_ < _loc2_)
          {
-            if(!_shineCache[_loc3_].isActive)
+            if(!this._shineCache[_loc1_].isActive)
             {
-               return _shineCache[_loc3_];
+               return this._shineCache[_loc1_];
             }
-            _loc3_++;
+            _loc1_++;
          }
-         var _loc2_:ShineEffectView = new ShineEffectView();
-         _shineCache.push(_loc2_);
-         return _loc2_;
+         var _loc3_:ShineEffectView = new ShineEffectView();
+         this._shineCache.push(_loc3_);
+         return _loc3_;
       }
    }
 }

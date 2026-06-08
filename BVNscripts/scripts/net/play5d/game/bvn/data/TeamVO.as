@@ -1,7 +1,6 @@
 package net.play5d.game.bvn.data
 {
-   import net.play5d.game.bvn.interfaces.BaseGameSprite;
-   import net.play5d.game.bvn.interfaces.IGameSprite;
+   import net.play5d.game.bvn.interfaces.*;
    
    public class TeamVO
    {
@@ -21,43 +20,43 @@ package net.play5d.game.bvn.data
       
       public function getAliveChildren() : Vector.<IGameSprite>
       {
-         var _loc3_:int = 0;
+         var _loc1_:int = 0;
          var _loc2_:IGameSprite = null;
-         var _loc1_:Vector.<IGameSprite> = new Vector.<IGameSprite>();
-         while(_loc3_ < children.length)
+         var _loc3_:Vector.<IGameSprite> = new Vector.<IGameSprite>();
+         while(_loc1_ < this.children.length)
          {
-            _loc2_ = children[_loc3_];
+            _loc2_ = this.children[_loc1_];
             if(_loc2_ is BaseGameSprite)
             {
                if((_loc2_ as BaseGameSprite).isAlive)
                {
-                  _loc1_.push(_loc2_);
+                  _loc3_.push(_loc2_);
                }
             }
             else
             {
-               _loc1_.push(_loc2_);
+               _loc3_.push(_loc2_);
             }
-            _loc3_++;
+            _loc1_++;
          }
-         return _loc1_;
+         return _loc3_;
       }
       
       public function addChild(param1:IGameSprite) : void
       {
-         var _loc2_:int = children.indexOf(param1);
+         var _loc2_:int = int(this.children.indexOf(param1));
          if(_loc2_ == -1)
          {
-            children.push(param1);
+            this.children.push(param1);
          }
       }
       
       public function removeChild(param1:IGameSprite) : void
       {
-         var _loc2_:int = children.indexOf(param1);
+         var _loc2_:int = int(this.children.indexOf(param1));
          if(_loc2_ != -1)
          {
-            children.splice(_loc2_,1);
+            this.children.splice(_loc2_,1);
          }
       }
    }

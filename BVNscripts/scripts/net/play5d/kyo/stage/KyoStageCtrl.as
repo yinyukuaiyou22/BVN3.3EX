@@ -2,10 +2,9 @@ package net.play5d.kyo.stage
 {
    import flash.display.Sprite;
    import flash.events.EventDispatcher;
-   import flash.utils.getQualifiedClassName;
-   import flash.utils.setTimeout;
+   import flash.utils.*;
    import net.play5d.kyo.stage.effect.IStageFadEffect;
-   import net.play5d.kyo.stage.events.KyoStageEvent;
+   import net.play5d.kyo.stage.events.*;
    
    public class KyoStageCtrl extends EventDispatcher
    {
@@ -31,10 +30,11 @@ package net.play5d.kyo.stage
       
       public function goStage(param1:Istage, param2:Boolean = false, param3:Boolean = false) : Boolean
       {
+         var stg:Istage = null;
          var detoryComplete:Function = null;
          var classname:String = null;
          var classname2:String = null;
-         var stg:Istage = param1;
+         stg = param1;
          var sameChange:Boolean = param2;
          var buildAfterDestory:Boolean = param3;
          detoryComplete = function():void
@@ -74,7 +74,7 @@ package net.play5d.kyo.stage
                return false;
             }
          }
-         if(this._curStage)
+         if(Boolean(this._curStage))
          {
             if(buildAfterDestory)
             {
@@ -96,17 +96,19 @@ package net.play5d.kyo.stage
       
       public function addLayer(param1:Istage, param2:Number = 0, param3:Number = 0, param4:Boolean = false, param5:IStageFadEffect = null, param6:Function = null) : void
       {
-         var sw:Number;
-         var sh:Number;
-         var dw:Number;
-         var dh:Number;
+         var sw:Number = NaN;
+         var sh:Number = NaN;
+         var dw:Number = NaN;
+         var dh:Number = NaN;
+         var layer:Istage = null;
+         var addBack:Function = null;
          var effectBack:Function = null;
-         var layer:Istage = param1;
+         layer = param1;
          var x:Number = param2;
          var y:Number = param3;
          var removeElse:Boolean = param4;
          var effect:IStageFadEffect = param5;
-         var addBack:Function = param6;
+         addBack = param6;
          effectBack = function():void
          {
             layer.afterBuild();
@@ -120,8 +122,8 @@ package net.play5d.kyo.stage
             this.removeAllLayer();
          }
          layer.build();
-         sw = this._mainStage.stage.stageWidth;
-         sh = this._mainStage.stage.stageHeight;
+         sw = Number(this._mainStage.stage.stageWidth);
+         sh = Number(this._mainStage.stage.stageHeight);
          dw = layer.display.width * this._mainStage.scaleX;
          dh = layer.display.height * this._mainStage.scaleY;
          if(isNaN(x))
@@ -141,7 +143,7 @@ package net.play5d.kyo.stage
             layer.display.y = y;
          }
          this._mainStage.addChild(layer.display);
-         if(effect)
+         if(Boolean(effect))
          {
             effect.fadIn(layer,effectBack);
          }
@@ -184,13 +186,15 @@ package net.play5d.kyo.stage
       
       public function removeLayer(param1:Istage, param2:IStageFadEffect = null, param3:Function = null) : void
       {
+         var layer:Istage = null;
+         var removeBack:Function = null;
          var effectFin:Function = null;
-         var layer:Istage = param1;
+         layer = param1;
          var effect:IStageFadEffect = param2;
-         var removeBack:Function = param3;
+         removeBack = param3;
          effectFin = function():void
          {
-            var ix:int;
+            var ix:int = 0;
             try
             {
                _mainStage.removeChild(layer.display);
@@ -200,7 +204,7 @@ package net.play5d.kyo.stage
             {
                trace("KyoStageCtrl: removeLayer:",e);
             }
-            ix = _layers.indexOf(layer);
+            ix = int(_layers.indexOf(layer));
             if(ix != -1)
             {
                _layers.splice(ix,1);
@@ -210,7 +214,7 @@ package net.play5d.kyo.stage
                removeBack();
             }
          };
-         if(effect)
+         if(Boolean(effect))
          {
             effect.fadOut(layer,effectFin);
          }
@@ -236,7 +240,7 @@ package net.play5d.kyo.stage
          {
             this.removeAllLayer();
          }
-         if(this._curStage)
+         if(Boolean(this._curStage))
          {
             this._curStage.destory();
             this._mainStage.removeChild(this._curStage.display);
@@ -246,7 +250,7 @@ package net.play5d.kyo.stage
       
       private function set stageMouseChildren(param1:Boolean) : void
       {
-         if(this._mainStage.stage)
+         if(Boolean(this._mainStage.stage))
          {
             this._mainStage.stage.mouseChildren = param1;
          }

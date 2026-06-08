@@ -1,11 +1,8 @@
 package net.play5d.game.bvn.views.effects
 {
-   import flash.display.Bitmap;
-   import flash.display.BitmapData;
-   import flash.display.DisplayObject;
-   import flash.display.Sprite;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.ctrl.game_ctrls.GameCtrl;
+   import flash.display.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.game_ctrls.*;
    
    public class BlackBackView extends Sprite
    {
@@ -22,27 +19,27 @@ package net.play5d.game.bvn.views.effects
       {
          super();
          var _loc1_:BitmapData = new BitmapData(GameConfig.GAME_SIZE.x / 10,GameConfig.GAME_SIZE.y / 10,false,0);
-         _bg = new Bitmap(_loc1_);
-         _bg.width = GameConfig.GAME_SIZE.x;
-         _bg.height = GameConfig.GAME_SIZE.y;
-         addChild(_bg);
+         this._bg = new Bitmap(_loc1_);
+         this._bg.width = GameConfig.GAME_SIZE.x;
+         this._bg.height = GameConfig.GAME_SIZE.y;
+         addChild(this._bg);
       }
       
       public function destory() : void
       {
-         if(_bg)
+         if(Boolean(this._bg))
          {
             try
             {
-               removeChild(_bg);
+               removeChild(this._bg);
             }
             catch(e:Error)
             {
             }
-            _bg.bitmapData.dispose();
-            _bg = null;
+            this._bg.bitmapData.dispose();
+            this._bg = null;
          }
-         removeBishaFace();
+         this.removeBishaFace();
       }
       
       public function renderAnimate() : void
@@ -55,7 +52,7 @@ package net.play5d.game.bvn.views.effects
       
       public function fadOut() : void
       {
-         removeBishaFace();
+         this.removeBishaFace();
          try
          {
             parent.removeChild(this);
@@ -67,28 +64,28 @@ package net.play5d.game.bvn.views.effects
       
       public function showBishaFace(param1:int, param2:DisplayObject) : void
       {
-         var _loc3_:Number = Number(NaN);
-         if(!_bishaFace)
+         var _loc3_:Number = NaN;
+         if(!this._bishaFace)
          {
-            _bishaFace = new BishaFaceEffectView();
+            this._bishaFace = new BishaFaceEffectView();
             _loc3_ = 1;
-            if(GameCtrl.I && GameCtrl.I.gameState && GameCtrl.I.gameState.camera)
+            if(Boolean(GameCtrl.I) && Boolean(GameCtrl.I.gameState) && Boolean(GameCtrl.I.gameState.camera))
             {
-               _loc3_ = GameCtrl.I.gameState.camera.getZoom();
+               _loc3_ = Number(GameCtrl.I.gameState.camera.getZoom());
             }
-            _bishaFace.mc.y = 100 + 100 / _loc3_;
-            addChild(_bishaFace.mc);
+            this._bishaFace.mc.y = 100 + 100 / _loc3_;
+            addChild(this._bishaFace.mc);
          }
-         _bishaFace.setFace(param1,param2);
-         _bishaFace.fadIn();
+         this._bishaFace.setFace(param1,param2);
+         this._bishaFace.fadIn();
       }
       
       private function removeBishaFace() : void
       {
-         if(_bishaFace)
+         if(Boolean(this._bishaFace))
          {
-            _bishaFace.destory();
-            _bishaFace = null;
+            this._bishaFace.destory();
+            this._bishaFace = null;
          }
       }
    }

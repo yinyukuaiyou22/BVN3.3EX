@@ -1,15 +1,13 @@
 package net.play5d.game.bvn.fighter
 {
-   import flash.display.DisplayObject;
-   import flash.display.MovieClip;
-   import flash.geom.Point;
-   import flash.geom.Rectangle;
-   import net.play5d.game.bvn.ctrl.GameLogic;
+   import flash.display.*;
+   import flash.geom.*;
+   import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.data.FighterVO;
-   import net.play5d.game.bvn.fighter.ctrler.AssisiterCtrler;
+   import net.play5d.game.bvn.fighter.ctrler.*;
    import net.play5d.game.bvn.fighter.models.FighterHitModel;
    import net.play5d.game.bvn.fighter.models.HitVO;
-   import net.play5d.game.bvn.fighter.utils.McAreaCacher;
+   import net.play5d.game.bvn.fighter.utils.*;
    import net.play5d.game.bvn.interfaces.BaseGameSprite;
    import net.play5d.game.bvn.interfaces.IGameSprite;
    
@@ -40,11 +38,11 @@ package net.play5d.game.bvn.fighter
       {
          super(param1);
          isAlive = false;
-         if(_mainMc.setAssistCtrler)
+         if(Boolean(_mainMc.setAssistCtrler))
          {
-            _ctrler = new AssisiterCtrler();
-            _ctrler.initAssister(this);
-            _mainMc.setAssistCtrler(_ctrler);
+            this._ctrler = new AssisiterCtrler();
+            this._ctrler.initAssister(this);
+            _mainMc.setAssistCtrler(this._ctrler);
             return;
          }
          throw new Error("初始化失败，SWF未定义setAssistCtrler()");
@@ -57,23 +55,23 @@ package net.play5d.game.bvn.fighter
       
       public function getOwner() : IGameSprite
       {
-         return _owner;
+         return this._owner;
       }
       
       public function setOwner(param1:IGameSprite) : void
       {
-         _owner = param1;
+         this._owner = param1;
       }
       
       public function getCtrler() : AssisiterCtrler
       {
-         return _ctrler;
+         return this._ctrler;
       }
       
       public function goFight() : void
       {
-         gotoAndPlay(2);
-         isAttacking = true;
+         this.gotoAndPlay(2);
+         this.isAttacking = true;
       }
       
       override public function destory(param1:Boolean = true) : void
@@ -82,130 +80,131 @@ package net.play5d.game.bvn.fighter
          {
             return;
          }
-         if(_hitAreaCache)
+         if(Boolean(this._hitAreaCache))
          {
-            _hitAreaCache.destory();
-            _hitAreaCache = null;
+            this._hitAreaCache.destory();
+            this._hitAreaCache = null;
          }
-         if(_hitCheckAreaCache)
+         if(Boolean(this._hitCheckAreaCache))
          {
-            _hitCheckAreaCache.destory();
-            _hitCheckAreaCache = null;
+            this._hitCheckAreaCache.destory();
+            this._hitCheckAreaCache = null;
          }
-         if(_ctrler)
+         if(Boolean(this._ctrler))
          {
-            _ctrler.destory();
-            _ctrler = null;
+            this._ctrler.destory();
+            this._ctrler = null;
          }
-         data = null;
-         _rectCache = null;
-         _mcOrgPoint = null;
-         _owner = null;
+         this.data = null;
+         this._rectCache = null;
+         this._mcOrgPoint = null;
+         this._owner = null;
          super.destory(param1);
       }
       
       public function stop() : void
       {
-         _isRenderMainAnimate = false;
+         this._isRenderMainAnimate = false;
       }
       
       public function gotoAndPlay(param1:Object) : void
       {
          _mainMc.gotoAndStop(param1);
-         _isRenderMainAnimate = true;
+         this._isRenderMainAnimate = true;
       }
       
       public function gotoAndStop(param1:Object) : void
       {
          _mainMc.gotoAndStop(param1);
-         _isRenderMainAnimate = false;
+         this._isRenderMainAnimate = false;
       }
       
       public function getTargets() : Vector.<IGameSprite>
       {
-         if(!_owner is FighterMain)
+         if(!this._owner is FighterMain)
          {
             return null;
          }
-         return (_owner as FighterMain).getTargets();
+         return (this._owner as FighterMain).getTargets();
       }
       
       public function removeSelf() : void
       {
-         isAttacking = false;
+         this.isAttacking = false;
          isAlive = false;
-         if(onRemove != null)
+         if(this.onRemove != null)
          {
-            onRemove(this);
+            this.onRemove(this);
          }
       }
       
       override public function render() : void
       {
          super.render();
-         _ctrler.render();
+         this._ctrler.render();
       }
       
       override public function renderAnimate() : void
       {
-         if(!_isRenderMainAnimate)
+         if(!this._isRenderMainAnimate)
          {
             return;
          }
          super.renderAnimate();
-         renderChildren();
+         this.renderChildren();
          mc.nextFrame();
-         findHitArea();
+         this.findHitArea();
          if(mc.currentFrame == mc.totalFrames - 1)
          {
-            _ctrler.finish(true);
+            this._ctrler.finish(true);
          }
       }
       
       private function renderChildren() : void
       {
+         var _loc5_:* = undefined;
+         var _loc1_:int = 0;
+         var _loc2_:MovieClip = null;
+         var _loc3_:String = null;
          var _loc4_:int = 0;
-         var _loc1_:MovieClip = null;
-         var _loc2_:String = null;
-         var _loc3_:int = 0;
-         while(_loc4_ < _mainMc.numChildren)
+         while(_loc1_ < _mainMc.numChildren)
          {
-            _loc1_ = _mainMc.getChildAt(_loc4_) as MovieClip;
-            if(_loc1_)
+            _loc2_ = _mainMc.getChildAt(_loc1_) as MovieClip;
+            if(Boolean(_loc2_))
             {
-               _loc2_ = _loc1_.name;
-               if(!(_loc2_ == "bdmn" || _loc2_.indexOf("atm") != -1))
+               _loc3_ = _loc2_.name;
+               if(!(_loc3_ == "bdmn" || _loc3_.indexOf("atm") != -1))
                {
-                  _loc3_ = _loc1_.totalFrames;
-                  if(_loc3_ >= 2)
+                  _loc4_ = _loc2_.totalFrames;
+                  if(_loc4_ >= 2)
                   {
-                     var _loc5_:String = _loc1_.currentFrameLabel;
+                     _loc5_ = _loc2_.currentFrameLabel;
                      if("stop" !== _loc5_)
                      {
-                        if(_loc1_.currentFrame == _loc3_)
+                        if(_loc2_.currentFrame == _loc4_)
                         {
-                           _loc1_.gotoAndStop(1);
+                           _loc2_.gotoAndStop(1);
                         }
                         else
                         {
-                           _loc1_.nextFrame();
+                           _loc2_.nextFrame();
                         }
                      }
                   }
                }
             }
-            _loc4_++;
+            _loc1_++;
          }
       }
       
       public function getHitCheckRect(param1:String) : Rectangle
       {
-         var _loc2_:Rectangle = getCheckHitRect(param1);
+         var _loc2_:Rectangle = this.getCheckHitRect(param1);
          if(_loc2_ == null)
          {
             return null;
          }
-         return getCurrentRect(_loc2_,"hit_check");
+         return this.getCurrentRect(_loc2_,"hit_check");
       }
       
       public function getCheckHitRect(param1:String) : Rectangle
@@ -215,14 +214,14 @@ package net.play5d.game.bvn.fighter
          {
             return null;
          }
-         var _loc4_:Object = _hitCheckAreaCache.getAreaByDisplay(_loc2_);
-         if(_loc4_)
+         var _loc3_:Object = this._hitCheckAreaCache.getAreaByDisplay(_loc2_);
+         if(Boolean(_loc3_))
          {
-            return _loc4_.area;
+            return _loc3_.area;
          }
-         var _loc3_:Rectangle = _loc2_.getBounds(_mainMc);
-         _hitCheckAreaCache.cacheAreaByDisplay(_loc2_,_loc3_);
-         return _loc3_;
+         var _loc4_:Rectangle = _loc2_.getBounds(_mainMc);
+         this._hitCheckAreaCache.cacheAreaByDisplay(_loc2_,_loc4_);
+         return _loc4_;
       }
       
       private function getCurrentRect(param1:Rectangle, param2:String = null) : Rectangle
@@ -232,14 +231,14 @@ package net.play5d.game.bvn.fighter
          {
             _loc3_ = new Rectangle();
          }
-         else if(_rectCache[param2])
+         else if(Boolean(this._rectCache[param2]))
          {
-            _loc3_ = _rectCache[param2];
+            _loc3_ = this._rectCache[param2];
          }
          else
          {
             _loc3_ = new Rectangle();
-            _rectCache[param2] = _loc3_;
+            this._rectCache[param2] = _loc3_;
          }
          _loc3_.x = param1.x * direct + _x;
          if(direct < 0)
@@ -254,103 +253,102 @@ package net.play5d.game.bvn.fighter
       
       private function findHitArea() : void
       {
-         var _loc9_:int = 0;
+         var _loc1_:int = 0;
          var _loc2_:DisplayObject = null;
-         var _loc6_:HitVO = null;
-         var _loc7_:Object = null;
-         var _loc4_:Rectangle = null;
-         var _loc5_:Object = null;
-         if(!_hitAreaCache)
+         var _loc3_:HitVO = null;
+         var _loc4_:Object = null;
+         var _loc5_:Rectangle = null;
+         var _loc6_:Object = null;
+         if(!this._hitAreaCache)
          {
             return;
          }
-         if(_hitAreaCache.areaFrameDefined(_mainMc.currentFrame))
+         if(this._hitAreaCache.areaFrameDefined(_mainMc.currentFrame))
          {
             return;
          }
-         var _loc3_:Object = _hitAreaCache.getAreaByFrame(_mainMc.currentFrame);
-         if(_loc3_ != null)
+         var _loc7_:Object = this._hitAreaCache.getAreaByFrame(_mainMc.currentFrame);
+         if(_loc7_ != null)
          {
             return;
          }
-         var _loc8_:FighterHitModel = _ctrler.hitModel;
-         var _loc1_:Array = [];
-         while(_loc9_ < _mainMc.numChildren)
+         var _loc8_:FighterHitModel = this._ctrler.hitModel;
+         var _loc9_:Array = [];
+         while(_loc1_ < _mainMc.numChildren)
          {
-            _loc2_ = _mainMc.getChildAt(_loc9_);
-            _loc6_ = _loc8_.getHitVO(_loc2_.name);
-            if(!(_loc2_ == null || _loc6_ == null))
+            _loc2_ = _mainMc.getChildAt(_loc1_);
+            _loc3_ = _loc8_.getHitVO(_loc2_.name);
+            if(!(_loc2_ == null || _loc3_ == null))
             {
-               _loc7_ = _hitAreaCache.getAreaByDisplay(_loc2_);
-               if(_loc7_ == null)
+               _loc4_ = this._hitAreaCache.getAreaByDisplay(_loc2_);
+               if(_loc4_ == null)
                {
-                  _loc4_ = _loc2_.getBounds(_mainMc);
-                  _loc5_ = _hitAreaCache.cacheAreaByDisplay(_loc2_,_loc4_,{"hitVO":_loc6_});
-                  _loc1_.push(_loc5_);
+                  _loc5_ = _loc2_.getBounds(_mainMc);
+                  _loc6_ = this._hitAreaCache.cacheAreaByDisplay(_loc2_,_loc5_,{"hitVO":_loc3_});
+                  _loc9_.push(_loc6_);
                }
                else
                {
-                  _loc1_.push(_loc7_);
+                  _loc9_.push(_loc4_);
                }
             }
-            _loc9_++;
+            _loc1_++;
          }
-         if(_loc1_.length < 1)
+         if(_loc9_.length < 1)
          {
-            _loc1_ = null;
+            _loc9_ = null;
          }
-         _hitAreaCache.cacheAreaByFrame(_mainMc.currentFrame,_loc1_);
+         this._hitAreaCache.cacheAreaByFrame(_mainMc.currentFrame,_loc9_);
       }
       
       override public function hit(param1:HitVO, param2:IGameSprite) : void
       {
-         if(param2 && _owner && _owner is FighterMain)
+         if(Boolean(param2) && Boolean(this._owner) && this._owner is FighterMain)
          {
-            (_owner as FighterMain).addQi(param1.power * 0.15);
-            GameLogic.hitTarget(param1,_owner,param2);
+            (this._owner as FighterMain).addQi(param1.power * 0.15);
+            GameLogic.hitTarget(param1,this._owner,param2);
          }
       }
       
       override public function getCurrentHits() : Array
       {
-         var _loc8_:int = 0;
-         var _loc7_:Object = null;
-         var _loc6_:HitVO = null;
+         var _loc1_:int = 0;
+         var _loc2_:Object = null;
+         var _loc3_:HitVO = null;
          var _loc4_:* = null;
-         var _loc2_:Rectangle = null;
-         var _loc3_:String = null;
-         if(!_hitAreaCache)
+         var _loc5_:Rectangle = null;
+         var _loc6_:String = null;
+         if(!this._hitAreaCache)
          {
             return null;
          }
-         var _loc5_:Array = _hitAreaCache.getAreaByFrame(_mainMc.currentFrame) as Array;
-         if(!_loc5_ || _loc5_.length < 1)
+         var _loc7_:Array = this._hitAreaCache.getAreaByFrame(_mainMc.currentFrame) as Array;
+         if(!_loc7_ || _loc7_.length < 1)
          {
             return null;
          }
-         var _loc1_:Array = [];
-         _loc8_;
-         while(_loc8_ < _loc5_.length)
+         var _loc8_:Array = [];
+         while(_loc1_ < _loc7_.length)
          {
-            _loc7_ = _loc5_[_loc8_];
-            _loc3_ = _loc7_.name;
-            _loc6_ = _loc7_.hitVO;
-            if(_loc6_)
+            _loc2_ = _loc7_[_loc1_];
+            _loc6_ = _loc2_.name;
+            _loc3_ = _loc2_.hitVO;
+            if(Boolean(_loc3_))
             {
-               _loc2_ = _loc7_.area;
-               _loc6_.currentArea = getCurrentRect(_loc2_,"hit" + _loc8_);
-               _loc1_.push(_loc6_);
+               _loc5_ = _loc2_.area;
+               _loc3_.currentArea = this.getCurrentRect(_loc5_,"hit" + _loc1_);
+               _loc8_.push(_loc3_);
             }
-            _loc8_++;
+            _loc1_++;
          }
-         return _loc1_;
+         return _loc8_;
       }
       
       public function getCurrentTarget() : IGameSprite
       {
-         if(_owner is FighterMain)
+         if(this._owner is FighterMain)
          {
-            return (_owner as FighterMain).getCurrentTarget();
+            return (this._owner as FighterMain).getCurrentTarget();
          }
          return null;
       }

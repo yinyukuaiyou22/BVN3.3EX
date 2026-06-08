@@ -1,11 +1,10 @@
 package net.play5d.game.bvn.mob.ctrls
 {
-   import flash.system.System;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
-   import net.play5d.game.bvn.ctrl.game_ctrls.GameCtrl;
-   import net.play5d.game.bvn.mob.utils.AdManager;
-   import net.play5d.game.bvn.mob.utils.UMengAneManager;
-   import net.play5d.game.bvn.mob.views.AdPauseView;
+   import flash.system.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.ctrl.game_ctrls.*;
+   import net.play5d.game.bvn.mob.utils.*;
+   import net.play5d.game.bvn.mob.views.*;
    
    public class MobileCtrler
    {
@@ -32,34 +31,34 @@ package net.play5d.game.bvn.mob.ctrls
       
       public function adPause() : void
       {
-         if(isAdPause)
+         if(this.isAdPause)
          {
             return;
          }
          trace("adPause");
-         isAdPause = true;
-         if(!_adPauseView)
+         this.isAdPause = true;
+         if(!this._adPauseView)
          {
-            _adPauseView = new AdPauseView();
+            this._adPauseView = new AdPauseView();
          }
-         launch.STAGE.addChild(_adPauseView);
+         launch.STAGE.addChild(this._adPauseView);
          GameCtrl.I.pause(true);
          SoundCtrl.I.pauseBGM();
       }
       
       public function adResume() : void
       {
-         if(!isAdPause)
+         if(!this.isAdPause)
          {
             return;
          }
-         isAdPause = false;
+         this.isAdPause = false;
          trace("adResume");
-         if(_adPauseView)
+         if(Boolean(this._adPauseView))
          {
             try
             {
-               launch.STAGE.removeChild(_adPauseView);
+               launch.STAGE.removeChild(this._adPauseView);
             }
             catch(e:Error)
             {
@@ -85,7 +84,7 @@ package net.play5d.game.bvn.mob.ctrls
          System.resume();
          UMengAneManager.I.onActive();
          AdManager.I.onResume();
-         if(!isAdPause)
+         if(!this.isAdPause)
          {
             SoundCtrl.I.resumeBGM();
          }

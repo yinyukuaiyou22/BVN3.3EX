@@ -5,28 +5,23 @@ package net.play5d.game.bvn.ui.fight
    import flash.events.Event;
    import flash.geom.Point;
    import flash.media.SoundTransform;
-   import flash.utils.getTimer;
-   import flash.utils.setTimeout;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.ctrl.EffectCtrl;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
-   import net.play5d.game.bvn.ctrl.game_ctrls.GameCtrl;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.data.GameMode;
-   import net.play5d.game.bvn.data.GameRunFighterGroup;
-   import net.play5d.game.bvn.events.GameEvent;
+   import flash.utils.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.ctrl.game_ctrls.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.events.*;
    import net.play5d.game.bvn.fighter.FighterMain;
    import net.play5d.game.bvn.interfaces.IGameSprite;
-   import net.play5d.game.bvn.ui.IGameUI;
-   import net.play5d.game.bvn.ui.PauseDialog;
-   import net.play5d.game.bvn.utils.ResUtils;
+   import net.play5d.game.bvn.ui.*;
+   import net.play5d.game.bvn.utils.*;
    
    public class FightUI implements IGameUI
    {
       
       public static var QI_BAR_MODE:int;
       
-      public var ui:ui_fight;
+      public var ui:*;
       
       private var _fightbar:FightBar;
       
@@ -54,122 +49,122 @@ package net.play5d.game.bvn.ui.fight
       
       private var _flyTimer:Number = 0;
       
-      private var _p1PosUI:player_pos_p1;
+      private var _p1PosUI:*;
       
-      private var _p2PosUI:player_pos_p2;
+      private var _p2PosUI:*;
       
       public function FightUI()
       {
          super();
-         ui = ResUtils.I.createDisplayObject(ResUtils.I.fight,"ui_fight");
-         _fightbar = new FightBar(ui.hpbarmc);
-         _qibar1 = new QiBar(ui.fzqi1);
-         _qibar2 = new QiBar(ui.fzqi2);
-         _hits1 = new HitsUI(ui.hits1);
-         _hits2 = new HitsUI(ui.hits2);
-         _qibar2.setDirect(-1);
-         _p1PosUI = ResUtils.I.createDisplayObject(ResUtils.I.fight,"player_pos_p1");
-         _p2PosUI = ResUtils.I.createDisplayObject(ResUtils.I.fight,"player_pos_p2");
-         _p1PosUI.visible = false;
-         _p2PosUI.visible = false;
-         ui.addChild(_p1PosUI);
-         ui.addChild(_p2PosUI);
+         this.ui = ResUtils.I.createDisplayObject(ResUtils.I.fight,"ui_fight");
+         this._fightbar = new FightBar(this.ui.hpbarmc);
+         this._qibar1 = new QiBar(this.ui.fzqi1);
+         this._qibar2 = new QiBar(this.ui.fzqi2);
+         this._hits1 = new HitsUI(this.ui.hits1);
+         this._hits2 = new HitsUI(this.ui.hits2);
+         this._qibar2.setDirect(-1);
+         this._p1PosUI = ResUtils.I.createDisplayObject(ResUtils.I.fight,"player_pos_p1");
+         this._p2PosUI = ResUtils.I.createDisplayObject(ResUtils.I.fight,"player_pos_p2");
+         this._p1PosUI.visible = false;
+         this._p2PosUI.visible = false;
+         this.ui.addChild(this._p1PosUI);
+         this.ui.addChild(this._p2PosUI);
          if(GameMode.isAcrade())
          {
             trace("fightUI.initlize");
-            _fightbar.initScore();
-            GameEvent.addEventListener("SCORE_UPDATE",updateScore);
+            this._fightbar.initScore();
+            GameEvent.addEventListener("SCORE_UPDATE",this.updateScore);
          }
       }
       
       public function initlize(param1:GameRunFighterGroup, param2:GameRunFighterGroup) : void
       {
-         _fightbar.setFighter(param1,param2);
-         _qibar1.setFighter(param1.currentFighter,param1.fuzhu);
-         _qibar2.setFighter(param2.currentFighter,param2.fuzhu);
-         updateScore(null);
+         this._fightbar.setFighter(param1,param2);
+         this._qibar1.setFighter(param1.currentFighter,param1.fuzhu);
+         this._qibar2.setFighter(param2.currentFighter,param2.fuzhu);
+         this.updateScore(null);
       }
       
       public function setVolume(param1:Number) : void
       {
-         var _loc2_:SoundTransform = ui.soundTransform;
+         var _loc2_:SoundTransform = this.ui.soundTransform;
          _loc2_.volume = param1;
-         ui.soundTransform = _loc2_;
+         this.ui.soundTransform = _loc2_;
       }
       
       public function showWins(param1:FighterMain, param2:int) : void
       {
-         _fightbar.showWin(param1,param2);
+         this._fightbar.showWin(param1,param2);
       }
       
       private function updateScore(param1:GameEvent) : void
       {
-         _fightbar.setScore(GameData.I.score);
+         this._fightbar.setScore(GameData.I.score);
       }
       
       public function destory() : void
       {
-         GameEvent.removeEventListener("SCORE_UPDATE",updateScore);
-         if(_pauseDialog)
+         GameEvent.removeEventListener("SCORE_UPDATE",this.updateScore);
+         if(Boolean(this._pauseDialog))
          {
-            _pauseDialog.destory();
-            _pauseDialog = null;
+            this._pauseDialog.destory();
+            this._pauseDialog = null;
          }
-         if(_fightbar)
+         if(Boolean(this._fightbar))
          {
-            _fightbar.destory();
-            _fightbar = null;
+            this._fightbar.destory();
+            this._fightbar = null;
          }
-         if(_qibar1)
+         if(Boolean(this._qibar1))
          {
-            _qibar1.destory();
-            _qibar1 = null;
+            this._qibar1.destory();
+            this._qibar1 = null;
          }
-         if(_qibar2)
+         if(Boolean(this._qibar2))
          {
-            _qibar2.destory();
-            _qibar2 = null;
+            this._qibar2.destory();
+            this._qibar2 = null;
          }
-         if(_hits1)
+         if(Boolean(this._hits1))
          {
-            _hits1.destory();
-            _hits1 = null;
+            this._hits1.destory();
+            this._hits1 = null;
          }
-         if(_hits2)
+         if(Boolean(this._hits2))
          {
-            _hits2.destory();
-            _hits2 = null;
+            this._hits2.destory();
+            this._hits2 = null;
          }
-         if(ui)
+         if(Boolean(this.ui))
          {
             try
             {
-               ui.removeChildren();
-               ui.stopAllMovieClips();
+               this.ui.removeChildren();
+               this.ui.stopAllMovieClips();
             }
             catch(e:Error)
             {
                trace(e);
             }
-            ui = null;
+            this.ui = null;
          }
       }
       
       public function getUI() : DisplayObject
       {
-         return ui;
+         return this.ui;
       }
       
       public function render() : void
       {
-         _fightbar.render();
-         _qibar1.render();
-         _qibar2.render();
-         var _loc1_:Number = GameCtrl.I.gameState.camera.getZoom();
-         renderPlayerPosUI(_loc1_);
-         if(_renderEnd)
+         this._fightbar.render();
+         this._qibar1.render();
+         this._qibar2.render();
+         var _loc1_:Number = Number(GameCtrl.I.gameState.camera.getZoom());
+         this.renderPlayerPosUI(_loc1_);
+         if(this._renderEnd)
          {
-            renderEnd();
+            this.renderEnd();
          }
       }
       
@@ -181,93 +176,96 @@ package net.play5d.game.bvn.ui.fight
          }
          if(param1 < 1.5)
          {
-            _qibar1.moveTo(120,60,0.8);
-            _qibar2.moveTo(675,60,0.8);
+            this._qibar1.moveTo(120,60,0.8);
+            this._qibar2.moveTo(675,60,0.8);
          }
          else
          {
-            _qibar1.moveResume();
-            _qibar2.moveResume();
+            this._qibar1.moveResume();
+            this._qibar2.moveResume();
          }
       }
       
       public function renderAnimate() : void
       {
-         _fightbar.renderAnimate();
-         _qibar1.renderAnimate();
-         _qibar2.renderAnimate();
-         renderStartAndKO();
+         this._fightbar.renderAnimate();
+         this._qibar1.renderAnimate();
+         this._qibar2.renderAnimate();
+         this.renderStartAndKO();
       }
       
       private function renderStartAndKO() : void
       {
-         var _loc2_:MovieClip = ui.startKOmc;
-         if(!_loc2_)
+         var _loc1_:MovieClip = this.ui.startKOmc;
+         if(!_loc1_)
          {
             return;
          }
-         var _loc1_:String = _loc2_.currentFrameLabel;
-         if(_loc1_)
+         var _loc2_:String = _loc1_.currentFrameLabel;
+         if(Boolean(_loc2_))
          {
-            if(_loc1_ == "stop")
+            if(_loc2_ == "stop")
             {
                return;
             }
-            if(_loc1_.indexOf("go:") != -1)
+            if(_loc2_.indexOf("go:") != -1)
             {
-               _loc2_.gotoAndStop(_loc1_.split("go:")[1]);
+               _loc1_.gotoAndStop(_loc2_.split("go:")[1]);
                return;
             }
          }
-         _loc2_.nextFrame();
+         _loc1_.nextFrame();
       }
       
       public function fadIn(param1:Boolean = true) : void
       {
-         _fightbar.fadIn(param1);
+         this._fightbar.fadIn(param1);
          if(QI_BAR_MODE == 1)
          {
-            _qibar1.fadIn(false);
-            _qibar2.fadIn(false);
-            _qibar1.setPosAndScale(120,60,0.8);
-            _qibar2.setPosAndScale(675,60,0.8);
+            this._qibar1.fadIn(false);
+            this._qibar2.fadIn(false);
+            this._qibar1.setPosAndScale(120,60,0.8);
+            this._qibar2.setPosAndScale(675,60,0.8);
          }
          else
          {
-            _qibar1.fadIn(param1);
-            _qibar2.fadIn(param1);
+            this._qibar1.fadIn(param1);
+            this._qibar2.fadIn(param1);
          }
       }
       
       public function fadOut(param1:Boolean = true) : void
       {
-         _fightbar.fadOut(param1);
-         _qibar1.fadOut(param1);
-         _qibar2.fadOut(param1);
+         this._fightbar.fadOut(param1);
+         this._qibar1.fadOut(param1);
+         this._qibar2.fadOut(param1);
       }
       
       public function showHits(param1:int, param2:int) : void
       {
-         var _loc3_:HitsUI = param2 == 1 ? _hits1 : _hits2;
+         var _loc3_:HitsUI = param2 == 1 ? this._hits1 : this._hits2;
          _loc3_.show(param1);
       }
       
       public function hideHits(param1:int) : void
       {
-         var _loc2_:HitsUI = param1 == 1 ? _hits1 : _hits2;
+         var _loc2_:HitsUI = param1 == 1 ? this._hits1 : this._hits2;
          _loc2_.hide();
       }
       
       public function showStart(param1:Function = null, param2:Object = null) : void
       {
-         var round:int;
-         var finishBack:Function = param1;
+         var round:int = 0;
+         var finishBack:Function = null;
+         var onFight:* = undefined;
+         var startComplete:* = undefined;
+         finishBack = param1;
          var params:Object = param2;
-         var onFight:* = function(param1:Event):void
+         onFight = function(param1:Event):void
          {
             ui.startKOmc.removeEventListener("fight",onFight);
          };
-         var startComplete:* = function(param1:Event):void
+         startComplete = function(param1:Event):void
          {
             ui.startKOmc.removeEventListener("complete",startComplete);
             if(finishBack != null)
@@ -275,46 +273,46 @@ package net.play5d.game.bvn.ui.fight
                finishBack();
             }
          };
-         fadIn();
-         round = GameCtrl.I.gameRunData.round;
-         ui.startKOmc.y = -50;
-         ui.startKOmc.$round = round;
-         ui.startKOmc.gotoAndStop(round < 5 ? "start" : "start_final");
-         ui.startKOmc.addEventListener("fight",onFight);
+         this.fadIn();
+         round = int(GameCtrl.I.gameRunData.round);
+         this.ui.startKOmc.y = -50;
+         this.ui.startKOmc.$round = round;
+         this.ui.startKOmc.gotoAndStop(round < 5 ? "start" : "start_final");
+         this.ui.startKOmc.addEventListener("fight",onFight);
          if(finishBack != null)
          {
-            ui.startKOmc.addEventListener("complete",startComplete);
+            this.ui.startKOmc.addEventListener("complete",startComplete);
          }
       }
       
       public function showEnd(param1:Function = null, param2:Object = null) : void
       {
          var _loc3_:FighterMain = null;
-         _endParam = param2;
-         if(!_endParam)
+         this._endParam = param2;
+         if(!this._endParam)
          {
-            _endParam = {};
+            this._endParam = {};
          }
-         _endParam.finishBack = param1;
-         _drawGame = param2 ? param2.drawGame : false;
-         _renderEnd = true;
-         _playOver = false;
+         this._endParam.finishBack = param1;
+         this._drawGame = param2 ? Boolean(param2.drawGame) : false;
+         this._renderEnd = true;
+         this._playOver = false;
          if(GameCtrl.I.gameRunData.isTimerOver)
          {
-            playTimeOver();
+            this.playTimeOver();
          }
          else
          {
             _loc3_ = param2 ? param2.loser : null;
-            playKO(_loc3_);
+            this.playKO(_loc3_);
          }
       }
       
       private function playKO(param1:FighterMain = null) : void
       {
-         var bsKO:Boolean;
-         var p1:FighterMain;
-         var p2:FighterMain;
+         var bsKO:Boolean = false;
+         var p1:FighterMain = null;
+         var p2:FighterMain = null;
          var loser:FighterMain = param1;
          var playKO2:* = function():void
          {
@@ -325,10 +323,10 @@ package net.play5d.game.bvn.ui.fight
             _qibar1.fadOut();
             _qibar2.fadOut();
          };
-         _showWinnerDelay = 0;
+         this._showWinnerDelay = 0;
          EffectCtrl.I.freezeEnabled = false;
-         _isSlowDown = false;
-         if(loser)
+         this._isSlowDown = false;
+         if(Boolean(loser))
          {
             EffectCtrl.I.doEffectById("hit_end",loser.x,loser.y);
             EffectCtrl.I.shine(16777215,0.5);
@@ -338,7 +336,7 @@ package net.play5d.game.bvn.ui.fight
          bsKO = false;
          p1 = GameCtrl.I.gameRunData.p1FighterGroup.currentFighter;
          p2 = GameCtrl.I.gameRunData.p2FighterGroup.currentFighter;
-         if(p1 && p2)
+         if(Boolean(p1) && Boolean(p2))
          {
             if(p1.actionState == 12 || p1.actionState == 13 || p2.actionState == 12 || p2.actionState == 13)
             {
@@ -354,116 +352,116 @@ package net.play5d.game.bvn.ui.fight
       private function koBack(param1:Event) : void
       {
          EffectCtrl.I.freezeEnabled = true;
-         ui.startKOmc.removeEventListener("complete",koBack);
-         _playOver = true;
+         this.ui.startKOmc.removeEventListener("complete",this.koBack);
+         this._playOver = true;
          GameCtrl.I.resume();
          EffectCtrl.I.freezeEnabled = true;
       }
       
       private function playTimeOver() : void
       {
-         ui.startKOmc.y = 0;
-         ui.startKOmc.gotoAndStop("timeover");
-         ui.startKOmc.addEventListener("complete",timeoverBack);
-         _qibar1.fadOut();
-         _qibar2.fadOut();
+         this.ui.startKOmc.y = 0;
+         this.ui.startKOmc.gotoAndStop("timeover");
+         this.ui.startKOmc.addEventListener("complete",this.timeoverBack);
+         this._qibar1.fadOut();
+         this._qibar2.fadOut();
       }
       
       private function timeoverBack(param1:Event) : void
       {
          EffectCtrl.I.freezeEnabled = true;
-         ui.startKOmc.removeEventListener("complete",timeoverBack);
-         if(_drawGame)
+         this.ui.startKOmc.removeEventListener("complete",this.timeoverBack);
+         if(this._drawGame)
          {
-            playDrawGame();
-            _showWinnerDelay = 0;
+            this.playDrawGame();
+            this._showWinnerDelay = 0;
          }
          else
          {
-            _playOver = true;
-            _showWinnerDelay = 1 * GameConfig.FPS_GAME;
+            this._playOver = true;
+            this._showWinnerDelay = 1 * GameConfig.FPS_GAME;
          }
       }
       
       private function playDrawGame() : void
       {
-         ui.startKOmc.gotoAndStop("drawgame");
-         ui.startKOmc.addEventListener("complete",drawGameBack);
+         this.ui.startKOmc.gotoAndStop("drawgame");
+         this.ui.startKOmc.addEventListener("complete",this.drawGameBack);
       }
       
       private function drawGameBack(param1:Event) : void
       {
-         ui.startKOmc.removeEventListener("complete",drawGameBack);
-         if(_endParam.finishBack != null)
+         this.ui.startKOmc.removeEventListener("complete",this.drawGameBack);
+         if(this._endParam.finishBack != null)
          {
-            _endParam.finishBack();
+            this._endParam.finishBack();
          }
       }
       
       private function renderEnd() : void
       {
-         var _loc2_:FighterMain = null;
-         if(!_playOver)
+         var _loc1_:FighterMain = null;
+         if(!this._playOver)
          {
             return;
          }
-         if(!_endParam)
+         if(!this._endParam)
          {
             return;
          }
-         if(_showWinnerDelay > 0)
+         if(this._showWinnerDelay > 0)
          {
-            _showWinnerDelay = _showWinnerDelay - 1;
-            if(_showWinnerDelay <= 0)
+            --this._showWinnerDelay;
+            if(this._showWinnerDelay <= 0)
             {
-               _loc2_ = _endParam.winner;
-               if(_loc2_)
+               _loc1_ = this._endParam.winner;
+               if(Boolean(_loc1_))
                {
-                  GameCtrl.I.gameState.cameraFocusOne(_loc2_.getDisplay());
-                  showWinner(_loc2_);
+                  GameCtrl.I.gameState.cameraFocusOne(_loc1_.getDisplay());
+                  this.showWinner(_loc1_);
                   if(GameMode.isSingleMode())
                   {
-                     showWins(_loc2_,GameCtrl.I.gameRunData.getWins(_loc2_));
+                     this.showWins(_loc1_,GameCtrl.I.gameRunData.getWins(_loc1_));
                   }
-                  if(_endParam)
+                  if(Boolean(this._endParam))
                   {
-                     _endParam.finishBack();
+                     this._endParam.finishBack();
                   }
                }
-               _renderEnd = false;
-               _endParam = null;
+               this._renderEnd = false;
+               this._endParam = null;
             }
             return;
          }
-         var _loc1_:FighterMain = _endParam.loser;
-         if(_loc1_)
+         var _loc2_:FighterMain = this._endParam.loser;
+         if(Boolean(_loc2_))
          {
-            if(_loc1_.actionState == 22)
+            if(_loc2_.actionState == 22)
             {
-               if(!_isSlowDown)
+               if(!this._isSlowDown)
                {
-                  _isSlowDown = true;
+                  this._isSlowDown = true;
                   EffectCtrl.I.slowDown(2,0);
-                  _flyTimer = getTimer();
+                  this._flyTimer = getTimer();
                }
             }
-            if(_loc1_.actionState == 30)
+            if(_loc2_.actionState == 30)
             {
-               if(_isSlowDown)
+               if(this._isSlowDown)
                {
-                  if(getTimer() - _flyTimer < 2000)
+                  if(getTimer() - this._flyTimer < 2000)
                   {
-                     _showWinnerDelay = 2 * GameConfig.FPS_GAME;
+                     this._showWinnerDelay = 2 * GameConfig.FPS_GAME;
                   }
                   else
                   {
-                     _showWinnerDelay = 1 * GameConfig.FPS_GAME;
+                     this._showWinnerDelay = 1 * GameConfig.FPS_GAME;
                   }
                   EffectCtrl.I.slowDownResume();
                }
                else
                {
-                  _showWinnerDelay = 2 * GameConfig.FPS_GAME;
+                  this._showWinnerDelay = 2 * GameConfig.FPS_GAME;
                   EffectCtrl.I.slowDownResume();
                }
             }
@@ -472,34 +470,36 @@ package net.play5d.game.bvn.ui.fight
       
       public function clearStartAndEnd() : void
       {
-         ui.startKOmc.gotoAndStop(1);
+         this.ui.startKOmc.gotoAndStop(1);
       }
       
       public function pause() : void
       {
-         if(!_pauseDialog)
+         if(!this._pauseDialog)
          {
-            _pauseDialog = new PauseDialog();
-            ui.addChild(_pauseDialog);
+            this._pauseDialog = new PauseDialog();
+            this.ui.addChild(this._pauseDialog);
          }
-         _pauseDialog.show();
+         this._pauseDialog.show();
       }
       
       public function resume() : void
       {
-         if(!_pauseDialog)
+         if(!this._pauseDialog)
          {
             return;
          }
-         _pauseDialog.hide();
+         this._pauseDialog.hide();
       }
       
       private function showWinner(param1:FighterMain, param2:Function = null) : void
       {
-         var teamid:int;
+         var teamid:int = 0;
+         var back:Function = null;
+         var winnerBack:* = undefined;
          var winner:FighterMain = param1;
-         var back:Function = param2;
-         var winnerBack:* = function(param1:Event):void
+         back = param2;
+         winnerBack = function(param1:Event):void
          {
             ui.startKOmc.removeEventListener("complete",winnerBack);
             if(back != null)
@@ -507,47 +507,47 @@ package net.play5d.game.bvn.ui.fight
                back();
             }
          };
-         ui.startKOmc.y = 30;
-         teamid = int(winner && winner.team ? winner.team.id : 1);
+         this.ui.startKOmc.y = 30;
+         teamid = int(Boolean(winner) && Boolean(winner.team) ? winner.team.id : 1);
          switch(teamid - 1)
          {
             case 0:
-               ui.startKOmc.$winnerX = 30;
+               this.ui.startKOmc.$winnerX = 30;
                break;
             case 1:
-               ui.startKOmc.$winnerX = 546;
+               this.ui.startKOmc.$winnerX = 546;
          }
-         ui.startKOmc.$perfect = winner.hp >= winner.hpMax;
-         ui.startKOmc.gotoAndStop("winner");
+         this.ui.startKOmc.$perfect = winner.hp >= winner.hpMax;
+         this.ui.startKOmc.gotoAndStop("winner");
          if(back != null)
          {
-            ui.startKOmc.addEventListener("complete",winnerBack);
+            this.ui.startKOmc.addEventListener("complete",winnerBack);
          }
       }
       
       private function renderPlayerPosUI(param1:Number) : void
       {
-         var _loc4_:Point = null;
+         var _loc2_:Point = null;
          if(param1 > 1.8)
          {
-            _p1PosUI.visible = _p2PosUI.visible = false;
+            this._p1PosUI.visible = this._p2PosUI.visible = false;
             return;
          }
          var _loc3_:FighterMain = GameCtrl.I.gameRunData.p1FighterGroup.currentFighter;
-         var _loc2_:FighterMain = GameCtrl.I.gameRunData.p2FighterGroup.currentFighter;
-         if(_loc3_)
+         var _loc4_:FighterMain = GameCtrl.I.gameRunData.p2FighterGroup.currentFighter;
+         if(Boolean(_loc3_))
          {
-            _loc4_ = getPlayerPos(_loc3_);
-            _p1PosUI.x = _loc4_.x;
-            _p1PosUI.y = _loc4_.y;
-            _p1PosUI.visible = true;
+            _loc2_ = this.getPlayerPos(_loc3_);
+            this._p1PosUI.x = _loc2_.x;
+            this._p1PosUI.y = _loc2_.y;
+            this._p1PosUI.visible = true;
          }
-         if(_loc2_)
+         if(Boolean(_loc4_))
          {
-            _loc4_ = getPlayerPos(_loc2_);
-            _p2PosUI.x = _loc4_.x;
-            _p2PosUI.y = _loc4_.y;
-            _p2PosUI.visible = true;
+            _loc2_ = this.getPlayerPos(_loc4_);
+            this._p2PosUI.x = _loc2_.x;
+            this._p2PosUI.y = _loc2_.y;
+            this._p2PosUI.visible = true;
          }
       }
       

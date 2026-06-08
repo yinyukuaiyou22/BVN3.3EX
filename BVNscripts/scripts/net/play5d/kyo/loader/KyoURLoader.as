@@ -1,12 +1,7 @@
 package net.play5d.kyo.loader
 {
-   import flash.events.Event;
-   import flash.events.IOErrorEvent;
-   import flash.events.SecurityErrorEvent;
-   import flash.net.URLLoader;
-   import flash.net.URLRequest;
-   import flash.net.URLRequestMethod;
-   import flash.net.URLVariables;
+   import flash.events.*;
+   import flash.net.*;
    import flash.utils.ByteArray;
    
    public class KyoURLoader
@@ -32,19 +27,19 @@ package net.play5d.kyo.loader
       public static function load(param1:String, param2:Function, param3:Function = null, param4:Object = null) : void
       {
          var loader:URLLoader = null;
+         var back:Function = null;
+         var failBack:Function = null;
+         loader = null;
          var onComplete:Function = null;
          var onError:Function = null;
          var onError2:Function = null;
          var i:String = null;
          var url:String = param1;
-         var back:Function = param2;
-         var failBack:Function = param3;
+         back = param2;
+         failBack = param3;
          var param:Object = param4;
          onComplete = function(param1:Event):void
          {
-            loader.removeEventListener(Event.COMPLETE,onComplete);
-            loader.removeEventListener(IOErrorEvent.IO_ERROR,onError);
-            loader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,onError2);
             if(back != null)
             {
                back(loader.data);
@@ -53,9 +48,6 @@ package net.play5d.kyo.loader
          };
          onError = function(param1:IOErrorEvent):void
          {
-            loader.removeEventListener(Event.COMPLETE,onComplete);
-            loader.removeEventListener(IOErrorEvent.IO_ERROR,onError);
-            loader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,onError2);
             errorStr = param1.toString();
             if(failBack != null)
             {
@@ -69,9 +61,6 @@ package net.play5d.kyo.loader
          };
          onError2 = function(param1:SecurityErrorEvent):void
          {
-            loader.removeEventListener(Event.COMPLETE,onComplete);
-            loader.removeEventListener(IOErrorEvent.IO_ERROR,onError);
-            loader.removeEventListener(SecurityErrorEvent.SECURITY_ERROR,onError2);
             errorStr = param1.toString();
             if(failBack != null)
             {
@@ -81,7 +70,7 @@ package net.play5d.kyo.loader
          };
          errorStr = null;
          loader = new URLLoader();
-         if(param)
+         if(Boolean(param))
          {
             for(i in param)
             {
@@ -96,20 +85,21 @@ package net.play5d.kyo.loader
       
       public static function post(param1:String, param2:Object, param3:Function = null, param4:Function = null) : void
       {
-         var uq:URLRequest;
+         var uq:URLRequest = null;
          var loader:URLLoader = null;
+         var back:Function = null;
+         var failBack:Function = null;
+         loader = null;
          var onComplete:Function = null;
          var onError:Function = null;
          var uv:URLVariables = null;
          var i:String = null;
          var url:String = param1;
          var data:Object = param2;
-         var back:Function = param3;
-         var failBack:Function = param4;
+         back = param3;
+         failBack = param4;
          onComplete = function(param1:Event):void
          {
-            loader.removeEventListener(Event.COMPLETE,onComplete);
-            loader.removeEventListener(IOErrorEvent.IO_ERROR,onError);
             if(back != null)
             {
                back(loader.data);
@@ -118,8 +108,6 @@ package net.play5d.kyo.loader
          };
          onError = function(param1:IOErrorEvent):void
          {
-            loader.removeEventListener(Event.COMPLETE,onComplete);
-            loader.removeEventListener(IOErrorEvent.IO_ERROR,onError);
             if(failBack != null)
             {
                failBack();

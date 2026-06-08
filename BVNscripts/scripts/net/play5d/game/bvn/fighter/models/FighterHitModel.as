@@ -12,33 +12,34 @@ package net.play5d.game.bvn.fighter.models
       public function FighterHitModel(param1:IGameSprite)
       {
          super();
-         _fighter = param1;
+         this._fighter = param1;
       }
       
       public function destory() : void
       {
-         _hitObj = null;
-         _fighter = null;
+         this._hitObj = null;
+         this._fighter = null;
       }
       
       public function clear() : void
       {
-         _hitObj = {};
+         this._hitObj = {};
       }
       
       public function getHitVO(param1:String) : HitVO
       {
-         return _hitObj[param1];
+         return this._hitObj[param1];
       }
       
       public function getHitVOLike(param1:String) : Vector.<HitVO>
       {
+         var _loc3_:* = undefined;
          var _loc2_:Vector.<HitVO> = new Vector.<HitVO>();
-         for(var _loc3_ in _hitObj)
+         for(_loc3_ in this._hitObj)
          {
             if(_loc3_.indexOf(param1) != -1)
             {
-               _loc2_.push(_hitObj[_loc3_]);
+               _loc2_.push(this._hitObj[_loc3_]);
             }
          }
          return _loc2_;
@@ -46,30 +47,31 @@ package net.play5d.game.bvn.fighter.models
       
       public function getHitVOByDisplayName(param1:String) : HitVO
       {
-         var _loc3_:HitVO = getHitVO(param1);
-         if(_loc3_)
+         var _loc2_:HitVO = this.getHitVO(param1);
+         if(Boolean(_loc2_))
          {
-            return _loc3_;
+            return _loc2_;
          }
          if(param1.indexOf("atm") == -1)
          {
             return null;
          }
-         var _loc2_:String = param1.replace("atm","");
-         return getHitVO(_loc2_);
+         var _loc3_:String = param1.replace("atm","");
+         return this.getHitVO(_loc3_);
       }
       
       public function addHitVO(param1:String, param2:Object) : void
       {
          var _loc3_:HitVO = new HitVO(param2);
-         _loc3_.owner = _fighter;
+         _loc3_.owner = this._fighter;
          _loc3_.id = param1;
-         _hitObj[param1] = _loc3_;
+         this._hitObj[param1] = _loc3_;
       }
       
       public function setPowerRate(param1:Number) : void
       {
-         for each(var _loc2_ in _hitObj)
+         var _loc2_:* = undefined;
+         for each(_loc2_ in this._hitObj)
          {
             _loc2_.powerRate = param1;
          }

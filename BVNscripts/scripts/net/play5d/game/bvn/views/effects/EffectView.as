@@ -1,13 +1,12 @@
 package net.play5d.game.bvn.views.effects
 {
-   import flash.display.Bitmap;
-   import flash.geom.Point;
-   import net.play5d.game.bvn.ctrl.EffectCtrl;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
+   import flash.display.*;
+   import flash.geom.*;
+   import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.data.BitmapDataCacheVO;
    import net.play5d.game.bvn.data.EffectVO;
    import net.play5d.game.bvn.interfaces.IGameSprite;
-   import net.play5d.kyo.utils.KyoMath;
+   import net.play5d.kyo.utils.*;
    
    public class EffectView
    {
@@ -47,67 +46,68 @@ package net.play5d.game.bvn.views.effects
       public function EffectView(param1:EffectVO)
       {
          super();
-         _data = param1;
-         display = new Bitmap();
-         display.blendMode = param1.blendMode;
-         display.smoothing = EffectCtrl.EFFECT_SMOOTHING;
-         _bitmapDatas = param1.bitmapDataCache;
-         _frameLabels = param1.frameLabelCache;
+         this._data = param1;
+         this.display = new Bitmap();
+         this.display.blendMode = param1.blendMode;
+         this.display.smoothing = EffectCtrl.EFFECT_SMOOTHING;
+         this._bitmapDatas = param1.bitmapDataCache;
+         this._frameLabels = param1.frameLabelCache;
       }
       
       public function setTarget(param1:IGameSprite) : void
       {
-         _target = param1;
+         this._target = param1;
       }
       
       public function setPos(param1:Number, param2:Number) : void
       {
-         _orgX = param1;
-         _orgY = param2;
+         this._orgX = param1;
+         this._orgY = param2;
       }
       
       public function start(param1:Number = 0, param2:Number = 0, param3:int = 1) : void
       {
-         _orgX = param1;
-         _orgY = param2;
-         _direct = _rotation != 0 ? 1 : param3;
-         display.scaleX = _direct;
-         _curFrame = 0;
-         if(_data.randRotate)
+         this._orgX = param1;
+         this._orgY = param2;
+         this._direct = this._rotation != 0 ? 1 : param3;
+         this.display.scaleX = this._direct;
+         this._curFrame = 0;
+         if(this._data.randRotate)
          {
-            randRotate();
+            this.randRotate();
          }
-         if(_data.sound)
+         if(Boolean(this._data.sound))
          {
-            SoundCtrl.I.playEffectSound(_data.sound);
+            SoundCtrl.I.playEffectSound(this._data.sound);
          }
-         renderDisplay();
-         isActive = true;
+         this.renderDisplay();
+         this.isActive = true;
       }
       
       public function destory() : void
       {
-         _isDestoryed = true;
-         if(isActive)
+         this._isDestoryed = true;
+         if(this.isActive)
          {
-            removeSelf();
+            this.removeSelf();
          }
-         display = null;
+         this.display = null;
       }
       
       public function gotoAndPlay(param1:Object) : void
       {
+         var _loc2_:* = undefined;
          if(param1 is int)
          {
-            _curFrame = int(param1);
+            this._curFrame = int(param1);
          }
          if(param1 is String)
          {
-            for(var _loc2_ in _frameLabels)
+            for(_loc2_ in this._frameLabels)
             {
-               if(_frameLabels[_loc2_] == param1)
+               if(this._frameLabels[_loc2_] == param1)
                {
-                  _curFrame = _loc2_;
+                  this._curFrame = int(_loc2_);
                }
             }
          }
@@ -115,9 +115,9 @@ package net.play5d.game.bvn.views.effects
       
       private function randRotate() : void
       {
-         _rotation = Math.random() * 360;
-         display.rotation = _rotation;
-         display.scaleX = 1;
+         this._rotation = Math.random() * 360;
+         this.display.rotation = this._rotation;
+         this.display.scaleX = 1;
       }
       
       public function render() : void
@@ -126,115 +126,116 @@ package net.play5d.game.bvn.views.effects
       
       public function renderAnimate() : void
       {
-         if(_isDestoryed)
+         if(this._isDestoryed)
          {
             return;
          }
          var _loc1_:Boolean = false;
-         if(loopPlay)
+         if(this.loopPlay)
          {
-            if(_curFrame == _bitmapDatas.length - 1)
+            if(this._curFrame == this._bitmapDatas.length - 1)
             {
-               _curFrame = 0;
+               this._curFrame = 0;
             }
          }
-         else if(autoRemove)
+         else if(this.autoRemove)
          {
-            if(_curFrame == _bitmapDatas.length - 1)
+            if(this._curFrame == this._bitmapDatas.length - 1)
             {
-               if(holdFrame == -1)
+               if(this.holdFrame == -1)
                {
-                  removeSelf();
+                  this.removeSelf();
                   _loc1_ = true;
                }
                else
                {
-                  _curFrame = 0;
+                  this._curFrame = 0;
                }
             }
-            if(holdFrame != -1)
+            if(this.holdFrame != -1)
             {
-               if(holdFrame-- <= 0)
+               if(this.holdFrame-- <= 0)
                {
-                  removeSelf();
+                  this.removeSelf();
                   _loc1_ = true;
                }
             }
          }
          if(!_loc1_)
          {
-            renderFrameLabel();
-            renderDisplay();
-            _curFrame += 1;
+            this.renderFrameLabel();
+            this.renderDisplay();
+            ++this._curFrame;
          }
       }
       
       private function renderDisplay() : void
       {
-         var _loc1_:Number = Number(NaN);
+         var _loc1_:Number = NaN;
          var _loc2_:Point = null;
-         var _loc3_:BitmapDataCacheVO = _bitmapDatas[_curFrame];
+         var _loc3_:BitmapDataCacheVO = this._bitmapDatas[this._curFrame];
          if(_loc3_ == null)
          {
-            display.bitmapData = null;
+            this.display.bitmapData = null;
          }
          else
          {
-            display.bitmapData = _loc3_.bitmapData;
-            if(_rotation != 0)
+            this.display.bitmapData = _loc3_.bitmapData;
+            if(this._rotation != 0)
             {
-               _loc1_ = KyoMath.asRadians(_rotation);
+               _loc1_ = Number(KyoMath.asRadians(this._rotation));
                _loc2_ = KyoMath.getPointByRadians(new Point(_loc3_.offsetX,_loc3_.offsetY),_loc1_);
-               display.x = _orgX + _loc2_.x;
-               display.y = _orgY + _loc2_.y;
+               this.display.x = this._orgX + _loc2_.x;
+               this.display.y = this._orgY + _loc2_.y;
             }
             else
             {
-               display.x = _orgX + _loc3_.offsetX * _direct;
-               display.y = _orgY + _loc3_.offsetY;
+               this.display.x = this._orgX + _loc3_.offsetX * this._direct;
+               this.display.y = this._orgY + _loc3_.offsetY;
             }
          }
       }
       
       private function renderFrameLabel() : void
       {
-         var _loc1_:String = _frameLabels[_curFrame];
-         var _loc2_:String = _loc1_;
+         var _loc1_:String = this._frameLabels[this._curFrame];
+         var _loc2_:* = _loc1_;
          if("loop" === _loc2_)
          {
-            gotoAndPlay(1);
+            this.gotoAndPlay(1);
          }
       }
       
       public function remove() : void
       {
-         removeSelf();
+         this.removeSelf();
       }
       
       public function addRemoveBack(param1:Function) : void
       {
-         if(!_onRemoveFuncs)
+         if(!this._onRemoveFuncs)
          {
-            _onRemoveFuncs = [];
+            this._onRemoveFuncs = [];
          }
-         if(_onRemoveFuncs.indexOf(param1) != -1)
+         if(this._onRemoveFuncs.indexOf(param1) != -1)
          {
             return;
          }
-         _onRemoveFuncs.push(param1);
+         this._onRemoveFuncs.push(param1);
       }
       
       private function removeSelf() : void
       {
-         isActive = false;
-         for each(var _loc1_ in _onRemoveFuncs)
+         var _loc1_:* = undefined;
+         this.isActive = false;
+         for each(_loc1_ in this._onRemoveFuncs)
          {
             _loc1_(this);
          }
-         _onRemoveFuncs = null;
-         if(display && display.parent)
+         this._onRemoveFuncs = null;
+         if(Boolean(this.display) && Boolean(this.display.parent))
          {
-            display.parent.removeChild(display);
+            this.display.parent.removeChild(this.display);
          }
       }
    }

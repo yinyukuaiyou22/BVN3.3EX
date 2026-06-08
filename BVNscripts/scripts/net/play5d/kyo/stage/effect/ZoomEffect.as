@@ -1,9 +1,9 @@
 package net.play5d.kyo.stage.effect
 {
-   import com.greensock.TweenLite;
-   import com.greensock.easing.Back;
+   import com.greensock.*;
+   import com.greensock.easing.*;
    import flash.display.DisplayObject;
-   import flash.geom.Point;
+   import flash.geom.*;
    import net.play5d.kyo.stage.Istage;
    
    public class ZoomEffect implements IStageFadEffect

@@ -1,9 +1,9 @@
 package net.play5d.game.bvn.mob.views
 {
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.mob.GameInterfaceManager;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.mob.*;
    import net.play5d.game.bvn.mob.input.JoyStickConfigVO;
-   import net.play5d.game.bvn.state.SettingState;
+   import net.play5d.game.bvn.state.*;
    import net.play5d.kyo.stage.Istage;
    
    public class ViewManager
@@ -27,7 +27,7 @@ package net.play5d.game.bvn.mob.views
       
       public function goP1JoyStickSet() : void
       {
-         goJoyStickSet(1,GameInterfaceManager.config.joy1Config);
+         this.goJoyStickSet(1,GameInterfaceManager.config.joy1Config);
       }
       
       private function goJoyStickSet(param1:int, param2:JoyStickConfigVO) : void

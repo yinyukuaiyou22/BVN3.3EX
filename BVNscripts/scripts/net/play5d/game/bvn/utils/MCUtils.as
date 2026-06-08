@@ -2,7 +2,7 @@ package net.play5d.game.bvn.utils
 {
    import flash.display.DisplayObject;
    import flash.display.MovieClip;
-   import flash.filters.ColorMatrixFilter;
+   import flash.filters.*;
    
    public class MCUtils
    {
@@ -14,8 +14,9 @@ package net.play5d.game.bvn.utils
       
       public static function hasFrameLabel(param1:MovieClip, param2:String) : Boolean
       {
+         var _loc4_:* = undefined;
          var _loc3_:Array = param1.currentLabels;
-         for each(var _loc4_ in _loc3_)
+         for each(_loc4_ in _loc3_)
          {
             if(_loc4_.name == param2)
             {
@@ -41,15 +42,15 @@ package net.play5d.game.bvn.utils
       
       private static function createHueFilter(param1:Number) : ColorMatrixFilter
       {
-         var _loc4_:Number = Number(NaN);
-         _loc4_ = 0.213;
-         var _loc3_:Number = Number(NaN);
+         var _loc2_:Number = NaN;
+         _loc2_ = 0.213;
+         var _loc3_:Number = NaN;
          _loc3_ = 0.715;
-         var _loc2_:Number = Number(NaN);
-         _loc2_ = 0.072;
-         var _loc6_:Number = Math.cos(param1 * 3.141592653589793 / 180);
-         var _loc5_:Number = Math.sin(param1 * 3.141592653589793 / 180);
-         return new ColorMatrixFilter([0.213 + _loc6_ * (1 - 0.213) + _loc5_ * (0 - 0.213),0.715 + _loc6_ * (0 - 0.715) + _loc5_ * (0 - 0.715),0.072 + _loc6_ * (0 - 0.072) + _loc5_ * (1 - 0.072),0,0,0.213 + _loc6_ * (0 - 0.213) + _loc5_ * 0.143,0.715 + _loc6_ * (1 - 0.715) + _loc5_ * 0.14,0.072 + _loc6_ * (0 - 0.072) + _loc5_ * -0.283,0,0,0.213 + _loc6_ * (0 - 0.213) + _loc5_ * -0.787,0.715 + _loc6_ * (0 - 0.715) + _loc5_ * 0.715,0.072 + _loc6_ * (1 - 0.072) + _loc5_ * 0.072,0,0,0,0,0,1,0]);
+         var _loc4_:Number = NaN;
+         _loc4_ = 0.072;
+         var _loc5_:Number = Math.cos(param1 * 3.141592653589793 / 180);
+         var _loc6_:Number = Math.sin(param1 * 3.141592653589793 / 180);
+         return new ColorMatrixFilter([0.213 + _loc5_ * (1 - 0.213) + _loc6_ * (0 - 0.213),0.715 + _loc5_ * (0 - 0.715) + _loc6_ * (0 - 0.715),0.072 + _loc5_ * (0 - 0.072) + _loc6_ * (1 - 0.072),0,0,0.213 + _loc5_ * (0 - 0.213) + _loc6_ * 0.143,0.715 + _loc5_ * (1 - 0.715) + _loc6_ * 0.14,0.072 + _loc5_ * (0 - 0.072) + _loc6_ * -0.283,0,0,0.213 + _loc5_ * (0 - 0.213) + _loc6_ * -0.787,0.715 + _loc5_ * (0 - 0.715) + _loc6_ * 0.715,0.072 + _loc5_ * (1 - 0.072) + _loc6_ * 0.072,0,0,0,0,0,1,0]);
       }
    }
 }

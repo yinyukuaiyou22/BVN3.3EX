@@ -1,6 +1,6 @@
 package net.play5d.game.bvn.data
 {
-   import net.play5d.game.bvn.ctrl.GameLogic;
+   import net.play5d.game.bvn.ctrl.*;
    
    public class MessionModel
    {
@@ -33,19 +33,21 @@ package net.play5d.game.bvn.data
       
       public function initByXML(param1:XML) : void
       {
+         var _loc3_:* = undefined;
          var _loc2_:MessionVO = null;
-         _messions = [];
-         for each(var _loc3_ in param1.design)
+         this._messions = [];
+         for each(_loc3_ in param1.design)
          {
             _loc2_ = new MessionVO();
             _loc2_.initByXML(_loc3_);
-            _messions.push(_loc2_);
+            this._messions.push(_loc2_);
          }
       }
       
       public function getMession(param1:int, param2:int) : MessionVO
       {
-         for each(var _loc3_ in _messions)
+         var _loc3_:* = undefined;
+         for each(_loc3_ in this._messions)
          {
             if(_loc3_.comicType == param1 && _loc3_.gameMode == param2)
             {
@@ -57,48 +59,48 @@ package net.play5d.game.bvn.data
       
       public function getCurrentMessionStage() : MessionStageVO
       {
-         return _curStage;
+         return this._curStage;
       }
       
       public function initMession() : void
       {
-         var _loc5_:int = 0;
-         var _loc4_:FighterVO = FighterModel.I.getFighter(GameData.I.p1Select.fighter1);
-         var _loc1_:int = GameMode.isTeamMode() ? 0 : 1;
-         var _loc3_:MessionVO = getMession(_loc4_.comicType,_loc1_);
-         _curMession = _loc3_;
-         _curStage = _loc3_.stageList[_curStageId];
+         var _loc1_:int = 0;
+         var _loc2_:FighterVO = FighterModel.I.getFighter(GameData.I.p1Select.fighter1);
+         var _loc3_:int = GameMode.isTeamMode() ? 0 : 1;
+         var _loc4_:MessionVO = this.getMession(_loc2_.comicType,_loc3_);
+         this._curMession = _loc4_;
+         this._curStage = _loc4_.stageList[this._curStageId];
          GameData.I.p2Select = GameData.I.p2Select || new SelectVO();
-         var _loc2_:Array = _curStage.getFighters();
-         while(_loc5_ < _loc2_.length)
+         var _loc5_:Array = this._curStage.getFighters();
+         while(_loc1_ < _loc5_.length)
          {
-            GameData.I.p2Select["fighter" + (_loc5_ + 1)] = _loc2_[_loc5_];
-            _loc5_++;
+            GameData.I.p2Select["fighter" + (_loc1_ + 1)] = _loc5_[_loc1_];
+            _loc1_++;
          }
-         GameData.I.p2Select.fuzhu = _curStage.assister;
-         GameData.I.selectMap = _curStage.map;
-         AI_LEVEL = GameData.I.config.AI_level;
+         GameData.I.p2Select.fuzhu = this._curStage.assister;
+         GameData.I.selectMap = this._curStage.map;
+         this.AI_LEVEL = GameData.I.config.AI_level;
          trace("p1::",GameData.I.p1Select.toString());
          trace("p2::",GameData.I.p2Select.toString());
       }
       
       public function reset() : void
       {
-         _curStageId = 0;
-         _curStage = null;
-         _curMession = null;
+         this._curStageId = 0;
+         this._curStage = null;
+         this._curMession = null;
          GameData.I.score = 0;
       }
       
       public function messionComplete() : void
       {
-         if(missionAllComplete())
+         if(this.missionAllComplete())
          {
             trace("mission all over!!!");
             return;
          }
-         _curStageId += 1;
-         initMession();
+         ++this._curStageId;
+         this.initMession();
          if(GameMode.isAcrade())
          {
             GameLogic.addScoreByPassMission();
@@ -107,7 +109,7 @@ package net.play5d.game.bvn.data
       
       public function missionAllComplete() : Boolean
       {
-         return _curStageId >= _curMession.stageList.length - 1;
+         return this._curStageId >= this._curMession.stageList.length - 1;
       }
    }
 }

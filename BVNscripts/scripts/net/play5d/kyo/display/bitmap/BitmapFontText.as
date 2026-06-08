@@ -2,8 +2,7 @@ package net.play5d.kyo.display.bitmap
 {
    import flash.display.Bitmap;
    import flash.display.BitmapData;
-   import flash.geom.ColorTransform;
-   import flash.geom.Rectangle;
+   import flash.geom.*;
    
    public class BitmapFontText extends Bitmap
    {
@@ -37,7 +36,7 @@ package net.play5d.kyo.display.bitmap
       {
          if(param1 == null)
          {
-            if(this._orgBitmapData)
+            if(Boolean(this._orgBitmapData))
             {
                bitmapData.dispose();
                bitmapData = this._orgBitmapData.clone();
@@ -53,7 +52,7 @@ package net.play5d.kyo.display.bitmap
       
       public function dispose() : void
       {
-         if(this._orgBitmapData)
+         if(Boolean(this._orgBitmapData))
          {
             this._orgBitmapData.dispose();
             this._orgBitmapData = null;

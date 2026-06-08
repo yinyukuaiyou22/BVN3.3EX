@@ -1,8 +1,7 @@
 package net.play5d.kyo.display.bitmap
 {
-   import flash.display.BitmapData;
-   import flash.geom.Point;
-   import flash.geom.Rectangle;
+   import flash.display.*;
+   import flash.geom.*;
    
    public class BitmapFont
    {
@@ -50,61 +49,61 @@ package net.play5d.kyo.display.bitmap
       
       public function translate(param1:String) : BitmapData
       {
-         var _loc4_:* = 0;
-         var _loc5_:InsCharVO = null;
-         var _loc7_:int = 0;
-         var _loc8_:Rectangle = null;
-         var _loc9_:Point = null;
-         var _loc2_:Number = 0;
-         var _loc3_:Array = [];
-         _loc4_ = 0;
-         while(_loc4_ < param1.length)
+         var _loc2_:int = 0;
+         var _loc3_:InsCharVO = null;
+         var _loc4_:int = 0;
+         var _loc5_:Rectangle = null;
+         var _loc6_:Point = null;
+         var _loc7_:Number = 0;
+         var _loc8_:Array = [];
+         _loc2_ = 0;
+         while(_loc2_ < param1.length)
          {
-            _loc7_ = param1.charCodeAt(_loc4_);
-            if(_loc7_ == 32 && Boolean(this.spaceGap))
+            _loc4_ = int(param1.charCodeAt(_loc2_));
+            if(_loc4_ == 32 && Boolean(this.spaceGap))
             {
-               _loc2_ += this.spaceGap;
+               _loc7_ += this.spaceGap;
             }
             else
             {
-               _loc5_ = this.getChar(_loc7_);
-               if(!_loc5_)
+               _loc3_ = this.getChar(_loc4_);
+               if(!_loc3_)
                {
-                  if(_loc7_ == 32)
+                  if(_loc4_ == 32)
                   {
-                     _loc2_ += this._charWidth + this.charGap;
+                     _loc7_ += this._charWidth + this.charGap;
                   }
                }
                else
                {
-                  _loc5_.x = _loc2_;
-                  _loc2_ += _loc5_.width + this.charGap;
-                  _loc3_.push(_loc5_);
+                  _loc3_.x = _loc7_;
+                  _loc7_ += _loc3_.width + this.charGap;
+                  _loc8_.push(_loc3_);
                }
             }
-            _loc4_++;
+            _loc2_++;
          }
          if(this.charGap < 0)
          {
-            _loc2_ -= this.charGap;
+            _loc7_ -= this.charGap;
          }
-         var _loc6_:BitmapData = new BitmapData(_loc2_,this._charHeight,true,0);
-         _loc4_ = 0;
-         while(_loc4_ < _loc3_.length)
+         var _loc9_:BitmapData = new BitmapData(_loc7_,this._charHeight,true,0);
+         _loc2_ = 0;
+         while(_loc2_ < _loc8_.length)
          {
-            _loc5_ = _loc3_[_loc4_];
-            _loc8_ = new Rectangle(_loc5_.sx,_loc5_.sy,_loc5_.width,_loc5_.height);
-            _loc9_ = new Point(_loc5_.x + this.offsetX,_loc5_.y + (_loc5_.yoffset - this._yOffsetMin) + this.offsetY);
-            _loc6_.copyPixels(this._source,_loc8_,_loc9_,null,null,true);
-            _loc4_++;
+            _loc3_ = _loc8_[_loc2_];
+            _loc5_ = new Rectangle(_loc3_.sx,_loc3_.sy,_loc3_.width,_loc3_.height);
+            _loc6_ = new Point(_loc3_.x + this.offsetX,_loc3_.y + (_loc3_.yoffset - this._yOffsetMin) + this.offsetY);
+            _loc9_.copyPixels(this._source,_loc5_,_loc6_,null,null,true);
+            _loc2_++;
          }
-         return _loc6_;
+         return _loc9_;
       }
       
       private function getChar(param1:int) : InsCharVO
       {
          var _loc2_:InsCharVO = this._fontCache[param1];
-         if(_loc2_)
+         if(Boolean(_loc2_))
          {
             return _loc2_.clone();
          }
@@ -142,7 +141,7 @@ class InsCharVO
    {
       super();
       this._xml = param1;
-      if(param1)
+      if(Boolean(param1))
       {
          this.id = param1.@id;
          this.sx = param1.@x;

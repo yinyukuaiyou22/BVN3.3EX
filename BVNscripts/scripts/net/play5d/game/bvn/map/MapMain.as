@@ -1,17 +1,12 @@
 package net.play5d.game.bvn.map
 {
-   import flash.display.Bitmap;
-   import flash.display.DisplayObject;
-   import flash.display.MovieClip;
-   import flash.display.Sprite;
-   import flash.geom.Point;
-   import flash.geom.Rectangle;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.data.MapVO;
+   import flash.display.*;
+   import flash.geom.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.interfaces.IGameSprite;
    import net.play5d.game.bvn.state.GameState;
-   import net.play5d.kyo.utils.KyoUtils;
+   import net.play5d.kyo.utils.*;
    
    public class MapMain
    {
@@ -54,35 +49,38 @@ package net.play5d.game.bvn.map
       
       public function destory() : void
       {
-         if(mapMc)
+         if(Boolean(this.mapMc))
          {
             try
             {
-               mapMc.stopAllMovieClips();
-               mapMc.removeChildren();
+               if("stopAllMovieClips" in this.mapMc)
+               {
+                  (this.mapMc as Object).stopAllMovieClips();
+               }
+               this.mapMc.removeChildren();
             }
             catch(e:Error)
             {
                trace(e);
             }
-            mapMc = null;
+            this.mapMc = null;
          }
-         if(mapLayer)
+         if(Boolean(this.mapLayer))
          {
-            mapLayer = null;
+            this.mapLayer = null;
          }
-         if(frontLayer)
+         if(Boolean(this.frontLayer))
          {
-            frontLayer = null;
+            this.frontLayer = null;
          }
-         if(frontFixLayer)
+         if(Boolean(this.frontFixLayer))
          {
-            frontFixLayer = null;
+            this.frontFixLayer = null;
          }
-         if(bgLayer)
+         if(Boolean(this.bgLayer))
          {
-            bgLayer.bitmapData.dispose();
-            bgLayer = null;
+            this.bgLayer.bitmapData.dispose();
+            this.bgLayer = null;
          }
       }
       
@@ -92,100 +90,100 @@ package net.play5d.game.bvn.map
          {
             return;
          }
-         if(mapLayer)
+         if(Boolean(this.mapLayer))
          {
-            mapLayer.visible = param1;
+            this.mapLayer.visible = param1;
          }
-         if(frontLayer)
+         if(Boolean(this.frontLayer))
          {
-            frontLayer.visible = param1;
+            this.frontLayer.visible = param1;
          }
-         if(frontFixLayer)
+         if(Boolean(this.frontFixLayer))
          {
-            frontFixLayer.visible = param1;
+            this.frontFixLayer.visible = param1;
          }
-         if(bgLayer)
+         if(Boolean(this.bgLayer))
          {
-            bgLayer.visible = param1;
+            this.bgLayer.visible = param1;
          }
       }
       
       public function initlize() : void
       {
-         var _loc7_:DisplayObject = mapMc.getChildByName("line_left");
-         var _loc8_:DisplayObject = mapMc.getChildByName("line_right");
-         var _loc5_:DisplayObject = mapMc.getChildByName("line_bottom");
-         var _loc4_:DisplayObject = mapMc.getChildByName("line_player_bottom");
-         var _loc1_:Point = GameConfig.GAME_SIZE;
-         if(_loc7_)
+         var _loc1_:DisplayObject = this.mapMc.getChildByName("line_left");
+         var _loc2_:DisplayObject = this.mapMc.getChildByName("line_right");
+         var _loc3_:DisplayObject = this.mapMc.getChildByName("line_bottom");
+         var _loc4_:DisplayObject = this.mapMc.getChildByName("line_player_bottom");
+         var _loc5_:Point = GameConfig.GAME_SIZE;
+         if(Boolean(_loc1_))
          {
-            left = _loc7_.x;
+            this.left = _loc1_.x;
          }
-         if(_loc8_)
+         if(Boolean(_loc2_))
          {
-            right = _loc8_.x;
+            this.right = _loc2_.x;
          }
-         if(_loc5_)
+         if(Boolean(_loc3_))
          {
-            bottom = _loc5_.y;
+            this.bottom = _loc3_.y;
          }
-         if(_loc4_)
+         if(Boolean(_loc4_))
          {
-            playerBottom = _loc4_.y;
+            this.playerBottom = _loc4_.y;
          }
-         var _loc2_:DisplayObject = mapMc.getChildByName("p1");
-         var _loc6_:DisplayObject = mapMc.getChildByName("p2");
-         if(_loc2_)
+         var _loc6_:DisplayObject = this.mapMc.getChildByName("p1");
+         var _loc7_:DisplayObject = this.mapMc.getChildByName("p2");
+         if(Boolean(_loc6_))
          {
-            p1pos = new Point(_loc2_.x,_loc2_.y);
+            this.p1pos = new Point(_loc6_.x,_loc6_.y);
          }
-         if(_loc6_)
+         if(Boolean(_loc7_))
          {
-            p2pos = new Point(_loc6_.x,_loc6_.y);
+            this.p2pos = new Point(_loc7_.x,_loc7_.y);
          }
-         mapLayer = mapMc.getChildByName("map") as MovieClip;
-         frontLayer = mapMc.getChildByName("front") as Sprite;
-         frontFixLayer = mapMc.getChildByName("front_fix") as Sprite;
-         bgLayer = drawBitmap("bg",false,0);
-         if(bgLayer)
+         this.mapLayer = this.mapMc.getChildByName("map") as MovieClip;
+         this.frontLayer = this.mapMc.getChildByName("front") as Sprite;
+         this.frontFixLayer = this.mapMc.getChildByName("front_fix") as Sprite;
+         this.bgLayer = this.drawBitmap("bg",false,0);
+         if(Boolean(this.bgLayer))
          {
-            normalizeLayer(bgLayer);
+            this.normalizeLayer(this.bgLayer);
          }
-         var _loc3_:Number = _loc1_.y - bottom;
-         if(mapLayer)
+         var _loc8_:Number = _loc5_.y - this.bottom;
+         if(Boolean(this.mapLayer))
          {
-            normalizeLayer(mapLayer);
-            mapLayer.y += _loc3_;
+            this.normalizeLayer(this.mapLayer);
+            this.mapLayer.y += _loc8_;
          }
-         if(frontLayer)
+         if(Boolean(this.frontLayer))
          {
-            normalizeLayer(frontLayer);
-            frontLayer.y += _loc3_;
-            _defaultFrontPos = new Point(frontLayer.x,frontLayer.y);
+            this.normalizeLayer(this.frontLayer);
+            this.frontLayer.y += _loc8_;
+            this._defaultFrontPos = new Point(this.frontLayer.x,this.frontLayer.y);
          }
-         if(frontFixLayer)
+         if(Boolean(this.frontFixLayer))
          {
-            normalizeLayer(frontFixLayer);
-            frontFixLayer.y += _loc3_;
+            this.normalizeLayer(this.frontFixLayer);
+            this.frontFixLayer.y += _loc8_;
          }
-         playerBottom += _loc3_;
-         bottom += _loc3_;
-         if(p1pos)
+         this.playerBottom += _loc8_;
+         this.bottom += _loc8_;
+         if(Boolean(this.p1pos))
          {
-            p1pos.y += _loc3_;
+            this.p1pos.y += _loc8_;
          }
-         if(p2pos)
+         if(Boolean(this.p2pos))
          {
-            p2pos.y += _loc3_;
+            this.p2pos.y += _loc8_;
          }
-         initFloor(_loc3_);
+         this.initFloor(_loc8_);
       }
       
       private function drawBitmap(param1:String, param2:Boolean = true, param3:uint = 0) : Bitmap
       {
          var _loc4_:* = null;
-         var _loc5_:DisplayObject = mapMc.getChildByName(param1);
-         if(_loc5_)
+         var _loc5_:DisplayObject = this.mapMc.getChildByName(param1);
+         if(Boolean(_loc5_))
          {
             return KyoUtils.drawDisplay(_loc5_,true,param2,param3);
          }
@@ -194,32 +192,32 @@ package net.play5d.game.bvn.map
       
       private function normalizeLayer(param1:DisplayObject) : void
       {
-         var _loc3_:Sprite = null;
-         var _loc5_:int = 0;
-         var _loc2_:DisplayObject = null;
+         var _loc2_:Sprite = null;
+         var _loc3_:int = 0;
          var _loc4_:DisplayObject = null;
+         var _loc5_:DisplayObject = null;
          if(param1 is Bitmap)
          {
             (param1 as Bitmap).smoothing = GameData.I.config.quality == "best";
          }
          if(param1 is Sprite)
          {
-            _loc3_ = param1 as Sprite;
-            while(_loc5_ < _loc3_.numChildren)
+            _loc2_ = param1 as Sprite;
+            while(_loc3_ < _loc2_.numChildren)
             {
-               _loc2_ = _loc3_.getChildAt(_loc5_);
-               if(_loc2_ is Bitmap)
+               _loc4_ = _loc2_.getChildAt(_loc3_);
+               if(_loc4_ is Bitmap)
                {
-                  (_loc2_ as Bitmap).smoothing = GameData.I.config.quality == "best";
+                  (_loc4_ as Bitmap).smoothing = GameData.I.config.quality == "best";
                }
-               _loc5_++;
+               _loc3_++;
             }
             if(GameConfig.MAP_LOGO_STATE != 1)
             {
-               _loc4_ = _loc3_.getChildByName("logo4399");
-               if(_loc4_)
+               _loc5_ = _loc2_.getChildByName("logo4399");
+               if(Boolean(_loc5_))
                {
-                  _loc4_.visible = false;
+                  _loc5_.visible = false;
                }
             }
          }
@@ -227,84 +225,84 @@ package net.play5d.game.bvn.map
       
       public function getStageSize() : Point
       {
-         return new Point(mapLayer.width,GameConfig.GAME_SIZE.y);
+         return new Point(this.mapLayer.width,GameConfig.GAME_SIZE.y);
       }
       
       public function getMapBottomDistance() : Number
       {
-         return bottom - playerBottom;
+         return this.bottom - this.playerBottom;
       }
       
       private function initFloor(param1:Number) : void
       {
-         var _loc5_:int = 0;
-         var _loc2_:DisplayObject = null;
+         var _loc2_:int = 0;
+         var _loc3_:DisplayObject = null;
          var _loc4_:FloorVO = null;
-         _floors = [];
-         var _loc3_:Sprite = mapMc.getChildByName("floor") as Sprite;
-         if(!_loc3_)
+         this._floors = [];
+         var _loc5_:Sprite = this.mapMc.getChildByName("floor") as Sprite;
+         if(!_loc5_)
          {
             return;
          }
-         while(_loc5_ < _loc3_.numChildren)
+         while(_loc2_ < _loc5_.numChildren)
          {
-            _loc2_ = _loc3_.getChildAt(_loc5_);
-            if(_loc2_)
+            _loc3_ = _loc5_.getChildAt(_loc2_);
+            if(Boolean(_loc3_))
             {
                _loc4_ = new FloorVO();
-               _loc4_.xFrom = _loc3_.x + _loc2_.x;
-               _loc4_.xTo = _loc3_.x + _loc2_.x + _loc2_.width;
-               _loc4_.y = _loc3_.y + _loc2_.y + param1;
-               _floors.push(_loc4_);
+               _loc4_.xFrom = _loc5_.x + _loc3_.x;
+               _loc4_.xTo = _loc5_.x + _loc3_.x + _loc3_.width;
+               _loc4_.y = _loc5_.y + _loc3_.y + param1;
+               this._floors.push(_loc4_);
             }
-            _loc5_++;
+            _loc2_++;
          }
       }
       
       public function getFloorHitTest(param1:Number, param2:Number, param3:Number) : FloorVO
       {
-         var _loc5_:int = 0;
-         var _loc4_:FloorVO = null;
-         while(_loc5_ < _floors.length)
+         var _loc4_:int = 0;
+         var _loc5_:FloorVO = null;
+         while(_loc4_ < this._floors.length)
          {
-            _loc4_ = _floors[_loc5_];
-            if(_loc4_.hitTest(param1,param2,param3))
+            _loc5_ = this._floors[_loc4_];
+            if(_loc5_.hitTest(param1,param2,param3))
             {
-               return _loc4_;
+               return _loc5_;
             }
-            _loc5_++;
+            _loc4_++;
          }
          return null;
       }
       
       public function render(param1:Number, param2:Number, param3:Number) : void
       {
-         var _loc5_:Number = Number(NaN);
-         var _loc4_:Number = Number(NaN);
-         var _loc6_:Number = Number(NaN);
-         if(frontLayer)
+         var _loc4_:* = NaN;
+         var _loc5_:Number = NaN;
+         var _loc6_:Number = NaN;
+         if(Boolean(this.frontLayer))
          {
-            _loc5_ = param1;
-            _loc4_ = param2 + bottom;
-            frontLayer.x = _loc5_ * 0.1 + _defaultFrontPos.x;
-            _loc6_ = _defaultFrontPos.y;
-            _loc6_ = _loc4_ * 0.1 + _defaultFrontPos.y;
-            _loc6_ < _defaultFrontPos.y && _loc6_;
-            frontLayer.y = _loc6_;
-            renderOptical(frontLayer);
+            _loc4_ = param1;
+            _loc5_ = param2 + this.bottom;
+            this.frontLayer.x = _loc4_ * 0.1 + this._defaultFrontPos.x;
+            _loc6_ = Number(this._defaultFrontPos.y);
+            _loc6_ = _loc5_ * 0.1 + this._defaultFrontPos.y;
+            _loc6_ < this._defaultFrontPos.y && _loc6_;
+            this.frontLayer.y = _loc6_;
+            this.renderOptical(this.frontLayer);
          }
-         if(frontFixLayer)
+         if(Boolean(this.frontFixLayer))
          {
-            renderOptical(frontFixLayer);
+            this.renderOptical(this.frontFixLayer);
          }
       }
       
       private function renderOptical(param1:Sprite) : void
       {
-         var _loc3_:Rectangle = null;
-         var _loc2_:DisplayObject = null;
-         var _loc6_:int = 0;
-         if(!gameState)
+         var _loc2_:Rectangle = null;
+         var _loc3_:DisplayObject = null;
+         var _loc4_:int = 0;
+         if(!this.gameState)
          {
             return;
          }
@@ -313,47 +311,47 @@ package net.play5d.game.bvn.map
          {
             return;
          }
-         var _loc4_:Vector.<IGameSprite> = gameState.getGameSprites();
-         if(!_loc4_ || _loc4_.length < 1)
+         var _loc6_:Vector.<IGameSprite> = this.gameState.getGameSprites();
+         if(!_loc6_ || _loc6_.length < 1)
          {
             return;
          }
-         while(_loc6_ < _loc5_)
+         while(_loc4_ < _loc5_)
          {
-            _loc2_ = param1.getChildAt(_loc6_);
-            if(_loc2_ is MovieClip != false)
+            _loc3_ = param1.getChildAt(_loc4_);
+            if(_loc3_ is MovieClip != false)
             {
-               _loc3_ = _loc2_.getBounds(param1);
-               _loc3_.x += param1.x;
-               _loc3_.y += param1.y;
-               _loc2_.alpha = checkHitGameSprite(_loc3_,_loc4_) ? 0.5 : 1;
+               _loc2_ = _loc3_.getBounds(param1);
+               _loc2_.x += param1.x;
+               _loc2_.y += param1.y;
+               _loc3_.alpha = this.checkHitGameSprite(_loc2_,_loc6_) ? 0.5 : 1;
             }
-            _loc6_++;
+            _loc4_++;
          }
       }
       
       private function checkHitGameSprite(param1:Rectangle, param2:Vector.<IGameSprite>) : Boolean
       {
-         var _loc4_:int = 0;
-         var _loc6_:IGameSprite = null;
+         var _loc3_:int = 0;
+         var _loc4_:IGameSprite = null;
          var _loc5_:Boolean = false;
-         var _loc3_:Rectangle = null;
-         while(_loc4_ < param2.length)
+         var _loc6_:Rectangle = null;
+         while(_loc3_ < param2.length)
          {
-            _loc6_ = param2[_loc4_];
-            if(_loc6_)
+            _loc4_ = param2[_loc3_];
+            if(Boolean(_loc4_))
             {
-               _loc3_ = _loc6_.getArea();
-               if(_loc3_)
+               _loc6_ = _loc4_.getArea();
+               if(Boolean(_loc6_))
                {
-                  _loc5_ = param1.intersects(_loc3_);
+                  _loc5_ = param1.intersects(_loc6_);
                   if(_loc5_)
                   {
                      return true;
                   }
                }
             }
-            _loc4_++;
+            _loc3_++;
          }
          return false;
       }

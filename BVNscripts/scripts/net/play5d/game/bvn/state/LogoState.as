@@ -2,14 +2,14 @@ package net.play5d.game.bvn.state
 {
    import flash.display.DisplayObject;
    import flash.events.Event;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.utils.ResUtils;
-   import net.play5d.kyo.stage.Istage;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.utils.*;
+   import net.play5d.kyo.stage.*;
    
    public class LogoState implements Istage
    {
       
-      private var _ui:logo_movie;
+      private var _ui:*;
       
       public function LogoState()
       {
@@ -18,19 +18,19 @@ package net.play5d.game.bvn.state
       
       public function get display() : DisplayObject
       {
-         return _ui;
+         return this._ui;
       }
       
       public function build() : void
       {
-         _ui = ResUtils.I.createDisplayObject(ResUtils.I.common_ui,"logo_movie");
-         _ui.addEventListener("complete",playComplete);
-         _ui.gotoAndPlay(2);
+         this._ui = ResUtils.I.createDisplayObject(ResUtils.I.common_ui,"logo_movie");
+         this._ui.addEventListener("complete",this.playComplete);
+         this._ui.gotoAndPlay(2);
       }
       
       private function playComplete(param1:Event) : void
       {
-         _ui.removeEventListener("complete",playComplete);
+         this._ui.removeEventListener("complete",this.playComplete);
          MainGame.I.goMenu();
       }
       
@@ -40,7 +40,7 @@ package net.play5d.game.bvn.state
       
       public function destory(param1:Function = null) : void
       {
-         _ui.removeEventListener("complete",playComplete);
+         this._ui.removeEventListener("complete",this.playComplete);
       }
    }
 }

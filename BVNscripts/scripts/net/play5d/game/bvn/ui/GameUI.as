@@ -1,14 +1,11 @@
 package net.play5d.game.bvn.ui
 {
    import flash.display.DisplayObject;
-   import flash.events.DataEvent;
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.data.GameRunFighterGroup;
-   import net.play5d.game.bvn.ui.dialog.AlertUI;
-   import net.play5d.game.bvn.ui.dialog.ConfrimUI;
-   import net.play5d.game.bvn.ui.fight.FightUI;
+   import flash.events.*;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.data.*;
+   import net.play5d.game.bvn.ui.dialog.*;
+   import net.play5d.game.bvn.ui.fight.*;
    
    public class GameUI
    {
@@ -33,7 +30,7 @@ package net.play5d.game.bvn.ui
       {
          super();
          I = this;
-         _renderAnimateGap = Math.ceil(GameConfig.FPS_GAME / 30) - 1;
+         this._renderAnimateGap = Math.ceil(GameConfig.FPS_GAME / 30) - 1;
       }
       
       public static function showingDialog() : Boolean
@@ -43,10 +40,12 @@ package net.play5d.game.bvn.ui
       
       public static function confrim(param1:String = null, param2:String = null, param3:Function = null, param4:Function = null) : void
       {
+         var yes:Function = null;
+         var no:Function = null;
          var enMsg:String = param1;
          var cnMsg:String = param2;
-         var yes:Function = param3;
-         var no:Function = param4;
+         yes = param3;
+         no = param4;
          var yesClose:* = function():void
          {
             if(yes != null)
@@ -76,9 +75,10 @@ package net.play5d.game.bvn.ui
       
       public static function alert(param1:String = null, param2:String = null, param3:Function = null) : void
       {
+         var close:Function = null;
          var enMsg:String = param1;
          var cnMsg:String = param2;
-         var close:Function = param3;
+         close = param3;
          var closeBack:* = function():void
          {
             if(close != null)
@@ -98,7 +98,7 @@ package net.play5d.game.bvn.ui
       
       public static function closeAlert() : void
       {
-         if(_alertUI)
+         if(Boolean(_alertUI))
          {
             try
             {
@@ -114,7 +114,7 @@ package net.play5d.game.bvn.ui
       
       public static function closeConfrim() : void
       {
-         if(_confrimUI)
+         if(Boolean(_confrimUI))
          {
             try
             {
@@ -130,62 +130,62 @@ package net.play5d.game.bvn.ui
       
       public function getUI() : IGameUI
       {
-         return _ui;
+         return this._ui;
       }
       
       public function getUIDisplay() : DisplayObject
       {
-         return _ui.getUI();
+         return this._ui.getUI();
       }
       
       public function initFight(param1:GameRunFighterGroup, param2:GameRunFighterGroup) : void
       {
-         var _loc3_:Number = GameData.I.config.soundVolume;
-         if(_ui)
+         var _loc3_:Number = Number(GameData.I.config.soundVolume);
+         if(Boolean(this._ui))
          {
-            if(_ui is FightUI == false)
+            if(this._ui is FightUI == false)
             {
-               _ui.destory();
-               _ui = new FightUI();
-               _ui.setVolume(_loc3_);
+               this._ui.destory();
+               this._ui = new FightUI();
+               this._ui.setVolume(_loc3_);
             }
          }
          else
          {
-            _ui = new FightUI();
-            _ui.setVolume(_loc3_);
+            this._ui = new FightUI();
+            this._ui.setVolume(_loc3_);
          }
-         (_ui as FightUI).initlize(param1,param2);
+         (this._ui as FightUI).initlize(param1,param2);
       }
       
       public function render() : void
       {
-         if(!_ui)
+         if(!this._ui)
          {
             return;
          }
-         _ui.render();
-         if(isRenderAnimate())
+         this._ui.render();
+         if(this.isRenderAnimate())
          {
-            renderAnimate();
+            this.renderAnimate();
          }
       }
       
       private function renderAnimate() : void
       {
-         if(_ui)
+         if(Boolean(this._ui))
          {
-            _ui.renderAnimate();
+            this._ui.renderAnimate();
          }
       }
       
       private function isRenderAnimate() : Boolean
       {
-         if(_renderAnimateGap > 0)
+         if(this._renderAnimateGap > 0)
          {
-            if(_renderAnimateFrame++ >= _renderAnimateGap)
+            if(this._renderAnimateFrame++ >= this._renderAnimateGap)
             {
-               _renderAnimateFrame = 0;
+               this._renderAnimateFrame = 0;
                return true;
             }
             return false;
@@ -195,28 +195,28 @@ package net.play5d.game.bvn.ui
       
       public function fadIn() : void
       {
-         var _loc1_:Number = Number(NaN);
-         if(_ui)
+         var _loc1_:Number = NaN;
+         if(Boolean(this._ui))
          {
-            _loc1_ = GameData.I.config.soundVolume;
-            _ui.fadIn();
-            _ui.setVolume(_loc1_);
+            _loc1_ = Number(GameData.I.config.soundVolume);
+            this._ui.fadIn();
+            this._ui.setVolume(_loc1_);
          }
       }
       
       public function fadOut() : void
       {
-         if(_ui)
+         if(Boolean(this._ui))
          {
-            _ui.fadIn();
+            this._ui.fadIn();
          }
       }
       
       public function destory() : void
       {
-         if(_ui)
+         if(Boolean(this._ui))
          {
-            _ui.destory();
+            this._ui.destory();
          }
       }
    }

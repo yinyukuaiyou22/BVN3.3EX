@@ -1,6 +1,6 @@
 package net.play5d.game.bvn.data
 {
-   import flash.geom.Point;
+   import flash.geom.*;
    
    public class SelectStageConfigVO
    {
@@ -35,79 +35,79 @@ package net.play5d.game.bvn.data
       public function setByXML(param1:XML) : void
       {
          var _loc2_:Object = param1.stage_setting.layout;
-         x = Number(_loc2_.@x);
-         y = Number(_loc2_.@y);
-         width = Number(_loc2_.@width);
-         height = Number(_loc2_.@height);
-         top = Number(_loc2_.@top);
-         bottom = Number(_loc2_.@bottom);
-         left = Number(_loc2_.@left);
-         right = Number(_loc2_.@right);
-         charList = newListByXML(param1.char_list);
-         assistList = newListByXML(param1.assist_list);
+         this.x = Number(_loc2_.@x);
+         this.y = Number(_loc2_.@y);
+         this.width = Number(_loc2_.@width);
+         this.height = Number(_loc2_.@height);
+         this.top = Number(_loc2_.@top);
+         this.bottom = Number(_loc2_.@bottom);
+         this.left = Number(_loc2_.@left);
+         this.right = Number(_loc2_.@right);
+         this.charList = this.newListByXML(param1.char_list);
+         this.assistList = this.newListByXML(param1.assist_list);
       }
       
       private function newListByXML(param1:XMLList) : SelectCharListConfigVO
       {
-         var _loc13_:int = 0;
-         var _loc5_:XML = null;
-         var _loc3_:Point = null;
-         var _loc2_:String = null;
+         var _loc2_:int = 0;
+         var _loc3_:XML = null;
+         var _loc4_:Point = null;
+         var _loc5_:String = null;
          var _loc6_:Array = null;
-         var _loc14_:int = 0;
-         var _loc9_:XML = null;
+         var _loc7_:int = 0;
+         var _loc8_:XML = null;
+         var _loc9_:String = null;
+         var _loc10_:Point = null;
          var _loc11_:String = null;
-         var _loc12_:Point = null;
-         var _loc8_:String = null;
-         var _loc7_:Array = null;
-         var _loc4_:SelectCharListItemVO = null;
-         var _loc10_:SelectCharListConfigVO = new SelectCharListConfigVO();
-         _loc10_.VCount = param1.children().length();
-         while(_loc13_ < param1.children().length())
+         var _loc12_:Array = null;
+         var _loc13_:SelectCharListItemVO = null;
+         var _loc14_:SelectCharListConfigVO = new SelectCharListConfigVO();
+         _loc14_.VCount = param1.children().length();
+         while(_loc2_ < param1.children().length())
          {
-            _loc5_ = param1.children()[_loc13_];
-            _loc3_ = null;
-            _loc2_ = _loc5_.@offset;
-            if(_loc2_ && _loc2_.length > 0)
+            _loc3_ = param1.children()[_loc2_];
+            _loc4_ = null;
+            _loc5_ = _loc3_.@offset;
+            if(Boolean(_loc5_) && _loc5_.length > 0)
             {
-               _loc6_ = _loc2_.split(",");
-               _loc3_ = new Point(_loc6_[0],_loc6_[1]);
+               _loc6_ = _loc5_.split(",");
+               _loc4_ = new Point(_loc6_[0],_loc6_[1]);
             }
-            if(_loc10_.HCount < _loc5_.children().length())
+            if(_loc14_.HCount < _loc3_.children().length())
             {
-               _loc10_.HCount = _loc5_.children().length();
+               _loc14_.HCount = _loc3_.children().length();
             }
-            _loc14_ = 0;
-            while(_loc14_ < _loc5_.children().length())
+            _loc7_ = 0;
+            while(_loc7_ < _loc3_.children().length())
             {
-               _loc9_ = _loc5_.children()[_loc14_];
-               _loc11_ = _loc9_.toString();
-               if(_loc11_ && _loc11_.length < 1)
+               _loc8_ = _loc3_.children()[_loc7_];
+               _loc9_ = _loc8_.toString();
+               if(Boolean(_loc9_) && _loc9_.length < 1)
                {
-                  _loc11_ = null;
+                  _loc9_ = null;
                }
-               _loc12_ = _loc3_ ? _loc3_.clone() : null;
-               _loc8_ = _loc9_.@offset;
-               if(_loc8_ && _loc8_.length > 0)
+               _loc10_ = _loc4_ ? _loc4_.clone() : null;
+               _loc11_ = _loc8_.@offset;
+               if(Boolean(_loc11_) && _loc11_.length > 0)
                {
-                  _loc7_ = _loc8_.split(",");
-                  if(_loc12_)
+                  _loc12_ = _loc11_.split(",");
+                  if(Boolean(_loc10_))
                   {
-                     _loc12_.x += Number(_loc7_[0]);
-                     _loc12_.y += Number(_loc7_[1]);
+                     _loc10_.x += Number(_loc12_[0]);
+                     _loc10_.y += Number(_loc12_[1]);
                   }
                   else
                   {
-                     _loc12_ = new Point(_loc7_[0],_loc7_[1]);
+                     _loc10_ = new Point(_loc12_[0],_loc12_[1]);
                   }
                }
-               _loc4_ = new SelectCharListItemVO(_loc14_,_loc13_,_loc11_,_loc12_);
-               _loc10_.list.push(_loc4_);
-               _loc14_++;
+               _loc13_ = new SelectCharListItemVO(_loc7_,_loc2_,_loc9_,_loc10_);
+               _loc14_.list.push(_loc13_);
+               _loc7_++;
             }
-            _loc13_++;
+            _loc2_++;
          }
-         return _loc10_;
+         return _loc14_;
       }
    }
 }

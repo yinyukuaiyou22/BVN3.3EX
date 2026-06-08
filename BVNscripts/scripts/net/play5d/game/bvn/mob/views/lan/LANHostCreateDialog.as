@@ -3,12 +3,12 @@ package net.play5d.game.bvn.mob.views.lan
    import flash.display.DisplayObject;
    import flash.display.MovieClip;
    import flash.events.Event;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
-   import net.play5d.game.bvn.mob.screenpad.ScreenPadManager;
-   import net.play5d.game.bvn.mob.utils.UIAssetUtil;
-   import net.play5d.kyo.stage.Istage;
-   import net.play5d.kyo.stage.effect.ZoomEffect;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.mob.screenpad.*;
+   import net.play5d.game.bvn.mob.utils.*;
+   import net.play5d.kyo.stage.*;
+   import net.play5d.kyo.stage.effect.*;
    
    public class LANHostCreateDialog implements Istage
    {
@@ -73,7 +73,7 @@ package net.play5d.game.bvn.mob.views.lan
       
       public function get display() : DisplayObject
       {
-         return _ui;
+         return this._ui;
       }
       
       public function close() : void
@@ -96,52 +96,53 @@ package net.play5d.game.bvn.mob.views.lan
       
       public function build() : void
       {
-         _ui = UIAssetUtil.I.createDisplayObject("dialog_host");
-         buildItems();
-         ScreenPadManager.addTouchListener(_ui.btn_ok,okHandler);
-         ScreenPadManager.addTouchListener(_ui.btn_back,backHandler);
+         this._ui = UIAssetUtil.I.createDisplayObject("dialog_host");
+         this.buildItems();
+         ScreenPadManager.addTouchListener(this._ui.btn_ok,this.okHandler);
+         ScreenPadManager.addTouchListener(this._ui.btn_back,this.backHandler);
       }
       
       private function buildItems() : void
       {
-         var _loc3_:int = 0;
+         var _loc1_:int = 0;
          var _loc2_:Object = null;
-         var _loc1_:HostDialogItem = null;
-         _setItems = [];
-         while(_loc3_ < _settingData.length)
+         var _loc3_:HostDialogItem = null;
+         this._setItems = [];
+         while(_loc1_ < this._settingData.length)
          {
-            _loc2_ = _settingData[_loc3_];
-            _loc1_ = new HostDialogItem(_loc2_);
-            _loc1_.ui.x = 100;
-            _loc1_.ui.y = 50 + _loc3_ * 100;
-            _ui.addChild(_loc1_.ui);
-            _setItems.push(_loc1_);
-            _loc3_++;
+            _loc2_ = this._settingData[_loc1_];
+            _loc3_ = new HostDialogItem(_loc2_);
+            _loc3_.ui.x = 100;
+            _loc3_.ui.y = 50 + _loc1_ * 100;
+            this._ui.addChild(_loc3_.ui);
+            this._setItems.push(_loc3_);
+            _loc1_++;
          }
       }
       
       private function okHandler(param1:DisplayObject) : void
       {
+         var _loc3_:* = undefined;
          var _loc2_:Object = null;
-         for each(var _loc3_ in _setItems)
+         for each(_loc3_ in this._setItems)
          {
             _loc2_ = _loc3_.getSelectData();
-            setting[_loc2_.key] = _loc2_.value;
+            this.setting[_loc2_.key] = _loc2_.value;
          }
-         _isOK = true;
+         this._isOK = true;
          SoundCtrl.I.sndConfrim();
-         close();
+         this.close();
       }
       
       private function backHandler(param1:DisplayObject) : void
       {
          SoundCtrl.I.sndSelect();
-         close();
+         this.close();
       }
       
       private function checkHandler(param1:Event) : void
       {
-         _ui.txt_pass.visible = _ui.check_pass.selected;
+         this._ui.txt_pass.visible = this._ui.check_pass.selected;
       }
       
       public function afterBuild() : void
@@ -150,8 +151,8 @@ package net.play5d.game.bvn.mob.views.lan
       
       public function destory(param1:Function = null) : void
       {
-         ScreenPadManager.removeTouchListener(_ui.btn_ok);
-         ScreenPadManager.removeTouchListener(_ui.btn_back);
+         ScreenPadManager.removeTouchListener(this._ui.btn_ok);
+         ScreenPadManager.removeTouchListener(this._ui.btn_back);
       }
    }
 }

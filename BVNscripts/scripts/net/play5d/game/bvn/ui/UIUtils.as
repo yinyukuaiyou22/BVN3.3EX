@@ -1,8 +1,7 @@
 package net.play5d.game.bvn.ui
 {
-   import flash.text.TextField;
-   import flash.text.TextFormat;
-   import net.play5d.kyo.utils.KyoUtils;
+   import flash.text.*;
+   import net.play5d.kyo.utils.*;
    
    public class UIUtils
    {
@@ -21,12 +20,12 @@ package net.play5d.game.bvn.ui
       public static function formatText(param1:TextField, param2:Object = null) : void
       {
          var _loc3_:TextFormat = null;
-         if(param2)
+         if(Boolean(param2))
          {
             _loc3_ = new TextFormat();
             _loc3_.font = DEFAULT_FONT;
             KyoUtils.setValueByObject(_loc3_,param2);
-            if(LOCK_FONT)
+            if(Boolean(LOCK_FONT))
             {
                _loc3_.font = LOCK_FONT;
             }

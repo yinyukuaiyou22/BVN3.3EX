@@ -1,12 +1,9 @@
 package net.play5d.kyo.display
 {
-   import flash.display.Bitmap;
-   import flash.display.BitmapData;
+   import flash.display.*;
    import flash.filters.BitmapFilter;
-   import flash.geom.Point;
-   import flash.geom.Rectangle;
-   import flash.text.TextField;
-   import flash.text.TextFormat;
+   import flash.geom.*;
+   import flash.text.*;
    
    public class BitmapText extends Bitmap
    {
@@ -157,27 +154,27 @@ package net.play5d.kyo.display
       
       public function update() : void
       {
-         var _loc2_:BitmapFilter = null;
+         var _loc1_:BitmapFilter = null;
          if(!this._tf)
          {
             return;
          }
          this._tf.height = this._tf.textHeight + 10;
          this._tf.defaultTextFormat = this.defaultTextFormat;
-         var _loc1_:BitmapData = new BitmapData(this._tf.width + 10,this._tf.height,true,0);
-         _loc1_.draw(this._tf);
-         if(this._filers)
+         var _loc2_:BitmapData = new BitmapData(this._tf.width + 10,this._tf.height,true,0);
+         _loc2_.draw(this._tf);
+         if(Boolean(this._filers))
          {
-            for each(_loc2_ in this._filers)
+            for each(_loc1_ in this._filers)
             {
-               _loc1_.applyFilter(_loc1_,new Rectangle(0,0,_loc1_.width,_loc1_.height),new Point(),_loc2_);
+               _loc2_.applyFilter(_loc2_,new Rectangle(0,0,_loc2_.width,_loc2_.height),new Point(),_loc1_);
             }
          }
-         if(bitmapData)
+         if(Boolean(bitmapData))
          {
             bitmapData.dispose();
          }
-         bitmapData = _loc1_;
+         bitmapData = _loc2_;
       }
       
       public function destory() : void

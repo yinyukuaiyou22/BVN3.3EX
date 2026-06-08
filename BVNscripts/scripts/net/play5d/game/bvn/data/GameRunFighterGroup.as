@@ -23,78 +23,78 @@ package net.play5d.game.bvn.data
       
       public function getFighterDatas() : Vector.<FighterVO>
       {
-         var _loc1_:Vector.<FighterVO> = new Vector.<FighterVO>();
-         fighter1 && _loc1_.push(fighter1.data);
-         fighter2 && _loc1_.push(fighter2.data);
-         fighter3 && _loc1_.push(fighter3.data);
-         return _loc1_;
+         var vec:Vector.<FighterVO> = new Vector.<FighterVO>();
+         this.fighter1 && vec.push(this.fighter1.data);
+         this.fighter2 && vec.push(this.fighter2.data);
+         this.fighter3 && vec.push(this.fighter3.data);
+         return vec;
       }
       
       public function getNextFighter() : FighterMain
       {
-         switch(currentFighter)
+         switch(this.currentFighter)
          {
-            case fighter1:
-               return fighter2;
-            case fighter2:
-               return fighter3;
+            case this.fighter1:
+               return this.fighter2;
+            case this.fighter2:
+               return this.fighter3;
             default:
                return null;
          }
       }
       
-      public function destoryFighters(param1:FighterMain) : void
+      public function destoryFighters(expect:FighterMain) : void
       {
-         if(fighter1 && fighter1 != param1)
+         if(Boolean(this.fighter1) && this.fighter1 != expect)
          {
-            disposeFighter(fighter1);
+            this.disposeFighter(this.fighter1);
          }
-         if(fighter2 && fighter2 != param1)
+         if(Boolean(this.fighter2) && this.fighter2 != expect)
          {
-            disposeFighter(fighter2);
+            this.disposeFighter(this.fighter2);
          }
-         if(fighter3 && fighter3 != param1)
+         if(Boolean(this.fighter3) && this.fighter3 != expect)
          {
-            disposeFighter(fighter3);
+            this.disposeFighter(this.fighter3);
          }
-         disposeFuzhu();
+         this.disposeFuzhu();
       }
       
       public function removeCurrentFighter() : void
       {
-         disposeFighter(currentFighter);
+         this.disposeFighter(this.currentFighter);
       }
       
-      private function disposeFighter(param1:FighterMain) : void
+      private function disposeFighter(f:FighterMain) : void
       {
-         if(param1 == null)
+         if(f == null)
          {
             return;
          }
-         if(param1 == currentFighter)
+         if(f == this.currentFighter)
          {
-            currentFighter = null;
+            this.currentFighter = null;
          }
-         param1.destory(true);
-         switch(param1)
+         f.destory(true);
+         switch(f)
          {
-            case fighter1:
-               fighter1 = null;
+            case this.fighter1:
+               this.fighter1 = null;
                return;
-            case fighter2:
-               fighter2 = null;
+            case this.fighter2:
+               this.fighter2 = null;
                break;
-            case fighter3:
-               fighter3 = null;
+            case this.fighter3:
+               this.fighter3 = null;
          }
       }
       
       private function disposeFuzhu() : void
       {
-         if(fuzhu != null)
+         if(this.fuzhu != null)
          {
-            fuzhu.destory(true);
-            fuzhu = null;
+            this.fuzhu.destory(true);
+            this.fuzhu = null;
          }
       }
    }

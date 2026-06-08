@@ -1,6 +1,6 @@
 package net.play5d.game.bvn.data
 {
-   import net.play5d.kyo.utils.KyoRandom;
+   import net.play5d.kyo.utils.*;
    
    public class MessionStageVO
    {
@@ -24,25 +24,25 @@ package net.play5d.game.bvn.data
       
       public function getFighters() : Array
       {
-         var _loc2_:Array = null;
-         var _loc1_:int = 0;
+         var _loc1_:Array = null;
+         var _loc2_:int = 0;
          var _loc3_:int = 0;
-         if(mession.gameMode == 0)
+         if(this.mession.gameMode == 0)
          {
-            _loc2_ = [];
-            _loc2_ = _loc2_.concat(fighters);
-            _loc1_ = 3 - _loc2_.length;
-            if(_loc1_ > 0)
+            _loc1_ = [];
+            _loc1_ = _loc1_.concat(this.fighters);
+            _loc2_ = 3 - _loc1_.length;
+            if(_loc2_ > 0)
             {
-               while(_loc3_ < _loc1_)
+               while(_loc3_ < _loc2_)
                {
-                  _loc2_.push(null);
+                  _loc1_.push(null);
                   _loc3_++;
                }
             }
-            return _loc2_;
+            return _loc1_;
          }
-         return [KyoRandom.getRandomInArray(fighters)];
+         return [KyoRandom.getRandomInArray(this.fighters)];
       }
    }
 }

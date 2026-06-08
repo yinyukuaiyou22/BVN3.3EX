@@ -1,13 +1,11 @@
 package net.play5d.game.bvn.mob.ctrls
 {
-   import net.play5d.game.bvn.GameConfig;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.data.GameData;
-   import net.play5d.game.bvn.data.GameMode;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.mob.data.HostVO;
    import net.play5d.game.bvn.mob.sockets.SocketClient;
-   import net.play5d.game.bvn.mob.utils.LANUtils;
-   import net.play5d.game.bvn.mob.views.lan.LANGameState;
+   import net.play5d.game.bvn.mob.utils.*;
+   import net.play5d.game.bvn.mob.views.lan.*;
    
    public class LANGameCtrl
    {
@@ -42,7 +40,7 @@ package net.play5d.game.bvn.mob.ctrls
       
       public function goLANGameState() : void
       {
-         this.gameMode = gameMode;
+         this.gameMode = this.gameMode;
          MainGame.stageCtrl.goStage(new LANGameState());
       }
       

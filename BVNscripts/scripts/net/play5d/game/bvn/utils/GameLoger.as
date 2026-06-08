@@ -5,27 +5,27 @@ package net.play5d.game.bvn.utils
    public class GameLoger
    {
       
-      private static var _loger:ILoger;
+      private static var _logger:ILoger;
       
       public function GameLoger()
       {
          super();
       }
       
-      public static function setLoger(param1:ILoger) : void
+      public static function setLoger(logger:ILoger) : void
       {
-         _loger = param1;
+         _logger = logger;
       }
       
-      public static function log(param1:String) : void
+      public static function log(msg:String) : void
       {
-         if(_loger)
+         if(Boolean(_logger))
          {
-            _loger.log(param1);
+            _logger.log(msg);
          }
          else
          {
-            trace(param1);
+            trace(msg);
          }
       }
    }

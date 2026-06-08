@@ -1,9 +1,7 @@
 package net.play5d.kyo.sound
 {
-   import flash.media.Sound;
-   import flash.media.SoundChannel;
-   import flash.media.SoundTransform;
-   import flash.net.URLRequest;
+   import flash.media.*;
+   import flash.net.*;
    
    public class KyoBGSounder
    {
@@ -41,7 +39,7 @@ package net.play5d.kyo.sound
       public function set volume(param1:Number) : void
       {
          this._soundTransform.volume = param1;
-         if(this._channel)
+         if(Boolean(this._channel))
          {
             this._channel.soundTransform = this._soundTransform;
          }
@@ -50,7 +48,7 @@ package net.play5d.kyo.sound
       public function play(param1:Object = null) : void
       {
          trace("bgm play");
-         if(this._snd)
+         if(Boolean(this._snd))
          {
             return;
          }
@@ -58,7 +56,7 @@ package net.play5d.kyo.sound
          {
             param1 = this.sound;
          }
-         if(param1)
+         if(Boolean(param1))
          {
             this.sound = param1;
             if(this.sound is String)
@@ -83,12 +81,12 @@ package net.play5d.kyo.sound
       public function stop() : void
       {
          trace("bgm stop");
-         if(this._channel)
+         if(Boolean(this._channel))
          {
             this._channel.stop();
             this._channel = null;
          }
-         if(this._snd)
+         if(Boolean(this._snd))
          {
             try
             {
@@ -106,7 +104,7 @@ package net.play5d.kyo.sound
       public function pause() : void
       {
          trace("bgm pause");
-         if(this._channel)
+         if(Boolean(this._channel))
          {
             this._channelPausePosition = this._channel.position;
             this._channel.stop();
@@ -116,7 +114,7 @@ package net.play5d.kyo.sound
       public function resume() : void
       {
          trace("bgm resume");
-         if(this._channel)
+         if(Boolean(this._channel))
          {
             this._channel = this._snd.play(this._channelPausePosition,int.MAX_VALUE,this._soundTransform);
          }

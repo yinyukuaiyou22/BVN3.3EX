@@ -1,22 +1,16 @@
 package net.play5d.game.bvn.ui.fight
 {
-   import flash.display.Bitmap;
-   import flash.display.BitmapData;
-   import flash.display.DisplayObject;
-   import flash.display.DisplayObjectContainer;
+   import flash.display.*;
    import flash.events.Event;
-   import flash.geom.Matrix;
-   import flash.geom.Point;
-   import flash.geom.Rectangle;
+   import flash.geom.*;
    import net.play5d.game.bvn.data.GameRunFighterGroup;
    import net.play5d.game.bvn.fighter.FighterMain;
-   import net.play5d.game.bvn.ui.GameUI;
-   import net.play5d.game.bvn.ui.WinUI;
+   import net.play5d.game.bvn.ui.*;
    
    public class FightBar
    {
       
-      private var _ui:hpbar_mc;
+      private var _ui:*;
       
       private var _faceGroup1:FightFaceGroup;
       
@@ -52,102 +46,103 @@ package net.play5d.game.bvn.ui.fight
       
       private var _empytBd:BitmapData;
       
-      public function FightBar(param1:hpbar_mc)
+      public function FightBar(param1:*)
       {
          super();
-         _ui = param1;
-         _faceGroup1 = new FightFaceGroup(_ui.face1);
-         _faceGroup2 = new FightFaceGroup(_ui.face2);
-         _faceGroup2.setDirect(-1);
-         _hpBar1 = new FighterHpBar(_ui.bar1);
-         _hpBar2 = new FighterHpBar(_ui.bar2);
-         _energyBar1 = new EnergyBar(_ui.energy1);
-         _energyBar2 = new EnergyBar(_ui.energy2);
-         _energyBar2.setDirect(-1);
-         _winUI1 = new WinUI(_ui.win_p1,1);
-         _winUI2 = new WinUI(_ui.win_p2,2);
-         _timerMc = new FightTimeUI(_ui.timemc);
+         this._ui = param1;
+         this._faceGroup1 = new FightFaceGroup(this._ui.face1);
+         this._faceGroup2 = new FightFaceGroup(this._ui.face2);
+         this._faceGroup2.setDirect(-1);
+         this._hpBar1 = new FighterHpBar(this._ui.bar1);
+         this._hpBar2 = new FighterHpBar(this._ui.bar2);
+         this._energyBar1 = new EnergyBar(this._ui.energy1);
+         this._energyBar2 = new EnergyBar(this._ui.energy2);
+         this._energyBar2.setDirect(-1);
+         this._winUI1 = new WinUI(this._ui.win_p1,1);
+         this._winUI2 = new WinUI(this._ui.win_p2,2);
+         this._timerMc = new FightTimeUI(this._ui.timemc);
          if(GameUI.BITMAP_UI)
          {
-            initBitmapUI();
+            this.initBitmapUI();
          }
          else
          {
-            _ui.scoremc.visible = false;
+            this._ui.scoremc.visible = false;
          }
-         _ui.addEventListener("complete",uiPlayComplete);
+         this._ui.addEventListener("complete",this.uiPlayComplete);
       }
       
       public function get ui() : DisplayObject
       {
-         return _ui;
+         return this._ui;
       }
       
       private function initBitmapUI() : void
       {
-         _ui.gotoAndStop("fadin_fin");
-         _parent = _ui.parent;
+         this._ui.gotoAndStop("fadin_fin");
+         this._parent = this._ui.parent;
          try
          {
-            _parent.removeChild(_ui);
+            this._parent.removeChild(this._ui);
          }
          catch(e:Error)
          {
          }
-         var _loc1_:Rectangle = _ui.getBounds(_ui);
-         _drawMatrix = new Matrix(1,0,0,1,-_loc1_.x,-_loc1_.y);
-         _children = new Vector.<DisplayObject>();
-         _bp = new Bitmap();
-         _bp.bitmapData = new BitmapData(_ui.width,_ui.height,true,0);
-         _bp.x = _loc1_.x;
-         _bp.y = _loc1_.y;
-         _empytBd = new BitmapData(_ui.width,_ui.height,true,0);
-         addChildren(_hpBar1.ui);
-         addChildren(_hpBar2.ui);
-         addChildren(_energyBar1.ui);
-         addChildren(_energyBar2.ui);
-         addChildren(_bp);
-         if(_timerMc.timeUI)
+         var _loc1_:Rectangle = this._ui.getBounds(this._ui);
+         this._drawMatrix = new Matrix(1,0,0,1,-_loc1_.x,-_loc1_.y);
+         this._children = new Vector.<DisplayObject>();
+         this._bp = new Bitmap();
+         this._bp.bitmapData = new BitmapData(this._ui.width,this._ui.height,true,0);
+         this._bp.x = _loc1_.x;
+         this._bp.y = _loc1_.y;
+         this._empytBd = new BitmapData(this._ui.width,this._ui.height,true,0);
+         this.addChildren(this._hpBar1.ui);
+         this.addChildren(this._hpBar2.ui);
+         this.addChildren(this._energyBar1.ui);
+         this.addChildren(this._energyBar2.ui);
+         this.addChildren(this._bp);
+         if(Boolean(this._timerMc.timeUI))
          {
-            addChildren(_timerMc.timeUI);
+            this.addChildren(this._timerMc.timeUI);
          }
-         addChildren(_winUI1.ui);
-         addChildren(_winUI2.ui);
-         addChildren(_ui.scoremc);
-         updateBitmap();
-         setChildrenVisible(false);
+         this.addChildren(this._winUI1.ui);
+         this.addChildren(this._winUI2.ui);
+         this.addChildren(this._ui.scoremc);
+         this.updateBitmap();
+         this.setChildrenVisible(false);
       }
       
       private function setChildrenPosition(param1:DisplayObject) : void
       {
          var _loc2_:DisplayObjectContainer = param1.parent;
-         while(_loc2_ && _loc2_ != _ui)
+         while(Boolean(_loc2_) && _loc2_ != this._ui)
          {
             param1.x += _loc2_.x;
             param1.y += _loc2_.y;
             _loc2_ = _loc2_.parent;
          }
-         param1.x += _ui.x;
-         param1.y += _ui.y;
+         param1.x += this._ui.x;
+         param1.y += this._ui.y;
       }
       
       private function addChildren(param1:DisplayObject, param2:int = -1) : void
       {
-         setChildrenPosition(param1);
+         this.setChildrenPosition(param1);
          if(param2 == -1)
          {
-            _parent.addChild(param1);
+            this._parent.addChild(param1);
          }
          else
          {
-            _parent.addChildAt(param1,param2);
+            this._parent.addChildAt(param1,param2);
          }
-         _children.push(param1);
+         this._children.push(param1);
       }
       
       private function setChildrenVisible(param1:Boolean) : void
       {
-         for each(var _loc2_ in _children)
+         var _loc2_:* = undefined;
+         for each(_loc2_ in this._children)
          {
             _loc2_.visible = param1;
          }
@@ -155,68 +150,69 @@ package net.play5d.game.bvn.ui.fight
       
       public function destory() : void
       {
-         if(_ui)
+         var _loc1_:* = undefined;
+         if(Boolean(this._ui))
          {
-            _ui.removeEventListener("complete",uiPlayComplete);
-            _ui.gotoAndStop("destory");
-            _ui = null;
+            this._ui.removeEventListener("complete",this.uiPlayComplete);
+            this._ui.gotoAndStop("destory");
+            this._ui = null;
          }
-         if(_hpBar1)
+         if(Boolean(this._hpBar1))
          {
-            _hpBar1.destory();
-            _hpBar1 = null;
+            this._hpBar1.destory();
+            this._hpBar1 = null;
          }
-         if(_hpBar2)
+         if(Boolean(this._hpBar2))
          {
-            _hpBar2.destory();
-            _hpBar2 = null;
+            this._hpBar2.destory();
+            this._hpBar2 = null;
          }
-         if(_energyBar1)
+         if(Boolean(this._energyBar1))
          {
-            _energyBar1.destory();
-            _energyBar1 = null;
+            this._energyBar1.destory();
+            this._energyBar1 = null;
          }
-         if(_energyBar2)
+         if(Boolean(this._energyBar2))
          {
-            _energyBar2.destory();
-            _energyBar2 = null;
+            this._energyBar2.destory();
+            this._energyBar2 = null;
          }
          if(GameUI.BITMAP_UI)
          {
-            if(_bp)
+            if(Boolean(this._bp))
             {
-               _bp.bitmapData.dispose();
-               _bp = null;
+               this._bp.bitmapData.dispose();
+               this._bp = null;
             }
-            if(_empytBd)
+            if(Boolean(this._empytBd))
             {
-               _empytBd.dispose();
-               _empytBd = null;
+               this._empytBd.dispose();
+               this._empytBd = null;
             }
-            _drawMatrix = null;
-            for each(var _loc1_ in _children)
+            this._drawMatrix = null;
+            for each(_loc1_ in this._children)
             {
                try
                {
-                  _parent.removeChild(_loc1_);
+                  this._parent.removeChild(_loc1_);
                }
                catch(e:Error)
                {
                }
             }
-            _children = null;
+            this._children = null;
          }
       }
       
       private function uiPlayComplete(param1:Event) : void
       {
-         if(_isFadIn)
+         if(this._isFadIn)
          {
-            _ui.visible = true;
+            this._ui.visible = true;
          }
          else
          {
-            _ui.visible = false;
+            this._ui.visible = false;
          }
       }
       
@@ -224,16 +220,16 @@ package net.play5d.game.bvn.ui.fight
       {
          if(!GameUI.BITMAP_UI)
          {
-            _ui.scoremc.visible = true;
+            this._ui.scoremc.visible = true;
          }
-         _score = new FightScoreUI(_ui.scoremc);
+         this._score = new FightScoreUI(this._ui.scoremc);
       }
       
       public function setScore(param1:int) : void
       {
-         if(_score)
+         if(Boolean(this._score))
          {
-            _score.setScore(param1);
+            this._score.setScore(param1);
          }
       }
       
@@ -251,10 +247,10 @@ package net.play5d.game.bvn.ui.fight
          switch(param1.team.id - 1)
          {
             case 0:
-               _loc3_ = _winUI1;
+               _loc3_ = this._winUI1;
                break;
             case 1:
-               _loc3_ = _winUI2;
+               _loc3_ = this._winUI2;
          }
          if(!_loc3_)
          {
@@ -265,105 +261,105 @@ package net.play5d.game.bvn.ui.fight
       
       public function setFighter(param1:GameRunFighterGroup = null, param2:GameRunFighterGroup = null) : void
       {
-         if(param1)
+         if(Boolean(param1))
          {
-            _faceGroup1.setFighter(param1);
-            if(param1.currentFighter)
+            this._faceGroup1.setFighter(param1);
+            if(Boolean(param1.currentFighter))
             {
-               _hpBar1.setFighter(param1.currentFighter);
-               _energyBar1.setFighter(param1.currentFighter);
+               this._hpBar1.setFighter(param1.currentFighter);
+               this._energyBar1.setFighter(param1.currentFighter);
             }
          }
-         if(param2)
+         if(Boolean(param2))
          {
-            _faceGroup2.setFighter(param2);
-            if(param2.currentFighter)
+            this._faceGroup2.setFighter(param2);
+            if(Boolean(param2.currentFighter))
             {
-               _hpBar2.setFighter(param2.currentFighter);
-               _energyBar2.setFighter(param2.currentFighter);
+               this._hpBar2.setFighter(param2.currentFighter);
+               this._energyBar2.setFighter(param2.currentFighter);
             }
          }
          if(GameUI.BITMAP_UI)
          {
-            updateBitmap();
+            this.updateBitmap();
          }
       }
       
       private function updateBitmap() : void
       {
-         _bp.bitmapData.copyPixels(_empytBd,new Rectangle(0,0,_empytBd.width,_empytBd.height),new Point());
-         _bp.bitmapData.draw(_ui,_drawMatrix);
+         this._bp.bitmapData.copyPixels(this._empytBd,new Rectangle(0,0,this._empytBd.width,this._empytBd.height),new Point());
+         this._bp.bitmapData.draw(this._ui,this._drawMatrix);
       }
       
       public function render() : void
       {
-         _hpBar1.render();
-         _hpBar2.render();
-         _energyBar1.render();
-         _energyBar2.render();
-         _timerMc.render();
+         this._hpBar1.render();
+         this._hpBar2.render();
+         this._energyBar1.render();
+         this._energyBar2.render();
+         this._timerMc.render();
       }
       
       public function fadIn(param1:Boolean) : void
       {
-         if(_isFadIn)
+         if(this._isFadIn)
          {
             return;
          }
-         _isFadIn = true;
+         this._isFadIn = true;
          if(GameUI.BITMAP_UI)
          {
-            setChildrenVisible(true);
+            this.setChildrenVisible(true);
             return;
          }
-         _ui.visible = true;
+         this._ui.visible = true;
          if(param1)
          {
-            _ui.gotoAndStop("fadin");
-            _isRenderAnimate = true;
+            this._ui.gotoAndStop("fadin");
+            this._isRenderAnimate = true;
          }
          else
          {
-            _ui.gotoAndStop("fadin_fin");
+            this._ui.gotoAndStop("fadin_fin");
          }
       }
       
       public function fadOut(param1:Boolean) : void
       {
-         if(!_isFadIn)
+         if(!this._isFadIn)
          {
             return;
          }
-         _isFadIn = false;
+         this._isFadIn = false;
          if(GameUI.BITMAP_UI)
          {
-            setChildrenVisible(false);
+            this.setChildrenVisible(false);
             return;
          }
          if(param1)
          {
-            _ui.gotoAndStop("fadout");
-            _isRenderAnimate = true;
+            this._ui.gotoAndStop("fadout");
+            this._isRenderAnimate = true;
          }
          else
          {
-            _ui.visible = false;
+            this._ui.visible = false;
          }
       }
       
       public function renderAnimate() : void
       {
-         if(!_isRenderAnimate)
+         if(!this._isRenderAnimate)
          {
             return;
          }
-         var _loc1_:String = _ui.currentFrameLabel;
+         var _loc1_:String = this._ui.currentFrameLabel;
          if(_loc1_ == "fadin_fin" || _loc1_ == "fadout_fin")
          {
-            _isRenderAnimate = false;
+            this._isRenderAnimate = false;
             return;
          }
-         _ui.nextFrame();
+         this._ui.nextFrame();
       }
    }
 }

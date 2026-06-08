@@ -1,8 +1,8 @@
 package net.play5d.game.bvn.views.effects
 {
-   import flash.geom.ColorTransform;
+   import flash.geom.*;
    import net.play5d.game.bvn.data.EffectVO;
-   import net.play5d.game.bvn.fighter.FighterMain;
+   import net.play5d.game.bvn.fighter.*;
    import net.play5d.game.bvn.interfaces.IGameSprite;
    
    public class SpecialEffectView extends EffectView
@@ -23,14 +23,14 @@ package net.play5d.game.bvn.views.effects
          super.setTarget(param1);
          if(param1 is FighterMain)
          {
-            _fighter = param1 as FighterMain;
-            if(_data.targetColorOffset)
+            this._fighter = param1 as FighterMain;
+            if(Boolean(_data.targetColorOffset))
             {
                _loc2_ = new ColorTransform();
                _loc2_.redOffset = _data.targetColorOffset[0];
                _loc2_.greenOffset = _data.targetColorOffset[1];
                _loc2_.blueOffset = _data.targetColorOffset[2];
-               _fighter.changeColor(_loc2_);
+               this._fighter.changeColor(_loc2_);
             }
          }
       }
@@ -38,34 +38,34 @@ package net.play5d.game.bvn.views.effects
       override public function start(param1:Number = 0, param2:Number = 0, param3:int = 1) : void
       {
          super.start(param1,param2,param3);
-         _finished = false;
+         this._finished = false;
       }
       
       override public function render() : void
       {
          super.render();
-         if(_finished)
+         if(this._finished)
          {
             return;
          }
-         if(!_fighter)
+         if(!this._fighter)
          {
             return;
          }
-         switch(_fighter.actionState)
+         switch(this._fighter.actionState)
          {
             case 23:
             case 24:
             case 0:
                gotoAndPlay("finish");
-               _finished = true;
-               if(_data.targetColorOffset)
+               this._finished = true;
+               if(Boolean(_data.targetColorOffset))
                {
-                  _fighter.resumeColor();
+                  this._fighter.resumeColor();
                }
                break;
             default:
-               setPos(_fighter.x,_fighter.y);
+               setPos(this._fighter.x,this._fighter.y);
          }
       }
    }

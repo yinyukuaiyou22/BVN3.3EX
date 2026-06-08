@@ -1,56 +1,56 @@
 package net.play5d.game.bvn.ui.fight
 {
    import flash.display.DisplayObject;
-   import net.play5d.game.bvn.ctrl.game_ctrls.GameCtrl;
-   import net.play5d.game.bvn.utils.ResUtils;
-   import net.play5d.kyo.display.MCNumber;
+   import net.play5d.game.bvn.ctrl.game_ctrls.*;
+   import net.play5d.game.bvn.utils.*;
+   import net.play5d.kyo.display.*;
    
    public class FightTimeUI
    {
       
-      private var _ui:time_mc;
+      private var _ui:*;
       
       private var _numMc:MCNumber;
       
       private var _renderTime:Boolean;
       
-      public function FightTimeUI(param1:time_mc)
+      public function FightTimeUI(param1:*)
       {
-         var _loc3_:Class = null;
+         var _loc2_:Class = null;
          super();
-         _ui = param1;
-         var _loc2_:int = GameCtrl.I.gameRunData.gameTimeMax;
-         if(_loc2_ == -1)
+         this._ui = param1;
+         var _loc3_:int = int(GameCtrl.I.gameRunData.gameTimeMax);
+         if(_loc3_ == -1)
          {
-            _renderTime = false;
-            _ui.wuxian.visible = true;
+            this._renderTime = false;
+            this._ui.wuxian.visible = true;
          }
          else
          {
-            _renderTime = true;
-            _loc3_ = ResUtils.I.getItemClass(ResUtils.I.fight,"time_txtmc");
-            _numMc = new MCNumber(_loc3_,0,1,20,2);
-            _numMc.x = -22;
-            _numMc.y = -15;
-            _ui.addChild(_numMc);
-            _ui.wuxian.visible = false;
-            _numMc.number = _loc2_;
+            this._renderTime = true;
+            _loc2_ = ResUtils.I.getItemClass(ResUtils.I.fight,"time_txtmc");
+            this._numMc = new MCNumber(_loc2_,0,1,20,2);
+            this._numMc.x = -22;
+            this._numMc.y = -15;
+            this._ui.addChild(this._numMc);
+            this._ui.wuxian.visible = false;
+            this._numMc.number = _loc3_;
          }
       }
       
       public function get timeUI() : DisplayObject
       {
-         return _numMc;
+         return this._numMc;
       }
       
       public function render() : void
       {
-         if(!_renderTime)
+         if(!this._renderTime)
          {
             return;
          }
-         var _loc1_:int = GameCtrl.I.gameRunData.gameTime;
-         _numMc.number = _loc1_;
+         var _loc1_:int = int(GameCtrl.I.gameRunData.gameTime);
+         this._numMc.number = _loc1_;
       }
    }
 }

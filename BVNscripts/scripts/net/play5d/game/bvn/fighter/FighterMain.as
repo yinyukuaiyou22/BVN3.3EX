@@ -1,17 +1,13 @@
 package net.play5d.game.bvn.fighter
 {
    import flash.display.MovieClip;
-   import flash.geom.ColorTransform;
-   import flash.geom.Rectangle;
-   import net.play5d.game.bvn.ctrl.GameLogic;
+   import flash.geom.*;
+   import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.data.FighterVO;
    import net.play5d.game.bvn.data.TeamVO;
-   import net.play5d.game.bvn.fighter.ctrler.FighterBuffCtrler;
-   import net.play5d.game.bvn.fighter.ctrler.FighterCtrler;
-   import net.play5d.game.bvn.fighter.models.HitVO;
-   import net.play5d.game.bvn.interfaces.BaseGameSprite;
-   import net.play5d.game.bvn.interfaces.IFighterActionCtrl;
-   import net.play5d.game.bvn.interfaces.IGameSprite;
+   import net.play5d.game.bvn.fighter.ctrler.*;
+   import net.play5d.game.bvn.fighter.models.*;
+   import net.play5d.game.bvn.interfaces.*;
    
    public class FighterMain extends BaseGameSprite
    {
@@ -88,12 +84,12 @@ package net.play5d.game.bvn.fighter
       
       public function get colorTransform() : ColorTransform
       {
-         return _colorTransform;
+         return this._colorTransform;
       }
       
       public function set colorTransform(param1:ColorTransform) : void
       {
-         _colorTransform = param1;
+         this._colorTransform = param1;
          _mainMc.transform.colorTransform = param1 ? param1 : new ColorTransform();
       }
       
@@ -104,7 +100,7 @@ package net.play5d.game.bvn.fighter
       
       public function resumeColor() : void
       {
-         _mainMc.transform.colorTransform = _colorTransform ? _colorTransform : new ColorTransform();
+         _mainMc.transform.colorTransform = this._colorTransform ? this._colorTransform : new ColorTransform();
       }
       
       override public function destory(param1:Boolean = true) : void
@@ -113,73 +109,66 @@ package net.play5d.game.bvn.fighter
          {
             return;
          }
-         if(_fighterCtrl)
+         if(Boolean(this._fighterCtrl))
          {
-            _fighterCtrl.destory();
-            _fighterCtrl = null;
+            this._fighterCtrl.destory();
+            this._fighterCtrl = null;
          }
-         if(_mainMc)
+         if(Boolean(_mainMc))
          {
             _mainMc.filters = null;
             _mainMc.gotoAndStop(1);
-            try
-            {
-               _mainMc.dispose();
-            }
-            catch(e:Error)
-            {
-               trace("FighterMain.destory ::",e);
-            }
-            _mainMc = null;
          }
-         if(_buffCtrler)
+         if(Boolean(this._buffCtrler))
          {
-            _buffCtrler.destory();
-            _buffCtrler = null;
+            this._buffCtrler.destory();
+            this._buffCtrler = null;
          }
-         targetTeams = null;
-         _currentTarget = null;
-         _currentHurts = null;
+         this.targetTeams = null;
+         this._currentTarget = null;
+         this._currentHurts = null;
          super.destory(param1);
       }
       
       override public function set attackRate(param1:Number) : void
       {
          super.attackRate = param1;
-         if(_fighterCtrl && _fighterCtrl.hitModel)
+         if(Boolean(this._fighterCtrl) && Boolean(this._fighterCtrl.hitModel))
          {
-            _fighterCtrl.hitModel.setPowerRate(param1);
+            this._fighterCtrl.hitModel.setPowerRate(param1);
          }
       }
       
       public function currentHurtDamage() : int
       {
-         if(!_currentHurts)
+         var _loc1_:* = undefined;
+         if(!this._currentHurts)
          {
             return 0;
          }
-         var _loc1_:int = 0;
-         for each(var _loc2_ in _currentHurts)
+         var _loc2_:int = 0;
+         for each(_loc1_ in this._currentHurts)
          {
-            _loc1_ += _loc2_.getDamage();
+            _loc2_ += _loc1_.getDamage();
          }
-         return _loc1_;
+         return _loc2_;
       }
       
       public function getLastHurtHitVO() : HitVO
       {
-         if(!_currentHurts)
+         if(!this._currentHurts)
          {
             return null;
          }
-         return _currentHurts[_currentHurts.length - 1];
+         return this._currentHurts[this._currentHurts.length - 1];
       }
       
       public function hurtBreakHit() : Boolean
       {
-         for each(var _loc1_ in _currentHurts)
+         var _loc1_:* = undefined;
+         for each(_loc1_ in this._currentHurts)
          {
-            if(_loc1_.isBreakDef)
+            if(Boolean(_loc1_.isBreakDef))
             {
                return true;
             }
@@ -189,116 +178,117 @@ package net.play5d.game.bvn.fighter
       
       public function clearHurtHits() : void
       {
-         _currentHurts = null;
+         this._currentHurts = null;
       }
       
       public function getCtrler() : FighterCtrler
       {
-         return _fighterCtrl;
+         return this._fighterCtrl;
       }
       
       public function getBuffCtrl() : FighterBuffCtrler
       {
-         return _buffCtrler;
+         return this._buffCtrler;
       }
       
       public function getCurrentTarget() : IGameSprite
       {
-         if(_currentTarget)
+         var _loc1_:* = undefined;
+         if(Boolean(this._currentTarget))
          {
-            if(_currentTarget is BaseGameSprite && (_currentTarget as BaseGameSprite).isAlive)
+            if(this._currentTarget is BaseGameSprite && Boolean((this._currentTarget as BaseGameSprite).isAlive))
             {
-               return _currentTarget;
+               return this._currentTarget;
             }
          }
-         var _loc2_:Vector.<IGameSprite> = getTargets();
-         var _loc1_:Array = [];
-         if(_loc2_ && _loc2_.length > 0)
+         var _loc2_:Vector.<IGameSprite> = this.getTargets();
+         var _loc3_:Array = [];
+         if(Boolean(_loc2_) && _loc2_.length > 0)
          {
-            for each(var _loc3_ in _loc2_)
+            for each(_loc1_ in _loc2_)
             {
-               if(_loc3_.getBodyArea() == null)
+               if(_loc1_.getBodyArea() == null)
                {
-                  _loc1_.push({
-                     "fighter":_loc3_,
+                  _loc3_.push({
+                     "fighter":_loc1_,
                      "order":5
                   });
                }
-               else if(_loc3_ is FighterMain && (_loc3_ as FighterMain).isAlive)
+               else if(_loc1_ is FighterMain && Boolean((_loc1_ as FighterMain).isAlive))
                {
-                  _loc1_.push({
-                     "fighter":_loc3_,
+                  _loc3_.push({
+                     "fighter":_loc1_,
                      "order":0
                   });
                }
-               else if(_loc3_ is BaseGameSprite && (_loc3_ as BaseGameSprite).isAlive)
+               else if(_loc1_ is BaseGameSprite && Boolean((_loc1_ as BaseGameSprite).isAlive))
                {
-                  _loc1_.push({
-                     "fighter":_loc3_,
+                  _loc3_.push({
+                     "fighter":_loc1_,
                      "order":1
                   });
                }
                else
                {
-                  _loc1_.push({
-                     "fighter":_loc3_,
+                  _loc3_.push({
+                     "fighter":_loc1_,
                      "order":2
                   });
                }
             }
-            _loc1_.sortOn("order",16);
-            _currentTarget = _loc1_[0].fighter;
+            _loc3_.sortOn("order",16);
+            this._currentTarget = _loc3_[0].fighter;
          }
-         return _currentTarget;
+         return this._currentTarget;
       }
       
       public function getTargets() : Vector.<IGameSprite>
       {
-         var _loc2_:int = 0;
-         if(!targetTeams || targetTeams.length < 1)
+         var _loc1_:int = 0;
+         if(!this.targetTeams || this.targetTeams.length < 1)
          {
             return null;
          }
-         var _loc1_:Vector.<IGameSprite> = new Vector.<IGameSprite>();
-         while(_loc2_ < targetTeams.length)
+         var _loc2_:Vector.<IGameSprite> = new Vector.<IGameSprite>();
+         while(_loc1_ < this.targetTeams.length)
          {
-            _loc1_ = _loc1_.concat(targetTeams[_loc2_].getAliveChildren());
-            _loc2_++;
+            _loc2_ = _loc2_.concat(this.targetTeams[_loc1_].getAliveChildren());
+            _loc1_++;
          }
-         return _loc1_;
+         return _loc2_;
       }
       
       public function getMC() : FighterMC
       {
-         if(!_fighterCtrl)
+         if(!this._fighterCtrl)
          {
             return null;
          }
-         if(!_fighterCtrl.getMcCtrl())
+         if(!this._fighterCtrl.getMcCtrl())
          {
             return null;
          }
-         return _fighterCtrl.getMcCtrl().getFighterMc();
+         return this._fighterCtrl.getMcCtrl().getFighterMc();
       }
       
       public function setActionCtrl(param1:IFighterActionCtrl) : void
       {
-         if(_fighterCtrl)
+         if(Boolean(this._fighterCtrl))
          {
-            _fighterCtrl.setActionCtrl(param1);
+            this._fighterCtrl.setActionCtrl(param1);
             param1.initlize();
          }
       }
       
       public function initlize() : void
       {
-         _fighterCtrl = new FighterCtrler();
-         if(_mainMc.setFighterCtrler)
+         this._fighterCtrl = new FighterCtrler();
+         if(Boolean(_mainMc.setFighterCtrler))
          {
-            _mainMc.setFighterCtrler(_fighterCtrl);
-            _fighterCtrl.initFighter(this);
-            _buffCtrler = new FighterBuffCtrler(this);
-            _mainMc.gotoAndStop(data ? data.startFrame + 1 : 2);
+            _mainMc.setFighterCtrler(this._fighterCtrl);
+            this._fighterCtrl.initFighter(this);
+            this._buffCtrler = new FighterBuffCtrler(this);
+            _mainMc.gotoAndStop(this.data ? this.data.startFrame + 1 : 2);
             return;
          }
          throw new Error("初始化失败，SWF未定义setFighterCtrler()");
@@ -311,39 +301,39 @@ package net.play5d.game.bvn.fighter
          {
             return;
          }
-         renderEnergy();
-         renderFzQi();
-         if(_fighterCtrl)
+         this.renderEnergy();
+         this.renderFzQi();
+         if(Boolean(this._fighterCtrl))
          {
-            _fighterCtrl.renderAnimate();
+            this._fighterCtrl.renderAnimate();
          }
-         if(_explodeHitFrame > 0)
+         if(this._explodeHitFrame > 0)
          {
-            _explodeHitFrame -= 1;
-            if(_explodeHitFrame == 8)
+            --this._explodeHitFrame;
+            if(this._explodeHitFrame == 8)
             {
-               idle();
+               this.idle();
                isAllowBeHit = false;
             }
-            if(_explodeHitFrame <= 0)
+            if(this._explodeHitFrame <= 0)
             {
-               _explodeHitVO = null;
+               this._explodeHitVO = null;
                isAllowBeHit = true;
             }
          }
-         if(_explodeSteelFrame > 0)
+         if(this._explodeSteelFrame > 0)
          {
-            _explodeSteelFrame -= 1;
-            _fighterCtrl.getMcCtrl().setSteelBody(true,true);
-            if(_explodeSteelFrame <= 0)
+            --this._explodeSteelFrame;
+            this._fighterCtrl.getMcCtrl().setSteelBody(true,true);
+            if(this._explodeSteelFrame <= 0)
             {
-               _fighterCtrl.getMcCtrl().setSteelBody(false);
+               this._fighterCtrl.getMcCtrl().setSteelBody(false);
             }
          }
-         if(_replaceSkillFrame > 0)
+         if(this._replaceSkillFrame > 0)
          {
-            _replaceSkillFrame -= 1;
-            if(_replaceSkillFrame <= 0)
+            --this._replaceSkillFrame;
+            if(this._replaceSkillFrame <= 0)
             {
                isAllowBeHit = true;
             }
@@ -357,13 +347,13 @@ package net.play5d.game.bvn.fighter
          {
             return;
          }
-         if(_fighterCtrl)
+         if(Boolean(this._fighterCtrl))
          {
-            _fighterCtrl.render();
+            this._fighterCtrl.render();
          }
-         if(_buffCtrler)
+         if(Boolean(this._buffCtrler))
          {
-            _buffCtrler.render();
+            this._buffCtrler.render();
          }
          if(hp < 0)
          {
@@ -373,70 +363,70 @@ package net.play5d.game.bvn.fighter
          {
             hp = hpMax;
          }
-         if(qi < 0)
+         if(this.qi < 0)
          {
-            qi = 0;
+            this.qi = 0;
          }
-         if(qi > 300)
+         if(this.qi > 300)
          {
-            qi = 300;
+            this.qi = 300;
          }
-         if(fzqi < 0)
+         if(this.fzqi < 0)
          {
-            fzqi = 0;
+            this.fzqi = 0;
          }
-         if(fzqi > 100)
+         if(this.fzqi > 100)
          {
-            fzqi = 100;
+            this.fzqi = 100;
          }
       }
       
       public function jump() : void
       {
          _g = 0;
-         setVelocity(0,-jumpPower);
+         setVelocity(0,-this.jumpPower);
          setDamping(0,0.5);
       }
       
       override public function getCurrentHits() : Array
       {
-         if(_explodeHitVO && _explodeHitFrame < 8)
+         if(Boolean(this._explodeHitVO) && this._explodeHitFrame < 8)
          {
-            return [_explodeHitVO];
+            return [this._explodeHitVO];
          }
-         return _fighterCtrl.getCurrentHits();
+         return this._fighterCtrl.getCurrentHits();
       }
       
       override public function getBodyArea() : Rectangle
       {
-         if(!_fighterCtrl)
+         if(!this._fighterCtrl)
          {
             return null;
          }
-         return _fighterCtrl.getBodyArea();
+         return this._fighterCtrl.getBodyArea();
       }
       
       override public function hit(param1:HitVO, param2:IGameSprite) : void
       {
          super.hit(param1,param2);
-         lastHitVO = param1;
-         var _loc3_:Number = 0;
+         this.lastHitVO = param1;
+         var _loc3_:* = 0;
          if(param2 is FighterMain)
          {
             if(param1.isBisha())
             {
-               _loc3_ = param1.power * 0;
+               _loc3_ = Number(param1.power * 0);
             }
             else
             {
-               _loc3_ = param1.power * 0.17;
+               _loc3_ = Number(param1.power * 0.17);
             }
             if(_loc3_ > 15)
             {
                _loc3_ = 15;
             }
          }
-         addQi(_loc3_);
+         this.addQi(_loc3_);
          GameLogic.hitTarget(param1,this,param2);
       }
       
@@ -447,72 +437,72 @@ package net.play5d.game.bvn.fighter
             return;
          }
          super.beHit(param1,param2);
-         _fighterCtrl.getMcCtrl().beHit(param1,param2);
-         var _loc3_:Number = param1.power * 0.08;
+         this._fighterCtrl.getMcCtrl().beHit(param1,param2);
+         var _loc3_:* = Number(param1.power * 0.08);
          if(_loc3_ > 20)
          {
             _loc3_ = 20;
          }
-         addQi(_loc3_);
-         if(actionState == 21 || actionState == 22)
+         this.addQi(_loc3_);
+         if(this.actionState == 21 || this.actionState == 22)
          {
-            if(!_currentHurts)
+            if(!this._currentHurts)
             {
-               _currentHurts = new Vector.<HitVO>();
+               this._currentHurts = new Vector.<HitVO>();
             }
-            _currentHurts.push(param1);
+            this._currentHurts.push(param1);
          }
       }
       
       private function renderEnergy() : void
       {
-         if(_energyAddGap > 0)
+         if(this._energyAddGap > 0)
          {
-            _energyAddGap -= 1;
+            --this._energyAddGap;
             return;
          }
-         if(energy < energyMax)
+         if(this.energy < this.energyMax)
          {
-            if(energyOverLoad)
+            if(this.energyOverLoad)
             {
-               energy += 0.6;
-               if(energy > 30)
+               this.energy += 0.6;
+               if(this.energy > 30)
                {
-                  energyOverLoad = false;
+                  this.energyOverLoad = false;
                }
             }
-            else if(actionState == 20)
+            else if(this.actionState == 20)
             {
-               energy += 0.8;
+               this.energy += 0.8;
             }
-            else if(FighterActionState.isAttacking(actionState))
+            else if(FighterActionState.isAttacking(this.actionState))
             {
-               energy += 1.1;
+               this.energy += 1.1;
             }
             else
             {
-               energy += 2;
+               this.energy += 2;
             }
          }
       }
       
       private function renderFzQi() : void
       {
-         if(fzqi < 100)
+         if(this.fzqi < 100)
          {
-            fzqi += 0.2;
+            this.fzqi += 0.2;
          }
       }
       
       public function hasEnergy(param1:Number, param2:Boolean = false) : Boolean
       {
-         if(energy >= param1)
+         if(this.energy >= param1)
          {
             return true;
          }
          if(param2)
          {
-            if(!energyOverLoad)
+            if(!this.energyOverLoad)
             {
                return true;
             }
@@ -522,115 +512,115 @@ package net.play5d.game.bvn.fighter
       
       public function useEnergy(param1:Number) : void
       {
-         energy -= param1;
-         _energyAddGap = 0.8 * 30;
-         if(energy < 0)
+         this.energy -= param1;
+         this._energyAddGap = 0.8 * 30;
+         if(this.energy < 0)
          {
-            energy = 0;
-            energyOverLoad = true;
+            this.energy = 0;
+            this.energyOverLoad = true;
          }
       }
       
       public function useQi(param1:Number) : Boolean
       {
-         if(qi < param1)
+         if(this.qi < param1)
          {
             return false;
          }
-         qi -= param1;
+         this.qi -= param1;
          return true;
       }
       
       public function addQi(param1:Number) : void
       {
-         qi += param1;
-         if(qi > 300)
+         this.qi += param1;
+         if(this.qi > 300)
          {
-            qi = 300;
+            this.qi = 300;
          }
       }
       
       public function sayIntro() : void
       {
-         _fighterCtrl.getMcCtrl().sayIntro();
+         this._fighterCtrl.getMcCtrl().sayIntro();
       }
       
       public function win() : void
       {
-         _fighterCtrl.getMcCtrl().doWin();
+         this._fighterCtrl.getMcCtrl().doWin();
       }
       
       public function idle() : void
       {
-         _fighterCtrl.getMcCtrl().idle();
+         this._fighterCtrl.getMcCtrl().idle();
       }
       
       public function lose() : void
       {
-         _fighterCtrl.getMcCtrl().doLose();
+         this._fighterCtrl.getMcCtrl().doLose();
       }
       
       public function getHitRange(param1:String) : Rectangle
       {
-         return _fighterCtrl.getHitRange(param1);
+         return this._fighterCtrl.getHitRange(param1);
       }
       
       public function energyExplode() : void
       {
-         _fighterCtrl.getEffectCtrl().energyExplode();
-         _fighterCtrl.getMcCtrl().setSteelBody(true,true);
-         _explodeHitVO = new HitVO();
+         this._fighterCtrl.getEffectCtrl().energyExplode();
+         this._fighterCtrl.getMcCtrl().setSteelBody(true,true);
+         this._explodeHitVO = new HitVO();
          var _loc1_:Rectangle = new Rectangle(-100,-200,200,210);
-         _explodeHitVO.currentArea = _fighterCtrl.getCurrentRect(_loc1_);
-         _explodeHitVO.power = 50;
-         _explodeHitVO.hitx = 15 * direct;
-         _explodeHitVO.hitType = 5;
-         _explodeHitVO.hurtType = 1;
-         _explodeHitFrame = 10;
-         _explodeSteelFrame = 60;
+         this._explodeHitVO.currentArea = this._fighterCtrl.getCurrentRect(_loc1_);
+         this._explodeHitVO.power = 50;
+         this._explodeHitVO.hitx = 15 * direct;
+         this._explodeHitVO.hitType = 5;
+         this._explodeHitVO.hurtType = 1;
+         this._explodeHitFrame = 10;
+         this._explodeSteelFrame = 60;
          isAllowBeHit = false;
       }
       
       public function replaceSkill() : void
       {
-         _fighterCtrl.getEffectCtrl().replaceSkill();
+         this._fighterCtrl.getEffectCtrl().replaceSkill();
          move(250 * direct);
-         idle();
+         this.idle();
          isAllowBeHit = false;
          super.render();
-         renderAnimate();
-         _fighterCtrl.setDirectToTarget();
-         _replaceSkillFrame = 30;
+         this.renderAnimate();
+         this._fighterCtrl.setDirectToTarget();
+         this._replaceSkillFrame = 30;
       }
       
       override public function getArea() : Rectangle
       {
          if(!_area)
          {
-            _area = getBodyArea();
+            _area = this.getBodyArea();
          }
          return _area;
       }
       
       public function hasWankai() : Boolean
       {
-         return _fighterCtrl.getMcCtrl().getFighterMc().checkFrame("万解");
+         return this._fighterCtrl.getMcCtrl().getFighterMc().checkFrame("万解");
       }
       
       public function die() : void
       {
          hp = 0;
          isAlive = false;
-         if(!FighterActionState.isHurting(actionState) && actionState != 30)
+         if(!FighterActionState.isHurting(this.actionState) && this.actionState != 30)
          {
-            _fighterCtrl.getMcCtrl().getFighterMc().playHurtDown();
+            this._fighterCtrl.getMcCtrl().getFighterMc().playHurtDown();
          }
       }
       
       public function relive() : void
       {
          isAlive = true;
-         idle();
+         this.idle();
       }
    }
 }

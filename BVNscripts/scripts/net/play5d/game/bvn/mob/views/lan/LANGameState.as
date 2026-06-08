@@ -1,21 +1,19 @@
 package net.play5d.game.bvn.mob.views.lan
 {
-   import com.greensock.TweenLite;
-   import com.greensock.easing.Back;
+   import com.greensock.*;
+   import com.greensock.easing.*;
    import flash.display.DisplayObject;
    import flash.display.MovieClip;
    import flash.events.Event;
-   import net.play5d.game.bvn.MainGame;
-   import net.play5d.game.bvn.ctrl.AssetManager;
-   import net.play5d.game.bvn.ctrl.SoundCtrl;
-   import net.play5d.game.bvn.mob.ctrls.LANClientCtrl;
-   import net.play5d.game.bvn.mob.ctrls.LANServerCtrl;
-   import net.play5d.game.bvn.mob.data.HostVO;
+   import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.ctrl.*;
+   import net.play5d.game.bvn.mob.ctrls.*;
+   import net.play5d.game.bvn.mob.data.*;
    import net.play5d.game.bvn.mob.events.LanEvent;
-   import net.play5d.game.bvn.mob.screenpad.ScreenPadManager;
-   import net.play5d.game.bvn.mob.utils.UIAssetUtil;
-   import net.play5d.kyo.stage.Istage;
-   import net.play5d.kyo.stage.effect.ZoomEffect;
+   import net.play5d.game.bvn.mob.screenpad.*;
+   import net.play5d.game.bvn.mob.utils.*;
+   import net.play5d.kyo.stage.*;
+   import net.play5d.kyo.stage.effect.*;
    
    public class LANGameState implements Istage
    {
@@ -29,27 +27,28 @@ package net.play5d.game.bvn.mob.views.lan
       
       public function get display() : DisplayObject
       {
-         return _ui;
+         return this._ui;
       }
       
       public function build() : void
       {
-         _ui = UIAssetUtil.I.createDisplayObject("spr_lan");
+         this._ui = UIAssetUtil.I.createDisplayObject("spr_lan");
          SoundCtrl.I.BGM(AssetManager.I.getSound("continue"));
-         mainMenu();
+         this.mainMenu();
       }
       
       private function mainMenu() : void
       {
-         var initMainMenu:* = function(param1:Event):void
+         var initMainMenu:* = undefined;
+         initMainMenu = function(param1:Event):void
          {
             _ui.removeEventListener("complete",initMainMenu);
             ScreenPadManager.addTouchListener(_ui.btn1,mainBtnHandler);
             ScreenPadManager.addTouchListener(_ui.btn2,mainBtnHandler);
             ScreenPadManager.addTouchListener(_ui.btn_back,mainBtnHandler);
          };
-         _ui.gotoAndPlay(1);
-         _ui.addEventListener("complete",initMainMenu);
+         this._ui.gotoAndPlay(1);
+         this._ui.addEventListener("complete",initMainMenu);
       }
       
       private function btnTouchEffect(param1:DisplayObject, param2:Function = null, param3:Boolean = true) : void
@@ -79,7 +78,8 @@ package net.play5d.game.bvn.mob.views.lan
       
       private function mainBtnHandler(param1:DisplayObject) : void
       {
-         var target:DisplayObject = param1;
+         var target:DisplayObject = null;
+         target = param1;
          var effectBack:* = function():void
          {
             switch(target)
@@ -94,11 +94,12 @@ package net.play5d.game.bvn.mob.views.lan
                   MainGame.I.goMenu();
             }
          };
-         btnTouchEffect(target,effectBack);
+         this.btnTouchEffect(target,effectBack);
       }
       
       private function showHostDialog() : void
       {
+         var dialog:LANHostCreateDialog = null;
          var onDialogClose:* = function():void
          {
             dialog = null;
@@ -120,18 +121,18 @@ package net.play5d.game.bvn.mob.views.lan
          {
             runHost(dialog.setting);
          };
-         var dialog:LANHostCreateDialog = new LANHostCreateDialog();
+         dialog = new LANHostCreateDialog();
          dialog.onOK = onDialogOK;
          dialog.onClose = onDialogClose;
          MainGame.stageCtrl.addLayer(dialog,30,100,false,new ZoomEffect());
          try
          {
-            _ui.btn1.visible = false;
-            _ui.btn2.visible = false;
-            _ui.btn_back.visible = false;
-            _ui.label_host.visible = false;
-            _ui.label_client.visible = false;
-            _ui.label_back.visible = false;
+            this._ui.btn1.visible = false;
+            this._ui.btn2.visible = false;
+            this._ui.btn_back.visible = false;
+            this._ui.label_host.visible = false;
+            this._ui.label_client.visible = false;
+            this._ui.label_back.visible = false;
          }
          catch(e:Error)
          {
@@ -141,8 +142,12 @@ package net.play5d.game.bvn.mob.views.lan
       
       private function runHost(param1:Object) : void
       {
-         var setting:Object = param1;
-         var hostCom1:* = function(param1:Event):void
+         var setting:Object = null;
+         var hostCom1:* = undefined;
+         var hostConnect:* = undefined;
+         var hostCom2:* = undefined;
+         setting = param1;
+         hostCom1 = function(param1:Event):void
          {
             _ui.removeEventListener("complete",hostCom1);
             ScreenPadManager.addTouchListener(_ui.btn_back,backHandler);
@@ -154,36 +159,40 @@ package net.play5d.game.bvn.mob.views.lan
             LANServerCtrl.I.startServer(_loc2_);
             LANServerCtrl.I.addEventListener("CLIENT_JOIN_SUCCESS",hostConnect);
          };
-         var hostConnect:* = function(param1:LanEvent):void
+         hostConnect = function(param1:LanEvent):void
          {
             _ui.addEventListener("complete",hostCom2);
             _ui.gotoAndPlay("conn_host_ready");
          };
-         var hostCom2:* = function(param1:Event):void
+         hostCom2 = function(param1:Event):void
          {
             _ui.removeEventListener("complete",hostCom2);
             ScreenPadManager.addTouchListener(_ui.btn,startGameHost);
             ScreenPadManager.addTouchListener(_ui.btn_back,backHandler);
          };
-         _ui.addEventListener("complete",hostCom1);
-         _ui.gotoAndPlay("conn_host");
+         this._ui.addEventListener("complete",hostCom1);
+         this._ui.gotoAndPlay("conn_host");
       }
       
       private function runClient() : void
       {
-         var clientCom1:* = function(param1:Event):void
+         var clientCom1:* = undefined;
+         var findHostHandler:* = undefined;
+         var joinHostBack:* = undefined;
+         var clientCom2:* = undefined;
+         clientCom1 = function(param1:Event):void
          {
             _ui.removeEventListener("complete",clientCom1);
             ScreenPadManager.addTouchListener(_ui.btn_back,backHandler);
             LANClientCtrl.I.initlize();
             LANClientCtrl.I.findHost(findHostHandler);
          };
-         var findHostHandler:* = function(param1:HostVO):void
+         findHostHandler = function(param1:HostVO):void
          {
             LANClientCtrl.I.cancelFindHost();
             LANClientCtrl.I.join(param1,joinHostBack);
          };
-         var joinHostBack:* = function(param1:Boolean):void
+         joinHostBack = function(param1:Boolean):void
          {
             if(param1)
             {
@@ -199,27 +208,27 @@ package net.play5d.game.bvn.mob.views.lan
             _ui.addEventListener("complete",clientCom2);
             _ui.gotoAndPlay("conn_client_ready");
          };
-         var clientCom2:* = function(param1:Event):void
+         clientCom2 = function(param1:Event):void
          {
             _ui.removeEventListener("complete",clientCom2);
             ScreenPadManager.addTouchListener(_ui.btn_back,backHandler);
          };
-         _ui.addEventListener("complete",clientCom1);
-         _ui.gotoAndPlay("conn_client");
+         this._ui.addEventListener("complete",clientCom1);
+         this._ui.gotoAndPlay("conn_client");
       }
       
       private function backHandler(param1:DisplayObject) : void
       {
          LANClientCtrl.I.dispose();
          LANServerCtrl.I.stopServer();
-         ScreenPadManager.removeTouchListener(_ui.btn_back);
-         btnTouchEffect(param1,mainMenu);
+         ScreenPadManager.removeTouchListener(this._ui.btn_back);
+         this.btnTouchEffect(param1,this.mainMenu);
       }
       
       private function startGameHost(param1:DisplayObject) : void
       {
          trace("startGameHost");
-         btnTouchEffect(param1,null,false);
+         this.btnTouchEffect(param1,null,false);
          SoundCtrl.I.sndConfrim();
          LANServerCtrl.I.sendGameStart();
          LANServerCtrl.I.gameStart();

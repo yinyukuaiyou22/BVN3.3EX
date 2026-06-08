@@ -33,11 +33,11 @@ package net.play5d.game.bvn.mob.sockets.events
       public function getDataObject() : Object
       {
          var _loc1_:Object;
-         data.position = 0;
+         this.data.position = 0;
          _loc1_ = null;
          try
          {
-            _loc1_ = data.readObject();
+            _loc1_ = this.data.readObject();
          }
          catch(e:Error)
          {
