@@ -94,11 +94,11 @@ package net.play5d.game.bvn.mob
       public function getGameMenu() : Array
       {
          return [{
-            "txt":"ARCADE",
-            "cn":"闯关",
+            "txt":"SINGLE MODE",
+            "cn":"单人模式",
             "children":[{
-               "txt":"Single Arcade",
-               "cn":"单人闯关",
+               "txt":"SINGLE ACRADE",
+               "cn":"闯关",
                "func":function():void
                {
                   GameMode.currentMode = 20;
@@ -106,44 +106,45 @@ package net.play5d.game.bvn.mob
                   MainGame.I.goSelect();
                }
             },{
-               "txt":"Team Arcade",
-               "cn":"小队闯关",
-               "func":function():void
-               {
-                  GameMode.currentMode = 10;
-                  MessionModel.I.reset();
-                  MainGame.I.goSelect();
-               }
-            }]
-         },{
-            "txt":"VS CPU",
-            "cn":"对战人机",
-            "children":[{
-               "txt":"SINGLE MODE",
-               "cn":"单人模式",
+               "txt":"SINGLE VS CPU",
+               "cn":"VS人机",
                "func":function():void
                {
                   GameMode.currentMode = 22;
                   MainGame.I.goSelect();
                }
             },{
-               "txt":"Team Mode",
-               "cn":"小队模式"
-            }]
-         },{
-            "txt":"WATCHMODE",
-            "cn":"观战模式",
-            "children":[{
                "txt":"SINGLE WATCH",
-               "cn":"单人观战",
+               "cn":"观战",
                "func":function():void
                {
                   GameMode.currentMode = 23;
                   MainGame.I.goSelect();
                }
+            }]
+         },{
+            "txt":"TEAM MODE",
+            "cn":"小队模式",
+            "children":[{
+               "txt":"TEAM ACRADE",
+               "cn":"闯关",
+               "func":function():void
+               {
+                  GameMode.currentMode = 10;
+                  MessionModel.I.reset();
+                  MainGame.I.goSelect();
+               }
             },{
-               "txt":"Team Watch",
-               "cn":"小队观战",
+               "txt":"TEAM VS CPU",
+               "cn":"VS人机",
+               "func":function():void
+               {
+                  GameMode.currentMode = 12;
+                  MainGame.I.goSelect();
+               }
+            },{
+               "txt":"TEAM WATCH",
+               "cn":"观战",
                "func":function():void
                {
                   GameMode.currentMode = 13;
@@ -151,43 +152,23 @@ package net.play5d.game.bvn.mob
                }
             }]
          },{
-            "txt":"OPTION",
-            "cn":"设置"
-         },{
-            "txt":"TRAINING",
-            "cn":"练习"
-         },{
-            "txt":"EXIT GAME",
-            "cn":"退出",
-            "func":function():void
-            {
-               GameUI.confrim("EXIT GAME","是否退出?",NativeApplication.nativeApplication.exit);
-            }
-         },{
             "txt":"MISC",
             "cn":"杂项",
             "children":[{
-               "txt":"SINGLE VS",
-               "cn":"玩家对战单人",
+               "txt":"SINGLE VS PEOPLE",
+               "cn":"单人对战",
                "func":function():void
                {
                   GameMode.currentMode = 21;
                   MainGame.I.goSelect();
                }
             },{
-               "txt":"TEAM VS",
-               "cn":"玩家对战小队",
+               "txt":"TEAM VS PEOPLE",
+               "cn":"小队对战",
                "func":function():void
                {
                   GameMode.currentMode = 11;
                   MainGame.I.goSelect();
-               }
-            },{
-               "txt":"MORE GAMES",
-               "cn":"更多游戏",
-               "func":function():void
-               {
-                  MainGame.I.moreGames();
                }
             },{
                "txt":"CREDITS",
@@ -197,6 +178,19 @@ package net.play5d.game.bvn.mob
                   MainGame.I.goCredits();
                }
             }]
+         },{
+            "txt":"TRAINING",
+            "cn":"练习"
+         },{
+            "txt":"OPTION",
+            "cn":"设置"
+         },{
+            "txt":"EXIT GAME",
+            "cn":"退出",
+            "func":function():void
+            {
+               GameUI.confrim("EXIT GAME","是否退出?",NativeApplication.nativeApplication.exit);
+            }
          }];
       }
       
@@ -220,12 +214,8 @@ package net.play5d.game.bvn.mob
             }],
             "optoinKey":"ENABLE_KEYBOARD"
          },{
-            "txt":"How To Play",
-            "cn":"如何操作",
-            "select":MainGame.I.goHowToPlay
-         },{
             "txt":"AI Level",
-            "cn":"难度",
+            "cn":"AI等级",
             "options":[{
                "label":"VERY EASY",
                "cn":"非常简单",
@@ -607,7 +597,7 @@ package net.play5d.game.bvn.mob
       {
          var _loc2_:Sprite = new Sprite();
          param1 += "游戏官网 : <a href=\"" + URL.markURL("http://www.5dplay.net/") + "\" target=\"_blank\">www.5dplay.net</a>" + "<br/>";
-         param1 += "面板BUG反馈 : <a href=\"" + URL.markURL("https://space.bilibili.com/485366223") + "\" target=\"_blank\">B站空间</a><br/>";
+         param1 += "面板BUG反馈 : <a href=\"" + URL.markURL("https://space.bilibili.com/485366223") + "\" target=\"_blank\">作者主页</a><br/>";
          param1 += "反馈邮箱 : <a href=\"mailto:yinyu7798@foxmail.com\">yinyu7798@foxmail.com</a><br/>";
          var _loc4_:TextField = new TextField();
          var _loc3_:TextFormat = new TextFormat();

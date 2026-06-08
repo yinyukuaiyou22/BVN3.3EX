@@ -34,14 +34,12 @@ package net.play5d.game.bvn.ui
       
       private var _showIngChildrenBtn:MenuBtn;
       
-      private var _isHoveringChild:Boolean;
-      
       public function MenuBtnGroup()
       {
          super();
          if(GameConfig.TOUCH_MODE)
          {
-            this.scaleX = this.scaleY = 1.15;
+            this.scaleX = this.scaleY = 1.1;
          }
       }
       
@@ -79,6 +77,7 @@ package net.play5d.game.bvn.ui
       {
          var _loc2_:int = 0;
          var _loc1_:Object = null;
+         this.y -= 40;
          _startPoint = new Point(x,y);
          _btnConfig = GameInterface.instance.getGameMenu();
          if(!_btnConfig)
@@ -98,7 +97,7 @@ package net.play5d.game.bvn.ui
          }
          if(GameConfig.TOUCH_MODE)
          {
-            this.y += 50;
+            this.y += 30;
          }
          GameRender.add(render);
       }
@@ -181,12 +180,20 @@ package net.play5d.game.bvn.ui
       
       private function moveScroll() : void
       {
-         var _loc7_:* = _showIngChildrenBtn ? _btns.length + _showIngChildrenBtn.children.length : _btns.length;
-         if(!_startPoint || _loc7_ < 7)
+         if(!_startPoint)
          {
             return;
          }
-         var _loc4_:Number = GameConfig.GAME_SIZE.y - 10;
+         var _loc7_:int = int(_btns.length);
+         if(_showIngChildrenBtn)
+         {
+            _loc7_ += _showIngChildrenBtn.children.length;
+         }
+         if(_loc7_ < 5)
+         {
+            return;
+         }
+         var _loc4_:Number = GameConfig.GAME_SIZE.y;
          var _loc3_:Number = _startPoint.y + this.height;
          if(_loc3_ < _loc4_)
          {
@@ -196,9 +203,16 @@ package net.play5d.game.bvn.ui
          var _loc6_:Number = _loc1_ / _loc7_;
          var _loc5_:Number = _btnHeight + _yadd;
          var _loc8_:int = _btnIndex;
-         if(_showIngChildrenBtn && _isHoveringChild)
+         if(_showIngChildrenBtn)
          {
-            _loc8_ = _showIngChildrenBtn.index + 1 + _btnIndex;
+            if(_btnIndex < _showIngChildrenBtn.children.length && _showIngChildrenBtn.children[_btnIndex].isHover())
+            {
+               _loc8_ = _showIngChildrenBtn.index + 1 + _btnIndex;
+            }
+            else if(_btnIndex > _showIngChildrenBtn.index)
+            {
+               _loc8_ = _btnIndex + _showIngChildrenBtn.children.length;
+            }
          }
          var _loc2_:Number = _loc8_ * (_loc6_ - _loc5_) + _startPoint.y;
          TweenLite.to(this,0.2,{"y":_loc2_});
@@ -217,7 +231,6 @@ package net.play5d.game.bvn.ui
             {
                _loc2_.hover();
                _btnIndex = _loc5_;
-               _isHoveringChild = false;
                moveScroll();
             }
             else
@@ -236,8 +249,6 @@ package net.play5d.game.bvn.ui
                {
                   _loc2_.hover();
                   _btnIndex = _loc4_;
-                  _isHoveringChild = true;
-                  moveScroll();
                }
                else
                {

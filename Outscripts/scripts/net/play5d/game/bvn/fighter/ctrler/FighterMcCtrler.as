@@ -1532,8 +1532,8 @@ package net.play5d.game.bvn.fighter.ctrler
             doAction(param1);
             return;
          }
-         var _loc1_:int = param2 > 0 ? param2 : (param3 ? 300 : 100);
-         if(!_fighter.useQi(_loc1_))
+         var _loc4_:int = param2 > 0 ? param2 : (param3 ? 300 : 100);
+         if(!_fighter.useQi(_loc4_))
          {
             return;
          }
@@ -1601,8 +1601,8 @@ package net.play5d.game.bvn.fighter.ctrler
             doAction(param1,true);
             return;
          }
-         var _loc1_:int = param2 > 0 ? param2 : 100;
-         if(!_fighter.useQi(_loc1_))
+         var _loc3_:int = param2 > 0 ? param2 : 100;
+         if(!_fighter.useQi(_loc3_))
          {
             return;
          }
