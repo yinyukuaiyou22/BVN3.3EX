@@ -4,13 +4,17 @@ setlocal enabledelayedexpansion
 set BAT_HOME=%~dp0
 set PROJ=%BAT_HOME%..\..
 
-:: ---- Auto-detect FLEX_HOME ----
-if "%FLEX_HOME%"=="" set FLEX_HOME=%PROJ%\flex4.16.1-air51.0.1.1
+:: ---- Auto-detect AIR SDK (for adl.exe) ----
+if not exist "%FLEX_HOME%\bin\adl.exe" (
+    if exist "%PROJ%\AIRSDK5\AIRSDK_51.3.2\bin\adl.exe" (
+        set FLEX_HOME=%PROJ%\AIRSDK5\AIRSDK_51.3.2
+    )
+)
 set FLEX_BIN=%FLEX_HOME%\bin
-set RUNTIME=%FLEX_HOME%\runtimes\air\win
 
 if not exist "%FLEX_BIN%\adl.exe" (
-    echo [ERROR] adl.exe not found: %FLEX_BIN%
+    echo [ERROR] adl.exe not found.
+    echo Set FLEX_HOME to AIR SDK root or ensure AIRSDK5 exists.
     pause >nul
     goto :EOF
 )
@@ -33,7 +37,7 @@ if not exist "%SWF_FILE%" (
 )
 set PATH=%FLEX_BIN%;%PATH%
 
-echo [RUN] adl -runtime "%RUNTIME%" "%SWF_FILE%"
-adl -runtime "%RUNTIME%" "%SWF_FILE%"
+echo [RUN] adl "%SWF_FILE%"
+adl "%SWF_FILE%"
 
 pause >nul
