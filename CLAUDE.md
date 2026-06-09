@@ -12,50 +12,68 @@
 - **`asconfig.json` / `.vscode/`** — VSCode 构建配置
 - **`assets/swf/`** — UI SWF 运行时资源（外部加载）
 
-## 构建
+## 构建与调试
 
-### PC 编译
+### 环境
+
+| 变量 | 值 | 用途 |
+|------|-----|------|
+| Flex SDK | `D:\flex4.16.1-air51.0.1.1` | mxmlc 编译器 + Flex 框架 |
+| AIR SDK | `E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2` | ADT 打包 / fdb 调试 / adl 启动 |
+| `FLEX_HOME` | 同 AIR SDK 路径 | `debug_mob.bat` 定位 `bin\fdb` |
+| `JAVA_HOME` | JDK 17 | mxmlc 运行时 |
+| ADB | Android SDK platform-tools | 手机真机调试 |
+
+### PC 端编译
 
 ```bash
-# 编译 SWF（VSCode: Ctrl+Shift+B 或直接运行）
+# 编译（VSCode: Ctrl+Shift+B 或直接运行）
 ./build.bat
 
-# 编译器：mxmlc (Apache Flex 4.16.1 + AIR 51.0)
-# SDK：D:\flex4.16.1-air51.0.1.1
-# 额外 SWC：core.swc (AIR SDK)、airglobal.swc (AIR SDK)
+# 编译器：mxmlc (Flex SDK)
 # 输出：launch.swf（~4.6MB）
 ```
 
-### 真机测试（Android APK 调试）
+### PC 端调试
+
+| 工具 | 位置 | 用法 |
+|------|------|------|
+| `build.bat` | 项目根 | 编译 launch.swf |
+| `adl.exe` | `%FLEX_HOME%\bin\` | AIR Debug Launcher，双击 SWF 直接调试 |
+| `fdb.bat` | `%FLEX_HOME%\bin\` | Flex 命令行调试器，断点/单步/变量检查 |
+
+```bash
+# ADL 启动 SWF（带调试输出）
+adl launch.swf
+
+# fdb 调试 FighterTester
+tools/script/debug.bat
+```
+
+### 手机真机调试（Android APK）
 
 **前置条件**：
+- `FLEX_HOME` 指向 AIR SDK 根目录
+- `adb` 在 PATH 中
+- 手机启用「USB 调试」并连接电脑
 
-| 条件 | 说明 |
-|------|------|
-| `FLEX_HOME` 环境变量 | 指向 AIR SDK 根目录（`E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2`），`bin\` 下含 `adt.bat`、`fdb`、`adl.exe` |
-| ADB 环境变量 | `adb` 命令需在 PATH 中（Android SDK platform-tools） |
-| 手机开发者模式 | 启用「USB 调试」并连接电脑 |
-| Flex SDK | 编译用（`D:\flex4.16.1-air51.0.1.1`），`build.bat` 中硬编码路径 |
-
-**调试步骤**：
-
-1. **打包 APK**：在 IDE 中 `Build → Package AIR Application → Android package type 选 Debug Over USB`
-
-2. **一键安装并启动**：
 ```bash
-# 自动安装 APK 到手机 + 启动 + fdb 调试控制台
+# 1. 打包 APK（ADT Debug Over USB）
+adt -package -target apk-debug -storetype pkcs12 -keystore cert.p12 launch.apk launch-app.xml launch.swf
+
+# 2. 一键安装 + 启动 + fdb 实时调试
 tools/script/debug_mob.bat
 ```
 
-3. **控制台实时输出**：脚本启动 `fdb -unit` 连接设备，运行时错误和 `trace()`/`Debugger.log()` 输出实时回显
+脚本自动完成：ADB 设备检测 → 卸载旧版 → 安装 APK → 端口转发 → 启动应用 → fdb 控制台实时回显
 
-**调试脚本**（位于 `tools/script/`）：
+**调试脚本组**（位于 `tools/script/`）：
 
-| 脚本 | 用途 |
-|------|------|
-| `debug.bat` | 快速调试 FighterTester（PC 端） |
-| `debug_mob.bat` | 手机真机调试（安装 APK + fdb） |
-| `fdbg.bat` | 快速调试任意 SWF |
+| 脚本 | 目标 | 说明 |
+|------|------|------|
+| `debug.bat` | PC | 编译 + adl 启动 FighterTester |
+| `debug_mob.bat` | 手机 | adb 安装 APK + fdb 实时调试 |
+| `fdbg.bat` | 通用 | fdb 连接任意 SWF 进行断点调试 |
 
 ## 交流语言
 
