@@ -2,28 +2,40 @@
 setlocal enabledelayedexpansion
 
 set BAT_HOME=%~dp0
-set DBG_FILE=%BAT_HOME%..\..\out\launch.apk
-set DBG_ID=net.play5d.game.bvn
+set PROJ=%BAT_HOME%..\..
+
+:: ---- Auto-detect paths ----
+if "%FLEX_HOME%"=="" set FLEX_HOME=%PROJ%\flex4.16.1-air51.0.1.1
+set FLEX_BIN=%FLEX_HOME%\bin
+
+set ADT=%FLEX_BIN%\adt.bat
+set CERT=%FLEX_BIN%\mycert.p12
+set APP_XML=%PROJ%\tools\Test\application.xml
+set SWF_FILE=%PROJ%\tools\Test\launch.swf
+set APK_FILE=%PROJ%\tools\Test\launch.apk
+
+set DBG_ID=com.bvn.yinyu
 set DBG_PACKAGE=air.%DBG_ID%
 set DBG_PORT=7936
 
-:: ---- Auto-detect FLEX_HOME ----
-if "%FLEX_HOME%"=="" (
-    if exist "E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2\bin\fdb.bat" (
-        set FLEX_HOME=E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2
-    )
-)
-if "%FLEX_HOME%"=="" (
-    echo [ERROR] FLEX_HOME not set.
-    echo set FLEX_HOME=E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2
+if not exist "%FLEX_BIN%\fdb.bat" (
+    echo [ERROR] fdb.bat not found: %FLEX_BIN%
     goto END
 )
 
-if not exist "%FLEX_HOME%\bin\fdb.bat" (
-    echo [ERROR] fdb.bat not found at %FLEX_HOME%\bin\
-    goto END
+:: ---- Package APK from Test SWF ----
+echo [BUILD] Packaging APK...
+copy /Y "%PROJ%\launch.swf" "%SWF_FILE%" >nul
+if exist "%ADT%" (
+    "%ADT%" -package -target apk-debug -storetype pkcs12 -keystore "%CERT%" -storepass 123456 "%APK_FILE%" "%APP_XML%" "%SWF_FILE%"
+    if %errorlevel%==0 (
+        echo [OK] APK created: %APK_FILE%
+    ) else (
+        echo [WARN] ADT package failed, trying existing APK...
+    )
+) else (
+    echo [WARN] adt.bat not found, using existing APK if present
 )
-echo FLEX_HOME: %FLEX_HOME%
 
 :: ---- Check ADB ----
 where adb >nul 2>nul
@@ -48,25 +60,19 @@ if %DEVICE_COUNT%==0 (
 )
 echo Found device: %DEVICE_ID%
 
-:: ---- Setup PATH for fdb/adt ----
-set PATH=%FLEX_HOME%\bin;%PATH%
+:: ---- Setup PATH for fdb ----
+set PATH=%FLEX_BIN%;%PATH%
 
-:: ---- Check/Install APK ----
-adb -s "%DEVICE_ID%" shell pm path %DBG_PACKAGE% >nul 2>&1
-if %errorlevel%==0 (
-    echo Already installed. Launching...
-    goto LAUNCH
+:: ---- Install APK ----
+adb -s "%DEVICE_ID%" uninstall %DBG_PACKAGE% >nul 2>&1
+if not exist "%APK_FILE%" (
+    echo [ERROR] APK not found: %APK_FILE%
+    goto END
 )
+echo Installing...
+adb -s "%DEVICE_ID%" install "%APK_FILE%"
 
-if not exist "%DBG_FILE%" (
-    echo [WARN] APK not found: %DBG_FILE%
-    echo Build via: adt -package -target apk-debug ...
-    goto LAUNCH
-)
-echo Installing APK...
-adb -s "%DEVICE_ID%" install "%DBG_FILE%"
-
-:LAUNCH
+:: ---- Launch + debug ----
 adb -s "%DEVICE_ID%" forward tcp:%DBG_PORT% tcp:%DBG_PORT% >nul
 adb -s "%DEVICE_ID%" shell am start -n %DBG_PACKAGE%/.AppEntry >nul
 

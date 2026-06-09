@@ -16,13 +16,15 @@
 
 ### 环境
 
-| 变量 | 值 | 用途 |
-|------|-----|------|
-| Flex SDK | `D:\flex4.16.1-air51.0.1.1` | mxmlc 编译器 + Flex 框架 |
-| AIR SDK | `E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2` | ADT 打包 / fdb 调试 / adl 启动 |
-| `FLEX_HOME` | 同 AIR SDK 路径 | `debug_mob.bat` 定位 `bin\fdb` |
+| 变量 | 位置 | 用途 |
+|------|------|------|
+| Flex SDK | `项目根\flex4.16.1-air51.0.1.1\` | mxmlc 编译器 + Flex 框架 + AIR 运行时 |
+| AIR SDK | `项目根\AIRSDK5\AIRSDK_51.3.2\` | ADT 打包 / fdb 调试（签名证书位于 `bin\mycert.p12`） |
+| `FLEX_HOME` | 自动检测（`flex4.16.1-air51.0.1.1`） | debug 脚本定位 `bin\fdb` |
 | `JAVA_HOME` | JDK 17 | mxmlc 运行时 |
 | ADB | Android SDK platform-tools | 手机真机调试 |
+| 证书 | `AIRSDK5\...\bin\mycert.p12` | APK 签名（密码 123456） |
+| App 描述 | `tools\Test\application.xml` | AIR 应用配置（`com.bvn.yinyu`） |
 
 ### PC 端编译
 
