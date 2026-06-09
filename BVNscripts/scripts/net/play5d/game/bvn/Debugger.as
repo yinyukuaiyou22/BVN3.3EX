@@ -126,6 +126,10 @@ package net.play5d.game.bvn
             return;
          }
          var msg:String = rest.join(" ");
+         if(!msg || msg.length == 0)
+         {
+            return;
+         }
          _queueLog(msg,false);
       }
       
@@ -256,7 +260,8 @@ package net.play5d.game.bvn
          _panel.addChild(_logContainer);
          _logTf = new TextField();
          _logTf.defaultTextFormat = _fmtInfo;
-         _logTf.selectable = false;
+         _logTf.selectable = true;
+         _logTf.mouseEnabled = true;
          _logTf.wordWrap = true;
          _logTf.multiline = true;
          _logTf.width = PANEL_WIDTH - int(10 * _scale);
