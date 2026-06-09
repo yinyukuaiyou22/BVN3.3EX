@@ -21,6 +21,13 @@ import net.play5d.game.bvn.Debugger;
    {
       
       public static var AUTO_FINISH:Boolean = true;
+
+      /** 当前每页高度（buildList 时动态计算） */
+      public static var PAGE_HEIGHT:Number = 600;
+      /** 当前总页数 */
+      public static var TOTAL_PAGES:int = 1;
+      /** 当前页号（0-based，用于翻页动画） */
+      public static var CURRENT_PAGE:int = 0;
       
       private static const SELECT_STATE_FIGHTER:int = 0;
       
@@ -28,7 +35,7 @@ import net.play5d.game.bvn.Debugger;
       
       private static const SELECT_STATE_MAP:int = 2;
       
-      private var _selectState:int;
+      public var _selectState:int;
       
       private var _ui:*;
       
@@ -185,14 +192,31 @@ import net.play5d.game.bvn.Debugger;
          this._itemObj = {};
          var _loc13_:Number = GameConfig.GAME_SIZE.x / 2 - 30;
          var _loc14_:Number = GameConfig.GAME_SIZE.y / 2 - 30;
+
+         // 分页: 每页 VCount 行，页高 = config.height
+         var pageCount:int = param1.VCount;
+         if(pageCount < 1) { pageCount = 1; }
+         var pageHeight:Number = this._config.height;
+         var maxY:int = 0;
+         for each(var _itemVO:SelectCharListItemVO in _loc12_)
+         {
+            if(_itemVO.y > maxY) { maxY = _itemVO.y; }
+         }
+         PAGE_HEIGHT = pageHeight;
+         TOTAL_PAGES = int(maxY / pageCount) + 1;
+         CURRENT_PAGE = 0;
+         Debugger.log("[SelectFighterStage] pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "VCount:", pageCount);
+
          while(_loc2_ < _loc12_.length)
          {
             _loc3_ = _loc12_[_loc2_];
             _loc4_ = this.addFighterItem(_loc3_);
             if(Boolean(_loc4_))
             {
-               _loc5_ = _loc8_ + _loc10_ * _loc4_.selectData.x;
-               _loc6_ = _loc9_ + _loc11_ * _loc4_.selectData.y;
+               _loc5_ = _loc8_ + _loc10_ * (_loc4_.selectData.x);
+               var pageIdx:int = int(_loc4_.selectData.y / pageCount);
+               var yInPage:int = int(_loc4_.selectData.y % pageCount);
+               _loc6_ = _loc9_ + _loc11_ * yInPage + pageIdx * pageHeight;
                if(Boolean(_loc4_.selectData.offset))
                {
                   _loc5_ += _loc4_.selectData.offset.x;
