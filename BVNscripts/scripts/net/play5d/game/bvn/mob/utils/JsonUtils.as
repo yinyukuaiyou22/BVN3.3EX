@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.mob.utils
+﻿package net.play5d.game.bvn.mob.utils
 {
    public class JsonUtils
    {
@@ -30,7 +30,7 @@ package net.play5d.game.bvn.mob.utils
             }
             catch(e:Error)
             {
-               trace(e);
+               Debugger.log(e);
             }
             return _loc2_;
          }

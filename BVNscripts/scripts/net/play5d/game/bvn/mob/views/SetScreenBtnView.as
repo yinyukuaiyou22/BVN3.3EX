@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.mob.views
+﻿package net.play5d.game.bvn.mob.views
 {
    import flash.display.Sprite;
    import net.play5d.game.bvn.*;
@@ -6,6 +6,7 @@ package net.play5d.game.bvn.mob.views
    import net.play5d.game.bvn.mob.*;
    import net.play5d.game.bvn.mob.data.ScreenPadConfigVO;
    import net.play5d.game.bvn.ui.*;
+import net.play5d.game.bvn.Debugger;
    
    public class SetScreenBtnView extends Sprite
    {
@@ -170,7 +171,7 @@ package net.play5d.game.bvn.mob.views
             }
             catch(e:Error)
             {
-               trace(e);
+               Debugger.log(e);
             }
          }
          try
@@ -179,7 +180,7 @@ package net.play5d.game.bvn.mob.views
          }
          catch(e:Error)
          {
-            trace(e);
+            Debugger.log(e);
          }
       }
    }

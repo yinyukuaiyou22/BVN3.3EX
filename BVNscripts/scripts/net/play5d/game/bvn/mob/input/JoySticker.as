@@ -1,8 +1,9 @@
-package net.play5d.game.bvn.mob.input
+﻿package net.play5d.game.bvn.mob.input
 {
    import flash.events.GameInputEvent;
    import flash.ui.*;
    import net.play5d.game.bvn.mob.*;
+import net.play5d.game.bvn.Debugger;
    
    public class JoySticker
    {
@@ -28,10 +29,10 @@ package net.play5d.game.bvn.mob.input
          {
             return;
          }
-         trace("JoySticker.initlize");
+         Debugger.log("JoySticker.initlize");
          if(!GameInput.isSupported)
          {
-            trace("该平台不支持手柄！");
+            Debugger.log("该平台不支持手柄！");
             return;
          }
          _inited = true;
@@ -67,7 +68,7 @@ package net.play5d.game.bvn.mob.input
          switch(param1.type)
          {
             case "deviceAdded":
-               trace("connected",param1.device,GameInput.numDevices);
+               Debugger.log("connected",param1.device,GameInput.numDevices);
                outputDeviceInfo(param1.device);
                if(GameInput.numDevices < 3)
                {
@@ -76,11 +77,11 @@ package net.play5d.game.bvn.mob.input
                }
                break;
             case "deviceRemoved":
-               trace("disconnected",param1.device);
+               Debugger.log("disconnected",param1.device);
                removeDevice(param1.device);
                break;
             case "deviceUnusable":
-               trace("unuse",param1.device);
+               Debugger.log("unuse",param1.device);
                removeDevice(param1.device);
          }
       }
@@ -89,17 +90,17 @@ package net.play5d.game.bvn.mob.input
       {
          var _loc2_:int = 0;
          var _loc3_:GameInputControl = null;
-         trace("device.enabled - " + param1.enabled);
-         trace("device.id - " + param1.id);
-         trace("device.name - " + param1.name);
-         trace("device.numControls - " + param1.numControls);
-         trace("device.sampleInterval - " + param1.sampleInterval);
-         trace("device.MAX_BUFFER - 32000");
-         trace("buttonNum",param1.numControls);
+         Debugger.log("device.enabled - " + param1.enabled);
+         Debugger.log("device.id - " + param1.id);
+         Debugger.log("device.name - " + param1.name);
+         Debugger.log("device.numControls - " + param1.numControls);
+         Debugger.log("device.sampleInterval - " + param1.sampleInterval);
+         Debugger.log("device.MAX_BUFFER - 32000");
+         Debugger.log("buttonNum",param1.numControls);
          while(_loc2_ < param1.numControls)
          {
             _loc3_ = param1.getControlAt(_loc2_);
-            trace("button:" + _loc2_ + ":" + _loc3_.id);
+            Debugger.log("button:" + _loc2_ + ":" + _loc3_.id);
             _loc2_++;
          }
       }
@@ -110,7 +111,7 @@ package net.play5d.game.bvn.mob.input
          _gameDeivces.push(param1);
          var _loc2_:String = param1.id;
          _deivceMap[_loc2_] = param1;
-         trace("addDevice:" + _loc2_,":",param1.id);
+         Debugger.log("addDevice:" + _loc2_,":",param1.id);
       }
       
       private static function removeDevice(param1:GameInputDevice) : void
@@ -215,7 +216,7 @@ package net.play5d.game.bvn.mob.input
                   }
                }
                _downKey = _loc7_ = new JoyStickSetVO(_loc3_,_loc4_);
-               trace("isDown",_loc7_.id + "_" + _loc7_.value);
+               Debugger.log("isDown",_loc7_.id + "_" + _loc7_.value);
                return _loc7_;
             }
             _loc3_++;

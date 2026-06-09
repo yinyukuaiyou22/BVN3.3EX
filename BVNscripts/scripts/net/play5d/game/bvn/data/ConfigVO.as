@@ -1,9 +1,10 @@
-package net.play5d.game.bvn.data
+﻿package net.play5d.game.bvn.data
 {
    import net.play5d.game.bvn.*;
    import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.interfaces.*;
    import net.play5d.kyo.utils.*;
+   import net.play5d.game.bvn.Debugger;
    
    public class ConfigVO
    {
@@ -107,7 +108,7 @@ package net.play5d.game.bvn.data
             }
             catch(e:Error)
             {
-               trace(e.getStackTrace());
+               Debugger.log(e.getStackTrace());
             }
          }
          return null;
@@ -136,7 +137,7 @@ package net.play5d.game.bvn.data
             }
             catch(e:Error)
             {
-               trace(e);
+               Debugger.log(e);
             }
          }
       }

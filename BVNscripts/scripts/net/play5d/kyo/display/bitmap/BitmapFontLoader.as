@@ -1,9 +1,10 @@
-package net.play5d.kyo.display.bitmap
+﻿package net.play5d.kyo.display.bitmap
 {
    import flash.display.Bitmap;
    import flash.display.BitmapData;
    import flash.events.Event;
    import net.play5d.kyo.loader.*;
+import net.play5d.game.bvn.Debugger;
    
    public class BitmapFontLoader
    {
@@ -83,7 +84,7 @@ package net.play5d.kyo.display.bitmap
          };
          loadXMLFail = function():void
          {
-            trace("BitmapFontLoader.loadXMLFail::" + url);
+            Debugger.log("BitmapFontLoader.loadXMLFail::" + url);
             loadNext();
          };
          if(this._loadProcess != null)
@@ -124,7 +125,7 @@ package net.play5d.kyo.display.bitmap
          };
          loadBpFail = function(param1:Event):void
          {
-            trace("BitmapFontLoader.loadBpFail::" + bpurl);
+            Debugger.log("BitmapFontLoader.loadBpFail::" + bpurl);
             if(fail != null)
             {
                fail();

@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.state
+﻿package net.play5d.game.bvn.state
 {
    import flash.display.*;
    import flash.events.*;
@@ -13,6 +13,7 @@ package net.play5d.game.bvn.state
    import net.play5d.kyo.display.bitmap.*;
    import net.play5d.kyo.stage.*;
    import net.play5d.kyo.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class GameOverState implements Istage
    {
@@ -186,7 +187,7 @@ package net.play5d.game.bvn.state
             }
             catch(e:Error)
             {
-               trace(e);
+               Debugger.log(e);
             }
          }
          else

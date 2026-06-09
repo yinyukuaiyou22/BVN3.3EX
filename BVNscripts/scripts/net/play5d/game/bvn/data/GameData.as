@@ -1,8 +1,9 @@
-package net.play5d.game.bvn.data
+﻿package net.play5d.game.bvn.data
 {
    import net.play5d.game.bvn.*;
    import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.interfaces.*;
+import net.play5d.game.bvn.Debugger;
    
    public class GameData
    {
@@ -146,7 +147,7 @@ package net.play5d.game.bvn.data
             setSelectData(param1);
          },function():void
          {
-            trace("loadSelect error!");
+            Debugger.log("loadSelect error!");
          });
       }
       

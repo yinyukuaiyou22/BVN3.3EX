@@ -1,9 +1,10 @@
-package net.play5d.game.bvn.mob.ctrls
+﻿package net.play5d.game.bvn.mob.ctrls
 {
    import flash.events.KeyboardEvent;
    import net.play5d.game.bvn.*;
    import net.play5d.game.bvn.mob.views.lan.*;
    import net.play5d.game.bvn.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class LanGameMenuCtrl
    {
@@ -45,7 +46,7 @@ package net.play5d.game.bvn.mob.ctrls
             }
             catch(e:Error)
             {
-               trace(e);
+               Debugger.log(e);
             }
             this._exitDialog.destory();
             this._exitDialog = null;

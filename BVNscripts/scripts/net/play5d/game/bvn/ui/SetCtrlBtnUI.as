@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.ui
+﻿package net.play5d.game.bvn.ui
 {
    import com.greensock.*;
    import flash.display.*;
@@ -10,6 +10,7 @@ package net.play5d.game.bvn.ui
    import net.play5d.game.bvn.interfaces.*;
    import net.play5d.game.bvn.utils.*;
    import net.play5d.kyo.input.*;
+import net.play5d.game.bvn.Debugger;
    
    public class SetCtrlBtnUI extends EventDispatcher implements IInnerSetUI
    {
@@ -144,7 +145,7 @@ package net.play5d.game.bvn.ui
             _loc3_ = _loc6_[_loc1_];
             if(!_loc2_)
             {
-               trace("mc[k" + _loc1_ + "]不存在！");
+               Debugger.log("mc[k" + _loc1_ + "]不存在！");
             }
             else
             {

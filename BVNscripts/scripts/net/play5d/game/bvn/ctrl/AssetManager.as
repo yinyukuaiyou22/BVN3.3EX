@@ -8,6 +8,7 @@ package net.play5d.game.bvn.ctrl
    import net.play5d.game.bvn.utils.*;
    import net.play5d.kyo.display.bitmap.*;
    import net.play5d.kyo.loader.*;
+   import net.play5d.game.bvn.Debugger;
    import net.play5d.kyo.utils.*;
    
    public class AssetManager
@@ -168,7 +169,7 @@ package net.play5d.game.bvn.ctrl
          };
          loadErr = function():void
          {
-            trace("加载声音失败 : " + curUrl);
+            Debugger.log("加载声音失败 : " + curUrl);
             loadNext();
          };
          loadProcess = function(param1:Number):void
@@ -352,7 +353,7 @@ package net.play5d.game.bvn.ctrl
          };
          loadFail = function():void
          {
-            trace("Error :: " + curUrl + " load fail!");
+            Debugger.log("Error :: " + curUrl + " load fail!");
             loadNext();
          };
          loads = loadarray.concat();
@@ -398,11 +399,11 @@ package net.play5d.game.bvn.ctrl
          };
          bitmapFail = function():void
          {
-            trace("字体图片加载失败",url);
+            Debugger.log("字体图片加载失败",url);
          };
          var loadXMLFail:* = function():void
          {
-            trace("字体XML加载失败",url);
+            Debugger.log("字体XML加载失败",url);
          };
          url = "assets/font/font1.xml";
          this._assetLoader.loadXML(url,loadXMLCom,loadXMLFail);

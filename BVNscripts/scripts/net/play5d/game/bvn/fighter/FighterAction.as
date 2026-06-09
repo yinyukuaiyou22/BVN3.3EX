@@ -1,6 +1,7 @@
-package net.play5d.game.bvn.fighter
+﻿package net.play5d.game.bvn.fighter
 {
    import net.play5d.game.bvn.*;
+import net.play5d.game.bvn.Debugger;
    
    public class FighterAction
    {
@@ -186,7 +187,7 @@ package net.play5d.game.bvn.fighter
       public function setCD(param1:String, param2:int) : void
       {
          this._cdObj[param1] = param2 / GameConfig.FPS_GAME;
-         trace(this._cdObj[param1]);
+         Debugger.log(this._cdObj[param1]);
       }
       
       public function CDOK(param1:String) : Boolean

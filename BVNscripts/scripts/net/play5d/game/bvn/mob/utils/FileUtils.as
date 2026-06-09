@@ -1,7 +1,8 @@
-package net.play5d.game.bvn.mob.utils
+﻿package net.play5d.game.bvn.mob.utils
 {
    import flash.filesystem.*;
    import flash.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class FileUtils
    {
@@ -38,7 +39,7 @@ package net.play5d.game.bvn.mob.utils
          }
          catch(e:Error)
          {
-            trace("FileUtils.writeFile",e);
+            Debugger.log("FileUtils.writeFile",e);
          }
       }
       
@@ -65,7 +66,7 @@ package net.play5d.game.bvn.mob.utils
          }
          catch(e:Error)
          {
-            trace("FileUtils.createFloder",e);
+            Debugger.log("FileUtils.createFloder",e);
          }
       }
       
@@ -84,7 +85,7 @@ package net.play5d.game.bvn.mob.utils
          }
          catch(e:Error)
          {
-            trace("FileUtils.readTextFile",e);
+            Debugger.log("FileUtils.readTextFile",e);
          }
          return _loc2_;
       }
@@ -98,7 +99,7 @@ package net.play5d.game.bvn.mob.utils
          }
          catch(e:Error)
          {
-            trace("FileUtils.del",e);
+            Debugger.log("FileUtils.del",e);
          }
       }
    }

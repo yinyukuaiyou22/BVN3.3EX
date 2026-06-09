@@ -1,4 +1,4 @@
-package net.play5d.kyo.utils
+﻿package net.play5d.kyo.utils
 {
    import com.adobe.utils.*;
    import flash.display.*;
@@ -9,6 +9,7 @@ package net.play5d.kyo.utils
    import flash.text.*;
    import flash.ui.*;
    import flash.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class KyoUtils
    {
@@ -364,7 +365,7 @@ package net.play5d.kyo.utils
             }
             _loc4_ = _loc4_.parent;
          }
-         trace(param2,"is not",param1,"\'s parent!");
+         Debugger.log(param2,"is not",param1,"\'s parent!");
          return _loc3_;
       }
       
@@ -686,7 +687,7 @@ package net.play5d.kyo.utils
                }
                catch(e:Error)
                {
-                  trace("KyoUtils.setValueByObject :",e);
+                  Debugger.log("KyoUtils.setValueByObject :",e);
                }
             }
             else if(setter[i] is Boolean)

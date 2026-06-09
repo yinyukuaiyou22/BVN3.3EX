@@ -3,6 +3,7 @@ package net.play5d.kyo.loader
    import flash.events.*;
    import flash.net.*;
    import flash.utils.ByteArray;
+   import net.play5d.game.bvn.Debugger;
    
    public class KyoURLoader
    {
@@ -56,7 +57,7 @@ package net.play5d.kyo.loader
             loader = null;
             if(showDebug)
             {
-               trace(param1);
+               Debugger.log(param1);
             }
          };
          onError2 = function(param1:SecurityErrorEvent):void
@@ -115,7 +116,7 @@ package net.play5d.kyo.loader
             loader = null;
             if(showDebug)
             {
-               trace(param1);
+               Debugger.log(param1);
             }
          };
          loader = new URLLoader();

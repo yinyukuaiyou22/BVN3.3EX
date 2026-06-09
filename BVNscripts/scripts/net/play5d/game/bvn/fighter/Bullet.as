@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.fighter
+﻿package net.play5d.game.bvn.fighter
 {
    import flash.display.DisplayObject;
    import flash.display.MovieClip;
@@ -10,6 +10,7 @@ package net.play5d.game.bvn.fighter
    import net.play5d.game.bvn.interfaces.*;
    import net.play5d.game.bvn.utils.*;
    import net.play5d.kyo.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class Bullet implements IGameSprite
    {
@@ -402,7 +403,7 @@ package net.play5d.game.bvn.fighter
             }
             catch(e:Error)
             {
-               trace("Bullet",e);
+               Debugger.log("Bullet",e);
             }
          }
          this._isHit = true;

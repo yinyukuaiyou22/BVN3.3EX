@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.mob.views.lan
+﻿package net.play5d.game.bvn.mob.views.lan
 {
    import com.greensock.*;
    import com.greensock.easing.*;
@@ -14,6 +14,7 @@ package net.play5d.game.bvn.mob.views.lan
    import net.play5d.game.bvn.mob.utils.*;
    import net.play5d.kyo.stage.*;
    import net.play5d.kyo.stage.effect.*;
+import net.play5d.game.bvn.Debugger;
    
    public class LANGameState implements Istage
    {
@@ -114,7 +115,7 @@ package net.play5d.game.bvn.mob.views.lan
             }
             catch(e:Error)
             {
-               trace(e);
+               Debugger.log(e);
             }
          };
          var onDialogOK:* = function():void
@@ -136,7 +137,7 @@ package net.play5d.game.bvn.mob.views.lan
          }
          catch(e:Error)
          {
-            trace(e);
+            Debugger.log(e);
          }
       }
       
@@ -151,7 +152,7 @@ package net.play5d.game.bvn.mob.views.lan
          {
             _ui.removeEventListener("complete",hostCom1);
             ScreenPadManager.addTouchListener(_ui.btn_back,backHandler);
-            trace(setting);
+            Debugger.log(setting);
             var _loc2_:HostVO = new HostVO();
             _loc2_.gameMode = setting.game_mode;
             _loc2_.gameTime = setting.game_time;
@@ -227,7 +228,7 @@ package net.play5d.game.bvn.mob.views.lan
       
       private function startGameHost(param1:DisplayObject) : void
       {
-         trace("startGameHost");
+         Debugger.log("startGameHost");
          this.btnTouchEffect(param1,null,false);
          SoundCtrl.I.sndConfrim();
          LANServerCtrl.I.sendGameStart();

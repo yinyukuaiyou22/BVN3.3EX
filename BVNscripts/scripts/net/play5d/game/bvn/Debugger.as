@@ -57,28 +57,30 @@ package net.play5d.game.bvn
       private static var _perfMemBmd:BitmapData;
       
       private static var _debugEnabled:Boolean = false;
-      
+
       private static var _logQueue:Array = [];
-      
+
       private static const MAX_QUEUE_SIZE:int = 300;
-      
+
       private static const FLUSH_INTERVAL:int = 3;
-      
+
       private static var _frameCounter:int = 0;
-      
+
       public static const DRAW_AREA:Boolean = false;
-      
+
       public static const SAFE_MODE:Boolean = false;
-      
+
       public static const HIDE_MAP:Boolean = false;
-      
+
       public static const HIDE_HITEFFECT:Boolean = false;
-      
-      private static const PANEL_WIDTH:int = 400;
-      
-      private static const TITLE_HEIGHT:int = 30;
-      
-      private static const LOG_HEIGHT:int = 180;
+
+      private static var _scale:Number = 1.0;
+
+      private static var PANEL_WIDTH:int = 400;
+
+      private static var TITLE_HEIGHT:int = 30;
+
+      private static var LOG_HEIGHT:int = 180;
       
       private static var _lastPerfTimer:int = 0;
       
@@ -98,15 +100,15 @@ package net.play5d.game.bvn
       
       private static var _perfUpdateInterval:int = 10;
       
-      private static const PERF_PANEL_WIDTH:int = 200;
-      
-      private static const PERF_TITLE_HEIGHT:int = 22;
-      
-      private static const PERF_BODY_HEIGHT:int = 120;
-      
-      private static const GRAPH_WIDTH:int = 60;
-      
-      private static const GRAPH_HEIGHT:int = 40;
+      private static var PERF_PANEL_WIDTH:int = 200;
+
+      private static var PERF_TITLE_HEIGHT:int = 22;
+
+      private static var PERF_BODY_HEIGHT:int = 120;
+
+      private static var GRAPH_WIDTH:int = 60;
+
+      private static var GRAPH_HEIGHT:int = 40;
       
       private static var _perfBodyVisible:Boolean = true;
       
@@ -122,7 +124,6 @@ package net.play5d.game.bvn
             return;
          }
          var msg:String = rest.join(" ");
-         trace(msg);
          _queueLog(msg,false);
       }
       
@@ -132,7 +133,6 @@ package net.play5d.game.bvn
          {
             return;
          }
-         trace("Debugger.errorMsg:",param1);
          if(onErrorMsgCall != null)
          {
             onErrorMsgCall(param1);
@@ -144,8 +144,30 @@ package net.play5d.game.bvn
       {
          _stage = param1;
          _debugEnabled = true;
-         _fmtInfo = new TextFormat("_sans",12,65280);
-         _fmtError = new TextFormat("_sans",12,16729156);
+
+         // Mobile scaling: base on 800px desktop reference
+         var screenW:Number = _stage.fullScreenWidth > 0 ? _stage.fullScreenWidth : _stage.stageWidth;
+         var screenH:Number = _stage.fullScreenHeight > 0 ? _stage.fullScreenHeight : _stage.stageHeight;
+         _scale = Math.max(1.0, Math.min(screenW, screenH) / 600);
+         if(_scale > 2.5) { _scale = 2.5; }
+         if(_scale < 1.0) { _scale = 1.0; }
+
+         PANEL_WIDTH = int(400 * _scale);
+         TITLE_HEIGHT = int(30 * _scale);
+         LOG_HEIGHT = int(220 * _scale);
+         PERF_PANEL_WIDTH = int(200 * _scale);
+         PERF_TITLE_HEIGHT = int(22 * _scale);
+         PERF_BODY_HEIGHT = int(140 * _scale);
+         GRAPH_WIDTH = int(60 * _scale);
+         GRAPH_HEIGHT = int(40 * _scale);
+
+         var logFontSize:int = int(12 * _scale);
+         var titleFontSize:int = int(14 * _scale);
+         var perfTitleFontSize:int = int(12 * _scale);
+         var perfFontSize:int = int(10 * _scale);
+
+         _fmtInfo = new TextFormat("_sans",logFontSize,65280);
+         _fmtError = new TextFormat("_sans",logFontSize,16729156);
          _createPanel();
          _createPerfPanel();
          param1.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR,_onUncaughtError);
@@ -196,8 +218,8 @@ package net.play5d.game.bvn
             return;
          }
          _panel = new Sprite();
-         _panel.x = 10;
-         _panel.y = 40;
+         _panel.x = int(10 * _scale);
+         _panel.y = int(_stage.stageHeight * 0.15);
          _panel.graphics.beginFill(0,0.85);
          _panel.graphics.drawRect(0,0,PANEL_WIDTH,TITLE_HEIGHT + LOG_HEIGHT);
          _panel.graphics.endFill();
@@ -206,15 +228,15 @@ package net.play5d.game.bvn
          _titleBar.graphics.drawRect(0,0,PANEL_WIDTH,TITLE_HEIGHT);
          _titleBar.graphics.endFill();
          _panel.addChild(_titleBar);
-         var titleFmt:TextFormat = new TextFormat("_sans",14,13421772,true);
+         var titleFmt:TextFormat = new TextFormat("_sans",int(14 * _scale),13421772,true);
          var titleTf:TextField = new TextField();
          titleTf.defaultTextFormat = titleFmt;
          titleTf.selectable = false;
          titleTf.text = "DEBUG LOG";
-         titleTf.width = 100;
+         titleTf.width = PANEL_WIDTH - int(10 * _scale);
          titleTf.height = TITLE_HEIGHT;
-         titleTf.x = 5;
-         titleTf.y = 5;
+         titleTf.x = int(5 * _scale);
+         titleTf.y = int(5 * _scale);
          _titleBar.addChild(titleTf);
          _logContainer = new Sprite();
          _logContainer.x = 0;
@@ -226,10 +248,10 @@ package net.play5d.game.bvn
          _logTf.selectable = false;
          _logTf.wordWrap = true;
          _logTf.multiline = true;
-         _logTf.width = PANEL_WIDTH - 10;
+         _logTf.width = PANEL_WIDTH - int(10 * _scale);
          _logTf.height = LOG_HEIGHT;
-         _logTf.x = 5;
-         _logTf.y = 2;
+         _logTf.x = int(5 * _scale);
+         _logTf.y = int(2 * _scale);
          _logContainer.addChild(_logTf);
          _titleBar.addEventListener(MouseEvent.MOUSE_DOWN,_onDragStart);
          _stage.addEventListener(MouseEvent.MOUSE_UP,_onDragEnd);
@@ -243,8 +265,8 @@ package net.play5d.game.bvn
             return;
          }
          _perfPanel = new Sprite();
-         _perfPanel.x = 10;
-         _perfPanel.y = TITLE_HEIGHT + LOG_HEIGHT + 55;
+         _perfPanel.x = int(10 * _scale);
+         _perfPanel.y = TITLE_HEIGHT + LOG_HEIGHT + int(55 * _scale);
          _perfPanel.graphics.beginFill(0,0.85);
          _perfPanel.graphics.drawRect(0,0,PERF_PANEL_WIDTH,PERF_TITLE_HEIGHT + PERF_BODY_HEIGHT);
          _perfPanel.graphics.endFill();
@@ -252,44 +274,45 @@ package net.play5d.game.bvn
          _perfTitleBar.graphics.beginFill(3355443);
          _perfTitleBar.graphics.drawRect(0,0,PERF_PANEL_WIDTH,PERF_TITLE_HEIGHT);
          _perfTitleBar.graphics.endFill();
-         var titleFmt:TextFormat = new TextFormat("_sans",12,13421772,true);
+         var titleFmt:TextFormat = new TextFormat("_sans",int(12 * _scale),13421772,true);
          var titleTf:TextField = new TextField();
          titleTf.defaultTextFormat = titleFmt;
          titleTf.selectable = false;
          titleTf.text = "PERF MONITOR";
-         titleTf.width = 150;
+         titleTf.width = int(150 * _scale);
          titleTf.height = PERF_TITLE_HEIGHT;
-         titleTf.x = 5;
-         titleTf.y = 3;
+         titleTf.x = int(5 * _scale);
+         titleTf.y = int(3 * _scale);
          _perfTitleBar.addChild(titleTf);
+         var cbSize:int = int(14 * _scale);
          var closeBtn:Sprite = new Sprite();
-         closeBtn.x = PERF_PANEL_WIDTH - 18;
-         closeBtn.y = 4;
+         closeBtn.x = PERF_PANEL_WIDTH - int(18 * _scale);
+         closeBtn.y = int(4 * _scale);
          closeBtn.graphics.beginFill(10027008);
-         closeBtn.graphics.drawRect(0,0,14,14);
+         closeBtn.graphics.drawRect(0,0,cbSize,cbSize);
          closeBtn.graphics.endFill();
          _perfTitleBar.addChild(closeBtn);
          closeBtn.addEventListener(MouseEvent.CLICK,_togglePerfBody);
          _perfPanel.addChild(_perfTitleBar);
          _perfTf = new TextField();
-         _perfTf.defaultTextFormat = new TextFormat("_sans",10,65280);
+         _perfTf.defaultTextFormat = new TextFormat("_sans",int(10 * _scale),65280);
          _perfTf.selectable = false;
          _perfTf.wordWrap = false;
          _perfTf.multiline = true;
-         _perfTf.width = PERF_PANEL_WIDTH - 10;
+         _perfTf.width = PERF_PANEL_WIDTH - int(10 * _scale);
          _perfTf.height = PERF_BODY_HEIGHT;
-         _perfTf.x = 5;
-         _perfTf.y = PERF_TITLE_HEIGHT + 2;
+         _perfTf.x = int(5 * _scale);
+         _perfTf.y = PERF_TITLE_HEIGHT + int(2 * _scale);
          _perfPanel.addChild(_perfTf);
          _perfFpsBmd = new BitmapData(GRAPH_WIDTH,GRAPH_HEIGHT,true,0);
          _perfFpsGraph = new Bitmap(_perfFpsBmd);
-         _perfFpsGraph.x = PERF_PANEL_WIDTH - GRAPH_WIDTH - 5;
-         _perfFpsGraph.y = PERF_TITLE_HEIGHT + 2;
+         _perfFpsGraph.x = PERF_PANEL_WIDTH - GRAPH_WIDTH - int(5 * _scale);
+         _perfFpsGraph.y = PERF_TITLE_HEIGHT + int(2 * _scale);
          _perfPanel.addChild(_perfFpsGraph);
          _perfMemBmd = new BitmapData(GRAPH_WIDTH,GRAPH_HEIGHT,true,0);
          _perfMemGraph = new Bitmap(_perfMemBmd);
-         _perfMemGraph.x = PERF_PANEL_WIDTH - GRAPH_WIDTH - 5;
-         _perfMemGraph.y = PERF_TITLE_HEIGHT + GRAPH_HEIGHT + 4;
+         _perfMemGraph.x = PERF_PANEL_WIDTH - GRAPH_WIDTH - int(5 * _scale);
+         _perfMemGraph.y = PERF_TITLE_HEIGHT + GRAPH_HEIGHT + int(4 * _scale);
          _perfPanel.addChild(_perfMemGraph);
          _perfTitleBar.addEventListener(MouseEvent.MOUSE_DOWN,_onPerfDragStart);
          _stage.addEventListener(MouseEvent.MOUSE_UP,_onPerfDragEnd);

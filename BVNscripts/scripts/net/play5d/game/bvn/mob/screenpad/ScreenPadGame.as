@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.mob.screenpad
+﻿package net.play5d.game.bvn.mob.screenpad
 {
    import flash.display.*;
    import flash.events.EventDispatcher;
@@ -9,6 +9,7 @@ package net.play5d.game.bvn.mob.screenpad
    import net.play5d.game.bvn.mob.*;
    import net.play5d.game.bvn.mob.events.*;
    import net.play5d.game.bvn.mob.input.ScreenPadInput;
+import net.play5d.game.bvn.Debugger;
    
    public class ScreenPadGame extends EventDispatcher
    {
@@ -291,7 +292,7 @@ package net.play5d.game.bvn.mob.screenpad
          }
          catch(e:Error)
          {
-            trace("ScreenPadGame.render",e);
+            Debugger.log("ScreenPadGame.render",e);
          }
          this.renderTouch();
       }
@@ -492,7 +493,7 @@ package net.play5d.game.bvn.mob.screenpad
             }
             catch(e:Error)
             {
-               trace(e);
+               Debugger.log(e);
             }
             this._editStageView = null;
          }
@@ -509,7 +510,7 @@ package net.play5d.game.bvn.mob.screenpad
                }
                catch(e:Error)
                {
-                  trace(e);
+                  Debugger.log(e);
                }
             }
             this._btns = null;

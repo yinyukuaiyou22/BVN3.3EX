@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.ctrl.game_ctrls
+﻿package net.play5d.game.bvn.ctrl.game_ctrls
 {
    import flash.events.*;
    import flash.geom.*;
@@ -14,6 +14,7 @@ package net.play5d.game.bvn.ctrl.game_ctrls
    import net.play5d.game.bvn.state.GameState;
    import net.play5d.game.bvn.ui.*;
    import net.play5d.game.bvn.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class GameCtrl
    {
@@ -386,26 +387,26 @@ package net.play5d.game.bvn.ctrl.game_ctrls
             {
                if(MessionModel.I.missionAllComplete())
                {
-                  trace("通关！");
+                  Debugger.log("通关！");
                   MainGame.I.goCongratulations();
                }
                else
                {
-                  trace("下一关");
+                  Debugger.log("下一关");
                   GameData.I.winnerId = this.gameRunData.p1FighterGroup.currentFighter.data.id;
                   MainGame.I.goWinner();
                }
             }
             else
             {
-               trace("跳转是否继续");
+               Debugger.log("跳转是否继续");
                this.gameRunData.continueLoser = this.gameRunData.p1FighterGroup.currentFighter;
                MainGame.I.goContinue();
             }
          }
          if(Boolean(GameMode.isVsCPU()) || Boolean(GameMode.isVsPeople()))
          {
-            trace("返回选人");
+            Debugger.log("返回选人");
             GameEvent.dispatchEvent("GAME_END");
             MainGame.I.goSelect();
          }
@@ -597,7 +598,7 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       private function timeover() : void
       {
-         trace("time over!!!");
+         Debugger.log("time over!!!");
          this.actionEnable = false;
          var _loc1_:FighterMain = this.gameRunData.p1FighterGroup.currentFighter;
          var _loc2_:FighterMain = this.gameRunData.p2FighterGroup.currentFighter;
@@ -633,7 +634,7 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       private function runNext() : void
       {
-         trace("GameMode.currentMode",GameMode.currentMode);
+         Debugger.log("GameMode.currentMode",GameMode.currentMode);
          this.gameRunData.nextRound();
          if(GameMode.isTeamMode())
          {

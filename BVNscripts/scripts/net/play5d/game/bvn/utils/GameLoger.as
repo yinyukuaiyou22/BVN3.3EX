@@ -1,6 +1,7 @@
-package net.play5d.game.bvn.utils
+﻿package net.play5d.game.bvn.utils
 {
    import net.play5d.game.bvn.interfaces.ILoger;
+import net.play5d.game.bvn.Debugger;
    
    public class GameLoger
    {
@@ -25,7 +26,7 @@ package net.play5d.game.bvn.utils
          }
          else
          {
-            trace(msg);
+            Debugger.log(msg);
          }
       }
    }

@@ -5,6 +5,7 @@ package net.play5d.kyo.loader
    import flash.net.*;
    import flash.system.ApplicationDomain;
    import flash.utils.*;
+   import net.play5d.game.bvn.Debugger;
    
    public class KyoClassLoader extends EventDispatcher
    {
@@ -150,7 +151,7 @@ package net.play5d.kyo.loader
          {
             _loc2_ = _loc3_.loaderInfo.loaderURL;
          }
-         trace("loadError",_loc2_);
+         Debugger.log("loadError",_loc2_);
          dispatchEvent(param1);
          this.checkComplete();
       }

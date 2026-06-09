@@ -8,6 +8,7 @@ package net.play5d.game.bvn.ctrl
    import net.play5d.game.bvn.events.*;
    import net.play5d.game.bvn.fighter.*;
    import net.play5d.game.bvn.fighter.events.*;
+   import net.play5d.game.bvn.Debugger;
    import net.play5d.game.bvn.fighter.models.HitVO;
    import net.play5d.game.bvn.interfaces.BaseGameSprite;
    import net.play5d.game.bvn.interfaces.IGameSprite;
@@ -49,7 +50,7 @@ package net.play5d.game.bvn.ctrl
       {
          if(!_map)
          {
-            trace("error:map is null!");
+            Debugger.log("error:map is null!");
             return false;
          }
          if(param1.getVecY() < 0)
@@ -95,7 +96,7 @@ package net.play5d.game.bvn.ctrl
       {
          if(!_map)
          {
-            trace("error:map is null!");
+            Debugger.log("error:map is null!");
             return false;
          }
          return param1.y > _map.playerBottom;
@@ -105,7 +106,7 @@ package net.play5d.game.bvn.ctrl
       {
          if(!_map)
          {
-            trace("error:map is null!");
+            Debugger.log("error:map is null!");
             return false;
          }
          var _loc2_:int = 20;

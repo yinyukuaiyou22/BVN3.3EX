@@ -1,6 +1,7 @@
-package net.play5d.game.bvn.data
+﻿package net.play5d.game.bvn.data
 {
    import net.play5d.game.bvn.ctrl.*;
+import net.play5d.game.bvn.Debugger;
    
    public class MessionModel
    {
@@ -80,8 +81,8 @@ package net.play5d.game.bvn.data
          GameData.I.p2Select.fuzhu = this._curStage.assister;
          GameData.I.selectMap = this._curStage.map;
          this.AI_LEVEL = GameData.I.config.AI_level;
-         trace("p1::",GameData.I.p1Select.toString());
-         trace("p2::",GameData.I.p2Select.toString());
+         Debugger.log("p1::",GameData.I.p1Select.toString());
+         Debugger.log("p2::",GameData.I.p2Select.toString());
       }
       
       public function reset() : void
@@ -96,7 +97,7 @@ package net.play5d.game.bvn.data
       {
          if(this.missionAllComplete())
          {
-            trace("mission all over!!!");
+            Debugger.log("mission all over!!!");
             return;
          }
          ++this._curStageId;

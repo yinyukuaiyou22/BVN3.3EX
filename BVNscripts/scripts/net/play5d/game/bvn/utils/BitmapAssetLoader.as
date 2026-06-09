@@ -1,7 +1,8 @@
-package net.play5d.game.bvn.utils
+﻿package net.play5d.game.bvn.utils
 {
    import flash.display.*;
    import net.play5d.game.bvn.ctrl.*;
+import net.play5d.game.bvn.Debugger;
    
    public class BitmapAssetLoader
    {
@@ -57,7 +58,7 @@ package net.play5d.game.bvn.utils
          };
          var loadFail:* = function():void
          {
-            trace("BitmapAssetLoader.loadFail ::",url);
+            Debugger.log("BitmapAssetLoader.loadFail ::",url);
             if(back != null)
             {
                back();
@@ -72,7 +73,7 @@ package net.play5d.game.bvn.utils
          var _loc3_:Bitmap = param2 as Bitmap;
          if(!_loc3_)
          {
-            trace("BitmapAssetLoader.cacheBitmap Error");
+            Debugger.log("BitmapAssetLoader.cacheBitmap Error");
             return;
          }
          if(Boolean(_loc3_))
@@ -83,7 +84,7 @@ package net.play5d.game.bvn.utils
             }
             catch(e:Error)
             {
-               trace("BitmapAssetLoader.cacheBitmap::",e);
+               Debugger.log("BitmapAssetLoader.cacheBitmap::",e);
             }
          }
          if(Boolean(_loc4_))

@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.map
+﻿package net.play5d.game.bvn.map
 {
    import flash.display.*;
    import flash.geom.*;
@@ -7,6 +7,7 @@ package net.play5d.game.bvn.map
    import net.play5d.game.bvn.interfaces.IGameSprite;
    import net.play5d.game.bvn.state.GameState;
    import net.play5d.kyo.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class MapMain
    {
@@ -61,7 +62,7 @@ package net.play5d.game.bvn.map
             }
             catch(e:Error)
             {
-               trace(e);
+               Debugger.log(e);
             }
             this.mapMc = null;
          }

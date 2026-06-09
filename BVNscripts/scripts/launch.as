@@ -26,7 +26,7 @@ package
       
       public static var FULL_SCREEN_SIZE:Point = new Point();
       
-      private static const DEBUG_PANEL_ENABLED:Boolean = false;
+      private static const DEBUG_PANEL_ENABLED:Boolean = true;
       
       private var _mainGame:MainGame;
       

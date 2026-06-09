@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.mob.views
+﻿package net.play5d.game.bvn.mob.views
 {
    import com.greensock.*;
    import flash.display.*;
@@ -10,6 +10,7 @@ package net.play5d.game.bvn.mob.views
    import net.play5d.game.bvn.mob.events.ScreenPadEvent;
    import net.play5d.game.bvn.mob.screenpad.*;
    import net.play5d.game.bvn.mob.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class CustomScreenBtnView
    {
@@ -202,7 +203,7 @@ package net.play5d.game.bvn.mob.views
             }
             catch(e:Error)
             {
-               trace(e);
+               Debugger.log(e);
             }
             this._ui = null;
          }

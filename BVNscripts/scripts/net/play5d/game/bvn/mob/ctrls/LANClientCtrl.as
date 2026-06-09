@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.mob.ctrls
+﻿package net.play5d.game.bvn.mob.ctrls
 {
    import flash.events.TimerEvent;
    import flash.text.*;
@@ -17,6 +17,7 @@ package net.play5d.game.bvn.mob.ctrls
    import net.play5d.game.bvn.state.*;
    import net.play5d.game.bvn.ui.*;
    import net.play5d.kyo.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class LANClientCtrl
    {
@@ -373,7 +374,7 @@ package net.play5d.game.bvn.mob.ctrls
             }
             catch(e:Error)
             {
-               trace(e);
+               Debugger.log(e);
             }
             this._delayText = null;
          }
@@ -407,7 +408,7 @@ package net.play5d.game.bvn.mob.ctrls
             arr = o as Array;
             if(arr[0] == "SYNC")
             {
-               trace("receiveSync",JSON.stringify(o));
+               Debugger.log("receiveSync",JSON.stringify(o));
                type = int(arr[1]);
                switch(type - 3)
                {
@@ -442,7 +443,7 @@ package net.play5d.game.bvn.mob.ctrls
          }
          catch(e:Error)
          {
-            trace("LanSyncType.GAME_START",e);
+            Debugger.log("LanSyncType.GAME_START",e);
             syncError(true);
             clearTimeout(_syncGameStartInt);
             _syncGameStartInt = setTimeout(syncStartGame,500);
@@ -504,7 +505,7 @@ package net.play5d.game.bvn.mob.ctrls
          }
          catch(e:Error)
          {
-            trace(e);
+            Debugger.log(e);
             syncError(true);
             clearTimeout(_syncRoundFinishInt);
             _syncRoundFinishInt = setTimeout(syncRoundFinish,500,param1);

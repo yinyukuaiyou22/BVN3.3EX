@@ -2,6 +2,7 @@ package net.play5d.kyo.sound
 {
    import flash.media.*;
    import flash.net.*;
+   import net.play5d.game.bvn.Debugger;
    
    public class KyoBGSounder
    {
@@ -47,7 +48,7 @@ package net.play5d.kyo.sound
       
       public function play(param1:Object = null) : void
       {
-         trace("bgm play");
+         Debugger.log("bgm play");
          if(Boolean(this._snd))
          {
             return;
@@ -75,12 +76,12 @@ package net.play5d.kyo.sound
             this.playing = true;
             return;
          }
-         trace("没有可播放的音乐");
+         Debugger.log("没有可播放的音乐");
       }
       
       public function stop() : void
       {
-         trace("bgm stop");
+         Debugger.log("bgm stop");
          if(Boolean(this._channel))
          {
             this._channel.stop();
@@ -94,7 +95,7 @@ package net.play5d.kyo.sound
             }
             catch(e:Error)
             {
-               trace("KyoBGSounder",e);
+               Debugger.log("KyoBGSounder",e);
             }
             this._snd = null;
          }
@@ -103,7 +104,7 @@ package net.play5d.kyo.sound
       
       public function pause() : void
       {
-         trace("bgm pause");
+         Debugger.log("bgm pause");
          if(Boolean(this._channel))
          {
             this._channelPausePosition = this._channel.position;
@@ -113,7 +114,7 @@ package net.play5d.kyo.sound
       
       public function resume() : void
       {
-         trace("bgm resume");
+         Debugger.log("bgm resume");
          if(Boolean(this._channel))
          {
             this._channel = this._snd.play(this._channelPausePosition,int.MAX_VALUE,this._soundTransform);

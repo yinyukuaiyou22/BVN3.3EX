@@ -4,6 +4,7 @@ package net.play5d.game.bvn.ctrl
    import net.play5d.kyo.loader.*;
    import net.play5d.kyo.sound.*;
    import net.play5d.kyo.utils.*;
+   import net.play5d.game.bvn.Debugger;
    
    public class SoundCtrl
    {
@@ -192,7 +193,7 @@ package net.play5d.game.bvn.ctrl
          };
          loadFail = function():void
          {
-            trace("SoundCtrl.loadFightBGM fail!",curUrl);
+            Debugger.log("SoundCtrl.loadFightBGM fail!",curUrl);
             loadNext();
          };
          loadProcess = function(param1:Number):void

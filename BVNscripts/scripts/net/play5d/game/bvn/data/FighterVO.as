@@ -1,6 +1,7 @@
-package net.play5d.game.bvn.data
+﻿package net.play5d.game.bvn.data
 {
    import net.play5d.kyo.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class FighterVO
    {
@@ -63,7 +64,7 @@ package net.play5d.game.bvn.data
          }
          if(this.startFrame != 0 && !this.bgm)
          {
-            trace(this.id + "没有定义bgm!");
+            Debugger.log(this.id + "没有定义bgm!");
          }
       }
       

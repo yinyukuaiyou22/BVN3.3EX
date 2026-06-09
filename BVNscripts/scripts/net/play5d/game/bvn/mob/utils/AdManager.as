@@ -1,8 +1,9 @@
-package net.play5d.game.bvn.mob.utils
+﻿package net.play5d.game.bvn.mob.utils
 {
    import flash.events.DataEvent;
    import flash.utils.*;
    import net.play5d.game.bvn.*;
+import net.play5d.game.bvn.Debugger;
    
    public class AdManager
    {
@@ -134,7 +135,7 @@ package net.play5d.game.bvn.mob.utils
       
       public function onResume() : void
       {
-         trace("ad.resume");
+         Debugger.log("ad.resume");
       }
    }
 }

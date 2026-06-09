@@ -1,8 +1,9 @@
-package net.play5d.game.bvn.mob.sockets.events
+﻿package net.play5d.game.bvn.mob.sockets.events
 {
    import flash.events.Event;
    import flash.net.Socket;
    import flash.utils.ByteArray;
+import net.play5d.game.bvn.Debugger;
    
    public class SocketEvent extends Event
    {
@@ -41,7 +42,7 @@ package net.play5d.game.bvn.mob.sockets.events
          }
          catch(e:Error)
          {
-            trace("SocketEvent.getDataObject :: ",e);
+            Debugger.log("SocketEvent.getDataObject :: ",e);
          }
          return _loc1_;
       }

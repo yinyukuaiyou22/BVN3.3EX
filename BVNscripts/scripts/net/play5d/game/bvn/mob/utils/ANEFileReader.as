@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.mob.utils
+﻿package net.play5d.game.bvn.mob.utils
 {
    import flash.external.ExtensionContext;
    import flash.filesystem.File;
@@ -49,28 +49,28 @@ package net.play5d.game.bvn.mob.utils
       /** Read file bytes from absolute path */
       public function readBytes(path:String) : ByteArray
       {
-         trace(TAG, "readBytes:", path, "hasANE=" + _hasANE);
+         Debugger.log(TAG, "readBytes:", path, "hasANE=" + _hasANE);
          if(_hasANE)
          {
             var result:ByteArray = _ctx.call("readBytes", path) as ByteArray;
             Debugger.log(TAG, "readBytes result:", result ? result.length + " bytes" : "null");
             return result;
          }
-         trace(TAG, "readBytes fallback (AIR File API)");
+         Debugger.log(TAG, "readBytes fallback (AIR File API)");
          return readBytesFallback(path);
       }
 
       /** List filenames in directory */
       public function listDir(path:String) : Array
       {
-         trace(TAG, "listDir:", path, "hasANE=" + _hasANE);
+         Debugger.log(TAG, "listDir:", path, "hasANE=" + _hasANE);
          if(_hasANE)
          {
             var arr:Array = _ctx.call("listDir", path) as Array;
             Debugger.log(TAG, "listDir result:", arr ? arr.length + " files" : "null");
             return arr;
          }
-         trace(TAG, "listDir fallback (AIR File API)");
+         Debugger.log(TAG, "listDir fallback (AIR File API)");
          return listDirFallback(path);
       }
 
@@ -86,7 +86,7 @@ package net.play5d.game.bvn.mob.utils
          {
             result = existsFallback(path);
          }
-         trace(TAG, "exists:", path, "=" + result);
+         Debugger.log(TAG, "exists:", path, "=" + result);
          return result;
       }
 
@@ -131,7 +131,7 @@ package net.play5d.game.bvn.mob.utils
          {
             result.push(item.name);
          }
-         trace(TAG, "listDirFallback OK:", result.length, "files");
+         Debugger.log(TAG, "listDirFallback OK:", result.length, "files");
          return result;
       }
 

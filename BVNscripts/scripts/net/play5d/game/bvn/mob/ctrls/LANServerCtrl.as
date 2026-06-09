@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.mob.ctrls
+﻿package net.play5d.game.bvn.mob.ctrls
 {
    import flash.events.EventDispatcher;
    import flash.net.Socket;
@@ -18,6 +18,7 @@ package net.play5d.game.bvn.mob.ctrls
    import net.play5d.game.bvn.mob.utils.*;
    import net.play5d.game.bvn.state.*;
    import net.play5d.game.bvn.ui.*;
+import net.play5d.game.bvn.Debugger;
    
    public class LANServerCtrl extends EventDispatcher
    {
@@ -133,7 +134,7 @@ package net.play5d.game.bvn.mob.ctrls
       
       private function socketHandler(param1:SocketEvent) : void
       {
-         trace(param1);
+         Debugger.log(param1);
          switch(param1.type)
          {
             case "SocketEvent_CLIENT_CONNECT":

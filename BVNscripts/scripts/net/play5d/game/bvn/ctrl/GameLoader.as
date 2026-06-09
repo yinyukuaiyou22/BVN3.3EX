@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.ctrl
+﻿package net.play5d.game.bvn.ctrl
 {
    import flash.display.*;
    import flash.utils.ByteArray;
@@ -7,6 +7,7 @@ package net.play5d.game.bvn.ctrl
    import net.play5d.game.bvn.fighter.*;
    import net.play5d.game.bvn.map.*;
    import net.play5d.game.bvn.mob.utils.ANEFileReader;
+import net.play5d.game.bvn.Debugger;
    
    public class GameLoader
    {
@@ -41,7 +42,7 @@ package net.play5d.game.bvn.ctrl
          fv = FighterModel.I.getFighter(fighterId,true);
          if(!fv)
          {
-            trace("GameLoader.loadFighter :: ID不存在:",fighterId);
+            Debugger.log("GameLoader.loadFighter :: ID不存在:",fighterId);
             if(fail != null)
             {
                fail("角色ID错误");
@@ -74,7 +75,7 @@ package net.play5d.game.bvn.ctrl
          fv = AssisterModel.I.getAssister(fighterId,true);
          if(!fv)
          {
-            trace("GameLoader.loadAssister :: ID不存在:",fighterId);
+            Debugger.log("GameLoader.loadAssister :: ID不存在:",fighterId);
             if(fail != null)
             {
                fail("角色ID错误");
@@ -107,7 +108,7 @@ package net.play5d.game.bvn.ctrl
          mv = MapModel.I.getMap(mapId);
          if(!mv)
          {
-            trace("GameLoader.loadMap :: ID不存在:",mapId);
+            Debugger.log("GameLoader.loadMap :: ID不存在:",mapId);
             if(fail != null)
             {
                fail("场景ID错误");
@@ -130,7 +131,7 @@ package net.play5d.game.bvn.ctrl
             }
             catch(e:Error)
             {
-               trace("GameLoader ::",e);
+               Debugger.log("GameLoader ::",e);
                _loc1_.unload();
             }
          }
@@ -165,17 +166,17 @@ package net.play5d.game.bvn.ctrl
          var ba:ByteArray = ANEFileReader.I.readBytes(path);
          if(!ba)
          {
-            trace("[GameLoader.loadFighterFromPath] FAILED: null bytes");
+            Debugger.log("[GameLoader.loadFighterFromPath] FAILED: null bytes");
             if(fail != null) fail("File not found: " + path);
             return;
          }
-         trace("[GameLoader.loadFighterFromPath] loaded", ba.length, "bytes");
+         Debugger.log("[GameLoader.loadFighterFromPath] loaded", ba.length, "bytes");
          var loader:Loader = new Loader();
          loader.contentLoaderInfo.addEventListener("complete", function(e:*):void
          {
             var mc:MovieClip = loader.content as MovieClip;
             var fm:FighterMain = new FighterMain(mc);
-            trace("[GameLoader.loadFighterFromPath] SWF parsed, FighterMain created");
+            Debugger.log("[GameLoader.loadFighterFromPath] SWF parsed, FighterMain created");
             if(back != null) back(fm);
          });
          loader.loadBytes(ba);

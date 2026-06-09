@@ -1,10 +1,11 @@
-package net.play5d.kyo.stage
+﻿package net.play5d.kyo.stage
 {
    import flash.display.Sprite;
    import flash.events.EventDispatcher;
    import flash.utils.*;
    import net.play5d.kyo.stage.effect.IStageFadEffect;
    import net.play5d.kyo.stage.events.*;
+import net.play5d.game.bvn.Debugger;
    
    public class KyoStageCtrl extends EventDispatcher
    {
@@ -45,7 +46,7 @@ package net.play5d.kyo.stage
             }
             catch(e:Error)
             {
-               trace("KyoStageCtrl: goStage:",e);
+               Debugger.log("KyoStageCtrl: goStage:",e);
             }
             _curStage = null;
             newStage();
@@ -202,7 +203,7 @@ package net.play5d.kyo.stage
             }
             catch(e:Error)
             {
-               trace("KyoStageCtrl: removeLayer:",e);
+               Debugger.log("KyoStageCtrl: removeLayer:",e);
             }
             ix = int(_layers.indexOf(layer));
             if(ix != -1)

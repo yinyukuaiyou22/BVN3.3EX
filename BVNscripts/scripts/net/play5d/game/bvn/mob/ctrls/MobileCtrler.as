@@ -1,10 +1,11 @@
-package net.play5d.game.bvn.mob.ctrls
+﻿package net.play5d.game.bvn.mob.ctrls
 {
    import flash.system.*;
    import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.ctrl.game_ctrls.*;
    import net.play5d.game.bvn.mob.utils.*;
    import net.play5d.game.bvn.mob.views.*;
+import net.play5d.game.bvn.Debugger;
    
    public class MobileCtrler
    {
@@ -35,7 +36,7 @@ package net.play5d.game.bvn.mob.ctrls
          {
             return;
          }
-         trace("adPause");
+         Debugger.log("adPause");
          this.isAdPause = true;
          if(!this._adPauseView)
          {
@@ -53,7 +54,7 @@ package net.play5d.game.bvn.mob.ctrls
             return;
          }
          this.isAdPause = false;
-         trace("adResume");
+         Debugger.log("adResume");
          if(Boolean(this._adPauseView))
          {
             try
@@ -70,7 +71,7 @@ package net.play5d.game.bvn.mob.ctrls
       
       public function pause() : void
       {
-         trace("pause process");
+         Debugger.log("pause process");
          System.pause();
          GameCtrl.I.pause(true);
          SoundCtrl.I.pauseBGM();
@@ -80,7 +81,7 @@ package net.play5d.game.bvn.mob.ctrls
       
       public function resume() : void
       {
-         trace("resume process");
+         Debugger.log("resume process");
          System.resume();
          UMengAneManager.I.onActive();
          AdManager.I.onResume();

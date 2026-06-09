@@ -3,6 +3,7 @@ package net.play5d.kyo.loader
    import flash.events.*;
    import flash.media.*;
    import flash.net.*;
+   import net.play5d.game.bvn.Debugger;
    
    public class KyoSoundLoader
    {
@@ -118,7 +119,7 @@ package net.play5d.kyo.loader
          _loc2_.removeEventListener(Event.COMPLETE,this.loadCom);
          _loc2_.removeEventListener(IOErrorEvent.IO_ERROR,this.loadErr);
          _loc2_.removeEventListener(ProgressEvent.PROGRESS,this.loadProcess);
-         trace("KyoSoundLoader.loadErr :: 加载声音失败 : " + _loc2_.url);
+         Debugger.log("KyoSoundLoader.loadErr :: 加载声音失败 : " + _loc2_.url);
          if(this._urls.length < 1)
          {
             this.loadFin();

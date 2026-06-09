@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.interfaces
+﻿package net.play5d.game.bvn.interfaces
 {
    import flash.display.DisplayObject;
    import flash.display.DisplayObjectContainer;
@@ -11,6 +11,7 @@ package net.play5d.game.bvn.interfaces
    import net.play5d.game.bvn.data.TeamVO;
    import net.play5d.game.bvn.fighter.models.HitVO;
    import net.play5d.kyo.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class BaseGameSprite extends EventDispatcher implements IGameSprite
    {
@@ -211,7 +212,7 @@ package net.play5d.game.bvn.interfaces
                }
                catch(e:Error)
                {
-                  trace(e);
+                  Debugger.log(e);
                }
                this._mainMc = null;
             }

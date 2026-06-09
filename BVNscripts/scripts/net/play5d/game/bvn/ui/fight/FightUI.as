@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.ui.fight
+﻿package net.play5d.game.bvn.ui.fight
 {
    import flash.display.DisplayObject;
    import flash.display.MovieClip;
@@ -15,6 +15,7 @@ package net.play5d.game.bvn.ui.fight
    import net.play5d.game.bvn.interfaces.IGameSprite;
    import net.play5d.game.bvn.ui.*;
    import net.play5d.game.bvn.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class FightUI implements IGameUI
    {
@@ -71,7 +72,7 @@ package net.play5d.game.bvn.ui.fight
          this.ui.addChild(this._p2PosUI);
          if(GameMode.isAcrade())
          {
-            trace("fightUI.initlize");
+            Debugger.log("fightUI.initlize");
             this._fightbar.initScore();
             GameEvent.addEventListener("SCORE_UPDATE",this.updateScore);
          }
@@ -144,7 +145,7 @@ package net.play5d.game.bvn.ui.fight
             }
             catch(e:Error)
             {
-               trace(e);
+               Debugger.log(e);
             }
             this.ui = null;
          }

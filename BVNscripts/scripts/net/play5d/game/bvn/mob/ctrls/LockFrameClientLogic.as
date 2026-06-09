@@ -1,10 +1,11 @@
-package net.play5d.game.bvn.mob.ctrls
+﻿package net.play5d.game.bvn.mob.ctrls
 {
    import flash.utils.*;
    import net.play5d.game.bvn.ctrl.game_ctrls.*;
    import net.play5d.game.bvn.fighter.FighterMain;
    import net.play5d.game.bvn.mob.input.*;
    import net.play5d.game.bvn.mob.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class LockFrameClientLogic
    {
@@ -146,7 +147,7 @@ package net.play5d.game.bvn.mob.ctrls
          }
          catch(e:Error)
          {
-            trace(e);
+            Debugger.log(e);
             LANClientCtrl.I.syncError(true);
          }
          return true;

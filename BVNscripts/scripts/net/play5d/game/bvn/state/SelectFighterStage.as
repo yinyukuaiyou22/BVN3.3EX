@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.state
+﻿package net.play5d.game.bvn.state
 {
    import com.greensock.*;
    import com.greensock.easing.*;
@@ -15,6 +15,7 @@ package net.play5d.game.bvn.state
    import net.play5d.game.bvn.utils.*;
    import net.play5d.kyo.stage.*;
    import net.play5d.kyo.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class SelectFighterStage implements Istage
    {
@@ -79,7 +80,7 @@ package net.play5d.game.bvn.state
       
       private function initFighter() : void
       {
-         trace("初始化选人");
+         Debugger.log("初始化选人");
          this.clear();
          this._selectState = 0;
          this.buildList(this._config.charList);
@@ -94,7 +95,7 @@ package net.play5d.game.bvn.state
       
       private function initAssist() : void
       {
-         trace("初始化辅助");
+         Debugger.log("初始化辅助");
          this.clear();
          this._selectState = 1;
          this.buildList(this._config.assistList);
@@ -814,7 +815,7 @@ package net.play5d.game.bvn.state
       {
          var oldX:Number = NaN;
          var oldY:Number = NaN;
-         trace("选择地图");
+         Debugger.log("选择地图");
          MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["select_map"])));
          this.clear();
          GameInputer.enabled = false;
@@ -884,7 +885,7 @@ package net.play5d.game.bvn.state
       
       public function goLoadGame() : void
       {
-         trace("开始游戏");
+         Debugger.log("开始游戏");
          StateCtrl.I.transIn(MainGame.I.loadGame);
       }
       

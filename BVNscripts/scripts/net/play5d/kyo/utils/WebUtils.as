@@ -1,4 +1,4 @@
-package net.play5d.kyo.utils
+﻿package net.play5d.kyo.utils
 {
    import flash.display.Stage;
    import flash.events.*;
@@ -6,6 +6,7 @@ package net.play5d.kyo.utils
    import flash.net.*;
    import flash.text.TextField;
    import flash.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class WebUtils
    {
@@ -23,7 +24,7 @@ package net.play5d.kyo.utils
          var target:String = param2;
          if(!url)
          {
-            trace("getURL: url is null");
+            Debugger.log("getURL: url is null");
             return;
          }
          try
@@ -32,7 +33,7 @@ package net.play5d.kyo.utils
          }
          catch(e:Error)
          {
-            trace(e);
+            Debugger.log(e);
          }
       }
       
@@ -56,7 +57,7 @@ package net.play5d.kyo.utils
             }
             catch(e:Error)
             {
-               trace(e);
+               Debugger.log(e);
             }
          }
          else
@@ -72,7 +73,7 @@ package net.play5d.kyo.utils
                }
                catch(e:Error)
                {
-                  trace(e);
+                  Debugger.log(e);
                   timer.stop();
                   timer = null;
                }
@@ -128,7 +129,7 @@ package net.play5d.kyo.utils
             }
             catch(e:Error)
             {
-               trace(e);
+               Debugger.log(e);
                return false;
             }
             s = _url.indexOf("//") + 2;

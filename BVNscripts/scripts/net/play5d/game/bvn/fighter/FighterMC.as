@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.fighter
+﻿package net.play5d.game.bvn.fighter
 {
    import flash.display.*;
    import flash.geom.Rectangle;
@@ -8,6 +8,7 @@ package net.play5d.game.bvn.fighter
    import net.play5d.game.bvn.fighter.models.HitVO;
    import net.play5d.game.bvn.fighter.utils.*;
    import net.play5d.game.bvn.utils.*;
+import net.play5d.game.bvn.Debugger;
    
    public class FighterMC
    {
@@ -261,7 +262,7 @@ package net.play5d.game.bvn.fighter
             return true;
          }
          this._undefinedFrames.push(param1);
-         trace("未找到帧：" + param1);
+         Debugger.log("未找到帧：" + param1);
          return false;
       }
       

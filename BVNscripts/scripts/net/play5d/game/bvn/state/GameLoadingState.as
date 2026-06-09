@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.state
+﻿package net.play5d.game.bvn.state
 {
    import flash.display.DisplayObject;
    import net.play5d.game.bvn.*;
@@ -6,6 +6,7 @@ package net.play5d.game.bvn.state
    import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.utils.*;
    import net.play5d.kyo.stage.*;
+import net.play5d.game.bvn.Debugger;
    
    public class GameLoadingState implements Istage
    {
@@ -91,7 +92,7 @@ package net.play5d.game.bvn.state
       {
          if(param1 > 1)
          {
-            trace(param2 + "::进度超过100%");
+            Debugger.log(param2 + "::进度超过100%");
             param1 = 1;
          }
          this._ui.bar.bar.scaleX = param1;

@@ -1,8 +1,9 @@
-package net.play5d.game.bvn.fighter.ctrler
+﻿package net.play5d.game.bvn.fighter.ctrler
 {
    import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.fighter.FighterMain;
    import net.play5d.game.bvn.fighter.vos.*;
+import net.play5d.game.bvn.Debugger;
    
    public class FighterBuffCtrler
    {
@@ -96,7 +97,7 @@ package net.play5d.game.bvn.fighter.ctrler
          }
          catch(e:Error)
          {
-            trace(e);
+            Debugger.log(e);
             _loc7_ = null;
          }
          return _loc7_;

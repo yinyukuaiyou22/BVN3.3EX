@@ -1,8 +1,9 @@
-package net.play5d.game.bvn.mob.input
+﻿package net.play5d.game.bvn.mob.input
 {
    import flash.display.Stage;
    import net.play5d.game.bvn.input.*;
    import net.play5d.game.bvn.mob.data.*;
+import net.play5d.game.bvn.Debugger;
    
    public class GameSocketInput implements IGameInput
    {
@@ -154,7 +155,7 @@ package net.play5d.game.bvn.mob.input
       {
          if(!this._data)
          {
-            trace("GameSocketInput.data is null!");
+            Debugger.log("GameSocketInput.data is null!");
             return;
          }
          var _loc2_:String = param1.toString(2);

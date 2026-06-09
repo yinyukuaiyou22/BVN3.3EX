@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.mob.sockets
+﻿package net.play5d.game.bvn.mob.sockets
 {
    import flash.events.Event;
    import flash.events.EventDispatcher;
@@ -7,6 +7,7 @@ package net.play5d.game.bvn.mob.sockets
    import flash.net.*;
    import flash.utils.*;
    import net.play5d.game.bvn.mob.sockets.events.*;
+import net.play5d.game.bvn.Debugger;
    
    public class SocketClient extends EventDispatcher
    {
@@ -49,7 +50,7 @@ package net.play5d.game.bvn.mob.sockets
          }
          catch(e:Error)
          {
-            trace(e);
+            Debugger.log(e);
          }
       }
       

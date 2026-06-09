@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.fighter.ctrler
+﻿package net.play5d.game.bvn.fighter.ctrler
 {
    import flash.display.DisplayObject;
    import flash.display.MovieClip;
@@ -7,6 +7,7 @@ package net.play5d.game.bvn.fighter.ctrler
    import net.play5d.game.bvn.fighter.*;
    import net.play5d.game.bvn.fighter.models.*;
    import net.play5d.game.bvn.interfaces.*;
+import net.play5d.game.bvn.Debugger;
    
    public class FighterCtrler
    {
@@ -307,7 +308,7 @@ package net.play5d.game.bvn.fighter.ctrler
          }
          else
          {
-            trace("设置ctrler失败！");
+            Debugger.log("设置ctrler失败！");
          }
       }
       
@@ -374,7 +375,7 @@ package net.play5d.game.bvn.fighter.ctrler
          }
          catch(e:Error)
          {
-            trace("FighterCtrler.getCurrentHits::",e);
+            Debugger.log("FighterCtrler.getCurrentHits::",e);
          }
          if(!_loc5_ || _loc5_.length < 1)
          {
@@ -406,7 +407,7 @@ package net.play5d.game.bvn.fighter.ctrler
          }
          catch(e:Error)
          {
-            trace("FighterCtrler.getBodyArea::",e);
+            Debugger.log("FighterCtrler.getBodyArea::",e);
          }
          if(_loc1_ == null)
          {

@@ -1,4 +1,4 @@
-package net.play5d.game.bvn.fighter.ctrler
+﻿package net.play5d.game.bvn.fighter.ctrler
 {
    import flash.display.*;
    import flash.geom.Rectangle;
@@ -6,6 +6,7 @@ package net.play5d.game.bvn.fighter.ctrler
    import net.play5d.game.bvn.fighter.events.*;
    import net.play5d.game.bvn.fighter.models.HitVO;
    import net.play5d.game.bvn.interfaces.IGameSprite;
+import net.play5d.game.bvn.Debugger;
    
    public class FighterAttackerCtrler
    {
@@ -190,7 +191,7 @@ package net.play5d.game.bvn.fighter.ctrler
          params = param2;
          if(!this.owner_fighter_ctrler || !this.owner_fighter_ctrler.hitModel)
          {
-            trace("hitModel error!");
+            Debugger.log("hitModel error!");
             return;
          }
          mc = this._attacker.mc.getChildByName(mcName) as MovieClip;
@@ -204,7 +205,7 @@ package net.play5d.game.bvn.fighter.ctrler
             hv = this.owner_fighter_ctrler.hitModel.getHitVOByDisplayName(mcName);
             if(!hv)
             {
-               trace("hitVO error!");
+               Debugger.log("hitVO error!");
                return;
             }
             hv = hv.clone();

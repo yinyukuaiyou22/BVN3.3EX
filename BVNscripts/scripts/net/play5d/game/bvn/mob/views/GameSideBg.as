@@ -1,7 +1,8 @@
-package net.play5d.game.bvn.mob.views
+﻿package net.play5d.game.bvn.mob.views
 {
    import flash.display.*;
    import flash.geom.*;
+import net.play5d.game.bvn.Debugger;
    
    public class GameSideBg extends Bitmap
    {
@@ -65,7 +66,7 @@ package net.play5d.game.bvn.mob.views
          }
          catch(e:Error)
          {
-            trace(e);
+            Debugger.log(e);
          }
          if(Boolean(this.bitmapData))
          {
