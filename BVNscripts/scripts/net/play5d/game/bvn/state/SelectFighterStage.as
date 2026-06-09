@@ -264,7 +264,14 @@ import net.play5d.game.bvn.Debugger;
             _loc5_.addEventListener("mouseOver",this.selectFighterMouseHandler);
             _loc5_.addEventListener("click",this.selectFighterMouseHandler);
          }
-         this._ui.addChild(_loc5_.ui);
+         if(this._ui && this._ui.bg)
+         {
+            this._ui.bg.addChild(_loc5_.ui);
+         }
+         else
+         {
+            this._ui.addChild(_loc5_.ui);
+         }
          this._itemObj[param1.x + "," + param1.y] = _loc5_;
          return _loc5_;
       }
