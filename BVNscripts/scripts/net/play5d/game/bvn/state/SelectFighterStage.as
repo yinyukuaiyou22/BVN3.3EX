@@ -193,19 +193,26 @@ import net.play5d.game.bvn.Debugger;
          var _loc13_:Number = GameConfig.GAME_SIZE.x / 2 - 30;
          var _loc14_:Number = GameConfig.GAME_SIZE.y / 2 - 30;
 
-         // 分页: 每页 VCount 行，页高 = config.height
-         var pageCount:int = param1.VCount;
-         if(pageCount < 1) { pageCount = 1; }
+         // 分页: 每页最多 ROWS_PER_PAGE 行，页高 = config.height
+         var rowsPerPage:int = 3;
+         if(rowsPerPage < 1) { rowsPerPage = 1; }
          var pageHeight:Number = this._config.height;
          var maxY:int = 0;
          for each(var _itemVO:SelectCharListItemVO in _loc12_)
          {
             if(_itemVO.y > maxY) { maxY = _itemVO.y; }
          }
+         // 重算 VCount 为实际每页行数，用于垂直间距计算
+         var displayedVCount:int = param1.VCount;
+         if(displayedVCount > rowsPerPage) { displayedVCount = rowsPerPage; }
+         if(displayedVCount > 1)
+         {
+            _loc11_ = (this._config.height - this._config.unitSize.y - this._config.top - this._config.bottom) / (displayedVCount - 1);
+         }
          PAGE_HEIGHT = pageHeight;
-         TOTAL_PAGES = int(maxY / pageCount) + 1;
+         TOTAL_PAGES = int(maxY / rowsPerPage) + 1;
          CURRENT_PAGE = 0;
-         Debugger.log("[SelectFighterStage] pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "VCount:", pageCount);
+         Debugger.log("[SelectFighterStage] pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "rowsPerPage:", rowsPerPage);
 
          while(_loc2_ < _loc12_.length)
          {
@@ -214,8 +221,8 @@ import net.play5d.game.bvn.Debugger;
             if(Boolean(_loc4_))
             {
                _loc5_ = _loc8_ + _loc10_ * (_loc4_.selectData.x);
-               var pageIdx:int = int(_loc4_.selectData.y / pageCount);
-               var yInPage:int = int(_loc4_.selectData.y % pageCount);
+               var pageIdx:int = int(_loc4_.selectData.y / rowsPerPage);
+               var yInPage:int = int(_loc4_.selectData.y % rowsPerPage);
                _loc6_ = _loc9_ + _loc11_ * yInPage + pageIdx * pageHeight;
                if(Boolean(_loc4_.selectData.offset))
                {
