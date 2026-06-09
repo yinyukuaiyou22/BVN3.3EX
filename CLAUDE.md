@@ -267,6 +267,39 @@ KAI_CHANG=60（开场）  WIN=61  LOSE=62
 - **编辑器**: VSCode + ActionScript & MXML 插件
 - **构建**: `Ctrl+Shift+B` 或 `./build.bat`
 
+### ANE 扩展
+
+`ANEFileReader` 通过 AIR Native Extension 访问 Android 外部存储，突破 AIR 沙箱限制：
+
+```as3
+// 读取外部文件
+var ba:ByteArray = ANEFileReader.I.readBytes("/sdcard/BVN/fighters/ichigo.swf");
+
+// 列出目录
+var files:Array = ANEFileReader.I.listDir("/sdcard/BVN/fighters/");
+
+// 检查存在
+if(ANEFileReader.I.exists("/sdcard/BVN/fighters/")) { ... }
+
+// 从路径直接加载角色（集成 GameLoader）
+GameLoader.loadFighterFromPath("/sdcard/BVN/fighters/ichigo.swf", callback, failCallback);
+```
+
+**ANE 未安装时**自动降级为 AIR `flash.filesystem.File` API（仅沙箱内可用）。
+
+**Android 侧 ANE 接口**（待实现原生 Java 代码）：
+
+| 方法 | 输入 | 输出 |
+|------|------|------|
+| `readBytes` | 文件绝对路径 | `ByteArray` |
+| `listDir` | 目录路径 | `Array<String>` |
+| `exists` | 路径 | `Boolean` |
+
+**文件位置**：
+- `mob/utils/ANEFileReader.as` — AS3 封装
+- `ctrl/GameLoader.as::loadFighterFromPath()` — 加载集成
+- `tools/Test/application.xml` — 声明扩展 ID `com.bvn.filereader`
+
 ## 文件变更表格式
 
 每次代码修改后输出：

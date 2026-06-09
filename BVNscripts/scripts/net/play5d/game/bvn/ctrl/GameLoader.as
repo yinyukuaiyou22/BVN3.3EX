@@ -1,10 +1,12 @@
 package net.play5d.game.bvn.ctrl
 {
    import flash.display.*;
+   import flash.utils.ByteArray;
    import net.play5d.game.bvn.*;
    import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.fighter.*;
    import net.play5d.game.bvn.map.*;
+   import net.play5d.game.bvn.mob.utils.ANEFileReader;
    
    public class GameLoader
    {
@@ -154,6 +156,26 @@ package net.play5d.game.bvn.ctrl
             }
          };
          AssetManager.I.loadSWF(url,loadComplete,loadIOError,process);
+      }
+
+      /** Load fighter from absolute file path via ANEFileReader */
+      public static function loadFighterFromPath(path:String, back:Function, fail:Function = null) : void
+      {
+         var ba:ByteArray = mob.utils.ANEFileReader.I.readBytes(path);
+         if(!ba)
+         {
+            if(fail != null) fail("File not found: " + path);
+            return;
+         }
+         var loader:Loader = new Loader();
+         loader.contentLoaderInfo.addEventListener("complete", function(e:*):void
+         {
+            var mc:MovieClip = loader.content as MovieClip;
+            var fm:FighterMain = new FighterMain(mc);
+            if(back != null) back(fm);
+         });
+         loader.loadBytes(ba);
+         _loaderCache.push(loader);
       }
    }
 }

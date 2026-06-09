@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<application xmlns="http://ns.adobe.com/air/application/32.0">
+	<id>com.bvn.yinyu</id>
+	<filename>launch</filename>
+	<name>死神vs火影银鱼改</name>
+	<versionNumber>1.0</versionNumber>
+	<copyright>YinYu</copyright>
+
+	<initialWindow>
+		<content>launch.swf</content>
+		<autoOrients>true</autoOrients>
+		<fullScreen>true</fullScreen>
+		<aspectRatio>landscape</aspectRatio>
+		<renderMode>gpu</renderMode>
+		<visible>true</visible>
+	</initialWindow>
+
+	<supportedProfiles>extendedMobileDevice mobileDevice</supportedProfiles>
+
+	<android>
+		<manifestAdditions><![CDATA[
+			<manifest android:installLocation="auto">
+				<uses-permission android:name="android.permission.INTERNET" />
+				<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+				<uses-sdk android:minSdkVersion="9" android:targetSdkVersion="33" />
+				<application
+					android:hardwareAccelerated="true" android:extractNativeLibs="true">
+				</application>
+			</manifest>
+		]]>		</manifestAdditions>
+	</android>
+
+	<extensions>
+		<extensionID>com.bvn.filereader</extensionID>
+	</extensions>
+</application>
