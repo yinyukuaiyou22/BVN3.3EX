@@ -161,7 +161,7 @@ package net.play5d.game.bvn.ctrl
       /** Load fighter from absolute file path via ANEFileReader */
       public static function loadFighterFromPath(path:String, back:Function, fail:Function = null) : void
       {
-         trace("[GameLoader.loadFighterFromPath]", path);
+         Debugger.log("[GameLoader.loadFighterFromPath]", path);
          var ba:ByteArray = ANEFileReader.I.readBytes(path);
          if(!ba)
          {

@@ -5,6 +5,7 @@ package net.play5d.game.bvn.mob.utils
    import flash.filesystem.FileMode;
    import flash.filesystem.FileStream;
    import flash.utils.ByteArray;
+   import net.play5d.game.bvn.Debugger;
 
    public class ANEFileReader
    {
@@ -21,13 +22,13 @@ package net.play5d.game.bvn.mob.utils
          {
             _ctx = ExtensionContext.createExtensionContext("com.bvn.filereader", "");
             _hasANE = (_ctx != null);
-            trace(TAG, "ANE init:", _hasANE ? "OK" : "FAILED (ctx=null)");
+            Debugger.log(TAG, "ANE init:", _hasANE ? "OK" : "FAILED (ctx=null)");
          }
          catch(e:Error)
          {
             _ctx = null;
             _hasANE = false;
-            trace(TAG, "ANE init ERROR:", e.message);
+            Debugger.log(TAG, "ANE init ERROR:", e.message);
          }
       }
 
@@ -52,7 +53,7 @@ package net.play5d.game.bvn.mob.utils
          if(_hasANE)
          {
             var result:ByteArray = _ctx.call("readBytes", path) as ByteArray;
-            trace(TAG, "readBytes result:", result ? result.length + " bytes" : "null");
+            Debugger.log(TAG, "readBytes result:", result ? result.length + " bytes" : "null");
             return result;
          }
          trace(TAG, "readBytes fallback (AIR File API)");
@@ -66,7 +67,7 @@ package net.play5d.game.bvn.mob.utils
          if(_hasANE)
          {
             var arr:Array = _ctx.call("listDir", path) as Array;
-            trace(TAG, "listDir result:", arr ? arr.length + " files" : "null");
+            Debugger.log(TAG, "listDir result:", arr ? arr.length + " files" : "null");
             return arr;
          }
          trace(TAG, "listDir fallback (AIR File API)");
@@ -96,7 +97,7 @@ package net.play5d.game.bvn.mob.utils
          var f:File = new File(path);
          if(!f.exists)
          {
-            trace(TAG, "readBytesFallback: file not found:", path);
+            Debugger.log(TAG, "readBytesFallback: file not found:", path);
             return null;
          }
          var fs:FileStream = new FileStream();
@@ -106,11 +107,11 @@ package net.play5d.game.bvn.mob.utils
             fs.open(f, FileMode.READ);
             fs.readBytes(ba, 0, fs.bytesAvailable);
             fs.close();
-            trace(TAG, "readBytesFallback OK:", ba.length, "bytes");
+            Debugger.log(TAG, "readBytesFallback OK:", ba.length, "bytes");
          }
          catch(e:Error)
          {
-            trace(TAG, "readBytesFallback ERROR:", e.message);
+            Debugger.log(TAG, "readBytesFallback ERROR:", e.message);
             return null;
          }
          return ba;
@@ -121,7 +122,7 @@ package net.play5d.game.bvn.mob.utils
          var f:File = new File(path);
          if(!f.exists || !f.isDirectory)
          {
-            trace(TAG, "listDirFallback: not found or not dir:", path);
+            Debugger.log(TAG, "listDirFallback: not found or not dir:", path);
             return [];
          }
          var list:Array = f.getDirectoryListing();
