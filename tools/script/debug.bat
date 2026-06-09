@@ -30,6 +30,7 @@ if %errorlevel% neq 0 (
 
 :: ---- Launch via ADL ----
 set SWF_FILE=%PROJ%\launch.swf
+set APP_XML=%PROJ%\tools\Test\application.xml
 if not exist "%SWF_FILE%" (
     echo [ERROR] SWF not found: %SWF_FILE%
     pause >nul
@@ -37,7 +38,12 @@ if not exist "%SWF_FILE%" (
 )
 set PATH=%FLEX_BIN%;%PATH%
 
-echo [RUN] adl "%SWF_FILE%"
-adl "%SWF_FILE%"
+if exist "%APP_XML%" (
+    echo [RUN] adl "%APP_XML%" "%SWF_FILE%"
+    adl "%APP_XML%" "%SWF_FILE%"
+) else (
+    echo [RUN] adl "%SWF_FILE%"
+    adl "%SWF_FILE%"
+)
 
 pause >nul
