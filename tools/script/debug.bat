@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 setlocal enabledelayedexpansion
 
 set BAT_HOME=%~dp0
@@ -29,18 +30,14 @@ if %errorlevel% neq 0 (
 )
 
 :: ---- Launch via ADL ----
-set SWF_FILE=%PROJ%\launch.swf
-set TEST_DIR=%PROJ%\tools\Test
-set APP_XML=%TEST_DIR%\application.xml
+set SWF_FILE=%PROJ%\tools\Test\launch.swf
+set APP_XML=%PROJ%\tools\Test\application.xml
 
 if not exist "%SWF_FILE%" (
     echo [ERROR] SWF not found: %SWF_FILE%
     pause >nul
     goto :EOF
 )
-
-:: Copy SWF to Test dir (required by application.xml content path)
-copy /Y "%SWF_FILE%" "%TEST_DIR%\launch.swf" >nul
 
 set PATH=%FLEX_BIN%;%PATH%
 
