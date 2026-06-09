@@ -14,8 +14,10 @@
 
 ## 构建
 
+### PC 编译
+
 ```bash
-# 编译（VSCode: Ctrl+Shift+B 或直接运行）
+# 编译 SWF（VSCode: Ctrl+Shift+B 或直接运行）
 ./build.bat
 
 # 编译器：mxmlc (Apache Flex 4.16.1 + AIR 51.0)
@@ -23,6 +25,37 @@
 # 额外 SWC：core.swc (AIR SDK)、airglobal.swc (AIR SDK)
 # 输出：launch.swf（~4.6MB）
 ```
+
+### 真机测试（Android APK 调试）
+
+**前置条件**：
+
+| 条件 | 说明 |
+|------|------|
+| `FLEX_HOME` 环境变量 | 指向 Flex SDK 根目录（`D:\flex4.16.1-air51.0.1.1`） |
+| ADB 环境变量 | `adb` 命令需在 PATH 中（Android SDK platform-tools） |
+| 手机开发者模式 | 启用「USB 调试」 |
+| AIR SDK | 用于 ADT 打包 APK（`adt.bat`/`fdb` 等工具） |
+
+**调试步骤**：
+
+1. **打包 APK**：在 IDE 中 `Build → Package AIR Application → Android package type 选 Debug Over USB`
+
+2. **一键安装并启动**：
+```bash
+# 自动安装 APK 到手机 + 启动 + fdb 调试控制台
+tools/script/debug_mob.bat
+```
+
+3. **控制台实时输出**：脚本启动 `fdb -unit` 连接设备，运行时错误和 `trace()`/`Debugger.log()` 输出实时回显
+
+**其他调试脚本**（位于 `BVN3.9/tools/script/`）：
+
+| 脚本 | 用途 |
+|------|------|
+| `debug.bat` | 快速调试 FighterTester（PC 端） |
+| `debug_mob.bat` | 手机真机调试（安装 APK + fdb） |
+| `fdbg.bat` | 快速调试任意 SWF |
 
 ## 交流语言
 
