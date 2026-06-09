@@ -32,10 +32,10 @@
 
 | 条件 | 说明 |
 |------|------|
-| `FLEX_HOME` 环境变量 | 指向 Flex SDK 根目录（`D:\flex4.16.1-air51.0.1.1`） |
+| `FLEX_HOME` 环境变量 | 指向 AIR SDK 根目录（`E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2`），`bin\` 下含 `adt.bat`、`fdb`、`adl.exe` |
 | ADB 环境变量 | `adb` 命令需在 PATH 中（Android SDK platform-tools） |
-| 手机开发者模式 | 启用「USB 调试」 |
-| AIR SDK | 用于 ADT 打包 APK（`adt.bat`/`fdb` 等工具） |
+| 手机开发者模式 | 启用「USB 调试」并连接电脑 |
+| Flex SDK | 编译用（`D:\flex4.16.1-air51.0.1.1`），`build.bat` 中硬编码路径 |
 
 **调试步骤**：
 
@@ -49,7 +49,7 @@ tools/script/debug_mob.bat
 
 3. **控制台实时输出**：脚本启动 `fdb -unit` 连接设备，运行时错误和 `trace()`/`Debugger.log()` 输出实时回显
 
-**其他调试脚本**（位于 `BVN3.9/tools/script/`）：
+**调试脚本**（位于 `tools/script/`）：
 
 | 脚本 | 用途 |
 |------|------|
