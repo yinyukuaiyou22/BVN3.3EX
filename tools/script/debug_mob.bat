@@ -88,7 +88,8 @@ call :EXIST "%APP_XML%"
 :: ---- Package APK ----
 call :ECHO_LANG :PACKAGE_MSG ""
 call :EXIST "%ADT%"
-"%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "%APK_FILE%" "%APP_XML%" "%SWF_FILE%"
+cd /d "%TEST_DIR%"
+"%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "死神vs火影银鱼改.apk" "application.xml" "launch.swf"
 if %errorlevel% neq 0 (
     call :ECHO_LANG :PACKAGE_FAIL ""
     goto END
@@ -167,7 +168,8 @@ goto :LOOP
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 :END
-pause >nul
+echo.
+pause
 exit 1
 
 :EXIST
