@@ -58,7 +58,8 @@ call :EXIST "%FLEX_BIN%"
 
 set "ADT=%FLEX_BIN%\adt.bat"
 set "CERT=%FLEX_BIN%\mycert.p12"
-set "ADB=%PROJ%\tools\platform-tools\adb.exe"
+set "PLATFORM_TOOLS=%PROJ%\tools\platform-tools"
+set "PATH=%PLATFORM_TOOLS%;%FLEX_BIN%;%PATH%"
 
 :: ---- Paths ----
 set "SWF_SRC=%PROJ%\launch.swf"
@@ -98,16 +99,16 @@ if %errorlevel% neq 0 (
 call :EXIST "%APK_FILE%"
 
 :: ---- Check: ADB ----
-call :EXIST "%ADB%"
-"%ADB%" start-server >nul 2>nul
+call :CHK_CMD adb
+adb start-server >nul 2>nul
 timeout /t 2 >nul
 
 :: ---- Find device ----
-"%ADB%" devices >nul 2>nul
+adb devices >nul 2>nul
 timeout /t 1 >nul
 
 set TMP_ADB_DEVICES=%TEMP%\adb_devices.txt
-"%ADB%" devices >"%TMP_ADB_DEVICES%"
+adb devices >"%TMP_ADB_DEVICES%"
 
 set DEVICE_COUNT=0
 set "DEVICE_ID="
@@ -135,43 +136,48 @@ call :ECHO_LANG :TITLE_ADB "!DEVICE_ID!"
 call :ECHO_LANG :CONNECT "!DEVICE_ID!"
 
 :: ---- Install if needed ----
-"%ADB%" shell pm path %DBG_PACKAGE% | findstr "package:" >nul 2>nul
+adb shell pm path %DBG_PACKAGE% | findstr "package:" >nul 2>nul
 if %errorlevel%==0 (
     goto :INSTALLED
 )
 
 call :ECHO_LANG :NOT_INSTALLED "%DBG_PACKAGE%"
 call :ECHO_LANG :INSTALLING "%DBG_PACKAGE%"
-"%ADB%" -s "!DEVICE_ID!" install "%APK_FILE%"
+adb -s "!DEVICE_ID!" install "%APK_FILE%"
 
 :INSTALLED
-"%ADB%" -s "!DEVICE_ID!" shell am force-stop %DBG_PACKAGE% >nul
-"%ADB%" -s "!DEVICE_ID!" shell am start -n %DBG_PACKAGE%/.AppEntry >nul
+adb -s "!DEVICE_ID!" shell am force-stop %DBG_PACKAGE% >nul
+adb -s "!DEVICE_ID!" shell am start -n %DBG_PACKAGE%/.AppEntry >nul
 
 :: ---- Launch persistent logcat console ----
 set "LOG_HELPER=%TEMP%\bvn_logcat_console.bat"
 (
     echo @echo off
     echo chcp 65001 ^>nul
-    echo title BVN Logcat Console ^(trace)
+    echo title BVN Logcat
     echo echo.
     echo echo =============================================
-    echo echo   BVN ADB Logcat — 实时日志
+    echo echo   BVN Logcat - real-time trace output
     echo echo =============================================
     echo echo.
-    echo echo Filter: AIR trace + package log
-    echo echo Ctrl+C 退出
-    echo echo =============================================
+    echo echo Starting logcat... Ctrl+C to stop
+    echo echo Filter: air bvn trace flash DEBUG
     echo echo.
-    echo "%ADB%" -s "!DEVICE_ID!" logcat -v time ^| findstr /i "air\|bvn\|trace\|flash\|DEBUG"
+    echo adb -s "!DEVICE_ID!" logcat -v time ^| findstr /i "air bvn trace flash DEBUG"
+    echo echo.
+    echo echo Logcat stopped. Close this window or press any key.
+    echo pause
 ) > "%LOG_HELPER%"
+
+echo [DEBUG] Helper created: %LOG_HELPER%
+echo [DEBUG] Device: !DEVICE_ID!
 
 start "BVN Logcat" cmd /k "%LOG_HELPER%"
 
 echo.
 echo =============================================
-echo   logcat console launched in new window
-echo   Waiting for trace() output from device...
+echo   Logcat window opened.
+echo   If no new window, check TEMP: %TEMP%
 echo =============================================
 echo.
 goto END
@@ -180,8 +186,11 @@ goto END
 
 :END
 echo.
-pause
-exit 1
+echo =============================================
+echo   Script finished. Press any key to exit.
+echo =============================================
+pause >nul
+exit /b
 
 :EXIST
 if not exist %1 (
