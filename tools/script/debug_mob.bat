@@ -62,7 +62,6 @@ set "PLATFORM_TOOLS=%PROJ%\tools\platform-tools"
 set "PATH=%PLATFORM_TOOLS%;%FLEX_BIN%;%PATH%"
 
 :: ---- Paths ----
-set "SWF_SRC=%PROJ%\launch.swf"
 set "TEST_DIR=%PROJ%\tools\Test"
 set "SWF_FILE=%TEST_DIR%\launch.swf"
 set "APP_XML=%TEST_DIR%\application.xml"
@@ -80,10 +79,6 @@ if %errorlevel% neq 0 (
     call :ECHO_LANG :BUILD_FAIL ""
     goto END
 )
-call :EXIST "%SWF_SRC%"
-
-:: ---- Copy SWF + verify ----
-copy /Y "%SWF_SRC%" "%SWF_FILE%" >nul
 call :EXIST "%SWF_FILE%"
 call :EXIST "%APP_XML%"
 
