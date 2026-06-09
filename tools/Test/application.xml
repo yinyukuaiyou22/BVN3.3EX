@@ -30,7 +30,7 @@
 		]]>		</manifestAdditions>
 	</android>
 
-	<extensions>
-		<extensionID>com.bvn.filereader</extensionID>
-	</extensions>
+<!-- 	<extensions> -->
+<!-- 		<extensionID>com.bvn.filereader</extensionID> -->
+<!-- 	</extensions> -->
 </application>

@@ -1,0 +1,699 @@
+<map_config>
+
+	<map id="random" name="随机场景">
+		<img url="assets/map/random.png" />
+	</map>
+
+	<map id="现世傍晚" name="现世傍晚">
+		<file url="assets/map/现世傍晚.swf" />
+		<img url="assets/map/现世傍晚.png" />
+		<bgm url="assets/bgm/32.mp3"/>
+	</map>
+
+	<map id="颠倒流魂街" name="颠倒流魂街">
+		<file url="assets/map/颠倒流魂街.swf" />
+		<img url="assets/map/颠倒流魂街.png" />
+		<bgm url="assets/bgm/2.mp3"/>
+	</map>
+
+	<map id="红魔馆" name="红魔馆">
+		<file url="assets/map/红魔馆.swf" />
+		<img url="assets/map/红魔馆.png" />
+		<bgm url="assets/bgm/Luna Dial.mp3"/>
+	</map>
+	<map id="花果山" name="花果山">
+		<file url="assets/map/花果山.swf" />
+		<img url="assets/map/花果山.png" />
+		<bgm url="assets/bgm/2.mp3"/>
+	</map>
+
+
+	<map id="minghai" name="冥海">
+		<file url="assets/map/冥海.swf" />
+		<img url="assets/map/冥海.png" />
+		<bgm url="assets/bgm/16.mp3"/>
+	</map>
+
+	<map id="miku" name="初音未来">
+		<file url="assets/map/miku.swf" />
+		<img url="assets/map/miku.png" />
+		<bgm url="assets/bgm/21.mp3"/>
+	</map>
+
+	<map id="量子之海" name="量子之海">
+		<file url="assets/map/量子之海.swf" />
+		<img url="assets/map/量子之海.png" />
+		<bgm url="assets/bgm/31.mp3"/>
+	</map>
+
+	<map id="废旧街道" name="废旧街道">
+		<file url="assets/map/废旧街道.swf" />
+		<img url="assets/map/废旧街道.png" />
+		<bgm url="assets/bgm/32.mp3"/>
+	</map>
+
+	<map id="zhuquejie" name="朱雀街">
+		<file url="assets/map/zhuquejie.swf" />
+		<img url="assets/map/zhuquejie.png" />
+		<bgm url="assets/bgm/24.mp3"/>
+	</map>
+
+	<map id="jingyantin" name="静涎亭">
+		<file url="assets/map/jingyantin.swf" />
+		<img url="assets/map/jingyantin.png" />
+		<bgm url="assets/bgm/21.mp3"/>
+	</map>
+
+	<map id="shuangji" name="双极">
+		<file url="assets/map/shuangji.swf" />
+		<img url="assets/map/shuangji.png" />
+		<bgm url="assets/bgm/23.mp3"/>
+	</map>
+
+	<map id="shihunjietongdao" name="尸魂界通道">
+		<file url="assets/map/shihunjietongdao.swf" />
+		<img url="assets/map/shihunjietongdao.png" />
+		<bgm url="assets/bgm/20.mp3"/>
+	</map>
+
+	<map id="zoulang" name="十三番队">
+		<file url="assets/map/zoulang.swf" />
+		<img url="assets/map/zoulang.png" />
+		<bgm url="assets/bgm/32.mp3"/>
+	</map>
+
+	<map id="muyecun" name="木叶村">
+		<file url="assets/map/muyecun.swf" />
+		<img url="assets/map/muyecun.png" />
+		<bgm url="assets/bgm/village.mp3"/>
+	</map>
+
+	<map id="wenquan" name="温泉">
+		<file url="assets/map/wenquan.swf" />
+		<img url="assets/map/wenquan.png" />
+		<bgm url="assets/bgm/25.mp3"/>
+	</map>
+
+	<map id="pubu" name="火影瀑布">
+		<file url="assets/map/pubu.swf" />
+		<img url="assets/map/pubu.png" />
+		<bgm url="assets/bgm/瀑布.mp3"/>
+	</map>
+
+	<map id="louding" name="楼顶">
+		<file url="assets/map/louding.swf" />
+		<img url="assets/map/louding.png" />
+		<bgm url="assets/bgm/城市.mp3"/>
+	</map>
+
+	<map id="yuzhibocun" name="宇智波村">
+		<file url="assets/map/yuzhibocun.swf" />
+		<img url="assets/map/yuzhibocun.png" />
+		<bgm url="assets/bgm/village.mp3"/>
+	</map>
+
+	<map id="senlin" name="森林">
+		<file url="assets/map/senlin.swf" />
+		<img url="assets/map/senlin.png" />
+		<bgm url="assets/bgm/森林.mp3"/>
+	</map>
+
+	<map id="wuyingcun" name="水影村">
+		<file url="assets/map/wuyingcun.swf" />
+		<img url="assets/map/wuyingcun.png" />
+		<bgm url="assets/bgm/30.mp3"/>
+	</map>
+
+	<map id="mugen" name="mugen大乱斗">
+		<file url="assets/map/mugen.swf" />
+		<img url="assets/map/mugen.jpg" />
+		<bgm url="assets/bgm/信仰是为了虚幻之人.mp3"/>
+	</map>
+
+	<map id="xianshi_xi" name="现世_夕阳">
+		<file url="assets/map/xianshi_xi.swf" />
+		<img url="assets/map/xianshi_xi.png" />
+		<bgm url="assets/bgm/23.mp3"/>
+	</map>
+
+
+	<map id="zk" name="xzk空间">
+		<file url="assets/map/xzk.swf" />
+		<img url="assets/map/xzk.jpg" />
+		<bgm url="assets/bgm/6.mp3"/>
+	</map>
+
+	<map id="练习场" name="练习场">
+		<file url="assets/map/练习场.swf" />
+		<img url="assets/map/练习场.jpg" />
+		<bgm url="assets/bgm/29.mp3"/>
+	</map>
+
+	<map id="现世" name="现世">
+		<file url="assets/map/现世.swf" />
+		<img url="assets/map/现世.png" />
+		<bgm url="assets/bgm/22.mp3"/>
+	</map>
+
+	<map id="流魂街" name="流魂街">
+		<file url="assets/map/流魂街.swf" />
+		<img url="assets/map/流魂街.jpg" />
+		<bgm url="assets/bgm/28.mp3"/>
+	</map>
+
+	<map id="静涎亭" name="静涎亭">
+		<file url="assets/map/静涎亭.swf" />
+		<img url="assets/map/静涎亭.jpg" />
+		<bgm url="assets/bgm/27.mp3"/>
+	</map>
+
+	<map id="双极" name="双极">
+		<file url="assets/map/双极.swf" />
+		<img url="assets/map/双极.jpg" />
+		<bgm url="assets/bgm/26.mp3"/>
+	</map>
+
+	<map id="尸魂界通道" name="尸魂界通道">
+		<file url="assets/map/尸魂界通道.swf" />
+		<img url="assets/map/尸魂界通道.jpg" />
+		<bgm url="assets/bgm/23.mp3"/>
+	</map>
+
+	<map id="斩魂刀冢" name="斩魂刀冢">
+		<file url="assets/map/斩魂刀冢.swf" />
+		<img url="assets/map/斩魂刀冢.jpg" />
+		<bgm url="assets/bgm/15.mp3"/>
+	</map>
+
+	<map id="十三番队" name="十三番队">
+		<file url="assets/map/十三番队.swf" />
+		<img url="assets/map/十三番队.jpg" />
+		<bgm url="assets/bgm/27.mp3"/>
+	</map>
+
+	<map id="内心白" name="内心世界 白">
+		<file url="assets/map/内心白.swf" />
+		<img url="assets/map/内心白.jpg" />
+		<bgm url="assets/bgm/虚化.mp3"/>
+	</map>
+
+	<map id="木叶村" name="木叶村">
+		<file url="assets/map/木叶村.swf" />
+		<img url="assets/map/木叶村.jpg" />
+		<bgm url="assets/bgm/14.mp3"/>
+	</map>
+
+	<map id="温泉" name="温泉">
+		<file url="assets/map/温泉.swf" />
+		<img url="assets/map/温泉.jpg" />
+		<bgm url="assets/bgm/3.mp3"/>
+	</map>
+
+	<map id="瀑布" name="12瀑布">
+		<file url="assets/map/瀑布.swf" />
+		<img url="assets/map/瀑布.jpg" />
+		<bgm url="assets/bgm/瀑布.mp3"/>
+	</map>
+
+	<map id="楼顶" name="楼顶">
+		<file url="assets/map/楼顶.swf" />
+		<img url="assets/map/楼顶.jpg" />
+		<bgm url="assets/bgm/7.mp3"/>
+	</map>
+
+	<map id="宇智波村" name="宇智波村">
+		<file url="assets/map/宇智波村.swf" />
+		<img url="assets/map/宇智波村.jpg" />
+		<bgm url="assets/bgm/13.mp3"/>
+	</map>
+
+	<map id="雾影村" name="15雾影村">
+		<file url="assets/map/雾影村.swf" />
+		<img url="assets/map/雾影村.jpg" />
+		<bgm url="assets/bgm/2.mp3"/>
+	</map>
+
+	<map id="森林" name="森林">
+		<file url="assets/map/森林.swf" />
+		<img url="assets/map/森林.jpg" />
+		<bgm url="assets/bgm/森林.mp3"/>
+	</map>
+
+	<map id="树林" name="树林">
+		<file url="assets/map/树林.swf" />
+		<img url="assets/map/树林.jpg" />
+		<bgm url="assets/bgm/村子.mp3"/>
+	</map>
+
+	<map id="沙漠" name="18沙漠">
+		<file url="assets/map/沙漠.swf" />
+		<img url="assets/map/沙漠.jpg" />
+		<bgm url="assets/bgm/1.mp3"/>
+	</map>
+
+	<map id="海底" name="19海底">
+		<file url="assets/map/海底.swf" />
+		<img url="assets/map/海底.jpg" />
+		<bgm url="assets/bgm/2.mp3"/>
+	</map>
+
+	<map id="现世夜晩" name="现世 夜晚">
+		<file url="assets/map/现世夜晚.swf" />
+		<img url="assets/map/现世夜晚.png" />
+		<bgm url="assets/bgm/22.mp3"/>
+	</map>
+
+	<map id="内心" name="内心世界">
+		<file url="assets/map/内心.swf" />
+		<img url="assets/map/内心.jpg" />
+		<bgm url="assets/bgm/21.mp3"/>
+	</map>
+
+	<map id="歼景" name="千本樱·歼景">
+		<file url="assets/map/歼景.swf" />
+		<img url="assets/map/歼景.jpg" />
+		<bgm url="assets/bgm/20.mp3"/>
+	</map>
+
+	<map id="虚夜宫" name="虚夜宫">
+		<file url="assets/map/虚夜宫.swf" />
+		<img url="assets/map/虚夜宫.jpg" />
+		<bgm url="assets/bgm/19.mp3"/>
+	</map>
+
+	<map id="荒芜之地" name="荒芜之地">
+		<file url="assets/map/荒芜之地.swf" />
+		<img url="assets/map/荒芜之地.jpg" />
+		<bgm url="assets/bgm/18.mp3"/>
+	</map>
+
+	<map id="决斗场" name="25决斗场">
+		<file url="assets/map/决斗场.swf" />
+		<img url="assets/map/决斗场.jpg" />
+		<bgm url="assets/bgm/5.mp3"/>
+	</map>
+
+	<map id="木叶村1" name="木叶村">
+		<file url="assets/map/木叶村1.swf" />
+		<img url="assets/map/木叶村1.jpg" />
+		<bgm url="assets/bgm/17.mp3"/>
+	</map>
+
+	<map id="木叶新春" name="27木叶村 新春">
+		<file url="assets/map/木叶新春.swf" />
+		<img url="assets/map/木叶新春.png" />
+		<bgm url="assets/bgm/16.mp3"/>
+	</map>
+
+	<map id="忍校" name="28忍者学校">
+		<file url="assets/map/忍校.swf" />
+		<img url="assets/map/忍校.jpg" />
+		<bgm url="assets/bgm/村子.mp3"/>
+	</map>
+
+	<map id="鸣人桥" name="鸣人大桥">
+		<file url="assets/map/鸣人桥.swf" />
+		<img url="assets/map/鸣人桥.jpg" />
+		<bgm url="assets/bgm/9.mp3"/>
+	</map>
+
+	<map id="宇智波祖地" name="30宇智波祖地">
+		<file url="assets/map/宇智波祖地.swf" />
+		<img url="assets/map/宇智波祖地.jpg" />
+		<bgm url="assets/bgm/1.mp3"/>
+	</map>
+
+	<map id="九尾之乱" name="31九尾之乱">
+		<file url="assets/map/九尾之乱.swf" />
+		<img url="assets/map/九尾之乱.jpg" />
+		<bgm url="assets/bgm/2.mp3"/>
+	</map>
+
+	<map id="雨隐村" name="32雨隐村">
+		<file url="assets/map/雨隐村.swf" />
+		<img url="assets/map/雨隐村.jpg" />
+		<bgm url="assets/bgm/26.mp3"/>
+	</map>
+
+	<map id="忍界大战" name="33忍界大战">
+		<file url="assets/map/忍界大战.swf" />
+		<img url="assets/map/忍界大战.jpg" />
+		<bgm url="assets/bgm/3.mp3"/>
+	</map>
+
+	<map id="沙漠1" name="沙漠">
+		<file url="assets/map/沙漠1.swf" />
+		<img url="assets/map/沙漠1.jpg" />
+		<bgm url="assets/bgm/4.mp3"/>
+	</map>
+
+	<map id="木叶村崩坏" name="木叶村 崩坏">
+		<file url="assets/map/木叶村崩坏.swf" />
+		<img url="assets/map/木叶村崩坏.jpg" />
+		<bgm url="assets/bgm/5.mp3"/>
+	</map>
+
+	<map id="瀑布1" name="瀑布">
+		<file url="assets/map/瀑布1.swf" />
+		<img url="assets/map/瀑布1.jpg" />
+		<bgm url="assets/bgm/3.mp3"/>
+	</map>
+
+	<map id="树界降临" name="树界降临">
+		<file url="assets/map/树界降临.swf" />
+		<img url="assets/map/树界降临.jpg" />
+		<bgm url="assets/bgm/6.mp3"/>
+	</map>
+
+	<map id="神树" name="无限月读">
+		<file url="assets/map/神树.swf" />
+		<img url="assets/map/神树.jpg" />
+		<bgm url="assets/bgm/山洞.mp3"/>
+	</map>
+
+	<map id="擂台" name="39擂台">
+		<file url="assets/map/擂台.swf" />
+		<img url="assets/map/擂台.jpg" />
+		<bgm url="assets/bgm/8.mp3"/>
+	</map>
+
+	<map id="MUGEN V2" name="MUGEN V2">
+		<file url="assets/map/MUGEN V2.swf" />
+		<img url="assets/map/MUGEN V2.png" />
+		<bgm url="assets/bgm/9.mp3"/>
+	</map>
+
+	<map id="night scene of the city" name="夜景城市">
+		<file url="assets/map/night scene of the city.swf" />
+		<img url="assets/map/night scene of the city.png" />
+		<bgm url="assets/bgm/城市.mp3"/>
+	</map>
+
+	<map id="蛇道" name="蛇道">
+		<file url="assets/map/蛇道.swf" />
+		<img url="assets/map/蛇道.jpg" />
+		<bgm url="assets/bgm/4.mp3"/>
+	</map>
+
+	<map id="黑夜" name="黑夜">
+		<file url="assets/map/黑夜.swf" />
+		<img url="assets/map/黑夜.jpg" />
+		<bgm url="assets/bgm/黑暗.mp3"/>
+	</map>
+
+	<map id="红月" name="红月">
+		<file url="assets/map/红月.swf" />
+		<img url="assets/map/红月.jpg" />
+		<bgm url="assets/bgm/刮风.mp3"/>
+	</map>
+
+	<map id="死神13" name="死神13 梦境">
+		<file url="assets/map/死神13.swf" />
+		<img url="assets/map/死神13.jpg" />
+		<bgm url="assets/bgm/10.mp3"/>
+	</map>
+
+	<map id="黑帮摇" name="黑帮摇">
+		<file url="assets/map/黑帮摇.swf" />
+		<img url="assets/map/黑帮摇.jpg" />
+		<bgm url="assets/bgm/山洞.mp3"/>
+	</map>
+
+	<map id="地底" name="地底世界">
+		<file url="assets/map/地底.swf" />
+		<img url="assets/map/地底.jpg" />
+		<bgm url="assets/bgm/13.mp3"/>
+	</map>
+
+	<map id="城市崩坏" name="城市 崩坏">
+		<file url="assets/map/城市崩坏.swf" />
+		<img url="assets/map/城市崩坏.jpg" />
+		<bgm url="assets/bgm/15.mp3"/>
+	</map>
+
+	<map id="都市" name="47都市">
+		<file url="assets/map/都市.swf" />
+		<img url="assets/map/都市.jpg" />
+		<bgm url="assets/bgm/5.mp3"/>
+	</map>
+
+	<map id="樱花街道" name="48樱花街道">
+		<file url="assets/map/樱花街道.swf" />
+		<img url="assets/map/樱花街道.jpg" />
+		<bgm url="assets/bgm/8.mp3"/>
+	</map>
+
+	<map id="机台" name="机台">
+		<file url="assets/map/机台.swf" />
+		<img url="assets/map/机台.jpg" />
+		<bgm url="assets/bgm/13.mp3"/>
+	</map>
+
+	<map id="血场" name="血场">
+		<file url="assets/map/血场.swf" />
+		<img url="assets/map/血场.jpg" />
+		<bgm url="assets/bgm/16.mp3"/>
+	</map>
+
+	<map id="蟹堡皇" name="蟹堡皇">
+		<file url="assets/map/蟹堡皇.swf" />
+		<img url="assets/map/蟹堡皇.jpg" />
+		<bgm url="assets/bgm/30.mp3"/>
+	</map>
+
+	<map id="羊村大门" name="羊村大门">
+		<file url="assets/map/羊村大门.swf" />
+		<img url="assets/map/羊村大门.jpg" />
+		<bgm url="assets/bgm/12.mp3"/>
+	</map>
+
+	<map id="厄运丛林" name="厄运丛林">
+		<file url="assets/map/厄运丛林.swf" />
+		<img url="assets/map/厄运丛林.jpg" />
+		<bgm url="assets/bgm/28.mp3"/>
+	</map>
+
+	<map id="贞德" name="54贞德">
+		<file url="assets/map/贞德.swf" />
+		<img url="assets/map/贞德.jpg" />
+		<bgm url="assets/bgm/29.mp3"/>
+	</map>
+
+	<map id="学校" name="55学校">
+		<file url="assets/map/学校.swf" />
+		<img url="assets/map/学校.jpg" />
+		<bgm url="assets/bgm/30.mp3"/>
+	</map>
+
+	<map id="超级玛里奥白" name="超级玛里奥白">
+		<file url="assets/map/超级玛里奥白.swf" />
+		<img url="assets/map/超级玛里奥白.jpg" />
+		<bgm url="assets/bgm/8.mp3"/>
+	</map>
+
+
+	<map id="团长" name="团长，车子己经准备好了！">
+		<file url="assets/map/团长.swf" />
+		<img url="assets/face/团长.jpg" />
+		<bgm url="assets/bgm/8.mp3"/>
+	</map>
+
+	<map id="pvz" name="pvz">
+		<file url="assets/map/pvz.swf" />
+		<img url="assets/map/pvz.jpg" />
+		<bgm url="assets/bgm/8.mp3"/>
+	</map>
+
+	<map id="木叶村2" name="木叶村2">
+		<file url="assets/map/木叶村2.swf" />
+		<img url="assets/map/木叶村2.png" />
+		<bgm url="assets/bgm/9.mp3"/>
+	</map>
+
+	<map id="崩解边界" name="崩解边界">
+		<file url="assets/map/崩解边界.swf" />
+		<img url="assets/map/崩解边界.png" />
+		<bgm url="assets/bgm/16.mp3"/>
+	</map>
+
+	<map id="迷途竹林" name="迷途竹林">
+		<file url="assets/map/迷途竹林.swf" />
+		<img url="assets/map/迷途竹林.png" />
+		<bgm url="assets/bgm/今昔幻想乡.mp3"/>
+	</map>
+
+	<map id="虚夜宫外" name="虚夜宫外">
+		<file url="assets/map/虚夜宫外.swf" />
+		<img url="assets/map/虚夜宫外.png" />
+		<bgm url="assets/bgm/16.mp3"/>
+	</map>
+
+	<map id="paris_night" name="夜景">
+		<file url="assets/map/paris_night.swf" />
+		<img url="assets/map/paris_night.png" />
+		<bgm url="assets/bgm/16.mp3"/>
+	</map>
+
+	<map id="时空之门" name="时空之门">
+		<file url="assets/map/时空之门.swf" />
+		<img url="assets/map/时空之门.jpg" />
+		<bgm url="assets/bgm/28.mp3"/>
+	</map>
+
+	<map id="境界" name="境界">
+		<file url="assets/map/境界.swf" />
+		<img url="assets/map/境界.jpg" />
+		<bgm url="assets/bgm/17.mp3"/>
+	</map>
+
+	<map id="终焉" name="终焉">
+		<file url="assets/map/终焉.swf" />
+		<img url="assets/map/终焉.jpg" />
+		<bgm url="assets/bgm/25.mp3"/>
+	</map>
+
+	<map id="SoulSociety_Rebellion" name="千年血战">
+		<file url="assets/map/Soul_Society_Rebellion.swf" />
+		<img url="assets/map/Soul_Society_Rebellion.png" />
+		<bgm url="assets/bgm/25.mp3"/>
+	</map>
+
+	<map id="产屋敷" name="产屋敷">
+		<file url="assets/map/产屋敷.swf" />
+		<img url="assets/map/产屋敷.png" />
+		<bgm url="assets/bgm/14.mp3"/>
+	</map>
+
+	<map id="碟屋后院" name="碟屋后院">
+		<file url="assets/map/碟屋后院.swf" />
+		<img url="assets/map/碟屋后院.png" />
+		<bgm url="assets/bgm/24.mp3"/>
+	</map>
+
+	<map id="碟屋训练场" name="碟屋训练场">
+		<file url="assets/map/碟屋训练场.swf" />
+		<img url="assets/map/碟屋训练场.png" />
+		<bgm url="assets/bgm/16.mp3"/>
+	</map>
+
+	<map id="房檐" name="房檐">
+		<file url="assets/map/房檐.swf" />
+		<img url="assets/map/房檐.png" />
+		<bgm url="assets/bgm/14.mp3"/>
+	</map>
+
+
+	<map id="鬼之屋外" name="鬼之屋外">
+		<file url="assets/map/鬼之屋外.swf" />
+		<img url="assets/map/鬼之屋外.png" />
+		<bgm url="assets/bgm/13.mp3"/>
+	</map>
+
+	<map id="吉原游郭·终章" name="72吉原游郭·终章">
+		<file url="assets/map/吉原游郭·终章.swf" />
+		<img url="assets/map/吉原游郭·终章.png" />
+		<bgm url="assets/bgm/24.mp3"/>
+	</map>
+
+	<map id="练习场" name="73练习场">
+		<file url="assets/map/练习场.swf" />
+		<img url="assets/map/练习场.png" />
+		<bgm url="assets/bgm/12.mp3"/>
+	</map>
+
+
+	<map id="那田蜘蛛山" name="那田蜘蛛山">
+		<file url="assets/map/那田蜘蛛山.swf" />
+		<img url="assets/map/那田蜘蛛山.png" />
+		<bgm url="assets/bgm/8.mp3"/>
+	</map>
+
+	<map id="浅草" name="77浅草">
+		<file url="assets/map/浅草.swf" />
+		<img url="assets/map/浅草.png" />
+		<bgm url="assets/bgm/11.mp3"/>
+	</map>
+
+	<map id="森林深处" name="森林深处">
+		<file url="assets/map/森林深处.swf" />
+		<img url="assets/map/森林深处.png" />
+		<bgm url="assets/bgm/10.mp3"/>
+	</map>
+
+	<map id="森林下雪" name="森林下雪">
+		<file url="assets/map/森林下雪.swf" />
+		<img url="assets/map/森林下雪.png" />
+		<bgm url="assets/bgm/沉睡的恐惧.mp3"/>
+	</map>
+
+	<map id="森林夜晚" name="森林夜晚">
+		<file url="assets/map/森林夜晚.swf" />
+		<img url="assets/map/森林夜晚.png" />
+		<bgm url="assets/bgm/10.mp3"/>
+	</map>
+
+	<map id="炭治郎家" name="炭治郎家">
+		<file url="assets/map/炭治郎家.swf" />
+		<img url="assets/map/炭治郎家.png" />
+		<bgm url="assets/bgm/20.mp3"/>
+	</map>
+
+	<map id="藤之家" name="藤之家">
+		<file url="assets/map/藤之家.swf" />
+		<img url="assets/map/藤之家.png" />
+		<bgm url="assets/bgm/9.mp3"/>
+	</map>
+
+
+	<map id="乌冬面小摊" name="乌冬面小摊">
+		<file url="assets/map/乌冬面小摊.swf" />
+		<img url="assets/map/乌冬面小摊.png" />
+		<bgm url="assets/bgm/7.mp3"/>
+	</map>
+
+	<map id="无限城" name="85无限城">
+		<file url="assets/map/无限城.swf" />
+		<img url="assets/map/无限城.png" />
+		<bgm url="assets/bgm/19.mp3"/>
+	</map>
+
+
+
+	<map id="西北山城的房子" name="西北山城的房子">
+		<file url="assets/map/西北山城的房子.swf" />
+		<img url="assets/map/西北山城的房子.png" />
+		<bgm url="assets/bgm/6.mp3"/>
+	</map>
+
+	<map id="狭雾山·巨岩前" name="狭雾山·巨岩前">
+		<file url="assets/map/狭雾山·巨岩前.swf" />
+		<img url="assets/map/狭雾山·巨岩前.png" />
+		<bgm url="assets/bgm/5.mp3"/>
+	</map>
+
+	<map id="蜘蛛家" name="蜘蛛家">
+		<file url="assets/map/蜘蛛家.swf" />
+		<img url="assets/map/蜘蛛家.png" />
+		<bgm url="assets/bgm/信仰是为了虚幻之人.mp3"/>
+	</map>
+
+	<map id="珠世诊所" name="珠世诊所">
+		<file url="assets/map/珠世诊所.swf" />
+		<img url="assets/map/珠世诊所.png" />
+		<bgm url="assets/bgm/12.mp3"/>
+	</map>
+
+
+	<map id="柱众会议" name="柱众会议">
+		<file url="assets/map/柱众会议.swf" />
+		<img url="assets/map/柱众会议.png" />
+		<bgm url="assets/bgm/4.mp3"/>
+	</map>
+
+	<map id="现世" name="现世">
+		<file url="assets/map/现世.swf" />
+		<img url="assets/map/现世.png" />
+		<bgm url="assets/bgm/3.mp3"/>
+	</map>
+
+</map_config>

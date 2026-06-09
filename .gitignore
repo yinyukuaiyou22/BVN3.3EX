@@ -36,8 +36,15 @@ launch-fla/
 flex4.16.1-air51.0.1.1/
 AIRSDK5/
 
-# Test resources (APK, app descriptor, etc.)
-tools/Test/
+# Test resources — track config only, exclude binaries
+tools/Test/*
+!tools/Test/application.xml
+!tools/Test/assets/
+tools/Test/assets/*
+!tools/Test/assets/config/
+tools/Test/assets/fighter/
+tools/Test/assets/face/
+tools/Test/assets/bgm/
 
 # Flash sources & tools
 swf/*.fla

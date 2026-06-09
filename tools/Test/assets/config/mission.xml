@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mession>
+	<!-- 死神 TEAM 关卡 (移除龙珠角色和random角色，用其他角色填充) -->
+	<design comicType="0" gameMode="0">
+		<!-- 一护系列关卡 -->
+		<stage fighter="一护 零段,一护 卍解,一护 本能 虚化" assister="kon" map="zoulang" />
+		<stage fighter="一护 虚化,一护 内虚 牛头,一护 修行" assister="renji_fz" map="liuhunjie" />
+		<stage fighter="一护 无月,一护 血战 前篇,一护 血战 前篇 卍解" assister="orihime" map="shihunjietongdao" />
+		<stage fighter="一护 血战 双刀,一护 血战 真卍解,一护 血战 三元归一" assister="uryuu" map="shuangji" />
+		<stage fighter="一护完现术,一护破面篇,一户 牛头" assister="grimmjow" map="jingyantin" />
+		<stage fighter="一护,一护1,一护2" assister="kenpachi" map="现世傍晚" />
+		<stage fighter="一护3,一护4,斩月" assister="nemu" map="颠倒流魂街" />
+
+		<!-- 护廷十三队关卡 -->
+		<stage fighter="恋次,白哉,白哉 卍解" assister="renji_fz" map="花果山" />
+		<stage fighter="草鹿·八千流,更木·剑八,东仙要队长" assister="byakuya_fz" map="minghai" />
+		<stage fighter="京乐春水,涅茧利,碎蜂 血战" assister="soifon" map="miku" />
+		<stage fighter="银 卍解,蓝染,蓝染惣右介" assister="ichigo_fz" map="量子之海" />
+		<stage fighter="蓝染 队长,蓝染 血战,乌尔奇奥拉" assister="ulquiorra_gr_fz" map="废旧街道" />
+		<stage fighter="贾卡杰克,雨龙,织姬" assister="ulquiorra_fz" map="zhuquejie" />
+		<stage fighter="露琪亚 义骸,露琪亚 始解,斩月 死神之力" assister="renji_fz" map="jingyantin" />
+
+		<!-- 其他死神角色关卡 -->
+		<stage fighter="白斩月,DIO,Kujo Jotaro" assister="rangiku" map="shuangji" />
+		<stage fighter="承太郎,迪奥,天堂迪奥" assister="ichigo_bn_xh_fz" map="shihunjietongdao" />
+		<stage fighter="Sakuya,sanae,cirno" assister="ichigo_xy_fz" map="zoulang" />
+		<stage fighter="Meirin,remilia,爱丽丝脱胎换骨" assister="ichigo_neixu_nt_fz" map="liuhunjie" />
+		<stage fighter="yuuki,Asuna,桐人" assister="yin_fz" map="现世夜晩" />
+		<stage fighter="利威尔,炭治郎,五条悟" assister="yamamoto" map="内心白" />
+		<stage fighter="夏娜,武藤游戏,一方通行" assister="ichigo_xz_fz" map="斩魂刀冢" />
+		<stage fighter="龙卷,山治,乔巴" assister="平子真子" map="宇智波村" />
+		<stage fighter="银时,鬼岛路飞,假面骑士创骑" assister="kon" map="雾影村" />
+		<stage fighter="Chara,上条当麻,kazuma" assister="renji_fz" map="森林" />
+		<stage fighter="结城理,中二羊,V" assister="orihime" map="树林" />
+		<stage fighter="三千无名,超能d,saito" assister="uryuu" map="沙漠" />
+		<stage fighter="kenshin_blood,唐吉坷德,大圣" assister="grimmjow" map="海底" />
+		<!-- 移除了包含random角色的关卡 -->
+	</design>
+
+	<!-- 死神 SINGLE 关卡 (移除龙珠角色和random角色，用其他角色填充) -->
+	<design comicType="0" gameMode="1">
+		<!-- 一护系列关卡 -->
+		<stage fighter="一护 零段" assister="kon" map="zoulang" />
+		<stage fighter="一护 卍解" assister="renji_fz" map="liuhunjie" />
+		<stage fighter="一护 本能 虚化" assister="orihime" map="shihunjietongdao" />
+		<stage fighter="一护 虚化" assister="uryuu" map="shuangji" />
+		<stage fighter="一护 内虚 牛头" assister="grimmjow" map="jingyantin" />
+		<stage fighter="一护 修行" assister="kenpachi" map="现世傍晚" />
+		<stage fighter="一护 无月" assister="nemu" map="颠倒流魂街" />
+		<stage fighter="一护 血战 前篇" assister="renji_fz" map="花果山" />
+		<stage fighter="一护 血战 前篇 卍解" assister="byakuya_fz" map="minghai" />
+		<stage fighter="一护 血战 双刀" assister="soifon" map="miku" />
+		<stage fighter="一护 血战 真卍解" assister="ichigo_fz" map="量子之海" />
+		<stage fighter="一护 血战 三元归一" assister="ulquiorra_gr_fz" map="废旧街道" />
+		<stage fighter="一护完现术" assister="ulquiorra_fz" map="zhuquejie" />
+		<stage fighter="一护破面篇" assister="renji_fz" map="jingyantin" />
+		<stage fighter="一户 牛头" assister="rangiku" map="shuangji" />
+		<stage fighter="一护" assister="ichigo_bn_xh_fz" map="shihunjietongdao" />
+		<stage fighter="一护1" assister="ichigo_xy_fz" map="zoulang" />
+		<stage fighter="一护2" assister="ichigo_neixu_nt_fz" map="liuhunjie" />
+		<stage fighter="一护3" assister="yin_fz" map="现世夜晩" />
+		<stage fighter="一护4" assister="yamamoto" map="内心白" />
+
+		<!-- 其他死神角色关卡 -->
+		<stage fighter="斩月" assister="ichigo_xz_fz" map="斩魂刀冢" />
+		<stage fighter="斩月 死神之力" assister="平子真子" map="宇智波村" />
+		<stage fighter="白斩月" assister="kon" map="雾影村" />
+		<stage fighter="织姬" assister="renji_fz" map="森林" />
+		<stage fighter="露琪亚 义骸" assister="orihime" map="树林" />
+		<stage fighter="露琪亚 始解" assister="uryuu" map="沙漠" />
+		<stage fighter="恋次" assister="grimmjow" map="海底" />
+		<stage fighter="白哉" assister="kenpachi" map="现世夜晩" />
+		<stage fighter="白哉 卍解" assister="nemu" map="内心" />
+		<stage fighter="草鹿·八千流" assister="renji_fz" map="歼景" />
+		<stage fighter="更木·剑八" assister="byakuya_fz" map="虚夜宫" />
+		<stage fighter="东仙要队长" assister="soifon" map="荒芜之地" />
+		<!-- 移除了包含random角色的关卡 -->
+	</design>
+
+	<!-- 火影 TEAM 关卡 (用其他角色填充，保留部分火影角色) -->
+	<design comicType="1" gameMode="0">
+		<!-- 鸣人系列关卡 -->
+		<stage fighter="鸣人,鸣人 一尾,鸣人 六尾" assister="sai" map="木叶村" />
+		<stage fighter="鸣人 仙人,鸣人 九尾查克拉,鸣人 九喇叭连结" assister="tenten" map="森林" />
+		<stage fighter="鸣人 终结谷,鸣人 六道模式,鸣人[忍者の本质]" assister="shikamaru" map="楼顶" />
+
+		<!-- 佐助系列关卡 -->
+		<stage fighter="佐助,佐助 鹰小队,佐助 永恒万花筒" assister="suigetsu" map="瀑布" />
+		<stage fighter="佐助 终结谷,佐助 须佐能乎 轮回眼,佐助[现有の手牌]" assister="itachi" map="宇智波村" attackRate="2" hpRate="2" />
+		<stage fighter="须佐佐助,咒印佐助,春野樱" assister="tsunate" map="温泉" />
+		<stage fighter="樱 忍战,少年带土,带土 破面" assister="obito" map="雾影村" attackRate="1.7" hpRate="2.2" />
+
+		<!-- 其他火影角色关卡 -->
+		<stage fighter="忍战带土,阿维斑,波风水门" assister="obito" map="森林" attackRate="1.5" hpRate="2" />
+		<stage fighter="水门,水门 金身,鼬" assister="obito" map="鸣人桥" attackRate="1.7" hpRate="2.2" />
+		<stage fighter="云涯鼬,秽土鼬黄喵,斑" assister="obito" map="雾影村" attackRate="2" hpRate="2.4" />
+		<stage fighter="斑 六道模式,药师兜,药师兜 忍战" assister="orihime" map="木叶村" />
+		<stage fighter="迪达拉,干柿鬼鲛,佩恩" assister="kon" map="森林" />
+		<stage fighter="佐井,阿飞,我爱罗" assister="uryuu" map="沙漠" />
+		<stage fighter="卡卡西 神威,李洛克,奇拉比" assister="renji_fz" map="楼顶" />
+		<stage fighter="柱间 秽土,黑土 博人传,神秘面具男" assister="orihime" map="瀑布" />
+		<stage fighter="凯 死门,天道超,卡卡西须佐" assister="grimmjow" map="树林" />
+
+		<!-- 其他动漫角色关卡 -->
+		<stage fighter="DIO,Kujo Jotaro,承太郎" assister="kenpachi" map="黑夜" />
+		<stage fighter="迪奥,天堂迪奥,迪亚波罗" assister="nemu" map="红月" />
+		<stage fighter="Yuuka,cirno,Meirin" assister="rangiku" map="迷途竹林" />
+		<stage fighter="remilia,爱丽丝脱胎换骨,yuuki" assister="ichigo_bn_xh_fz" map="迷途竹林" />
+		<stage fighter="remilia,Meirin,Sakuya" assister="大妖精" map="红魔馆" />
+		<stage fighter="Asuna,桐人,利威尔" assister="ichigo_xy_fz" map="沙漠" />
+		<stage fighter="炭治郎,五条悟,龙卷" assister="ichigo_neixu_nt_fz" map="森林" />
+		<stage fighter="山治,乔巴,银时" assister="yin_fz" map="海底" />
+		<stage fighter="鬼岛路飞,假面骑士创骑,Chara" assister="yamamoto" map="沙漠" />
+		<stage fighter="上条当麻,kazuma,结城理" assister="ichigo_xz_fz" map="树林" />
+		<stage fighter="中二羊,V,三千无名" assister="平子真子" map="黑夜" />
+		<stage fighter="超能d,saito,kenshin_blood" assister="kon" map="红月" />
+		<!-- 移除了包含random角色的关卡 -->
+	</design>
+
+	<!-- 火影 SINGLE 关卡 (用其他角色填充，保留部分火影角色) -->
+	<design comicType="1" gameMode="1">
+		<!-- 鸣人系列关卡 -->
+		<stage fighter="鸣人" assister="sai" map="木叶村" />
+		<stage fighter="鸣人 一尾" assister="tenten" map="森林" />
+		<stage fighter="鸣人 六尾" assister="shikamaru" map="楼顶" />
+		<stage fighter="鸣人 仙人" assister="suigetsu" map="瀑布" />
+		<stage fighter="鸣人 九尾查克拉" assister="itachi" map="宇智波村" attackRate="2" hpRate="2" />
+		<stage fighter="鸣人 九喇叭连结" assister="tsunate" map="温泉" />
+		<stage fighter="鸣人 终结谷" assister="obito" map="雾影村" attackRate="1.7" hpRate="2.2" />
+		<stage fighter="鸣人 六道模式" assister="obito" map="森林" attackRate="1.5" hpRate="2" />
+		<stage fighter="鸣人[忍者の本质]" assister="obito" map="鸣人桥" attackRate="1.7" hpRate="2.2" />
+
+		<!-- 佐助系列关卡 -->
+		<stage fighter="佐助" assister="orihime" map="木叶村" />
+		<stage fighter="佐助 鹰小队" assister="kon" map="森林" />
+		<stage fighter="佐助 永恒万花筒" assister="uryuu" map="沙漠" />
+		<stage fighter="佐助 终结谷" assister="renji_fz" map="楼顶" />
+		<stage fighter="佐助 须佐能乎 轮回眼" assister="orihime" map="瀑布" />
+		<stage fighter="佐助[现有の手牌]" assister="grimmjow" map="树林" />
+		<stage fighter="须佐佐助" assister="kenpachi" map="黑夜" />
+		<stage fighter="咒印佐助" assister="nemu" map="红月" />
+		<stage fighter="春野樱" assister="rangiku" map="温泉" />
+		<stage fighter="樱 忍战" assister="ichigo_bn_xh_fz" map="雾影村" />
+
+		<!-- 其他火影角色关卡 -->
+		<stage fighter="少年带土" assister="ichigo_xy_fz" map="楼顶" />
+		<stage fighter="带土 破面" assister="ichigo_neixu_nt_fz" map="沙漠" />
+		<stage fighter="忍战带土" assister="yin_fz" map="森林" />
+		<stage fighter="阿维斑" assister="yamamoto" map="黑夜" />
+		<stage fighter="波风水门" assister="ichigo_xz_fz" map="鸣人桥" />
+		<stage fighter="水门" assister="平子真子" map="宇智波村" />
+		<stage fighter="水门 金身" assister="kon" map="雾影村" />
+		<stage fighter="鼬" assister="renji_fz" map="木叶村" />
+		<stage fighter="云涯鼬" assister="orihime" map="森林" />
+		<stage fighter="秽土鼬黄喵" assister="uryuu" map="楼顶" />
+		<stage fighter="斑" assister="grimmjow" map="瀑布" />
+		<stage fighter="斑 六道模式" assister="kenpachi" map="黑夜" />
+		<stage fighter="药师兜" assister="nemu" map="红月" />
+		<stage fighter="药师兜 忍战" assister="rangiku" map="温泉" />
+		<stage fighter="迪达拉" assister="byakuya_fz" map="沙漠" />
+		<stage fighter="干柿鬼鲛" assister="soifon" map="海底" />
+
+		<!-- 其他动漫角色关卡 -->
+		<stage fighter="DIO" assister="ichigo_fz" map="黑夜" />
+		<stage fighter="Kujo Jotaro" assister="ulquiorra_gr_fz" map="红月" />
+		<stage fighter="承太郎" assister="ulquiorra_fz" map="迷途竹林" />
+		<stage fighter="迪奥" assister="renji_fz" map="迷途竹林" />
+		<stage fighter="天堂迪奥" assister="rangiku" map="沙漠" />
+		<stage fighter="迪亚波罗" assister="ichigo_bn_xh_fz" map="森林" />
+		<stage fighter="Yuuka" assister="ichigo_xy_fz" map="迷途竹林" />
+		<stage fighter="cirno" assister="ichigo_neixu_nt_fz" map="迷途竹林" />
+		<stage fighter="Meirin" assister="yin_fz" map="海底" />
+		<stage fighter="remilia" assister="yamamoto" map="黑夜" />
+		<stage fighter="爱丽丝脱胎换骨" assister="ichigo_xz_fz" map="迷途竹林" />
+		<stage fighter="yuuki" assister="平子真子" map="红月" />
+		<stage fighter="Asuna" assister="kon" map="沙漠" />
+		<stage fighter="桐人" assister="renji_fz" map="森林" />
+		<stage fighter="利威尔" assister="orihime" map="楼顶" />
+		<stage fighter="炭治郎" assister="uryuu" map="瀑布" />
+		<stage fighter="五条悟" assister="grimmjow" map="黑夜" />
+		<stage fighter="龙卷" assister="kenpachi" map="红月" />
+		<stage fighter="山治" assister="nemu" map="海底" />
+		<stage fighter="乔巴" assister="rangiku" map="沙漠" />
+		<stage fighter="银时" assister="byakuya_fz" map="森林" />
+		<stage fighter="鬼岛路飞" assister="soifon" map="树林" />
+		<stage fighter="假面骑士创骑" assister="ichigo_fz" map="黑夜" />
+		<stage fighter="Chara" assister="ulquiorra_gr_fz" map="红月" />
+		<stage fighter="上条当麻" assister="ulquiorra_fz" map="迷途竹林" />
+		<stage fighter="kazuma" assister="renji_fz" map="沙漠" />
+		<stage fighter="结城理" assister="rangiku" map="森林" />
+		<stage fighter="中二羊" assister="ichigo_bn_xh_fz" map="楼顶" />
+		<stage fighter="V" assister="ichigo_xy_fz" map="瀑布" />
+		<stage fighter="三千无名" assister="ichigo_neixu_nt_fz" map="黑夜" />
+		<stage fighter="超能d" assister="yin_fz" map="红月" />
+		<stage fighter="saito" assister="yamamoto" map="海底" />
+		<stage fighter="kenshin_blood" assister="ichigo_xz_fz" map="沙漠" />
+		<stage fighter="唐吉坷德" assister="平子真子" map="树林" />
+		<stage fighter="大圣" assister="kon" map="森林" />
+		<!-- 移除了包含random角色的关卡 -->
+	</design>
+
+</mession>
