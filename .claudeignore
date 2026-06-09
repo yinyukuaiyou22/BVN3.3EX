@@ -1,0 +1,44 @@
+# Headroom / Claude Code — 排除文件列表
+# 语法同 .gitignore
+
+# 编译产物
+*.swf
+*.swc
+*.apk
+*.ipa
+
+# 嵌入资源（二进制大文件）
+*.png
+*.jpg
+*.jpeg
+*.mp3
+*.wav
+*.bin
+*.gif
+_assets/
+
+# 外部加载资源
+assets/swf/
+assets/*.swf
+
+# SDK / 工具链（无需分析）
+flex4.16.1-air51.0.1.1/
+AIRSDK5/
+tools/Test/
+
+# 参考/基线代码（只读）
+last/
+OLD/
+BVN3.9/
+
+# 导出目录
+Outscripts/
+
+# 常规忽略
+node_modules/
+dist/
+.git/
+__pycache__/
+*.pyc
+.venv/
+venv/
