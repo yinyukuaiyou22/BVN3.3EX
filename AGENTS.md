@@ -8,34 +8,38 @@
 |------|------|
 | VSCode | 代码编辑 |
 | Claude Code | AI 辅助开发（主模型 DeepSeek V4 Pro，简单任务可切换 flash 模型） |
-| build.bat | 编译脚本（`Ctrl+Shift+B` 或直接运行） |
+| `build.bat` | PC 编译 SWF（`Ctrl+Shift+B` 或直接运行） |
+| `tools/script/debug.bat` | PC 端编译 + adl 启动调试 |
+| `tools/script/debug_mob.bat` | 手机端打包 APK + ADB 安装 + fdb 调试 |
+| `tools/script/fdbg.bat` | 通用 SWF fdb 断点调试 |
 | Java 17 | mxmlc 编译器运行时 |
-| Flex SDK 4.16.1 + AIR 51.0 | AS3 编译工具链 |
+| Flex SDK | `flex4.16.1-air51.0.1.1/`（项目根相对路径） |
+| AIR SDK | `AIRSDK5/AIRSDK_51.3.2/`（ADT/fdb/adl/证书） |
 
 ## 关键规则
 
 1. **响应语言**：中文（技术术语/代码标识符/文件路径可保留英文）
-2. **代码基准**：`BVNscripts/scripts/` 为可编译源码，`last/` 为参考基线
+2. **代码基准**：`BVNscripts/scripts/` 为可编译源码
 3. **编译验证**：每次修改后运行 `./build.bat`，确认零错误
 4. **不要动**：`_assets/` 目录中的 `.bin`/`.png`/`.mp3` 文件、`mx/core/` 框架桩
 5. **嵌入式资源**：统一通过 `EmbeddedAssets.as` 的 `[Embed]` 管理
 6. **UI SWF**：从 `assets/swf/` 运行时加载，由 `ResUtils.as` 处理
-7. **不要提交**：`*.swf`、`assets/`、`OLD/`、`last/`、`Outscripts/`、`BVN3.9/`、`launch-fla/`
+7. **不要提交**：`*.swf`、`assets/`、`OLD/`、`last/`、`Outscripts/`、`BVN3.9/`、`flex4.16.1-air51.0.1.1/`、`AIRSDK5/`、`tools/Test/`
 
 ## 编译命令
 
 ```bash
-# 完整编译（项目根目录）
+# PC 编译（项目根目录）
 ./build.bat
 
-# 或直接调用：
-java -jar D:\flex4.16.1-air51.0.1.1\lib\mxmlc.jar \
-  +flexlib=D:\flex4.16.1-air51.0.1.1\frameworks \
-  -debug=true -swf-version=37 -strict=false \
-  -source-path+=E:/.../BVNscripts/scripts \
-  -library-path+=.../core.swc \
-  -external-library-path+=.../airglobal.swc \
-  -output=launch.swf -- .../launch.as
+# PC 调试（编译 + 启动）
+tools/script/debug.bat
+
+# 手机真机调试（打包 + 安装 + fdb）
+tools/script/debug_mob.bat
+
+# 通用 fdb 调试
+tools/script/fdbg.bat [swf_file]
 ```
 
 ## 反编译代码特征
@@ -45,7 +49,6 @@ java -jar D:\flex4.16.1-air51.0.1.1\lib\mxmlc.jar \
 - **内联匿名函数**：大量 `function():void { ... }` 回调模式
 - **单例访问**：`ClassName.I` 静态 getter
 - **拼写错误**：`NORNAL`（NORMAL）、`destory`（destroy）、`Mession`（Mission）— 保持原样
-- **`this.` 前缀**：`last/` 基线使用 `this.` 前缀风格，保持一致
 
 ## 常见任务指南
 
@@ -70,7 +73,8 @@ java -jar D:\flex4.16.1-air51.0.1.1\lib\mxmlc.jar \
 
 | 需求 | 优先查看 |
 |------|---------|
-| 编译 | `build.bat`、`asconfig.json`、`.vscode/tasks.json` |
+| 编译 | `build.bat`、`asconfig.json` |
+| 调试 | `tools/script/debug.bat`、`tools/script/debug_mob.bat` |
 | 入口/初始化 | `launch.as`、`MainGame.as` |
 | 物理参数 | `GameConfig.as` |
 | 角色动作 | `FighterMcCtrler.as`、`FighterAction.as` |
@@ -82,7 +86,7 @@ java -jar D:\flex4.16.1-air51.0.1.1\lib\mxmlc.jar \
 | 输入 | `GameInputer.as`、`FighterKeyCtrl.as` |
 | 配置/存档 | `GameData.as`、`ConfigVO.as` |
 | 嵌入式资源 | `EmbeddedAssets.as`、`mx/core/` |
-| UI SWF | `ResUtils.as`、`assets/swf/` |
+| UI SWF | `ResUtils.as` |
 | 移动端 | `mob/GameInterfaceManager.as`、`mob/screenpad/` |
-| 调试 | `Debugger.as`（DEBUG_PANEL_ENABLED 开关） |
+| 调试 | `Debugger.as`（`DEBUG_PANEL_ENABLED` 开关） |
 | 网络 | `mob/sockets/`、`mob/ctrls/LAN*.as` |

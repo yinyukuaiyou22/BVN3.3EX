@@ -18,9 +18,9 @@
 
 | 变量 | 位置 | 用途 |
 |------|------|------|
-| Flex SDK | `项目根\flex4.16.1-air51.0.1.1\` | mxmlc 编译器 + Flex 框架（编译用） |
-| AIR SDK | `项目根\AIRSDK5\AIRSDK_51.3.2\` | ADT（打包）/ fdb（调试）/ adl（启动）/ 签名证书 |
-| `FLEX_HOME` | 自动检测 → AIR SDK 路径 | debug 脚本定位 `bin\fdb`、`bin\adl.exe` |
+| Flex SDK | `项目根\flex4.16.1-air51.0.1.1\` | mxmlc 编译器 + Flex 框架 + AIR 运行时 |
+| AIR SDK | `项目根\AIRSDK5\AIRSDK_51.3.2\` | ADT 打包 / fdb 调试（签名证书位于 `bin\mycert.p12`） |
+| `FLEX_HOME` | 自动检测 → AIR SDK | debug 脚本定位 `bin\fdb`、`bin\adl.exe` |
 | `JAVA_HOME` | JDK 17 | mxmlc 运行时 |
 | ADB | Android SDK platform-tools | 手机真机调试 |
 | 证书 | `AIRSDK5\...\bin\mycert.p12` | APK 签名（密码 yinyu7798） |
@@ -63,7 +63,7 @@ tools/script/debug.bat
 # 1. 打包 APK（ADT Captive Runtime）
 adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore mycert.p12 -storepass yinyu7798 tools/Test/死神vs火影银鱼改.apk tools/Test/application.xml tools/Test/launch.swf
 
-# 2. 一键安装 + 启动 + fdb 实时调试
+# 2. 一键：打包 + 安装 + 启动 + fdb 实时调试（debug_mob.bat 自动完成以上全部）
 tools/script/debug_mob.bat
 ```
 
@@ -179,7 +179,7 @@ BVNscripts/scripts/
 │   │   │   ├── views/                 # 移动端视图
 │   │   │   └── utils/                 # 移动端工具
 │   │   ├── utils/                     # 通用工具
-│   │   │   ├── ResUtils.as            # UI SWF 外部运行时加载
+│   │   │   ├── ResUtils.as            # UI SWF 运行时加载
 │   │   │   └── ...（EffectManager/MCUtils/GameLoger 等）
 │   │   └── views/effects/             # 视觉特效
 │   └── kyo/                           # === KYO 框架 ===
@@ -261,9 +261,9 @@ KAI_CHANG=60（开场）  WIN=61  LOSE=62
 
 ### 6. 构建环境
 
-- **SDK**: Apache Flex 4.16.1 + AIR 51.0（`D:\flex4.16.1-air51.0.1.1`）
-- **额外 SWC**: `core.swc`（AIR SDK）、`airglobal.swc`（AIR 运行时类）
-- **编译器**: `mxmlc`（Java 17 驱动）
+- **SDK**: Apache Flex 4.16.1 + AIR 51.0（`项目根\flex4.16.1-air51.0.1.1`）
+- **额外 SWC**: `core.swc`（AIR SDK）、`airglobal.swc`（AIR SDK）
+- **编译器**: `mxmlc.jar`（Java 17 驱动）
 - **编辑器**: VSCode + ActionScript & MXML 插件
 - **构建**: `Ctrl+Shift+B` 或 `./build.bat`
 
