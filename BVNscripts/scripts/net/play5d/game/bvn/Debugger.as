@@ -110,6 +110,8 @@ package net.play5d.game.bvn
 
       private static var GRAPH_HEIGHT:int = 40;
       
+      private static var _logBodyVisible:Boolean = true;
+
       private static var _perfBodyVisible:Boolean = true;
       
       public function Debugger()
@@ -238,6 +240,15 @@ package net.play5d.game.bvn
          titleTf.x = int(5 * _scale);
          titleTf.y = int(5 * _scale);
          _titleBar.addChild(titleTf);
+         var cbSize:int = int(14 * _scale);
+         var logCloseBtn:Sprite = new Sprite();
+         logCloseBtn.x = PANEL_WIDTH - int(18 * _scale);
+         logCloseBtn.y = int((TITLE_HEIGHT - cbSize) / 2);
+         logCloseBtn.graphics.beginFill(0x00AA00);
+         logCloseBtn.graphics.drawRect(0,0,cbSize,cbSize);
+         logCloseBtn.graphics.endFill();
+         logCloseBtn.addEventListener(MouseEvent.CLICK,_toggleLogBody);
+         _titleBar.addChild(logCloseBtn);
          _logContainer = new Sprite();
          _logContainer.x = 0;
          _logContainer.y = TITLE_HEIGHT;
@@ -319,6 +330,30 @@ package net.play5d.game.bvn
          _stage.addChild(_perfPanel);
       }
       
+      private static function _toggleLogBody(param1:MouseEvent) : void
+      {
+         param1.stopPropagation();
+         _logBodyVisible = !_logBodyVisible;
+         _logContainer.visible = _logBodyVisible;
+         var btn:Sprite = param1.currentTarget as Sprite;
+         if(_logBodyVisible)
+         {
+            _panel.graphics.clear();
+            _panel.graphics.beginFill(0,0.85);
+            _panel.graphics.drawRect(0,0,PANEL_WIDTH,TITLE_HEIGHT + LOG_HEIGHT);
+            _panel.graphics.endFill();
+            if(btn) { btn.graphics.clear(); btn.graphics.beginFill(0x00AA00); btn.graphics.drawRect(0,0,btn.width,btn.height); btn.graphics.endFill(); }
+         }
+         else
+         {
+            _panel.graphics.clear();
+            _panel.graphics.beginFill(0,0.85);
+            _panel.graphics.drawRect(0,0,PANEL_WIDTH,TITLE_HEIGHT);
+            _panel.graphics.endFill();
+            if(btn) { btn.graphics.clear(); btn.graphics.beginFill(0xCC0000); btn.graphics.drawRect(0,0,btn.width,btn.height); btn.graphics.endFill(); }
+         }
+      }
+
       private static function _togglePerfBody(param1:MouseEvent) : void
       {
          param1.stopPropagation();
