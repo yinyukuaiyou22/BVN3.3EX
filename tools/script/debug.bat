@@ -1,23 +1,25 @@
 @echo off
 setlocal enabledelayedexpansion
-:: =============================================
-:: BVN PC Debug Script
-:: 编译 + adl 启动 launch.swf
-:: =============================================
 
 set BAT_HOME=%~dp0
 set PROJ_HOME=%BAT_HOME%..\..
 
-:: ---- Check FLEX_HOME ----
+:: ---- Auto-detect FLEX_HOME ----
 if "%FLEX_HOME%"=="" (
-    echo [ERROR] FLEX_HOME not set. Point to AIR SDK root.
-    echo Example: set FLEX_HOME=E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2
+    if exist "E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2\bin\adl.exe" (
+        set FLEX_HOME=E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2
+    )
+)
+if "%FLEX_HOME%"=="" (
+    echo [ERROR] FLEX_HOME not set.
+    echo set FLEX_HOME=E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2
     goto END
 )
 set FLEX_BIN=%FLEX_HOME%\bin
 set RUNTIME=%FLEX_HOME%\runtimes\air\win
+
 if not exist "%FLEX_BIN%\adl.exe" (
-    echo [ERROR] adl.exe not found at %FLEX_BIN%
+    echo [ERROR] adl.exe not found: %FLEX_BIN%
     goto END
 )
 
@@ -37,7 +39,7 @@ if not exist "%SWF_FILE%" (
 )
 set PATH=%FLEX_BIN%;%PATH%
 
-echo [RUN] Starting via adl...
+echo [RUN] adl -runtime "%RUNTIME%" "%SWF_FILE%"
 adl -runtime "%RUNTIME%" "%SWF_FILE%"
 
 :END

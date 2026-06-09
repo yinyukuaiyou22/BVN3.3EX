@@ -1,19 +1,21 @@
 @echo off
 setlocal enabledelayedexpansion
-:: =============================================
-:: fdbg - Flex Debugger for any SWF
-:: Usage: fdbg.bat [path\to\file.swf]
-:: =============================================
 
-:: ---- Check FLEX_HOME ----
+:: ---- Auto-detect FLEX_HOME ----
 if "%FLEX_HOME%"=="" (
-    echo [ERROR] FLEX_HOME not set. Point to AIR SDK root.
-    echo Example: set FLEX_HOME=E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2
+    if exist "E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2\bin\fdb.bat" (
+        set FLEX_HOME=E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2
+    )
+)
+if "%FLEX_HOME%"=="" (
+    echo [ERROR] FLEX_HOME not set.
+    echo set FLEX_HOME=E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2
     goto END
 )
 set FLEX_BIN=%FLEX_HOME%\bin
+
 if not exist "%FLEX_BIN%\fdb.bat" (
-    echo [ERROR] fdb.bat not found at %FLEX_BIN%
+    echo [ERROR] fdb.bat not found: %FLEX_BIN%
     goto END
 )
 

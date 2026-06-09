@@ -1,9 +1,5 @@
 @echo off
 setlocal enabledelayedexpansion
-:: =============================================
-:: BVN Mobile Debug Script
-:: 自动安装 APK 到手机 + fdb 实时调试
-:: =============================================
 
 set BAT_HOME=%~dp0
 set DBG_FILE=%BAT_HOME%..\..\out\launch.apk
@@ -11,12 +7,18 @@ set DBG_ID=net.play5d.game.bvn
 set DBG_PACKAGE=air.%DBG_ID%
 set DBG_PORT=7936
 
-:: ---- Check FLEX_HOME ----
+:: ---- Auto-detect FLEX_HOME ----
 if "%FLEX_HOME%"=="" (
-    echo [ERROR] FLEX_HOME environment variable not set.
-    echo Set it to AIR SDK root, e.g.: set FLEX_HOME=E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2
+    if exist "E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2\bin\fdb.bat" (
+        set FLEX_HOME=E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2
+    )
+)
+if "%FLEX_HOME%"=="" (
+    echo [ERROR] FLEX_HOME not set.
+    echo set FLEX_HOME=E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2
     goto END
 )
+
 if not exist "%FLEX_HOME%\bin\fdb.bat" (
     echo [ERROR] fdb.bat not found at %FLEX_HOME%\bin\
     goto END
