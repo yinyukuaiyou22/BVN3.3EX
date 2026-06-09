@@ -1,140 +1,202 @@
-﻿@echo off
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+::
+:: Copyright (C) 2021-2026, 5DPLAY Game Studio
+:: All rights reserved.
+::
+:: This program is free software: you can redistribute it and/or modify
+:: it under the terms of the GNU General Public License as published by
+:: the Free Software Foundation, either version 3 of the License, or
+:: (at your option) any later version.
+::
+:: This program is distributed in the hope that it will be useful,
+:: but WITHOUT ANY WARRANTY; without even the implied warranty of
+:: MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+:: GNU General Public License for more details.
+::
+:: You should have received a copy of the GNU General Public License
+:: along with this program.  If not, see <http://www.gnu.org/licenses/>.
+::
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+@echo off
 chcp 65001 >nul
 setlocal enabledelayedexpansion
 
-set "BAT_HOME=%~dp0"
-set "PROJ=%BAT_HOME%..\.."
+set BAT_HOME=%~dp0
+set PROJ=%BAT_HOME%..\..
 
-:: ---- Auto-detect AIR SDK ----
-if not defined FLEX_HOME set "FLEX_HOME="
-if not exist "%FLEX_HOME%\bin\fdb.bat" (
-    if exist "%PROJ%\AIRSDK5\AIRSDK_51.3.2\bin\fdb.bat" (
-        set "FLEX_HOME=%PROJ%\AIRSDK5\AIRSDK_51.3.2"
-    )
+call :ECHO_LANG :TITLE ""
+
+:: ---- Check: FLEX_HOME ----
+if "%FLEX_HOME%"=="" (
+    call :ECHO_LANG :UNDEFINE "FLEX_HOME"
+    goto END
 )
-set "FLEX_BIN=%FLEX_HOME%\bin"
+call :EXIST "%FLEX_HOME%"
+echo FLEX_HOME: %FLEX_HOME%
+
+set FLEX_BIN=%FLEX_HOME%\bin
+call :EXIST "%FLEX_BIN%"
+
 set "ADT=%FLEX_BIN%\adt.bat"
 set "CERT=%FLEX_BIN%\mycert.p12"
 
-set "APP_XML=%PROJ%\tools\Test\application.xml"
-set "TEST_DIR=%PROJ%\tools\Test"
+:: ---- Paths ----
 set "SWF_SRC=%PROJ%\launch.swf"
+set "TEST_DIR=%PROJ%\tools\Test"
 set "SWF_FILE=%TEST_DIR%\launch.swf"
+set "APP_XML=%TEST_DIR%\application.xml"
 set "APK_FILE=%TEST_DIR%\死神vs火影银鱼改.apk"
 
-set "DBG_ID=com.bvn.yinyu"
-set "DBG_PACKAGE=air.%DBG_ID%"
-set "DBG_PORT=7936"
+:: ---- App info ----
+set DBG_ID=com.bvn.yinyu
+set DBG_PACKAGE=air.%DBG_ID%
+set DBG_PORT=7936
 
-echo ========================================
-echo   BVN Debug APK - One-Click Script
-echo ========================================
-echo.
-
-:: ---- Step 1: Verify AIR SDK ----
-if not exist "%FLEX_BIN%\fdb.bat" (
-    echo [ERROR] fdb.bat not found: %FLEX_BIN%
-    echo Set FLEX_HOME to AIR SDK root or ensure AIRSDK5 exists.
-    goto END
-)
-echo [OK] AIR SDK: %FLEX_HOME%
-
-:: ---- Step 2: Build SWF ----
-echo.
-echo [BUILD] Compiling...
+:: ---- Build SWF ----
+call :ECHO_LANG :BUILD_MSG ""
 call "%PROJ%\build.bat"
 if %errorlevel% neq 0 (
-    echo [ERROR] Build failed (errorlevel=%errorlevel%).
+    call :ECHO_LANG :BUILD_FAIL ""
     goto END
 )
-if not exist "%SWF_SRC%" (
-    echo [ERROR] Build output not found: %SWF_SRC%
-    goto END
-)
-echo [OK] Build: %SWF_SRC%
+call :EXIST "%SWF_SRC%"
 
-:: ---- Step 3: Copy SWF to Test dir ----
+:: ---- Copy SWF + verify ----
 copy /Y "%SWF_SRC%" "%SWF_FILE%" >nul
-if not exist "%SWF_FILE%" (
-    echo [ERROR] Copy failed: %SWF_FILE%
-    goto END
-)
-echo [OK] SWF copied to Test dir
+call :EXIST "%SWF_FILE%"
+call :EXIST "%APP_XML%"
 
-:: ---- Step 4: Check app descriptor ----
-if not exist "%APP_XML%" (
-    echo [ERROR] App descriptor not found: %APP_XML%
-    goto END
-)
-echo [OK] App descriptor found
-
-:: ---- Step 5: Package APK ----
-echo.
-echo [PACKAGE] Creating APK...
-if not exist "%ADT%" (
-    echo [ERROR] adt.bat not found: %FLEX_BIN%
-    goto END
-)
+:: ---- Package APK ----
+call :ECHO_LANG :PACKAGE_MSG ""
+call :EXIST "%ADT%"
 "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "%APK_FILE%" "%APP_XML%" "%SWF_FILE%"
 if %errorlevel% neq 0 (
-    echo [ERROR] ADT package failed (errorlevel=%errorlevel%).
+    call :ECHO_LANG :PACKAGE_FAIL ""
     goto END
 )
-echo [OK] APK created
+call :EXIST "%APK_FILE%"
 
-:: ---- Step 6: Check ADB ----
-where adb >nul 2>nul
-if %errorlevel% neq 0 (
-    echo [ERROR] adb not found in PATH.
-    goto END
-)
+:: ---- Check: ADB ----
+call :CHK_CMD adb
 adb start-server >nul 2>nul
 timeout /t 2 >nul
 
-:: ---- Step 7: Detect device ----
+:: ---- Find device ----
+adb devices >nul 2>nul
+timeout /t 1 >nul
+
+set TMP_ADB_DEVICES=%TEMP%\adb_devices.txt
+adb devices >"%TMP_ADB_DEVICES%"
+
+set DEVICE_COUNT=0
 set "DEVICE_ID="
-for /f "usebackq skip=1 tokens=1" %%D in (`adb devices 2^>nul ^| findstr "device$"`) do (
-    if "!DEVICE_ID!"=="" set "DEVICE_ID=%%D"
+for /f "usebackq skip=1 delims=" %%L in ("%TMP_ADB_DEVICES%") do (
+    set "LINE=%%L"
+    echo !LINE! | findstr "device" >nul
+    if !errorlevel!==0 (
+        set /a DEVICE_COUNT+=1
+        call :GET_DEVICE_ID "!LINE!"
+        goto :NEXT
+    )
 )
-if "%DEVICE_ID%"=="" (
-    echo [ERROR] No Android device. Connect via USB + enable USB Debug.
-    goto END
-)
-echo [OK] Device: %DEVICE_ID%
 
-:: ---- Step 8: Install + Launch + Debug ----
-set "PATH=%FLEX_BIN%;%PATH%"
+:NEXT
+set PATH=%FLEX_BIN%;%PATH%
+del "%TMP_ADB_DEVICES%" >nul 2>nul
+
+if !DEVICE_COUNT!==0 (
+    call :ECHO_LANG :NO_DEVICE ""
+    goto :END
+)
 
 echo.
-echo [INSTALL] Uninstalling old version...
-adb -s "%DEVICE_ID%" uninstall %DBG_PACKAGE% >nul 2>&1
+call :ECHO_LANG :TITLE_ADB "!DEVICE_ID!"
+call :ECHO_LANG :CONNECT "!DEVICE_ID!"
 
-echo [INSTALL] Installing APK...
-adb -s "%DEVICE_ID%" install "%APK_FILE%"
-if %errorlevel% neq 0 (
-    echo [ERROR] Install failed.
-    goto END
+:: ---- Install if needed ----
+adb shell pm path %DBG_PACKAGE% | findstr "package:" >nul 2>nul
+if %errorlevel%==0 (
+    goto :INSTALLED
 )
 
-echo [DEBUG] Forwarding port + launching...
-adb -s "%DEVICE_ID%" forward tcp:%DBG_PORT% tcp:%DBG_PORT% >nul
-adb -s "%DEVICE_ID%" shell am start -n %DBG_PACKAGE%/.AppEntry >nul
+call :ECHO_LANG :NOT_INSTALLED "%DBG_PACKAGE%"
+call :ECHO_LANG :INSTALLING "%DBG_PACKAGE%"
+adb -s "!DEVICE_ID!" install "%APK_FILE%"
 
+:INSTALLED
+adb -s "!DEVICE_ID!" forward --remove-all >nul 2>nul
+adb -s "!DEVICE_ID!" forward tcp:%DBG_PORT% tcp:%DBG_PORT% >nul
+adb -s "!DEVICE_ID!" shell am force-stop %DBG_PACKAGE% >nul
+adb -s "!DEVICE_ID!" shell am start -n %DBG_PACKAGE%/.AppEntry >nul
+
+:LOOP
+call :ECHO_LANG :START_MSG ""
 echo.
-echo ========================================
-echo   Debugger starting (Ctrl+C to stop)
-echo ========================================
 (
     echo connect
+    echo continue
     echo continue
     echo quit
     echo y
 ) | fdb -unit
 
+timeout /t 1 >nul
 echo.
-echo [DONE] Debug session ended.
+call :ECHO_LANG :END_MSG ""
+goto :LOOP
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 :END
-echo.
-pause
-exit /b
+pause >nul
+exit 1
+
+:EXIST
+if not exist %1 (
+    call :ECHO_LANG :NOT_EXIST %1
+    goto END
+)
+goto :EOF
+
+:CHK_CMD
+where %1 >nul 2>nul
+if %errorlevel%==1 (
+    call :ECHO_LANG :NO_CMD %1
+    goto END
+)
+goto :EOF
+
+:GET_DEVICE_ID
+set "STRING=%~1"
+set "DEVICE_ID=!STRING:	device=!"
+goto :EOF
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+:ECHO_LANG
+for /f "tokens=2 delims=:" %%a in ('chcp') do (
+    for /f "tokens=1" %%b in ("%%a") do set CURRENT_CODEPAGE=%%b
+)
+
+set SUPPORT_LANG=437 932 936 949
+set IS_SUPPORT=0
+for %%a in (%SUPPORT_LANG%) do (
+    if "%%a"=="%CURRENT_CODEPAGE%" (
+        set IS_SUPPORT=1
+        goto LANG_CHK
+    )
+)
+:LANG_CHK
+if %IS_SUPPORT%==0 (
+    set CURRENT_CODEPAGE=437
+)
+
+set LANG_BAT=%BAT_HOME%lang\%~n0\%CURRENT_CODEPAGE%.bat
+if not exist "%LANG_BAT%" (
+    echo ECHO_LANG [N/A]
+    goto :EOF
+)
+
+call "%LANG_BAT%" %1 %2
+goto :EOF
