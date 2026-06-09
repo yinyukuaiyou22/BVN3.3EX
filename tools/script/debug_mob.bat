@@ -1,8 +1,9 @@
-@echo off
+ï»¿@echo off
+chcp 65001 >nul
 setlocal enabledelayedexpansion
 
-set BAT_HOME=%~dp0
-set PROJ=%BAT_HOME%..\..
+set "BAT_HOME=%~dp0"
+set "PROJ=%BAT_HOME%..\.."
 
 :: ---- Auto-detect AIR SDK ----
 if not defined FLEX_HOME set "FLEX_HOME="
@@ -19,14 +20,14 @@ set "APP_XML=%PROJ%\tools\Test\application.xml"
 set "TEST_DIR=%PROJ%\tools\Test"
 set "SWF_SRC=%PROJ%\launch.swf"
 set "SWF_FILE=%TEST_DIR%\launch.swf"
-set "APK_FILE=%TEST_DIR%\ËÀÉñvs»ðÓ°ÒøÓã¸Ä.apk"
+set "APK_FILE=%TEST_DIR%\æ­»ç¥žvsç«å½±é“¶é±¼æ”¹.apk"
 
 set "DBG_ID=com.bvn.yinyu"
 set "DBG_PACKAGE=air.%DBG_ID%"
 set "DBG_PORT=7936"
 
 echo ========================================
-echo   BVN Õæ»úµ÷ÊÔÒ»¼ü½Å±¾
+echo   BVN Debug APK - One-Click Script
 echo ========================================
 echo.
 
@@ -50,26 +51,26 @@ if not exist "%SWF_SRC%" (
     echo [ERROR] Build output not found: %SWF_SRC%
     goto END
 )
-echo [OK] Build complete: %SWF_SRC%
+echo [OK] Build: %SWF_SRC%
 
 :: ---- Step 3: Copy SWF to Test dir ----
 copy /Y "%SWF_SRC%" "%SWF_FILE%" >nul
 if not exist "%SWF_FILE%" (
-    echo [ERROR] Failed to copy SWF to %SWF_FILE%
+    echo [ERROR] Copy failed: %SWF_FILE%
     goto END
 )
-echo [OK] SWF ready: %SWF_FILE%
+echo [OK] SWF copied to Test dir
 
-:: ---- Step 4: Verify app descriptor ----
+:: ---- Step 4: Check app descriptor ----
 if not exist "%APP_XML%" (
     echo [ERROR] App descriptor not found: %APP_XML%
     goto END
 )
-echo [OK] App descriptor: %APP_XML%
+echo [OK] App descriptor found
 
 :: ---- Step 5: Package APK ----
 echo.
-echo [PACKAGE] Creating debug APK...
+echo [PACKAGE] Creating APK...
 if not exist "%ADT%" (
     echo [ERROR] adt.bat not found: %FLEX_BIN%
     goto END
@@ -79,7 +80,7 @@ if %errorlevel% neq 0 (
     echo [ERROR] ADT package failed (errorlevel=%errorlevel%).
     goto END
 )
-echo [OK] APK created: %APK_FILE%
+echo [OK] APK created
 
 :: ---- Step 6: Check ADB ----
 where adb >nul 2>nul
@@ -90,14 +91,13 @@ if %errorlevel% neq 0 (
 adb start-server >nul 2>nul
 timeout /t 2 >nul
 
-:: ---- Step 7: Find Android device ----
+:: ---- Step 7: Detect device ----
 set "DEVICE_ID="
 for /f "usebackq skip=1 tokens=1" %%D in (`adb devices 2^>nul ^| findstr "device$"`) do (
     if "!DEVICE_ID!"=="" set "DEVICE_ID=%%D"
 )
-
 if "%DEVICE_ID%"=="" (
-    echo [ERROR] No Android device detected. Check USB connection.
+    echo [ERROR] No Android device. Connect via USB + enable USB Debug.
     goto END
 )
 echo [OK] Device: %DEVICE_ID%
@@ -112,14 +112,12 @@ adb -s "%DEVICE_ID%" uninstall %DBG_PACKAGE% >nul 2>&1
 echo [INSTALL] Installing APK...
 adb -s "%DEVICE_ID%" install "%APK_FILE%"
 if %errorlevel% neq 0 (
-    echo [ERROR] APK install failed.
+    echo [ERROR] Install failed.
     goto END
 )
 
-echo [DEBUG] Forwarding port %DBG_PORT%...
+echo [DEBUG] Forwarding port + launching...
 adb -s "%DEVICE_ID%" forward tcp:%DBG_PORT% tcp:%DBG_PORT% >nul
-
-echo [DEBUG] Launching app...
 adb -s "%DEVICE_ID%" shell am start -n %DBG_PACKAGE%/.AppEntry >nul
 
 echo.
@@ -135,7 +133,6 @@ echo ========================================
 
 echo.
 echo [DONE] Debug session ended.
-goto END
 
 :END
 echo.
