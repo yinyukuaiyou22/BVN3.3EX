@@ -23,7 +23,7 @@
 | `FLEX_HOME` | 自动检测 → AIR SDK 路径 | debug 脚本定位 `bin\fdb`、`bin\adl.exe` |
 | `JAVA_HOME` | JDK 17 | mxmlc 运行时 |
 | ADB | Android SDK platform-tools | 手机真机调试 |
-| 证书 | `AIRSDK5\...\bin\mycert.p12` | APK 签名（密码 123456） |
+| 证书 | `AIRSDK5\...\bin\mycert.p12` | APK 签名（密码 yinyu7798） |
 | App 描述 | `tools\Test\application.xml` | AIR 应用配置（`com.bvn.yinyu`） |
 
 ### PC 端编译
@@ -60,8 +60,8 @@ tools/script/debug.bat
 - 手机启用「USB 调试」并连接电脑
 
 ```bash
-# 1. 打包 APK（ADT Debug Over USB）
-adt -package -target apk-debug -storetype pkcs12 -keystore cert.p12 launch.apk launch-app.xml launch.swf
+# 1. 打包 APK（ADT Captive Runtime）
+adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore mycert.p12 -storepass yinyu7798 tools/Test/死神vs火影银鱼改.apk tools/Test/application.xml tools/Test/launch.swf
 
 # 2. 一键安装 + 启动 + fdb 实时调试
 tools/script/debug_mob.bat

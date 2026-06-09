@@ -16,7 +16,7 @@ set ADT=%FLEX_BIN%\adt.bat
 set CERT=%FLEX_BIN%\mycert.p12
 set APP_XML=%PROJ%\tools\Test\application.xml
 set SWF_FILE=%PROJ%\launch.swf
-set APK_FILE=%PROJ%\tools\Test\launch.apk
+set APK_FILE=%PROJ%\tools\Test\死神vs火影银鱼改.apk
 
 set DBG_ID=com.bvn.yinyu
 set DBG_PACKAGE=air.%DBG_ID%
@@ -41,7 +41,7 @@ if not exist "%APP_XML%" (
 )
 
 if exist "%ADT%" (
-    "%ADT%" -package -target apk-debug -storetype pkcs12 -keystore "%CERT%" -storepass 123456 "%APK_FILE%" "%APP_XML%" "%SWF_FILE%"
+    "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "%APK_FILE%" "%APP_XML%" "%SWF_FILE%"
     if %errorlevel%==0 (
         echo [OK] APK created: %APK_FILE%
     ) else (
