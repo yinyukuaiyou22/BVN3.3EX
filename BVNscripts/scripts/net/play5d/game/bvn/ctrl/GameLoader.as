@@ -161,17 +161,21 @@ package net.play5d.game.bvn.ctrl
       /** Load fighter from absolute file path via ANEFileReader */
       public static function loadFighterFromPath(path:String, back:Function, fail:Function = null) : void
       {
-         var ba:ByteArray = mob.utils.ANEFileReader.I.readBytes(path);
+         trace("[GameLoader.loadFighterFromPath]", path);
+         var ba:ByteArray = ANEFileReader.I.readBytes(path);
          if(!ba)
          {
+            trace("[GameLoader.loadFighterFromPath] FAILED: null bytes");
             if(fail != null) fail("File not found: " + path);
             return;
          }
+         trace("[GameLoader.loadFighterFromPath] loaded", ba.length, "bytes");
          var loader:Loader = new Loader();
          loader.contentLoaderInfo.addEventListener("complete", function(e:*):void
          {
             var mc:MovieClip = loader.content as MovieClip;
             var fm:FighterMain = new FighterMain(mc);
+            trace("[GameLoader.loadFighterFromPath] SWF parsed, FighterMain created");
             if(back != null) back(fm);
          });
          loader.loadBytes(ba);
