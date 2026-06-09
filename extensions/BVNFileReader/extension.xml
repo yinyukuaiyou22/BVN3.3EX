@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension xmlns="http://ns.adobe.com/air/extension/32.0">
+    <id>com.bvn.filereader</id>
+    <versionNumber>1.0</versionNumber>
+    <platforms>
+        <platform name="Android-ARM">
+            <applicationDeployment>
+                <nativeLibrary>BVNFileReader.jar</nativeLibrary>
+                <initializer>com.bvn.filereader.BVNFileReaderExtension</initializer>
+            </applicationDeployment>
+        </platform>
+    </platforms>
+</extension>
