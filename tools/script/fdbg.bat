@@ -17,9 +17,8 @@ if not exist "%FLEX_BIN%\fdb.bat" (
     goto END
 )
 
-:: ---- Check SWF argument ----
+:: ---- SWF argument ----
 if "%~1"=="" (
-    :: Default to launch.swf in project root
     set SWF_FILE=%~dp0..\..\launch.swf
 ) else (
     set SWF_FILE=%~1
@@ -31,9 +30,7 @@ if not exist "%SWF_FILE%" (
 )
 
 echo FLEX_HOME: %FLEX_HOME%
-echo Target SWF: %SWF_FILE%
-echo.
-echo Starting fdb debugger... (type quit to exit)
+echo Target: %SWF_FILE%
 echo.
 
 set PATH=%FLEX_BIN%;%PATH%
