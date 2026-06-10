@@ -73,7 +73,7 @@ if not exist "%LIB_SWF%" (
 
 REM ---- [4/5] Package ANE ----
 echo [4/5] Packaging ANE...
-call "%ADT%" -package -target ane "%PROJ%BVNFileReader.ane" "%PROJ%extension.xml" -swc "%BUILD%\swc\BVNFileReader.swc" -platform %PLATFORM% -C "%BUILD%\%PLATFORM%\" .
+call "%ADT%" -package -target ane "%PROJ%BVNFileReader.ane" "%PROJ%extension.xml" -swc "%BUILD%\swc\BVNFileReader.swc" -platform %PLATFORM% -C "%BUILD%\%PLATFORM%" .
 if %errorlevel% neq 0 (
     echo [ERROR] ANE package failed.
     pause & goto :EOF
