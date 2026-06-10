@@ -121,21 +121,22 @@ package net.play5d.game.bvn
       
       public static function log(... rest) : void
       {
-         if(!_debugEnabled)
-         {
-            return;
-         }
          var msg:String = rest.join(" ");
          if(!msg || msg.length == 0)
          {
             return;
          }
          trace(msg);
+         if(!_debugEnabled)
+         {
+            return;
+         }
          _queueLog(msg,false);
       }
-      
+
       public static function errorMsg(param1:String) : void
       {
+         trace("[ERROR] " + param1);
          if(!_debugEnabled)
          {
             return;
