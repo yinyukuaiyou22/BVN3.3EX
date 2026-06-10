@@ -1023,7 +1023,7 @@
 		</says>
 		<bgm url="assets/bgm/bleach.mp3" rate="80" />
 	</fighter>
-	<fighter id="东仙要队长" name="东仙要队长(昭泽安仁)"comic_type="0">
+	<fighter id="东仙要队长" name="东仙要队长(昭泽安仁)" comic_type="0">
 		<file url="assets/fighter/tousen.swf" startFrame="1" />
 		<face url="assets/face/tousen.png" big_url="assets/face/tousen_b.png" bar_url="assets/face/tousen_m.png" win_url="assets/face/tousen_m.png" />
 		<contact>
