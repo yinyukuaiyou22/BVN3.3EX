@@ -108,7 +108,7 @@ for %%D in (fighter map face bgm) do (
 	    echo [FLA] Stripped .fla files from APK
 	)
 
-	call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "D:/Android/SDK" "launch.swf" -C . assets
+	call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -extdir "." -platformsdk "D:/Android/SDK" "launch.swf" -C . assets
 	set ADT_RESULT=%errorlevel%
 
 	:: ---- Restore backed-up content dirs (ALWAYS run, even on ADT failure) ----
