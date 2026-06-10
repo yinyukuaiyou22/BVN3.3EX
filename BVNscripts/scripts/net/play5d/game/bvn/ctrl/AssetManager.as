@@ -56,6 +56,7 @@ package net.play5d.game.bvn.ctrl
       
       public function loadBasic(param1:Function, param2:Function = null) : void
       {
+         trace("[AssetManager] loadBasic start");
          var type:String = null;
          var back:Function = null;
          var process:Function = null;
@@ -77,26 +78,31 @@ package net.play5d.game.bvn.ctrl
             switch(loadStep)
             {
                case 0:
+                  trace("[AssetManager] step 0: loading sounds...");
                   loadPreLoadSounds(loadNext,loadProcess);
                   type = "声音";
                   loadProcess(0);
                   break;
                case 1:
+                  trace("[AssetManager] step 1: loading effect.swf...");
                   loadGraphics(["assets/effect.swf"],loadNext,loadProcess);
                   type = "特效";
                   loadProcess(0);
                   break;
                case 2:
+                  trace("[AssetManager] step 2: loading fonts...");
                   loadFonts(loadNext,loadProcess);
                   type = "字体";
                   loadProcess(0);
                   break;
                case 3:
+                  trace("[AssetManager] step 3: loading bitmaps...");
                   loadBitmaps(loadNext,loadProcess);
                   type = "图片";
                   loadProcess(0);
                   break;
                case 4:
+                  trace("[AssetManager] step 4: init complete");
                   initAssets();
                   if(back != null)
                   {

@@ -53,31 +53,40 @@ import net.play5d.game.bvn.Debugger;
          var loadMessionFail:* = undefined;
          var back:Function = param1;
          fail = param2;
+         trace("[GameData] loadConfig start, loading fighter.xml...");
          var loadFighterBack:* = function(param1:XML):void
          {
+            trace("[GameData] fighter.xml loaded");
             FighterModel.I.initByXML(param1);
+            trace("[GameData] scanning external assets...");
             GameLoader.scanExternalAssets();
+            trace("[GameData] loading assist.xml...");
             AssetManager.I.loadXML("assets/config/assist.xml",loadAssetsBack,loadAssisterFail);
          };
          loadAssetsBack = function(param1:XML):void
          {
+            trace("[GameData] assist.xml loaded, loading select.xml...");
             AssisterModel.I.initByXML(param1);
             AssetManager.I.loadXML("assets/config/select.xml",loadSelectBack,loadSelectFail);
          };
          loadSelectBack = function(param1:XML):void
          {
+            trace("[GameData] select.xml loaded, loading map.xml...");
             config.select_config.setByXML(param1);
             AssetManager.I.loadXML("assets/config/map.xml",loadMapBack,loadMapFail);
          };
          loadMapBack = function(param1:XML):void
          {
+            trace("[GameData] map.xml loaded, loading mission.xml...");
             MapModel.I.initByXML(param1);
             AssetManager.I.loadXML("assets/config/mission.xml",loadMessionBack,loadMessionFail);
          };
          loadMessionBack = function(param1:String):void
          {
+            trace("[GameData] mission.xml loaded, loading external configs...");
             MessionModel.I.initByXML(new XML(param1));
             GameLoader.loadExternalConfigs();
+            trace("[GameData] config loading complete");
             back();
          };
          var loadFighterFail:* = function():void
