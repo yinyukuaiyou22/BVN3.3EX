@@ -69,7 +69,7 @@ tools/script/debug_mob.bat
 
 # 手动打包（Captive Runtime, armv8, 从 tools/Test 目录执行）
 cd tools/Test
-adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%FLEX_HOME%\bin\mycert.p12" -storepass yinyu7798 bvn.apk application.xml launch.swf assets
+adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%FLEX_HOME%\bin\mycert.p12" -storepass yinyu7798 bvn.apk application.xml launch.swf -C assets .
 ```
 
 > **APK 瘦身**：`debug_mob.bat` 打包时自动将 fighter/map/face/bgm 备份，以空目录打包进 APK，打包后恢复。实际内容部署在 `/sdcard/BVN/assets/` 外部存储。
