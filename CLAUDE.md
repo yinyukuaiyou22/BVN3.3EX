@@ -518,6 +518,49 @@ GameLoader.loadFighterFromPath("/sdcard/BVN/assets/fighter/ichigo.swf", callback
 | SetBtn 重入 | `SetBtn.as` | 全局静态重入守卫 + deferred dispatchEvent |
 | debug_mob.bat | 多次迭代 | FLEX_HOME 自动检测 + PATH 方式 adb + 基于 BVN3.9 重写 |
 
+## 构建脚本故障排查
+
+本节汇集 `build_ane.bat` 和 `debug_mob.bat` 常见崩溃（闪退/报错）的系统性排查流程。
+
+### 优先级排查清单
+
+出现 `双击闪退` 或 `报错后立即关闭` 时，按以下顺序排查：
+
+| 优先级 | 排查项 | 症状 | 修复法 |
+|:---:|--------|------|--------|
+| **1** | `exit /b` | cmd 窗口一闪而过 | 全部改为 `goto :EOF`，末尾加 `pause` |
+| **2** | 调用其他 `.bat` 缺 `call` | 子 bat 退出时连带终止主脚本 | `call "%ADT%"` 而非 `"%ADT%"` |
+| **3** | `()` 块内 `)` 未转义 | `-- was unexpected at this time.` | 批处理 `()` 内的文字 `)` 须用 `^)` 转义；或避免在 `if ()` 块中嵌入含 `)` 的多行命令 |
+| **4** | `-C "path\"` 末尾反斜杠 | `No such directory: ..." .` | Windows 命令行 `\"` 会被解析为转义引号 → 去掉末尾 `\` |
+| **5** | `::` 注释含特殊字符 | `'xxx' 不是内部或外部命令` | 中文/Unicode 字符多时改用 `REM` |
+| **6** | javac 不认 `*.java` 通配符 | `无效文件名: ...\*.java` | 显式列出 `.java` 源文件 |
+| **7** | powershell 内联 `^` 续行 | `-- was unexpected` | 内联 PowerShell 的在 `if ()` 块中极易破坏括号匹配 → 改用独立 `.ps1` 文件或简化逻辑 |
+| **8** | `pause >nul` | 看不到 "按任意键继续" | 去掉 `>nul` |
+| **9** | ANE 文件缺失 | 运行时 `implementation not found` | 先运行 `build_ane.bat` 生成 ANE |
+| **10** | 上次中断遗留 `_bakslim_*` | `already exists` | 打包前先检查并恢复遗留备份目录 |
+
+### 安全修改模式
+
+修改 `.bat` 文件时必须遵守：
+1. **先备份后可回滚**：用 `git checkout -- <file>` 恢复
+2. **每次只改一个点**：改完双击测试，确认无误再改下一个
+3. **避免内联 PowerShell**：涉及 `)`、`$`、`^` 时极易出问题 → 写独立 `.ps1` 文件
+4. **用 `call` 调子 bat**：永不直接调用另一个 `.bat`
+5. **用 `goto :EOF` 而非 `exit /b`**：前者返回调用方，后者会关闭最外层 cmd 窗口
+
+### 调试技巧
+
+```bash
+# 1. 命令行直接运行（绕过 bat 看原始错误）
+adt -package -target ane ...
+
+# 2. 查看 bat 文件中的隐藏字符
+python3 -c "print(open('x.bat','rb').read().hex())"
+
+# 3. 从 git 恢复干净版本
+git checkout HEAD -- tools/script/debug_mob.bat
+```
+
 ## 开发规范
 
 ### 交流语言
