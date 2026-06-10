@@ -580,6 +580,7 @@ GameLoader.loadFighterFromPath("/sdcard/BVN/assets/fighter/ichigo.swf", callback
 | 运行时配置 | `tools/Test/assets/config/fighter.xml`、`select.xml` |
 | ANE 扩展 | `extensions/BVNFileReader/` |
 | 代码同步 | `sync.py` |
+| 模型路由 | `tools/route_model.py`、`.claude/skills/route-model.md` |
 
 ## 版本信息
 

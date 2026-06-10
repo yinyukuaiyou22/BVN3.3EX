@@ -17,6 +17,24 @@
 |------|------|------|
 | 主力 | DeepSeek V4 Pro | 核心逻辑、架构设计、Bug 排查 |
 | 轻量 | deepseek-v4-flash | 批量搜索、简单修改、子任务分发 |
+| 重型 | Claude Opus 4.8 | 全面审计、架构设计、多系统联调 |
+
+### 模型主动路由
+
+使用 `tools/route_model.py` 分析任务复杂度，自动推荐最佳模型：
+
+```bash
+# 获取推荐（文本输出）
+python tools/route_model.py "修复 4 个文件中的 INFINITE_ENERGY bug"
+
+# JSON 输出（供程序解析）
+python tools/route_model.py "你的任务描述" --json
+
+# 指定涉及文件数
+python tools/route_model.py "重构 AI 系统" --files=6 --json
+```
+
+**路由策略**：详见 [.claude/skills/route-model.md](.claude/skills/route-model.md)
 
 可临时切换：简单任务直接用 Flash，不必一直用 Pro。
 
