@@ -47,6 +47,28 @@ package net.play5d.game.bvn.data
             this._mapArray.push(_loc2_);
          }
       }
+
+      /** Merge maps from external XML (append only, skip duplicates) */
+      public function mergeByXML(param1:XML) : void
+      {
+         var _loc3_:* = undefined;
+         var _loc2_:MapVO = null;
+         if(!this._mapObj)
+         {
+            this._mapObj = {};
+            this._mapArray = [];
+         }
+         for each(_loc3_ in param1.map)
+         {
+            _loc2_ = new MapVO();
+            _loc2_.initByXML(_loc3_);
+            if(!this._mapObj[_loc2_.id])
+            {
+               this._mapObj[_loc2_.id] = _loc2_;
+               this._mapArray.push(_loc2_);
+            }
+         }
+      }
    }
 }
 

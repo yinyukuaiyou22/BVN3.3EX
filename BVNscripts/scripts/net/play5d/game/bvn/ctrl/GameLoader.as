@@ -259,6 +259,60 @@ import net.play5d.game.bvn.Debugger;
          scanExternalMaps();
       }
 
+      /** Load and merge external config XMLs from /sdcard/BVN/assets/config/ */
+      public static function loadExternalConfigs() : void
+      {
+         var basePath:String = "/sdcard/BVN/assets/config/";
+         Debugger.log("[GameLoader] Loading external configs from:", basePath);
+         if(!ANEFileReader.I.exists(basePath))
+         {
+            Debugger.log("[GameLoader] External config path not found, skipping.");
+            return;
+         }
+         // Try to load and merge each config XML
+         tryLoadExternalXML("fighter.xml", function(xml:XML):void {
+            FighterModel.I.mergeByXML(xml);
+            Debugger.log("[GameLoader] External fighter.xml merged.");
+         });
+         tryLoadExternalXML("assist.xml", function(xml:XML):void {
+            AssisterModel.I.mergeByXML(xml);
+            Debugger.log("[GameLoader] External assist.xml merged.");
+         });
+         tryLoadExternalXML("map.xml", function(xml:XML):void {
+            MapModel.I.mergeByXML(xml);
+            Debugger.log("[GameLoader] External map.xml merged.");
+         });
+         tryLoadExternalXML("mission.xml", function(xml:XML):void {
+            MessionModel.I.mergeByXML(xml);
+            Debugger.log("[GameLoader] External mission.xml merged.");
+         });
+      }
+
+      /** Helper: load a single external XML and call back, silently skip if missing */
+      private static function tryLoadExternalXML(fileName:String, back:Function) : void
+      {
+         var fullPath:String = "/sdcard/BVN/assets/config/" + fileName;
+         if(!ANEFileReader.I.exists(fullPath))
+         {
+            return;
+         }
+         try
+         {
+            var ba:ByteArray = ANEFileReader.I.readBytes(fullPath);
+            if(ba && ba.length > 0)
+            {
+               var xmlStr:String = ba.readUTFBytes(ba.length);
+               var xml:XML = new XML(xmlStr);
+               back(xml);
+               Debugger.log("[GameLoader] External config loaded:", fileName);
+            }
+         }
+         catch(e:Error)
+         {
+            Debugger.log("[GameLoader] Failed to parse external config:", fileName, e.message);
+         }
+      }
+
       /** Load fighter from absolute file path via ANEFileReader */
       public static function loadFighterFromPath(path:String, back:Function, fail:Function = null) : void
       {

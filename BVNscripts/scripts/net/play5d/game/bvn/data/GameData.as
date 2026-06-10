@@ -77,6 +77,7 @@ import net.play5d.game.bvn.Debugger;
          loadMessionBack = function(param1:String):void
          {
             MessionModel.I.initByXML(new XML(param1));
+            GameLoader.loadExternalConfigs();
             back();
          };
          var loadFighterFail:* = function():void

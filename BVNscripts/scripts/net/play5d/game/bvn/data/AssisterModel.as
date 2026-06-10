@@ -60,6 +60,26 @@ package net.play5d.game.bvn.data
             this._assisterObj[_loc2_.id] = _loc2_;
          }
       }
+
+      /** Merge assisters from external XML (append only, skip duplicates) */
+      public function mergeByXML(param1:XML) : void
+      {
+         var _loc3_:* = undefined;
+         var _loc2_:FighterVO = null;
+         if(!this._assisterObj)
+         {
+            this._assisterObj = {};
+         }
+         for each(_loc3_ in param1.fighter)
+         {
+            _loc2_ = new FighterVO();
+            _loc2_.initByXML(_loc3_);
+            if(!this._assisterObj[_loc2_.id])
+            {
+               this._assisterObj[_loc2_.id] = _loc2_;
+            }
+         }
+      }
    }
 }
 

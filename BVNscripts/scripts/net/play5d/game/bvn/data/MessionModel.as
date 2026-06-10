@@ -44,6 +44,35 @@ import net.play5d.game.bvn.Debugger;
             this._messions.push(_loc2_);
          }
       }
+
+      /** Merge missions from external XML (append only, skip duplicates by comicType+gameMode) */
+      public function mergeByXML(param1:XML) : void
+      {
+         var _loc3_:* = undefined;
+         var _loc2_:MessionVO = null;
+         if(!this._messions)
+         {
+            this._messions = [];
+         }
+         for each(_loc3_ in param1.design)
+         {
+            _loc2_ = new MessionVO();
+            _loc2_.initByXML(_loc3_);
+            var dup:Boolean = false;
+            for each(var existing:* in this._messions)
+            {
+               if(existing.comicType == _loc2_.comicType && existing.gameMode == _loc2_.gameMode)
+               {
+                  dup = true;
+                  break;
+               }
+            }
+            if(!dup)
+            {
+               this._messions.push(_loc2_);
+            }
+         }
+      }
       
       public function getMession(param1:int, param2:int) : MessionVO
       {
