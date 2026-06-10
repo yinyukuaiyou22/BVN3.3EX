@@ -48,10 +48,10 @@
          return _hasANE;
       }
 
-      /** Map assets/ relative path to app-private external dir (no ANE needed) */
+      /** Map assets/ relative path to user-accessible documents dir (no root needed) */
       public static function resolveExternalPath(assetPath:String) : String
       {
-         var base:File = File.applicationStorageDirectory.resolvePath("BVN/assets");
+         var base:File = File.documentsDirectory.resolvePath("BVN/assets");
          return base.resolvePath(assetPath).nativePath;
       }
 

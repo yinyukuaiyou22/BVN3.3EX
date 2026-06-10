@@ -256,7 +256,7 @@ import net.play5d.game.bvn.Debugger;
       /** Ensure external asset directory structure exists (create if missing) */
       public static function ensureExternalDirs() : void
       {
-         var base:File = File.applicationStorageDirectory.resolvePath("BVN/assets");
+         var base:File = File.documentsDirectory.resolvePath("BVN/assets");
          var dirs:Array = ["fighter", "map", "face", "bgm", "config"];
          for each(var d:String in dirs)
          {
