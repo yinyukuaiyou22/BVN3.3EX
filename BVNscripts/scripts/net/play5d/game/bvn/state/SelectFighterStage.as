@@ -25,7 +25,7 @@ import net.play5d.game.bvn.Debugger;
       /** 当前每页高度（buildList 时动态计算） */
       public static var PAGE_HEIGHT:Number = 600;
       /** 当前总页数 */
-      public static var TOTAL_PAGES:int = 1;
+      public static var TOTAL_PAGES:int = 5;
       /** 当前页号（0-based，用于翻页动画） */
       public static var CURRENT_PAGE:int = 0;
       
@@ -194,7 +194,7 @@ import net.play5d.game.bvn.Debugger;
          var _loc14_:Number = GameConfig.GAME_SIZE.y / 2 - 30;
 
          // 分页: 每页最多 ROWS_PER_PAGE 行，页高 = config.height
-         var rowsPerPage:int = 3;
+         var rowsPerPage:int = 8;
          if(rowsPerPage < 1) { rowsPerPage = 1; }
          var pageHeight:Number = this._config.height;
          var maxY:int = 0;
@@ -210,7 +210,7 @@ import net.play5d.game.bvn.Debugger;
             _loc11_ = (this._config.height - this._config.unitSize.y - this._config.top - this._config.bottom) / (displayedVCount - 1);
          }
          PAGE_HEIGHT = pageHeight;
-         TOTAL_PAGES = int(maxY / rowsPerPage) + 1;
+         TOTAL_PAGES = 5;
          CURRENT_PAGE = 0;
          Debugger.log("[SelectFighterStage] pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "rowsPerPage:", rowsPerPage);
 

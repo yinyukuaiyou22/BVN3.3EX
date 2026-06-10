@@ -1,210 +1,321 @@
 # BVN（死神vs火影）— AS3 格斗游戏
 
-> **AI 开发助手**：请同时阅读 [AGENTS.md](AGENTS.md) 获取本项目专属的开发行为准则和工具配置。
+> **AI 开发助手**：请同时阅读 [AGENTS.md](AGENTS.md) 获取本项目专属的开发行为准则和工具配置。简单工作优先交给 `deepseek-v4-flash` 执行。
 
----
+## 项目概述
 
-## 1. 项目概述
-
-本项目是 **5dplay 出品的"死神vs火影" V3.3** — 基于 ActionScript 3 开发的 2D Flash 格斗游戏。源码从 SWF 反编译后经手动修复，现基于可编译基线 (`last/`) 持续开发。
+本项目是 **5dplay 出品的"死神vs火影" V3.3** — 基于 ActionScript 3 开发的 2D Flash 格斗游戏。源码从 SWF 反编译后经手动修复，现基于可编译基线持续开发。
 
 | 目录 | 说明 |
 |------|------|
 | `BVNscripts/scripts/` | 可编译源码（含 `_assets/` 嵌入资源、`mx/` Flex 框架桩） |
-| `Outscripts/` | 修改后脚本导出目录（git 忽略，`sync.py` 同步） |
-| `build.bat` | 编译脚本（`Ctrl+Shift+B` 或直接运行） |
+| `Outscripts/` | 修改后脚本导出目录（git 忽略，`sync.py` 同步回 BVNscripts） |
+| `tools/Test/` | 编译产物与运行时资源 |
+| `tools/Test/assets/` | 运行时加载资源：角色 SWF / 地图 / BGM / 头像 / 配置文件 |
+| `tools/script/` | 调试/打包/同步脚本 |
+| `extensions/BVNFileReader/` | ANE 原生扩展（Java + AS3） |
+| `BVN3.9/` | BVN 3.9 参考源码（只读，多模块 CORE/LIB/SHELL 结构） |
+| `build.bat` | 一键编译脚本（`Ctrl+Shift+B` 或直接运行） |
 | `asconfig.json` / `.vscode/` | VSCode 构建配置 |
-| `assets/swf/` | UI SWF 运行时资源（外部加载） |
 
----
+## 构建与调试
 
-## 2. 构建与调试
-
-### 2.1 环境变量
+### 环境配置
 
 | 变量 | 位置 | 用途 |
 |------|------|------|
 | Flex SDK | `项目根\flex4.16.1-air51.0.1.1\` | mxmlc 编译器 + Flex 框架 + AIR 运行时 |
-| AIR SDK | `项目根\AIRSDK5\AIRSDK_51.3.2\` | ADT 打包 / fdb 调试 |
-| `FLEX_HOME` | 自动检测 → AIR SDK | 脚本定位 `bin\fdb`、`bin\adl.exe` |
+| AIR SDK | `项目根\AIRSDK5\AIRSDK_51.3.2\` | ADT 打包 / adl 启动 / fdb 调试（签名证书 `bin\mycert.p12`） |
+| `FLEX_HOME` | 自动检测 → AIR SDK | 调试脚本定位 `bin\fdb`、`bin\adl.exe` |
 | `JAVA_HOME` | JDK 17 | mxmlc 运行时 |
-| ADB | Android SDK platform-tools | 手机真机调试 |
-| 证书 | `AIRSDK5\...\bin\mycert.p12` | APK 签名（密码 `yinyu7798`） |
+| ADB | `tools\platform-tools\adb.exe` | 手机真机调试 |
+| 证书 | `AIRSDK5\AIRSDK_51.3.2\bin\mycert.p12` | APK 签名（密码 yinyu7798） |
 | App 描述 | `tools\Test\application.xml` | AIR 应用配置（`com.bvn.yinyu`） |
 
-### 2.2 PC 端编译
+### PC 端开发
 
 ```bash
-# 编译（VSCode: Ctrl+Shift+B）
+# 编译（VSCode: Ctrl+Shift+B 或直接运行）
 ./build.bat
-# 编译器: mxmlc (Flex SDK) → 输出: tools/Test/launch.swf（~4.6MB）
+
+# 编译器：mxmlc (Flex SDK)
+# 源文件：BVNscripts/scripts/launch.as
+# 输出：tools/Test/launch.swf（~4.6MB）
 ```
 
-### 2.3 PC 端调试
+#### 调试工具
 
 | 工具 | 位置 | 用途 |
 |------|------|------|
-| `adl.exe` | `%FLEX_HOME%\bin\` | AIR Debug Launcher |
-| `fdbg.bat` | `tools/script/` | 项目自定义 fdb 调试脚本 |
+| `build.bat` | 项目根 | 编译 tools/Test/launch.swf |
+| `debug.bat` | `tools/script/` | 编译 + adl 启动（自动复制 SWF + 使用 application.xml） |
+| `debug_mob.bat` | `tools/script/` | 编译 → ADT 打包 → ADB 安装 → adb logcat 实时日志 |
+| `fdbg.bat` | `tools/script/` | 通用 fdb 连接 SWF 进行断点调试 |
+
+`tools/script/lang/` 目录包含多代码页包装脚本（437/932/936/949），解决系统编码兼容。
+
+### 移动端开发（Android）
+
+#### 前置条件
+- `FLEX_HOME` 指向 AIR SDK 根目录
+- `adb` 在 PATH 中（或使用 `tools/platform-tools/adb.exe`）
+- 手机启用「USB 调试」并连接电脑
+
+#### APK 打包与调试
 
 ```bash
-# 直接启动（带控制台输出）
-adl tools/Test/launch.swf
-
-# 断点调试 FighterTester
-tools/script/debug.bat
-```
-
-### 2.4 手机真机调试（Android）
-
-**前置条件**：`FLEX_HOME` 指向 AIR SDK 根目录 / `adb` 在 PATH 中 / 手机 USB 调试已开启
-
-```bash
-# 打包 APK（ADT Captive Runtime, armv8）
-adt -package -target apk-captive-runtime -arch armv8 \
-  -storetype pkcs12 -keystore mycert.p12 -storepass yinyu7798 \
-  tools/Test/死神vs火影银鱼改.apk \
-  tools/Test/application.xml \
-  tools/Test/launch.swf
-
-# 一键：打包 + 安装 + 启动 + fdb 实时调试
+# 一键：编译 + 打包 + 安装 + logcat 实时日志（debug_mob.bat 自动完成全部）
 tools/script/debug_mob.bat
+
+# 手动打包（Captive Runtime, armv8）
+adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore mycert.p12 -storepass yinyu7798 tools/Test/死神vs火影银鱼改.apk tools/Test/application.xml tools/Test/launch.swf -C tools/Test/assets .
 ```
 
-**调试脚本组**（`tools/script/`）：
+> **注意**：ADT 打包时 `-C tools/Test/assets .` 将 assets/ 目录打包进 APK，确保 UI SWF、角色、BGM、配置文件全部包含在 APK 内。
 
-| 脚本 | 目标 | 说明 |
-|------|------|------|
-| `debug.bat` | PC | 编译 + adl 启动 FighterTester |
-| `debug_mob.bat` | 手机 | adb 安装 APK + fdb 实时调试 |
-| `fdbg.bat` | 通用 | fdb 连接任意 SWF 进行断点调试 |
+### 运行时资源结构（`tools/Test/assets/`）
 
----
-
-## 3. 整体架构
-
-### 3.1 启动流程
+编译产物 `launch.swf` 在运行时从此目录加载外部资源：
 
 ```
-launch.as（入口，继承 Sprite）
-  └─ MainGame.as（游戏状态机，单例）
-       └─ KyoStageCtrl（场景/状态管理器）
-            └─ Logo → Menu → SelectFighter → Loading → GameState → GameOver/Winner
+tools/Test/assets/
+├── swf/                  # UI SWF（common_ui/fight/gameover/howtoplay/loading/select/setting/title）
+├── config/               # 游戏配置 XML（被 git 追踪）
+│   ├── fighter.xml       # 角色定义（~3488行）
+│   ├── select.xml        # 选人界面布局
+│   ├── map.xml           # 地图列表
+│   ├── mission.xml       # 闯关模式关卡
+│   ├── assist.xml        # 辅助角色定义
+│   └── preload.xml       # 预加载列表
+├── fighter/              # 角色 SWF 文件
+├── face/                 # 角色头像图片
+├── bgm/                  # 背景音乐
+├── map/                  # 地图 SWF 文件
+├── sounds/               # 音效文件
+└── font/                 # 字体文件
 ```
 
-**设计模式**：大量使用单例的类 MVC 架构，核心类通过 `.I` 静态 getter 访问（`GameData.I`、`GameCtrl.I` 等）。
+## 交流语言
 
-### 3.2 启动链路
+**所有对话使用中文**，技术术语、代码标识符、文件路径可保留英文。
+
+## 整体架构
 
 ```
-launch() → initlize() → initGame()
-  → ScreenRotater.init / ScreenPadManager.initlize / UIAssetUtil.initalize
-  → buildGame() → MainGame.initlize()
-    → ResUtils.initalize（外部 SWF 加载）
-    → GameRender.initlize → GameInputer.initlize
-    → GameData.I.loadData → applyConfig → updateConfig
-    → GameLoadingState → loadGame → EffectModel.I.initlize
-    → goLogo() → LogoState
+launch.as（入口，继承 Sprite，Flash 文档类）
+  └─ MainGame.as（游戏状态机，单例 MainGame.I）
+       └─ KyoStageCtrl（场景/状态管理器，KyoStageEvent 驱动）
+            └─ 各状态: Logo → Menu → SelectFighter → Loading → GameState → GameOver/Winner/Congratulate
 ```
 
-### 3.3 游戏状态机
+**设计模式**: 大量使用单例的类 MVC 架构。核心类通过 `.I` 静态 getter 访问（如 `GameData.I`、`GameCtrl.I`、`MainGame.I`）。
 
-- 非战斗状态 30fps，GameState 60fps
-- 状态切换：`MainGame.I.goXxx()`
-
-### 3.4 目录结构
+## 目录结构
 
 ```
 BVNscripts/scripts/
 ├── launch.as                            # 主入口（Flash 文档类）
-├── build.bat                            # 编译脚本
-├── EmbeddedAssets.as                    # 嵌入式资源统一管理
-├── mx/core/                             # Flex 框架桩
+├── EmbeddedAssets.as                    # 嵌入式资源统一管理（[Embed] 元标签）
+├── mx/core/                             # Flex 框架桩（BitmapAsset/ByteArrayAsset/FlexBitmap）
+├── mx/utils/                            # Flex 工具桩
 ├── com/
-│   ├── greensock/                       # TweenLite 补间动画库
-│   └── adobe/utils/StringUtil.as        # Adobe 字符串工具
-├── fl/motion/                           # Flash 运动辅助
+│   ├── greensock/                       # TweenLite 补间动画库（core/easing）
+│   └── adobe/utils/                     # Adobe 字符串工具
+├── fl/motion/                           # Flash 运动辅助（ColorMatrix/DynamicMatrix）
 ├── flash/compiler/embed/                # EmbeddedMovieClip
 ├── net/play5d/
 │   ├── game/bvn/                        # === 主游戏代码 ===
 │   │   ├── MainGame.as                  # 游戏状态机（版本 "V3.3"）
-│   │   ├── GameConfig.as                # 游戏常量
-│   │   ├── Debugger.as                  # 调试面板（FPS/内存/日志，647行）
+│   │   ├── GameConfig.as                # 游戏常量（TOUCH_MODE/G/物理参数/FPS/气力/防御参数）
+│   │   ├── GameQuailty.as               # 画质设置
+│   │   ├── Debugger.as                  # 调试面板（DEBUG_PANEL_ENABLED 开关 + FPS/内存监视器）
 │   │   ├── ctrl/                        # 核心控制器层
-│   │   │   ├── GameLoader.as            # 角色/地图/辅助 SWF 加载
+│   │   │   ├── GameLoader.as            # 角色/地图/辅助 SWF 加载 + 外部角色扫描（loadFighterFromPath）
 │   │   │   ├── GameLogic.as             # 物理、碰撞、计分
 │   │   │   ├── GameRender.as            # EnterFrame 渲染循环
-│   │   │   ├── AssetLoader/             # 资源加载管理
-│   │   │   ├── EffectCtrl.as            # 视觉效果
-│   │   │   ├── SoundCtrl.as             # BGM/音效
+│   │   │   ├── EffectCtrl.as            # 视觉效果控制
+│   │   │   ├── SoundCtrl.as             # BGM/音效控制
 │   │   │   ├── StateCtrl.as             # 状态控制
+│   │   │   ├── AssetLoader.as           # 资源加载器接口
+│   │   │   ├── AssetManager.as          # 资源管理器
 │   │   │   └── game_ctrls/              # 游戏子控制器
-│   │   │       ├── GameCtrl.as          # 中央控制器（toggleFighterAI）
+│   │   │       ├── GameCtrl.as          # 中央控制器（addFighter/setFighterActionCtrl/toggleFighterAI）
 │   │   │       ├── GameStartCtrl.as     # 开场序列
 │   │   │       ├── GameEndCtrl.as       # 回合结束
-│   │   │       ├── GameMainLogicCtrler.as # 逐帧逻辑
-│   │   │       ├── FighterEventCtrl.as
-│   │   │       └── TrainingCtrler.as
+│   │   │       ├── GameMainLogicCtrler.as  # 逐帧逻辑（碰撞检测/攻击判定）
+│   │   │       ├── FighterEventCtrl.as  # 角色事件分发
+│   │   │       └── TrainingCtrler.as    # 训练模式控制器
 │   │   ├── data/                        # 数据模型
-│   │   │   ├── GameData.as              # 中央数据存储
-│   │   │   ├── ConfigVO.as              # 配置 VO
-│   │   │   ├── FighterVO/FighterModel   # 角色数据
-│   │   │   ├── GameMode.as              # 游戏模式常量
-│   │   │   └── HitType.as               # 攻击类型
+│   │   │   ├── GameData.as              # 中央数据存储（单例）
+│   │   │   ├── ConfigVO.as              # 用户配置 VO（AI_level/按键等）
+│   │   │   ├── FighterVO.as             # 角色定义 VO
+│   │   │   ├── FighterModel.as          # 角色数据模型
+│   │   │   ├── AssisterModel.as         # 辅助角色模型
+│   │   │   ├── MapVO.as / MapModel.as   # 地图数据
+│   │   │   ├── MessionVO.as / MessionModel.as / MessionStageVO.as  # 闯关模式
+│   │   │   ├── GameMode.as              # 游戏模式
+│   │   │   ├── GameRunDataVO.as / GameRunFighterGroup.as  # 运行数据
+│   │   │   ├── SelectVO.as / SelectCharListConfigVO.as / SelectCharListItemVO.as / SelectStageConfigVO.as  # 选人数据
+│   │   │   ├── TeamVO.as / TeamMap.as   # 组队数据
+│   │   │   ├── EffectVO.as / EffectModel.as  # 特效数据
+│   │   │   ├── KeyConfigVO.as           # 按键配置
+│   │   │   ├── BitmapDataCacheVO.as     # 位图缓存
+│   │   │   └── HitType.as               # 攻击类型常量
 │   │   ├── fighter/                     # === 角色系统 ===
-│   │   │   ├── FighterMain.as           # 角色实体
-│   │   │   ├── FighterAction.as         # 动作配置
-│   │   │   ├── FighterActionState.as    # 动作状态常量
-│   │   │   ├── FighterMC.as             # MovieClip 包装器
-│   │   │   └── ctrler/
-│   │   │       ├── FighterMcCtrler.as   # 动作状态机
-│   │   │       ├── FighterKeyCtrl.as    # 玩家输入
-│   │   │       ├── FighterAICtrl.as     # AI 输入
-│   │   │       ├── FighterEffectCtrl.as
-│   │   │       └── ai/FighterAILogic.as # AI 行为逻辑
-│   │   ├── state/                       # 游戏状态（实现 Istage）
-│   │   │   ├── LogoState / MenuState / SelectFighterStage
-│   │   │   ├── LoadingState / GameLoadingState
-│   │   │   ├── GameState / GameCamera
-│   │   │   ├── GameOverState / WinnerState / CongratulateState
-│   │   │   └── SettingState / HowToPlayState / CreditsState
+│   │   │   ├── FighterMain.as           # 角色实体（继承 BaseGameSprite）
+│   │   │   ├── FighterMC.as             # 角色 MovieClip 封装
+│   │   │   ├── FighterAction.as         # 动作配置（帧标签/气力消耗）
+│   │   │   ├── FighterActionState.as    # 动作状态常量 + isAttacking() 等静态工具
+│   │   │   ├── FighterAttacker.as       # 攻击者逻辑
+│   │   │   ├── FighterDefenseType.as    # 防御类型枚举
+│   │   │   ├── FighterHitRange.as       # 攻击判定范围
+│   │   │   ├── Assister.as              # 辅助角色实体
+│   │   │   ├── Bullet.as                # 飞行道具
+│   │   │   ├── ctrler/                  # 角色控制器
+│   │   │   │   ├── FighterMcCtrler.as   # 动作状态机（核心：doBisha/doWaiKai/useQi/setAction）
+│   │   │   │   ├── FighterCtrler.as     # 角色综合控制器
+│   │   │   │   ├── FighterKeyCtrl.as    # 玩家键盘/触控输入 → 实现 IFighterActionCtrl
+│   │   │   │   ├── FighterAICtrl.as     # AI 输入适配器
+│   │   │   │   ├── FighterAttackerCtrler.as  # 攻击者控制
+│   │   │   │   ├── FighterBuffCtrler.as # Buff 控制
+│   │   │   │   ├── FighterEffectCtrl.as # 角色特效控制
+│   │   │   │   ├── FighterVoice.as      # 角色语音
+│   │   │   │   ├── FighterVoiceCtrler.as # 语音控制
+│   │   │   │   ├── AssisiterCtrler.as   # 辅助角色控制
+│   │   │   │   └── ai/                  # AI 行为逻辑
+│   │   │   │       ├── FighterAILogic.as      # AI 行为实现（1146行，12+子系统）
+│   │   │   │       └── FighterAILogicBase.as  # AI 概率决策引擎基类（302行，含 AImain 集成）
+│   │   │   ├── events/                  # 角色事件
+│   │   │   │   ├── FighterEvent.as
+│   │   │   │   └── FighterEventDispatcher.as
+│   │   │   ├── models/                  # 角色模型
+│   │   │   │   ├── FighterHitModel.as
+│   │   │   │   └── HitVO.as
+│   │   │   ├── utils/                   # 角色工具
+│   │   │   │   └── McAreaCacher.as      # MovieClip 判定区缓存
+│   │   │   └── vos/                     # 角色 VO
+│   │   │       ├── FighterBuffVO.as
+│   │   │       └── MoveTargetParamVO.as
+│   │   ├── state/                       # 游戏状态
+│   │   │   ├── LogoState.as / MenuState.as / HowToPlayState.as / SettingState.as
+│   │   │   ├── SelectFighterStage.as    # 选人界面（含分页布局）
+│   │   │   ├── LoadingState.as / GameLoadingState.as
+│   │   │   ├── GameState.as / GameCamera.as
+│   │   │   ├── GameOverState.as / WinnerState.as / CongratulateState.as
+│   │   │   └── CreditsState.as
 │   │   ├── ui/                          # UI 组件
-│   │   │   ├── GameUI.as                # 主 UI 容器
-│   │   │   ├── fight/                   # 战斗 UI（血条/气条/计时/分数）
+│   │   │   ├── GameUI.as / IGameUI.as
+│   │   │   ├── KeyMapping.as            # 按键映射
+│   │   │   ├── MenuBtn.as / MenuBtnGroup.as  # 菜单按钮系统
+│   │   │   ├── PauseDialog.as           # 暂停菜单（含 MoveListSp）
+│   │   │   ├── MoveListSp.as            # 出招表
+│   │   │   ├── SetCtrlBtnUI.as          # 按键设置界面
+│   │   │   ├── SetBtn.as / SetBtnGroup.as / SetBtnDialog.as / SetBtnLine.as
+│   │   │   ├── QuickTransUI.as / TransUI.as  # 过渡动画
+│   │   │   ├── WinUI.as                 # 胜利 UI
+│   │   │   ├── UIUtils.as
+│   │   │   ├── fight/                   # 战斗 UI
+│   │   │   │   ├── FightUI.as           # 战斗主 UI
+│   │   │   │   ├── FighterHpBar.as / FightBar.as / EnergyBar.as / QiBar.as / FightQiBarMode.as
+│   │   │   │   ├── FightFaceUI.as / FightFaceGroup.as  # 头像
+│   │   │   │   ├── FightScoreUI.as / FightTimeUI.as / HitsUI.as
 │   │   │   ├── select/                  # 选人 UI
-│   │   │   ├── dialog/                  # 弹窗（Alert/Confirm）
-│   │   │   ├── PauseDialog.as           # 暂停菜单
-│   │   │   ├── MenuBtn/MenuBtnGroup     # 菜单按钮组
-│   │   │   ├── SetBtn/SetBtnGroup       # 设置按钮组
-│   │   │   └── SetCtrlBtnUI.as          # 按键设置界面
+│   │   │   │   ├── SelectFighterItem.as / SelecterItemUI.as
+│   │   │   │   ├── SelectedFighterUI.as / SelectedFighterGroup.as
+│   │   │   │   ├── SelectIndexUI.as / SelectIndexUIGroup.as
+│   │   │   │   ├── MapSelectUI.as / SelectUIFactory.as
+│   │   │   └── dialog/                  # 弹窗
+│   │   │       ├── AlertUI.as / ConfrimUI.as
 │   │   ├── events/                      # 全局事件
+│   │   │   ├── GameEvent.as / SetBtnEvent.as
 │   │   ├── input/                       # 输入抽象层
+│   │   │   ├── GameInputer.as / GameInputType.as / GameKeyInput.as / IGameInput.as
 │   │   ├── interfaces/                  # 接口和基类
-│   │   │   ├── BaseGameSprite.as        # 基础物理实体
-│   │   │   ├── IGameSprite.as           # 游戏精灵接口
-│   │   │   └── GameInterface.as         # 平台接口
-│   │   ├── map/                         # 地图系统（MapMain/FloorVO）
-│   │   ├── mob/                         # === 移动端支持 ===（见 §4）
+│   │   │   ├── BaseGameSprite.as        # 基础物理实体（x/y/vx/vy/g 等）
+│   │   │   ├── IGameSprite.as / GameInterface.as / IAssetLoader.as
+│   │   │   ├── IExtendConfig.as / IFighterActionCtrl.as / IGameInterface.as
+│   │   │   ├── IInnerSetUI.as / ILoger.as
+│   │   ├── map/                         # 地图系统
+│   │   │   ├── MapMain.as / FloorVO.as
+│   │   ├── mob/                         # === 移动端支持 ===
+│   │   │   ├── GameInterfaceManager.as  # 平台桥接（菜单/设置/INFINITE_ENERGY 同步）
+│   │   │   ├── ScreenRotater.as         # 屏幕旋转
+│   │   │   ├── ctrls/                   # 移动端控制器
+│   │   │   │   ├── MobileCtrler.as / LANClientCtrl.as / LANServerCtrl.as
+│   │   │   │   ├── LANGameCtrl.as / LanGameMenuCtrl.as
+│   │   │   │   ├── LockFrameClientLogic.as / LockFrameServerLogic.as  # 锁帧同步
+│   │   │   │   └── SelectFighterClientLogic.as / SelectFighterServerLogic.as
+│   │   │   ├── data/                    # 移动端数据
+│   │   │   │   ├── ExtendConfig.as      # 扩展配置（INFINITE_ENERGY 三值联动）
+│   │   │   │   ├── ScreenPadConfigVO.as / SocketInputData.as
+│   │   │   │   ├── ClientVO.as / HostVO.as
+│   │   │   ├── events/                  # 移动端事件
+│   │   │   │   ├── LanEvent.as / ScreenPadEvent.as
+│   │   │   ├── input/                   # 移动端输入
+│   │   │   │   ├── InputManager.as / ScreenPadInput.as / GameJoystickInput.as
+│   │   │   │   ├── GameSocketInput.as / JoySticker.as / JoyStickConfigVO.as / JoyStickSetVO.as
+│   │   │   ├── screenpad/               # 屏幕触控按钮
+│   │   │   │   ├── ScreenPadManager.as / ScreenPadGame.as / ScreenPadSelectFighter.as
+│   │   │   │   ├── ScreenPadBtn.as / ScreenPadBtnBase.as / ScreenPadArrow.as
+│   │   │   │   ├── ScreenPadAsset.as    # 按钮素材（light 修复：真实 light.png）
+│   │   │   │   └── ScreenPadUtils.as
+│   │   │   ├── sockets/                 # 网络通信（TCP + UDP 混合）
+│   │   │   │   ├── SocketClient.as / SocketServer.as
+│   │   │   │   ├── PacketBuffer.as / PacketUtils.as
+│   │   │   │   ├── events/SocketEvent.as
+│   │   │   │   └── udp/UDPSocket.as / UDPDataVO.as / UdpDataType.as
+│   │   │   ├── utils/                   # 移动端工具
+│   │   │   │   ├── ANEFileReader.as     # ANE 文件读取封装（降级到 flash.filesystem）
+│   │   │   │   ├── FileUtils.as / JsonUtils.as / LANUtils.as / LockFrameLogic.as
+│   │   │   │   ├── SocketMsgFactory.as / UIAssetUtil.as
+│   │   │   │   ├── AdManager.as / UMengAneManager.as
+│   │   │   │   ├── LanSyncType.as / MsgType.as / SelectFighterDataType.as
+│   │   │   └── views/                   # 移动端视图
+│   │   │       ├── ViewManager.as / GameSideBg.as
+│   │   │       ├── CustomScreenBtnView.as / CustomSetBtnItemUI.as / SetScreenBtnView.as
+│   │   │       ├── JoyStickSetUI.as / AdPauseView.as
+│   │   │       └── lan/LANGameState.as / LANHostCreateDialog.as / HostDialogItem.as / LANExitDialog.as
 │   │   ├── utils/                       # 通用工具
-│   │   │   └── ResUtils.as              # UI SWF 运行时加载
-│   │   └── views/effects/               # 视觉特效
+│   │   │   ├── ResUtils.as              # UI SWF 运行时加载（从 assets/swf/ 加载）
+│   │   │   ├── EffectManager.as / GameLoger.as / KeyBoarder.as
+│   │   │   ├── MCUtils.as / BitmapAssetLoader.as / URL.as
+│   │   └── views/                       # 视觉效果视图
+│   │       └── effects/
+│   │           ├── EffectView.as / BishaFaceEffectView.as / BitmapFilterView.as
+│   │           ├── BlackBackView.as / BuffEffectView.as / ShadowEffectView.as
+│   │           ├── ShineEffectView.as / SpecialEffectView.as / SteelHitEffect.as
 │   └── kyo/                             # === KYO 框架 ===
-│       ├── stage/（KyoStageCtrl/Istage）
-│       ├── display/（BitmapText/MCNumber/BitmapFont）
-│       ├── input/（KyoKeyCode）
-│       ├── loader/（KyoURLoader/KyoSoundLoader）
-│       ├── sound/（KyoBGSounder）
-│       └── utils/（KyoUtils/KyoMath/KyoRandom）
-├── _assets/                             # 嵌入资源（PNG/JPG/MP3/BIN）
-├── snd_*.as                             # 音效嵌入文件
-└── [嵌入资源].as                         # *_png$*.as / *_swf$*.as
+│       ├── stage/KyoStageCtrl.as / Istage.as / KyoStageEvent.as
+│       │   └── effect/IStageFadEffect.as / ZoomEffect.as
+│       ├── display/BitmapText.as / MCNumber.as
+│       │   ├── bitmap/BitmapFont.as / BitmapFontLoader.as / BitmapFontText.as
+│       │   └── shapes/Box.as
+│       ├── input/KyoKeyCode.as / KyoKeyVO.as
+│       ├── loader/KyoURLoader.as / KyoSoundLoader.as / KyoClassLoader.as / BitmapLoader.as
+│       ├── sound/KyoBGSounder.as
+│       └── utils/KyoMath.as / KyoRandom.as / KyoUtils.as / setFrameOut.as / UUID.as / WebUtils.as
+├── _assets/                             # 嵌入资源（PNG/JPG/MP3，编译进 SWF）
+├── snd_*.as                             # 独立音效嵌入文件
+└── [嵌入资源].as                         # *_png$*.as / *_swf$*.as 资源嵌入类
 ```
 
----
+### 其他重要目录
 
-## 4. 核心系统详解
+| 目录 | 说明 |
+|------|------|
+| `extensions/BVNFileReader/` | ANE 原生扩展完整实现（Android Java + AS3 库 + 构建脚本） |
+| `extensions/BVNFileReader/Android/src/com/bvn/filereader/` | Java 源码：Extension / ExtensionContext / ReadBytesFunction / ListDirFunction / ExistsFunction |
+| `extensions/BVNFileReader/as3/com/bvn/filereader/` | AS3 库：BVNFileReaderLib.as |
+| `tools/ane/` | 旧版 ANE 实现（功能已由 extensions/BVNFileReader 取代） |
+| `tools/platform-tools/` | Android SDK 工具（adb/fastboot/sqlite3） |
+| `tools/script/lang/` | 多代码页 bat 包装（437/932/936/949 编码适配） |
+| `BVN3.9/` | BVN 3.9 参考源码（CORE_Components/CORE_KernelLogic/CORE_Shared/CORE_Utils/LIB_KyoLib/LIB_Other/SHELL_Dev/SHELL_Mob/SHELL_Pc） |
+| `.codegraph/` | Codegraph 知识图谱索引 |
+| `.claude/` | Claude Code 会话数据 |
 
-### 4.1 角色系统
+## 核心系统
+
+### 角色系统
 
 #### 动作状态常量（FighterActionState）
 
@@ -216,21 +327,68 @@ BVNscripts/scripts/
 | `BISHA_ING` | 12 | 必杀中 |
 | `BISHA_SUPER_ING` | 13 | 超必杀中 |
 | `JUMP_ING` | 14 | 跳跃中 |
-| `DASH_ING` | 15 | 冲刺中 |
-| `HURT_ACT_ING` | 16 | 受击动作 |
+| `DASH_ING` | 15 | 冲刺/瞬步中 |
+| `JUSHOU_ING` | 16 | 受身中 |
 | `DEFENCE_ING` | 20 | 防御中 |
 | `HURT_ING` | 21 | 受伤中 |
 | `HURT_FLYING` | 22 | 击飞中 |
 | `HURT_DOWN` | 23 | 倒地中 |
-| `HURT_DOWN_TAN` | 24 | 弹地中 |
 | `DEAD` | 30 | 死亡 |
-| `FREEZE` | 40 | 冻结 |
+| `ATTACK_AIR` | 40 | 空中攻击 |
 | `WAN_KAI_ING` | 50 | 卍解中 |
 | `KAI_CHANG` | 60 | 开场 |
 | `WIN` | 61 | 胜利 |
 | `LOSE` | 62 | 失败 |
 
-#### INFINITE_ENERGY（无限能量）系统
+静态工具方法：`isAttacking(state)`, `isHurt(state)`, `isNormal(state)` 等。
+
+#### IFighterActionCtrl 接口（31 方法）
+
+PC 版在原始 26 方法基础上扩展了 5 个：
+- **方向移动**: `moveLEFT()` / `moveRIGHT()` / `moveUP()` / `moveDOWN()`
+- **跳跃**: `jump()` / `jumpQuick()` / `jumpDown()`
+- **瞬步**: `dash()` / `dashJump()`
+- **攻击**: `attack()` / `attackAIR()` / `holdAttack()`
+- **技能**: `skill1()` / `skill2()` / `holdSkill()` / `skillAIR()`
+- **必杀**: `bisha()` / `bishaUP()` / `bishaSUPER()` / `bishaAIR()` / `holdBisha()`
+- **其他**: `defense()` / `waiKai()` / `catch1()` / `catch2()` / `ghostStep()` / `ghostJump()` / `ghostJumpDown()` / `assist()` / `specailSkill()`
+- **招式**: `zhao1()` / `zhao2()` / `zhao3()`
+- **万解变体**: `waiKaiW()` / `waiKaiS()`
+
+#### AI 系统（双层决策架构）
+
+```
+IFighterActionCtrl (接口)
+       |
+ FighterKeyCtrl (玩家输入)    FighterAICtrl (AI 输入适配器)
+                                    |
+                              FighterAILogic (内置概率 AI, 1146 行)
+                                    |
+                              FighterAILogicBase (概率决策引擎, 302 行)
+                                    |
+                            [AImain 元件] (角色 SWF 内嵌自定义 AI, level >= 6 激活)
+```
+
+**核心机制**:
+- **6 元概率数组** `[p0,p1,p2,p3,p4,p5]` 对应 AI 等级 1,2,3,4,5,6+
+- **对手状态感知**: `getAIByFighterState()` 根据对手 actionState 动态选择概率数组
+- **连招连续性**: `_isConting` 状态 + `ContOrder` 优先级队列（降序 + 随机微调）
+- **AImain 集成**: 每个角色 SWF 可含 `AImain` MovieClip，提供 `updateActionAI()`（覆盖内置逻辑）和 `getActionAI()`（微调概率数组）两个钩子
+
+AI 等级：
+| 等级 | 说明 |
+|------|------|
+| 0-1 | 最低概率，几乎不行动 |
+| 2 | 低概率 |
+| 3 | 中等概率 |
+| 4 | 较高概率 |
+| 5 | 高概率 |
+| 6 | 最高概率 + AImain 激活 |
+| 7 (CRAZY) | 疯狂难度（需额外代码支持） |
+
+> 详细 AI 系统文档见 [AI-SYSTEM-DOC.md](AI-SYSTEM-DOC.md)
+
+#### INFINITE_ENERGY（无限能量）
 
 涉及文件：`GameConfig` / `ConfigVO` / `ExtendConfig` / `FighterMcCtrler` / `FighterAction` / `GameInterfaceManager`
 
@@ -238,54 +396,62 @@ BVNscripts/scripts/
 - `FighterMcCtrler.setBisha*()` — 开启时 qi 消耗设为 0
 - `FighterMcCtrler.doBisha()` / `doWaiKaiAction()` — 开启时跳过 `useQi()` 检查
 - `FighterAction.render()` — 每帧同步 qi 显示值
-- `GameInterfaceManager.applyConfig()` — 同步屏幕按钮显示
 
 #### Ghost Step（鬼步）
 
 - 消耗：60 气 + 80 体力，持续 12 帧
 - 类型：水平（移速 8）/ 跳跃（移速 -12）/ 下落（移速 15）
-- 特性：过程无敌（`isAllowBeHit=false`）+ 可穿越对手（`isCross=true`）
+- 过程无敌 + 可穿越对手
 
-### 4.2 移动端特性
+### 移动端特性
 
-- **TOUCH_MODE** — 默认 `true`（GameConfig）
-- **ScreenPadManager** — 屏幕触控按钮管理
-- **ScreenPadAsset** — 按钮图片（通过 EmbeddedAssets 引用）
-- **GameInterfaceManager** — 移动端菜单/设置/配置同步
+- **TOUCH_MODE** — 默认 `true`
+- **ScreenPadManager** — 屏幕触控按钮管理（游戏内 + 选人界面）
+- **GameInterfaceManager** — 移动端菜单/设置/INFINITE_ENERGY 配置同步
 - **ScreenRotater** — 屏幕旋转
-- **LAN 多人** — `ctrls/` + `sockets/` 局域网对战
+- **InputManager** — 多种输入源管理（触控 + 摇杆 + 键盘 + 网络）
+- **LAN 多人** — `sockets/` + `ctrls/` 局域网对战（TCP + UDP 混合，含锁帧同步）
+- **ANEFileReader** — 原生文件读取（访问 `/sdcard/BVN/fighters/` 等外部路径）
+- **外部角色加载** — `GameLoader.loadFighterFromPath()` 启动时自动扫描外部角色
 
-#### ANE 扩展（文件读取）
+### 运行时资源加载
 
-`ANEFileReader` 通过 AIR Native Extension 访问 Android 外部存储，突破 AIR 沙箱限制。
+游戏资源分为两类：
+1. **嵌入资源**：`_assets/` 中的 PNG/MP3/JPG/BIN 通过 `[Embed]` 标签嵌入 SWF（`EmbeddedAssets.as` 统一管理）
+2. **外部资源**：`tools/Test/assets/` 中的 SWF/XML/MP3/PNG 在运行时动态加载
+
+UI SWF 加载流程：
+```
+ResUtils.as → 从 assets/swf/ 加载 UI SWF → 提取元件类 → 创建 UI 实例
+GameLoader.as → 从 assets/fighter/ 加载角色 SWF → 注册角色 → FighterMain 实例化
+```
+
+## ANE 原生扩展
+
+### BVNFileReader（`extensions/BVNFileReader/`）
+
+突破 AIR 沙箱限制，访问 Android 外部存储：
 
 ```as3
-// 读取外部文件
+// AS3 端（mob/utils/ANEFileReader.as 封装）
 var ba:ByteArray = ANEFileReader.I.readBytes("/sdcard/BVN/fighters/ichigo.swf");
-// 列出目录
 var files:Array = ANEFileReader.I.listDir("/sdcard/BVN/fighters/");
-// 检查存在
 if (ANEFileReader.I.exists("/sdcard/BVN/fighters/")) { ... }
-// 从路径加载角色（集成 GameLoader）
+
+// 从路径直接加载角色（集成 GameLoader）
 GameLoader.loadFighterFromPath("/sdcard/BVN/fighters/ichigo.swf", callback, failCallback);
 ```
 
-**降级策略**：ANE 未安装时自动降级为 AIR `flash.filesystem.File` API（仅沙箱内可用）。
+**ANE 未安装时**自动降级为 AIR `flash.filesystem.File` API（仅沙箱内可用）。
 
-**Android 侧接口**（待实现原生 Java）：
+#### 文件位置
+- `mob/utils/ANEFileReader.as` — AS3 封装层（含 debug 日志）
+- `extensions/BVNFileReader/as3/com/bvn/filereader/BVNFileReaderLib.as` — ANE 库接口
+- `extensions/BVNFileReader/Android/src/com/bvn/filereader/` — Java 原生实现
+- `extensions/BVNFileReader/build_ane.bat` — ANE 构建脚本
+- `tools/Test/application.xml` — 需取消注释 `<extensionID>com.bvn.filereader</extensionID>` 以启用
 
-| 方法 | 输入 | 输出 |
-|------|------|------|
-| `readBytes` | 文件绝对路径 | `ByteArray` |
-| `listDir` | 目录路径 | `Array<String>` |
-| `exists` | 路径 | `Boolean` |
-
-**关键文件**：
-- `mob/utils/ANEFileReader.as` — AS3 封装
-- `ctrl/GameLoader.as::loadFighterFromPath()` — 加载集成
-- `tools/Test/application.xml` — 声明扩展 ID `com.bvn.filereader`
-
-### 4.3 关键 Bug 修复记录
+## 关键 Bug 修复记录
 
 | 修复 | 涉及文件 | 说明 |
 |------|----------|------|
@@ -293,73 +459,91 @@ GameLoader.loadFighterFromPath("/sdcard/BVN/fighters/ichigo.swf", callback, fail
 | 训练模式 AI 开关 | `GameCtrl.as` + `PauseDialog.as` | `toggleFighterAI()` 绕过模式强制 AI |
 | 开场帧检查 | `FighterMcCtrler.as` | sayIntro/doWin/doLose 先 checkFrame |
 | INFINITE_ENERGY | `FighterMcCtrler` + `FighterAction` | setBisha/doBisha/doWaiKai/render 全部检查 |
-| 嵌入式资源 | `EmbeddedAssets.as` | 统一 [Embed] 管理，直接指向 _assets/ |
-| 外部 SWF 加载 | `ResUtils.as` | UI SWF 从 assets/swf/ 运行时加载 |
-| 调试器增强 | `Debugger.as` | FPS/内存监视器/游戏状态（647 行） |
+| AI 无限气关闭时必杀 | 3 处修复 | 关闭时角色仍可无视条件释放必杀 |
+| trace() → Debugger.log() | 全局 | 全面替换，支持 logcat 实时输出 + 面板显示 |
+| Debugger 面板 | `Debugger.as` | 修复空白行 + 文本复制 + 折叠/展开 + 手机端自适应 |
+| 选人分页布局 | `SelectFighterStage.as` | 固定 rowsPerPage=3 + FLA 翻页联动 + _ui.bg |
+| fighter.xml 语法错误 | `fighter.xml:1026` | XML 格式修复，解决手机端白屏 |
+| ScreenPadAsset.light | `ScreenPadAsset.as` | 使用真实 light.png 替代 skill_png |
+| build.bat SWF 输出 | `build.bat` + `debug.bat` | 直出 tools/Test/launch.swf |
+| ADT 打包 assets | `build.bat` + `debug_mob.bat` | `-C tools/Test/assets .` 包含全部运行时资源 |
+| .bat UTF-8 BOM | 所有 .bat | CRLF + BOM 编码修复解决双击闪退 |
+| SetBtn 重入 | `SetBtn.as` | 全局静态重入守卫 + deferred dispatchEvent |
+| debug_mob.bat | 多次迭代 | FLEX_HOME 自动检测 + PATH 方式 adb + 基于 BVN3.9 重写 |
 
----
+## 开发规范
 
-## 5. 开发规范
-
-### 5.1 交流语言
-
+### 交流语言
 **所有对话使用中文**，技术术语、代码标识符、文件路径可保留英文。
 
-### 5.2 文件变更表格式
+### Git 提交
+- 仅当用户明确要求时执行
+- commit message 末尾加：`Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`
+- 不提交 `*.swf`、`*.apk`、SDK、参考/蓝图目录
 
+### .gitignore / .claudeignore
+排除：`*.swf` / `*.swc` / `*.apk` / `*.png` / `*.jpg` / `*.mp3` / `*.bin` / `_assets/` / `assets/swf/` / `flex4.16.1-air51.0.1.1/` / `AIRSDK5/` / `tools/Test/` / `last/` / `OLD/` / `BVN3.9/` / `Outscripts/` / `node_modules/` / `dist/`
+
+**例外**：`tools/Test/assets/config/` 被 git 追踪（XML 配置文件需版本控制）。
+
+### 文件变更表格式
 每次代码修改后输出：
-
 ```
 | # | 文件 | BVNscripts | Outscripts |
 |---|------|:---:|:---:|
 | 1 | path/to/File.as | ✓ | ✓ |
 ```
 
----
+### 反编译代码特征
 
-## 6. Headroom 上下文压缩
+- **参数名**：`param1`、`param2`…（无意义，保持与同文件一致）
+- **局部变量**：`_loc1_`、`_loc2_`…（同上）
+- **内联匿名函数**：大量 `function():void { ... }` 回调模式
+- **单例访问**：`ClassName.I` 静态 getter
+- **拼写错误**：`NORNAL`（NORMAL）、`destory`（destroy）、`Mession`（Mission）、`Confrim`（Confirm）— 保持原样
 
-本项目集成 [Headroom](https://github.com/chopratejas/headroom) — AI 上下文压缩层，可降低 **60-95%** token 消耗。
+### 关键文件速查
 
-### 启动方式
+| 需求 | 优先查看 |
+|------|---------|
+| 编译 | `build.bat`、`asconfig.json` |
+| 调试 | `tools/script/debug.bat`、`tools/script/debug_mob.bat` |
+| 入口/初始化 | `launch.as`、`MainGame.as` |
+| 物理参数 | `GameConfig.as` |
+| 角色动作状态机 | `FighterMcCtrler.as` |
+| 角色动作定义 | `FighterAction.as`、`FighterActionState.as` |
+| AI 系统 | `fighter/ctrler/ai/FighterAILogic.as`、`fighter/ctrler/ai/FighterAILogicBase.as` |
+| AI 控制适配器 | `fighter/ctrler/FighterAICtrl.as` |
+| AI 系统完整文档 | `AI-SYSTEM-DOC.md` |
+| 碰撞检测 | `GameMainLogicCtrler.as` |
+| 角色实体 | `fighter/FighterMain.as` |
+| 菜单/按钮 | `MenuBtnGroup.as`、`MenuBtn.as` |
+| 暂停菜单 | `PauseDialog.as` |
+| 设置 | `SetBtnGroup.as`、`SettingState.as` |
+| 输入 | `GameInputer.as`、`FighterKeyCtrl.as` |
+| 配置/存档 | `GameData.as`、`ConfigVO.as` |
+| 嵌入式资源 | `EmbeddedAssets.as`、`mx/core/` |
+| UI SWF 加载 | `ResUtils.as` |
+| 角色加载 | `ctrl/GameLoader.as`、`ctrl/AssetManager.as` |
+| 移动端 | `mob/GameInterfaceManager.as`、`mob/ScreenRotater.as` |
+| 触控 | `mob/screenpad/ScreenPadManager.as` |
+| 网络 | `mob/sockets/`、`mob/ctrls/LAN*.as` |
+| 外部角色 | `mob/utils/ANEFileReader.as`、`ctrl/GameLoader.as::loadFighterFromPath()` |
+| 调试面板 | `Debugger.as`（`DEBUG_PANEL_ENABLED` 开关） |
+| 运行时配置 | `tools/Test/assets/config/fighter.xml`、`select.xml` |
+| ANE 扩展 | `extensions/BVNFileReader/` |
+| 代码同步 | `sync.py` |
 
-```bash
-# 方式 1：代理模式（推荐，零代码改动）
-headroom proxy --port 8787
-# 另一个终端
-ANTHROPIC_BASE_URL=http://localhost:8787 claude
-
-# 方式 2：直接包装 Claude Code
-headroom wrap claude
-
-# 方式 3：查看统计
-curl http://localhost:8787/stats
-```
-
-### 压缩效果（本项目）
-
-| 内容类型 | 压缩器 | 预计节省 |
-|----------|--------|----------|
-| JSON 数据（构建输出/日志） | SmartCrusher | 70-90% |
-| ActionScript 源码 | CodeCompressor | 40-70% |
-| 构建日志 | LogCompressor | 80-95% |
-| Grep 搜索结果 | SearchCompressor | 60-80% |
-
-### 排除文件
-
-项目根目录 `.claudeignore` 已排除：`*.swf` / `*.png` / `*.mp3` / `*.bin` / `_assets/` / `flex4.16.1-air51.0.1.1/` / `AIRSDK5/` 等。
-
----
-
-## 7. 版本信息
+## 版本信息
 
 | 项目 | 内容 |
 |------|------|
 | 游戏版本 | V3.3（2019.3.32） |
 | 开发商 | 5dplay（net.play5d） |
 | 平台 | Flash Web + Android/iOS + LAN 局域网对战 |
-| 第三方库 | GreenSock TweenLite、自研 Kyo 框架 |
 | SDK | Apache Flex 4.16.1 + AIR 51.0 |
 | 编译器 | mxmlc.jar（Java 17） |
 | 编辑器 | VSCode + ActionScript & MXML 插件 |
+| ANE 扩展 | BVNFileReader（com.bvn.filereader）— Android 外部存储读取 |
+| 调试 | fdb 断点调试 + adb logcat 实时日志 |
 | 许可 | GPL-3.0 |

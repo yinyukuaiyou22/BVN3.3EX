@@ -1,0 +1,12 @@
+<extension xmlns="http://ns.adobe.com/air/extension/32.0">
+    <id>com.bvn.filereader</id>
+    <versionNumber>1.0</versionNumber>
+    <platforms>
+        <platform name="Android-ARM">
+            <applicationDeployment>
+                <nativeLibrary>ANEFileReader.jar</nativeLibrary>
+                <initializer>com.bvn.filereader.ANEFileReaderExtension</initializer>
+            </applicationDeployment>
+        </platform>
+    </platforms>
+</extension>

@@ -17,6 +17,9 @@ var totalPages:int = SelectFighterStage.TOTAL_PAGES;
 
 Debugger.log("[Pagination] pageHeight:", pageHeight, "totalPages:", totalPages);
 
+var enable: Boolean = true;
+var select: int = 0;
+var speed: int = 100;
 var arr: Array = [0];
 for (var i: int = 1; i < totalPages; i++) {
     arr.push(i * -pageHeight);

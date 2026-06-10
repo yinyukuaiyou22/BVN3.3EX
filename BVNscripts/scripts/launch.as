@@ -26,7 +26,7 @@ package
       
       public static var FULL_SCREEN_SIZE:Point = new Point();
       
-      private static const DEBUG_PANEL_ENABLED:Boolean = true;
+      private static const DEBUG_PANEL_ENABLED:Boolean = false;
       
       private var _mainGame:MainGame;
       
@@ -68,7 +68,7 @@ package
          {
             this._startBitmap.width = FULL_SCREEN_SIZE.x;
             this._startBitmap.height = FULL_SCREEN_SIZE.y;
-            this._startBitmap.rotation = 90;
+            this._startBitmap.rotation = 0;
             this._startBitmap.x = FULL_SCREEN_SIZE.y;
          }
          addChild(this._startBitmap);
