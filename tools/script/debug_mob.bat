@@ -101,18 +101,20 @@ for %%D in (fighter map face bgm) do (
 )
 
 "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 %ANE_EXTDIR% "死神vs火影银鱼改.apk" "application.xml" "launch.swf" -C . assets
-if %errorlevel% neq 0 (
-    call :ECHO_LANG :PACKAGE_FAIL ""
-    goto END
-)
-call :EXIST "%APK_FILE%"
+	set ADT_RESULT=%errorlevel%
 
-:: ---- Restore backed-up content dirs ----
-for %%D in (fighter map face bgm) do (
-    if exist "assets\%%D\.gdummy" del "assets\%%D\.gdummy"
-    if exist "assets\%%D" rd "assets\%%D"
-    if exist "assets\_bakslim_%%D" ren "assets\_bakslim_%%D" "%%D"
-)
+	:: ---- Restore backed-up content dirs (ALWAYS run, even on ADT failure) ----
+	for %%D in (fighter map face bgm) do (
+	    if exist "assets\%%D\.gdummy" del "assets\%%D\.gdummy"
+	    if exist "assets\%%D" rd "assets\%%D"
+	    if exist "assets\_bakslim_%%D" ren "assets\_bakslim_%%D" "%%D"
+	)
+
+	if %ADT_RESULT% neq 0 (
+	    call :ECHO_LANG :PACKAGE_FAIL ""
+	    goto END
+	)
+	call :EXIST "%APK_FILE%"
 
 :: ---- Check: ADB ----
 call :CHK_CMD adb

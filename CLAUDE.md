@@ -72,7 +72,7 @@ cd tools/Test
 adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%FLEX_HOME%\bin\mycert.p12" -storepass yinyu7798 死神vs火影银鱼改.apk application.xml launch.swf assets
 ```
 
-> **注意**：ADT 打包时 `-C tools/Test/assets .` 将 assets/ 目录打包进 APK，确保 UI SWF、角色、BGM、配置文件全部包含在 APK 内。
+> **APK 瘦身**：`debug_mob.bat` 打包时自动将 fighter/map/face/bgm 备份，以空目录打包进 APK，打包后恢复。实际内容部署在 `/sdcard/BVN/assets/` 外部存储。
 
 ### 运行时资源结构（`tools/Test/assets/`）
 
@@ -496,7 +496,7 @@ GameLoader.loadFighterFromPath("/sdcard/BVN/assets/fighter/ichigo.swf", callback
 - `extensions/BVNFileReader/as3/com/bvn/filereader/BVNFileReaderLib.as` — ANE 库接口
 - `extensions/BVNFileReader/Android/src/com/bvn/filereader/` — Java 原生实现
 - `extensions/BVNFileReader/build_ane.bat` — ANE 构建脚本
-- `tools/Test/application.xml` — 需取消注释 `<extensionID>com.bvn.filereader</extensionID>` 以启用
+- `tools/Test/application.xml` — 已启用 `<extensionID>com.bvn.filereader</extensionID>`
 
 ## 关键 Bug 修复记录
 
@@ -513,7 +513,7 @@ GameLoader.loadFighterFromPath("/sdcard/BVN/assets/fighter/ichigo.swf", callback
 | fighter.xml 语法错误 | `fighter.xml:1026` | XML 格式修复，解决手机端白屏 |
 | ScreenPadAsset.light | `ScreenPadAsset.as` | 使用真实 light.png 替代 skill_png |
 | build.bat SWF 输出 | `build.bat` + `debug.bat` | 直出 tools/Test/launch.swf |
-| ADT 打包 assets | `build.bat` + `debug_mob.bat` | `-C tools/Test/assets .` 包含全部运行时资源 |
+| ADT 打包 assets | `debug_mob.bat` | slim APK： fighter/map/face/bgm 空目录 + 打包后恢复 |
 | .bat UTF-8 BOM | 所有 .bat | CRLF + BOM 编码修复解决双击闪退 |
 | SetBtn 重入 | `SetBtn.as` | 全局静态重入守卫 + deferred dispatchEvent |
 | debug_mob.bat | 多次迭代 | FLEX_HOME 自动检测 + PATH 方式 adb + 基于 BVN3.9 重写 |
