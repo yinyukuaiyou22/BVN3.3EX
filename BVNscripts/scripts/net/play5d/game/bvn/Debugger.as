@@ -130,6 +130,7 @@ package net.play5d.game.bvn
          {
             return;
          }
+         trace(msg);
          _queueLog(msg,false);
       }
       
