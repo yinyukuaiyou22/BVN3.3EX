@@ -21,7 +21,6 @@ import os
 MODELS = {
     "flash":  {"name": "deepseek-v4-flash", "description": "轻量 — 简单修改/搜索/单文件编辑"},
     "pro":    {"name": "deepseek-v4-pro",   "description": "主力 — 多文件重构/复杂逻辑/Bug 排查"},
-    "opus":   {"name": "claude-opus-4-8",   "description": "重型 — 架构设计/全面审计/深度分析"},
 }
 
 # ── 复杂度权重 ──────────────────────────────────────────
@@ -46,14 +45,6 @@ SIGNALS_FLASH = [
     (r"(?:复制|copy|替换|replace.*all)", 1),
 ]
 
-SIGNALS_OPUS = [
-    (r"(?:全面审计|审计|full audit|adversarial|安全审计)", 5),
-    (r"(?:从头.*设计|architecture.*design|全新|from scratch)", 5),
-    (r"(?:多系统|全部模块|整个项目|全项目|整体)", 4),
-    (r"(?:ultracode|workflow|并行|fan.*out)", 4),
-]
-
-
 def analyze(task: str, file_count: int = 0) -> dict:
     """
     分析任务文本，返回模型推荐。
@@ -76,11 +67,6 @@ def analyze(task: str, file_count: int = 0) -> dict:
             score -= weight
             reasons.append(f"-{weight} flash: {pattern[:40]}")
 
-    for pattern, weight in SIGNALS_OPUS:
-        if re.search(pattern, text):
-            score += weight + 2  # extra boost for opus triggers
-            reasons.append(f"+{weight} opus: {pattern[:40]}")
-
     # Phase 2: 文件数推断
     if file_count > 0:
         if file_count >= 6:
@@ -101,10 +87,8 @@ def analyze(task: str, file_count: int = 0) -> dict:
         score -= 1
         reasons.append("-1 (short description)")
 
-    # Phase 4: 判断
-    if score >= 6:
-        recommendation = "opus"
-    elif score >= 2:
+    # Phase 4: 判断（仅 Pro ↔ Flash 两档，Opus 暂不使用）
+    if score >= 3:
         recommendation = "pro"
     else:
         recommendation = "flash"
