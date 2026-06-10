@@ -53,7 +53,7 @@
       }
 
       /** External resource base path. On Android: /storage/emulated/0/BVN/assets/ */
-      public static var EXTERNAL_BASE:String = "/storage/emulated/0/BVN/assets/";
+      public static var EXTERNAL_BASE:String = "/storage/emulated/0/Android/data/air.com.bvn.yinyu/files/BVN/assets/";
 
       /** Map assets/ relative path to external base dir */
       public static function resolveExternalPath(assetPath:String) : String

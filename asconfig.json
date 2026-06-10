@@ -11,5 +11,10 @@
         ],
         "output": "launch.swf"
     },
-    "mainClass": "launch"
+    "mainClass": "launch",
+    "airOptions": {
+        "extdir": [
+            "tools/Test"
+        ]
+    }
 }
