@@ -86,32 +86,19 @@ call :EXIST "%APP_XML%"
 call :ECHO_LANG :PACKAGE_MSG ""
 call :EXIST "%ADT%"
 cd /d "%TEST_DIR%"
-:: Include ANE if present (check multiple locations)
-set "ANE_EXTDIR="
-set "ANE_FILE="
-set "ANE_XML_OFF="
-if exist "%TEST_DIR%\BVNFileReader.ane" (
-    set "ANE_FILE=%TEST_DIR%\BVNFileReader.ane"
-    set "ANE_EXTDIR=-extdir %TEST_DIR%"
-)
-if exist "%PROJ%\extensions\BVNFileReader\BVNFileReader.ane" (
-    set "ANE_FILE=%PROJ%\extensions\BVNFileReader\BVNFileReader.ane"
-    set "ANE_EXTDIR=-extdir %PROJ%\extensions\BVNFileReader"
-)
-if "%ANE_EXTDIR%"=="" (
-    echo [WARN] BVNFileReader.ane NOT FOUND - ANE will NOT be included.
-    echo   Build it: extensions\BVNFileReader\build_ane.bat
-    echo   Place it: tools\Test\BVNFileReader.ane
-    echo [INFO] Temporarily disabling extension in application.xml...
-    set "ANE_XML_OFF=1"
-    powershell -NoProfile -Command ^
-        "$xml = Get-Content 'application.xml' -Raw -Encoding UTF8; ^
-         $xml = $xml -replace '<extensions>.*?</extensions>', '<!-- extensions disabled (ANE not found) -->'; ^
-         [System.IO.File]::WriteAllText('application.xml', $xml, [System.Text.UTF8Encoding]::new(`$false))"
-) else (
-    echo [ANE] Found: !ANE_FILE!
-)
-
+:: Include ANE if present (check multiple locations)
+	set "ANE_EXTDIR="
+	if exist "%TEST_DIR%\BVNFileReader.ane" set "ANE_EXTDIR=-extdir %TEST_DIR%"
+	if exist "%PROJ%\extensions\BVNFileReader\BVNFileReader.ane" set "ANE_EXTDIR=-extdir %PROJ%\extensions\BVNFileReader"
+	if "%ANE_EXTDIR%"=="" (
+	    echo [ERROR] BVNFileReader.ane NOT FOUND!
+	    echo   Build it: extensions\BVNFileReader\build_ane.bat
+	    echo   Or place: tools\Test\BVNFileReader.ane
+	    pause
+	    goto END
+	)
+	echo [ANE] Found and will be included.
+
 :: ---- Slim APK: backup heavy content, create empty dir placeholders ----
 for %%D in (fighter map face bgm) do (
     :: recover dangling backup from previous interrupted run
@@ -231,18 +218,6 @@ goto END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 :END
-	if "%ANE_XML_OFF%"=="1" (
-	    echo [INFO] Restoring application.xml...
-	    powershell -NoProfile -Command ^
-	        "$xml = Get-Content 'application.xml' -Raw -Encoding UTF8; ^
-	         $xml = $xml -replace '<!-- extensions disabled .*?-->', '<extensions><extensionID>com.bvn.filereader</extensionID></extensions>'; ^
-	         [System.IO.File]::WriteAllText('application.xml', $xml, [System.Text.UTF8Encoding]::new(`$false))"
-	)
-	echo.
-	echo =============================================
-	echo   Script finished. Press any key to exit.
-	echo =============================================
-	pause
 	goto :EOF
 
 :EXIST
