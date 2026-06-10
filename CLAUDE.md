@@ -436,8 +436,14 @@ AI 等级：
 GameData.loadConfig()
   → 加载 APK 内置 fighter.xml → FighterModel.initByXML()
   → GameLoader.scanExternalAssets()
-      ├─ scanExternalFighters(): /sdcard/BVN/assets/fighter/*.swf → 追加到 FighterModel
-      └─ scanExternalMaps(): /sdcard/BVN/assets/map/*.swf → 追加到 MapModel
+  │   ├─ scanExternalFighters(): /sdcard/BVN/assets/fighter/*.swf → 追加到 FighterModel
+  │   └─ scanExternalMaps(): /sdcard/BVN/assets/map/*.swf → 追加到 MapModel
+  → 加载 APK 内置 assist.xml / select.xml / map.xml / mission.xml
+  → GameLoader.loadExternalConfigs()
+      ├─ /sdcard/BVN/assets/config/fighter.xml → FighterModel.mergeByXML()
+      ├─ /sdcard/BVN/assets/config/assist.xml → AssisterModel.mergeByXML()
+      ├─ /sdcard/BVN/assets/config/map.xml → MapModel.mergeByXML()
+      └─ /sdcard/BVN/assets/config/mission.xml → MessionModel.mergeByXML()
 ```
 
 SD 卡外部目录结构（与 APK 内 `assets/` 一致）：
@@ -446,8 +452,15 @@ SD 卡外部目录结构（与 APK 内 `assets/` 一致）：
 ├── fighter/    # 额外角色 SWF
 ├── map/        # 额外地图 SWF
 ├── face/       # 额外头像 PNG
-└── bgm/        # 额外 BGM MP3
+├── bgm/        # 额外 BGM MP3
+└── config/     # 额外配置 XML（追加合并，不替换内置配置）
+    ├── fighter.xml   # 额外角色定义
+    ├── assist.xml    # 额外辅助角色
+    ├── map.xml       # 额外地图
+    └── mission.xml   # 额外关卡
 ```
+
+> **config 合并规则**：SD 卡 XML 中的条目追加到 APK 内置条目之后，ID 冲突时内置优先（SD 卡重复条目被跳过）。
 
 UI SWF 加载流程：
 ```
