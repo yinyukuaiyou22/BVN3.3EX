@@ -13,20 +13,25 @@ set BUILD=%PROJ%build
 set PLATFORM=Android-ARM64
 
 REM ---- Env checks ----
+REM JDK 8 required for d8 compatibility
+set JAVA_HOME=
+for %%d in ("D:\JDK8") do (
+    if exist %%d\bin\javac.exe set JAVA_HOME=%%~d
+)
 if not defined JAVA_HOME (
-    for %%d in ("C:\Program Files\Android\openjdk\jdk-21.0.8" "C:\Program Files\Java\jdk-17") do (
-        if exist %%d\bin\javac.exe set JAVA_HOME=%%~d
-    )
+    echo [ERROR] JDK 8 not found! Required for d8.
+    echo   Expected at: D:\JDK8
+    pause & goto :EOF
 )
 set JAVAC=%JAVA_HOME%\bin\javac.exe
 set JAR=%JAVA_HOME%\bin\jar.exe
 
 :: Always prefer local AIR SDK over environment variable
-	for %%d in ("%~dp0..\..\AIRSDK\AIRSDK_33.1.1") do (
+	for %%d in ("%~dp0..\..\AIRSDK\AIRSDK_51.3.2") do (
 	    if exist %%d\bin\adt.bat set FLEX_HOME=%%~d
 	)
 	if not defined FLEX_HOME (
-	    echo [ERROR] AIR SDK not found at: %~dp0..\..\AIRSDK\AIRSDK_33.1.1
+	    echo [ERROR] AIR SDK not found at: %~dp0..\..\AIRSDK\AIRSDK_51.3.2
 	    echo   Set FLEX_HOME or ensure the SDK directory exists.
 	    pause & goto :EOF
 	)
