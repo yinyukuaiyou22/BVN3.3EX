@@ -25,7 +25,9 @@
 | 变量 | 位置 | 用途 |
 |------|------|------|
 | Flex SDK | `项目根\flex4.16.1-air51.0.1.1\` | mxmlc 编译器 + Flex 框架 + AIR 运行时 |
-| AIR SDK | `项目根\AIRSDK5\AIRSDK_51.3.2\` | ADT 打包 / adl 启动 / fdb 调试（签名证书 `bin\mycert.p12`） |
+| AIR SDK | `项目根\AIRSDK\AIRSDK_51.3.2\` | ADT 打包 / adl 启动 / fdb 调试（签名证书 `bin\mycert.p12`） |
+| JDK 8 | `D:\JDK8\` | ANE Java 编译（必须 JDK 8 兼容 build-tools d8） |
+| Android SDK | `D:\Android\SDK\` | ADT `-platformsdk`（platform-33 + build-tools 33.0.2） |
 | `FLEX_HOME` | 自动检测 → AIR SDK | 调试脚本定位 `bin\fdb`、`bin\adl.exe` |
 | `JAVA_HOME` | JDK 17 | mxmlc 运行时 |
 | ADB | `tools\platform-tools\adb.exe` | 手机真机调试 |
@@ -69,10 +71,10 @@ tools/script/debug_mob.bat
 
 # 手动打包（Captive Runtime, armv8, 从 tools/Test 目录执行）
 cd tools/Test
-adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%FLEX_HOME%\bin\mycert.p12" -storepass yinyu7798 bvn.apk application.xml launch.swf -C assets .
+adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%FLEX_HOME%\bin\mycert.p12" -storepass yinyu7798 bvn.apk application.xml -extdir "." -platformsdk "D:/Android/SDK" launch.swf -C assets .
 ```
 
-> **APK 瘦身**：`debug_mob.bat` 打包时自动将 fighter/map/face/bgm 备份，以空目录打包进 APK，打包后恢复。实际内容部署在 `app-storage://BVN/assets/` 外部存储。
+> **APK 瘦身**：`debug_mob.bat` 打包时自动将 fighter/map/face/bgm 备份到 Test 根目录，以空目录 + `.gdummy` 占位打包进 APK，打包后恢复。实际内容部署在 `/storage/emulated/0/BVN/assets/` 外部存储（手机文件管理器直接可访问）。
 
 ### 运行时资源结构（`tools/Test/assets/`）
 
@@ -472,31 +474,28 @@ GameLoader.as → 从 assets/fighter/ 或 应用私有目录加载角色 SWF →
 
 ### BVNFileReader（`extensions/BVNFileReader/`）
 
-突破 AIR 沙箱限制，访问 Android 外部存储：
+突破 AIR 沙箱限制，访问 Android 外部存储。
 
-```as3
-// AS3 端（mob/utils/ANEFileReader.as 封装）
-var ba:ByteArray = ANEFileReader.I.readBytes("app-storage://BVN/assets/fighter/ichigo.swf");
-var files:Array = ANEFileReader.I.listDir("app-storage://BVN/assets/fighter/");
-if (ANEFileReader.I.exists("app-storage://BVN/assets/fighter/")) { ... }
+**ANE 启用三开关（缺一不可）**：
+| 开关 | 文件 | 设置 |
+|------|------|------|
+| 1 | `application.xml` | `<extensionID>com.bvn.filereader</extensionID>` 取消注释 |
+| 2 | `ANEFileReader.as` | `ANE_ENABLED = true` |
+| 3 | `debug_mob.bat` | ADT 命令含 `-extdir "."` |
 
-// 路径映射工具
-var extPath:String = ANEFileReader.resolveExternalPath("assets/fighter/ichigo.swf");
-// → "app-storage://BVN/assets/fighter/ichigo.swf"
-var exists:Boolean = ANEFileReader.hasExternalAsset("assets/fighter/ichigo.swf");
+**ANE 构建（`build_ane.bat`）**：
+- Java：**必须 JDK 8**（class v52 兼容 build-tools d8）
+- 平台名：`Android-ARM64`（armv8 架构）
+- airglobal.swc：使用 AIR SDK 51 的版本
+- 输出：`BVNFileReader.ane` → 复制到 `tools/Test/`
 
-// 从绝对路径加载角色（集成 GameLoader）
-GameLoader.loadFighterFromPath("app-storage://BVN/assets/fighter/ichigo.swf", callback, failCallback);
-```
-
-**ANE 未安装时**自动降级为 AIR `flash.filesystem.File` API（仅沙箱内可用）。
+**ANE 未安装时**自动降级为 AIR `flash.filesystem.File` API。
 
 #### 文件位置
-- `mob/utils/ANEFileReader.as` — AS3 封装层（含 debug 日志）
+- `mob/utils/ANEFileReader.as` — AS3 封装层（`ANE_ENABLED` 开关 + `EXTERNAL_BASE` 路径）
 - `extensions/BVNFileReader/as3/com/bvn/filereader/BVNFileReaderLib.as` — ANE 库接口
-- `extensions/BVNFileReader/Android/src/com/bvn/filereader/` — Java 原生实现
-- `extensions/BVNFileReader/build_ane.bat` — ANE 构建脚本
-- `tools/Test/application.xml` — 已启用 `<extensionID>com.bvn.filereader</extensionID>`
+- `extensions/BVNFileReader/Android/src/com/bvn/filereader/` — Java 原生实现（JDK 8 编译）
+- `extensions/BVNFileReader/build_ane.bat` — ANE 构建脚本（Java→JAR→SWC→ANE）
 
 ## 关键 Bug 修复记录
 
