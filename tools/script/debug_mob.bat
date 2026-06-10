@@ -29,16 +29,16 @@ call :ECHO_LANG :TITLE ""
 
 :: ---- Auto-detect or verify FLEX_HOME ----
 if not "%FLEX_HOME%"=="" goto FLEX_OK
-if exist "%PROJ%\AIRSDK5\AIRSDK_51.3.2\bin\fdb.bat" (
-    set "FLEX_HOME=%PROJ%\AIRSDK5\AIRSDK_51.3.2"
+if exist "%PROJ%\AIRSDK\AIRSDK_33.1.1\bin\fdb.bat" (
+    set "FLEX_HOME=%PROJ%\AIRSDK\AIRSDK_33.1.1"
     echo [AUTO] FLEX_HOME detected: !FLEX_HOME!
     goto FLEX_OK
 )
 :: Last resort: check common paths
 for %%d in (
-    "C:\AIRSDK5\AIRSDK_51.3.2"
-    "D:\AIRSDK5\AIRSDK_51.3.2"
-    "E:\AIRSDK5\AIRSDK_51.3.2"
+    "C:\AIRSDK\AIRSDK_33.1.1"
+    "D:\AIRSDK\AIRSDK_33.1.1"
+    "E:\AIRSDK\AIRSDK_33.1.1"
 ) do (
     if exist %%d\bin\fdb.bat (
         set "FLEX_HOME=%%~d"
@@ -47,7 +47,7 @@ for %%d in (
     )
 )
 call :ECHO_LANG :UNDEFINE "FLEX_HOME"
-echo   Set it via: setx FLEX_HOME "E:\BaiduNetdiskDownload\BVNY\AIRSDK5\AIRSDK_51.3.2"
+echo   Set it via: setx FLEX_HOME "E:\BaiduNetdiskDownload\BVNY\AIRSDK\AIRSDK_33.1.1"
 goto END
 :FLEX_OK
 call :EXIST "%FLEX_HOME%"
@@ -86,6 +86,15 @@ call :EXIST "%APP_XML%"
 call :ECHO_LANG :PACKAGE_MSG ""
 call :EXIST "%ADT%"
 cd /d "%TEST_DIR%"
+:: ---- Include ANE if present ----
+set "ANE_EXTDIR="
+if exist "%TEST_DIR%\BVNFileReader.ane" set "ANE_EXTDIR=-extdir %TEST_DIR%"
+if exist "%PROJ%\extensions\BVNFileReader\BVNFileReader.ane" set "ANE_EXTDIR=-extdir %PROJ%\extensions\BVNFileReader"
+if "%ANE_EXTDIR%"=="" (
+    echo [WARN] ANE not found, packaging without native extension.
+)
+echo [ANE] !ANE_EXTDIR!
+
 :: ---- Slim APK: backup heavy content, create empty dir placeholders ----
 for %%D in (fighter map face bgm) do (
     REM recover dangling backup from previous interrupted run
@@ -108,7 +117,7 @@ for %%D in (fighter map face bgm) do (
 	    echo [FLA] Stripped .fla files from APK
 	)
 
-	call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" "launch.swf" -C . assets
+	call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" !ANE_EXTDIR! "launch.swf" -C . assets
 	set ADT_RESULT=%errorlevel%
 
 	:: ---- Restore backed-up content dirs (ALWAYS run, even on ADT failure) ----

@@ -22,7 +22,7 @@ set JAVAC=%JAVA_HOME%\bin\javac.exe
 set JAR=%JAVA_HOME%\bin\jar.exe
 
 if not defined FLEX_HOME (
-    for %%d in ("%~dp0..\..\AIRSDK5\AIRSDK_51.3.2") do (
+    for %%d in ("%~dp0..\..\AIRSDK\AIRSDK_33.1.1") do (
         if exist %%d\bin\adt.bat set FLEX_HOME=%%~d
     )
 )
