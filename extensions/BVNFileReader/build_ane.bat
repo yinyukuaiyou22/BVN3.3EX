@@ -10,7 +10,7 @@ set SRC=%PROJ%Android\src
 set LIB=%PROJ%Android\lib
 set AS3=%PROJ%as3
 set BUILD=%PROJ%build
-set PLATFORM=Android-ARM
+set PLATFORM=Android-ARM64
 
 REM ---- Env checks ----
 if not defined JAVA_HOME (
