@@ -86,42 +86,29 @@ call :EXIST "%APP_XML%"
 call :ECHO_LANG :PACKAGE_MSG ""
 call :EXIST "%ADT%"
 cd /d "%TEST_DIR%"
-:: Include ANE if present (check multiple locations)
-	set "ANE_EXTDIR="
-	if exist "%TEST_DIR%\BVNFileReader.ane" set "ANE_EXTDIR=-extdir %TEST_DIR%"
-	if exist "%PROJ%\extensions\BVNFileReader\BVNFileReader.ane" set "ANE_EXTDIR=-extdir %PROJ%\extensions\BVNFileReader"
-	if "%ANE_EXTDIR%"=="" (
-	    echo [ERROR] BVNFileReader.ane NOT FOUND!
-	    echo   Build it: extensions\BVNFileReader\build_ane.bat
-	    echo   Or place: tools\Test\BVNFileReader.ane
-	    pause
-	    goto END
-	)
-	echo [ANE] Found and will be included.
-
 :: ---- Slim APK: backup heavy content, create empty dir placeholders ----
 for %%D in (fighter map face bgm) do (
     REM recover dangling backup from previous interrupted run
-    if exist "assets\_bakslim_%%D" (
+    if exist "_bakslim_%%D" (
         if exist "assets\%%D\.gdummy" del "assets\%%D\.gdummy"
         if exist "assets\%%D" rd /s /q "assets\%%D"
-        ren "assets\_bakslim_%%D" "%%D"
+        move "_bakslim_%%D" "assets\%%D"
     )
     if exist "assets\%%D" (
-        ren "assets\%%D" "_bakslim_%%D"
+        move "assets\%%D" "_bakslim_%%D"
         mkdir "assets\%%D"
         echo. > "assets\%%D\.gdummy"
     )
 )
 
-call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" !ANE_EXTDIR! "launch.swf" -C . assets
+call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" "launch.swf" -C . assets
 	set ADT_RESULT=%errorlevel%
 
 	:: ---- Restore backed-up content dirs (ALWAYS run, even on ADT failure) ----
 	for %%D in (fighter map face bgm) do (
 	    if exist "assets\%%D\.gdummy" del "assets\%%D\.gdummy"
-	    if exist "assets\%%D" rd "assets\%%D"
-	    if exist "assets\_bakslim_%%D" ren "assets\_bakslim_%%D" "%%D"
+	    if exist "assets\%%D" rd /s /q "assets\%%D"
+	    if exist "_bakslim_%%D" move "_bakslim_%%D" "assets\%%D"
 	)
 
 	if %ADT_RESULT% neq 0 (
