@@ -2,6 +2,7 @@
 {
    import flash.display.*;
    import flash.utils.ByteArray;
+   import flash.utils.setTimeout;
    import net.play5d.game.bvn.*;
    import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.fighter.*;
@@ -269,16 +270,21 @@ import net.play5d.game.bvn.Debugger;
          Debugger.log("[GameLoader] External dirs ensured at:", base.nativePath);
       }
 
-      /** Unified entry: scan all external assets on SD card (called at startup, non-blocking) */
+      /** Unified entry: scan external assets (deferred to avoid blocking startup) */
       public static function scanExternalAssets() : void
       {
-         try {
-            ensureExternalDirs();
-            scanExternalFighters();
-            scanExternalMaps();
-         } catch(e:Error) {
-            Debugger.log("[GameLoader] External scan error (non-fatal):", e.message);
-         }
+         trace("[GameLoader] External scan queued (non-blocking)");
+         var doScan:Function = function():void {
+            try {
+               ensureExternalDirs();
+               scanExternalFighters();
+               scanExternalMaps();
+               trace("[GameLoader] External scan complete");
+            } catch(e:Error) {
+               trace("[GameLoader] External scan error:", e.message);
+            }
+         };
+         flash.utils.setTimeout(doScan, 2000);
       }
 
       /** Load and merge external config XMLs from app-storage://BVN/assets/config/ */
