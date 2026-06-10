@@ -269,16 +269,29 @@ import net.play5d.game.bvn.Debugger;
          Debugger.log("[GameLoader] External dirs ensured at:", base.nativePath);
       }
 
-      /** Unified entry: scan all external assets on SD card (called at startup) */
+      /** Unified entry: scan all external assets on SD card (called at startup, non-blocking) */
       public static function scanExternalAssets() : void
       {
-         ensureExternalDirs();
-         scanExternalFighters();
-         scanExternalMaps();
+         try {
+            ensureExternalDirs();
+            scanExternalFighters();
+            scanExternalMaps();
+         } catch(e:Error) {
+            Debugger.log("[GameLoader] External scan error (non-fatal):", e.message);
+         }
       }
 
       /** Load and merge external config XMLs from app-storage://BVN/assets/config/ */
       public static function loadExternalConfigs() : void
+      {
+         try {
+            _loadExternalConfigsImpl();
+         } catch(e:Error) {
+            Debugger.log("[GameLoader] External config error (non-fatal):", e.message);
+         }
+      }
+
+      private static function _loadExternalConfigsImpl() : void
       {
          var basePath:String = ANEFileReader.resolveExternalPath("config") + "/";
          Debugger.log("[GameLoader] Loading external configs from:", basePath);
