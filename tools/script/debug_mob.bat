@@ -93,6 +93,12 @@ if exist "%TEST_DIR%\ANEFileReader.ane" set "ANE_EXTDIR=-extdir %TEST_DIR%"
 
 :: ---- Slim APK: backup heavy content, create empty dir placeholders ----
 for %%D in (fighter map face bgm) do (
+    :: recover dangling backup from previous interrupted run
+    if exist "assets\_bakslim_%%D" (
+        if exist "assets\%%D\.gdummy" del "assets\%%D\.gdummy"
+        if exist "assets\%%D" rd /s /q "assets\%%D"
+        ren "assets\_bakslim_%%D" "%%D"
+    )
     if exist "assets\%%D" (
         ren "assets\%%D" "_bakslim_%%D"
         mkdir "assets\%%D"
