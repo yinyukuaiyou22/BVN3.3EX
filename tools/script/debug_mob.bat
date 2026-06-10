@@ -101,7 +101,7 @@ cd /d "%TEST_DIR%"
 
 :: ---- Slim APK: backup heavy content, create empty dir placeholders ----
 for %%D in (fighter map face bgm) do (
-    :: recover dangling backup from previous interrupted run
+    REM recover dangling backup from previous interrupted run
     if exist "assets\_bakslim_%%D" (
         if exist "assets\%%D\.gdummy" del "assets\%%D\.gdummy"
         if exist "assets\%%D" rd /s /q "assets\%%D"
@@ -218,6 +218,11 @@ goto END
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 :END
+	echo.
+	echo =============================================
+	echo   Script finished. Press any key to exit.
+	echo =============================================
+	pause
 	goto :EOF
 
 :EXIST
