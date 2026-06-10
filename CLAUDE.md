@@ -67,8 +67,9 @@
 # 一键：编译 + 打包 + 安装 + logcat 实时日志（debug_mob.bat 自动完成全部）
 tools/script/debug_mob.bat
 
-# 手动打包（Captive Runtime, armv8）
-adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore mycert.p12 -storepass yinyu7798 tools/Test/死神vs火影银鱼改.apk tools/Test/application.xml tools/Test/launch.swf -C tools/Test/assets .
+# 手动打包（Captive Runtime, armv8, 从 tools/Test 目录执行）
+cd tools/Test
+adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%FLEX_HOME%\bin\mycert.p12" -storepass yinyu7798 死神vs火影银鱼改.apk application.xml launch.swf assets
 ```
 
 > **注意**：ADT 打包时 `-C tools/Test/assets .` 将 assets/ 目录打包进 APK，确保 UI SWF、角色、BGM、配置文件全部包含在 APK 内。
