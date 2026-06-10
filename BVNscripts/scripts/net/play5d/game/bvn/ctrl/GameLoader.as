@@ -159,14 +159,14 @@ import net.play5d.game.bvn.Debugger;
          AssetManager.I.loadSWF(url,loadComplete,loadIOError,process);
       }
 
-      /** Scan external /sdcard/BVN/fighters/ and register in FighterModel */
+      /** Scan external /sdcard/BVN/assets/fighter/ and register in FighterModel (appended after built-in) */
       public static function scanExternalFighters() : void
       {
-         var basePath:String = "/sdcard/BVN/fighters/";
+         var basePath:String = "/sdcard/BVN/assets/fighter/";
          Debugger.log("[GameLoader] Scanning external fighters:", basePath);
          if(!ANEFileReader.I.exists(basePath))
          {
-            Debugger.log("[GameLoader] External path not found, skipping.");
+            Debugger.log("[GameLoader] External fighter path not found, skipping.");
             return;
          }
          var files:Array = ANEFileReader.I.listDir(basePath);
@@ -180,11 +180,11 @@ import net.play5d.game.bvn.Debugger;
             if(fileName.indexOf(".swf") == -1) continue;
             var fighterId:String = fileName.replace(".swf", "");
             var fullPath:String = basePath + fileName;
-            // check if already registered
+            // check if already registered (built-in takes precedence)
             var existing:FighterVO = FighterModel.I.getFighter(fighterId);
             if(existing)
             {
-               Debugger.log("[GameLoader] External fighter already registered:", fighterId);
+               Debugger.log("[GameLoader] External fighter skipped (already registered):", fighterId);
                continue;
             }
             // create minimal FighterVO for external fighter
@@ -203,12 +203,60 @@ import net.play5d.game.bvn.Debugger;
             vo.says = [];
             vo.bgm = "";
             vo.bgmRate = 0;
-            // register in model
+            // register in model (appended after built-in)
             var allFighters:Object = FighterModel.I.getAllFighters();
             allFighters[fighterId] = vo;
             Debugger.log("[GameLoader] Registered external fighter:", fighterId, "from", fullPath);
          }
-         Debugger.log("[GameLoader] External scan complete. Found:", files.length, "files");
+         Debugger.log("[GameLoader] External fighter scan complete. Found:", files.length, "files");
+      }
+
+      /** Scan external /sdcard/BVN/assets/map/ and register in MapModel (appended after built-in) */
+      public static function scanExternalMaps() : void
+      {
+         var basePath:String = "/sdcard/BVN/assets/map/";
+         Debugger.log("[GameLoader] Scanning external maps:", basePath);
+         if(!ANEFileReader.I.exists(basePath))
+         {
+            Debugger.log("[GameLoader] External map path not found, skipping.");
+            return;
+         }
+         var files:Array = ANEFileReader.I.listDir(basePath);
+         if(!files || files.length == 0)
+         {
+            Debugger.log("[GameLoader] No external maps found.");
+            return;
+         }
+         var mapArray:Array = MapModel.I.getAllMaps();
+         for each(var fileName:String in files)
+         {
+            if(fileName.indexOf(".swf") == -1) continue;
+            var mapId:String = fileName.replace(".swf", "");
+            var fullPath:String = basePath + fileName;
+            // check if already registered
+            var existing:MapVO = MapModel.I.getMap(mapId);
+            if(existing)
+            {
+               Debugger.log("[GameLoader] External map skipped (already registered):", mapId);
+               continue;
+            }
+            var mv:MapVO = new MapVO();
+            mv.id = mapId;
+            mv.name = mapId;
+            mv.fileUrl = fullPath;
+            mv.picUrl = "";
+            mv.bgm = "";
+            mapArray.push(mv);
+            Debugger.log("[GameLoader] Registered external map:", mapId, "from", fullPath);
+         }
+         Debugger.log("[GameLoader] External map scan complete.");
+      }
+
+      /** Unified entry: scan all external assets on SD card (called at startup) */
+      public static function scanExternalAssets() : void
+      {
+         scanExternalFighters();
+         scanExternalMaps();
       }
 
       /** Load fighter from absolute file path via ANEFileReader */

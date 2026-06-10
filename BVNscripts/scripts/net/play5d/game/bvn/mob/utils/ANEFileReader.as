@@ -46,6 +46,18 @@
          return _hasANE;
       }
 
+      /** Map assets/ relative path to /sdcard/BVN/ absolute path */
+      public static function resolveExternalPath(assetPath:String) : String
+      {
+         return "/sdcard/BVN/" + assetPath;
+      }
+
+      /** Check if a file exists on external SD card */
+      public static function hasExternalAsset(assetPath:String) : Boolean
+      {
+         return I.exists(resolveExternalPath(assetPath));
+      }
+
       /** Read file bytes from absolute path */
       public function readBytes(path:String) : ByteArray
       {
