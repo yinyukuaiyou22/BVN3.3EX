@@ -86,7 +86,10 @@ call :EXIST "%APP_XML%"
 call :ECHO_LANG :PACKAGE_MSG ""
 call :EXIST "%ADT%"
 cd /d "%TEST_DIR%"
-"%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "死神vs火影银鱼改.apk" "application.xml" "launch.swf"
+:: Include ANE if present
+set "ANE_EXTDIR="
+if exist "%TEST_DIR%\ANEFileReader.ane" set "ANE_EXTDIR=-extdir %TEST_DIR%"
+"%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 %ANE_EXTDIR% "死神vs火影银鱼改.apk" "application.xml" "launch.swf" assets
 if %errorlevel% neq 0 (
     call :ECHO_LANG :PACKAGE_FAIL ""
     goto END
