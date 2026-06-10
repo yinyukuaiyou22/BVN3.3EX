@@ -21,11 +21,15 @@ if not defined JAVA_HOME (
 set JAVAC=%JAVA_HOME%\bin\javac.exe
 set JAR=%JAVA_HOME%\bin\jar.exe
 
-if not defined FLEX_HOME (
-    for %%d in ("%~dp0..\..\AIRSDK\AIRSDK_33.1.1") do (
-        if exist %%d\bin\adt.bat set FLEX_HOME=%%~d
-    )
-)
+:: Always prefer local AIR SDK over environment variable
+	for %%d in ("%~dp0..\..\AIRSDK\AIRSDK_33.1.1") do (
+	    if exist %%d\bin\adt.bat set FLEX_HOME=%%~d
+	)
+	if not defined FLEX_HOME (
+	    echo [ERROR] AIR SDK not found at: %~dp0..\..\AIRSDK\AIRSDK_33.1.1
+	    echo   Set FLEX_HOME or ensure the SDK directory exists.
+	    pause & goto :EOF
+	)
 set ADT=%FLEX_HOME%\bin\adt.bat
 
 set FLEX_SDK=%~dp0..\..\flex4.16.1-air51.0.1.1

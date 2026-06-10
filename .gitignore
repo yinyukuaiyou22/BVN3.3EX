@@ -51,3 +51,7 @@ tools/Test/assets/bgm/
 swf/*.fla
 swf/*.swf
 flashplayer_*.exe
+
+# Android SDK (local environment)
+android-sdk/
+commandlinetools-win-*/
