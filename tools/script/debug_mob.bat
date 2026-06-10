@@ -101,7 +101,14 @@ for %%D in (fighter map face bgm) do (
     )
 )
 
-call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" "launch.swf" -C . assets
+	:: ---- Strip .fla source files from swf/ (only .swf needed at runtime) ----
+	if exist "assets\swf\*.fla" (
+	    mkdir "_bakslim_fla" 2>nul
+	    move "assets\swf\*.fla" "_bakslim_fla\" >nul 2>nul
+	    echo [FLA] Stripped .fla files from APK
+	)
+
+	call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" "launch.swf" -C . assets
 	set ADT_RESULT=%errorlevel%
 
 	:: ---- Restore backed-up content dirs (ALWAYS run, even on ADT failure) ----
@@ -109,6 +116,11 @@ call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 
 	    if exist "assets\%%D\.gdummy" del "assets\%%D\.gdummy"
 	    if exist "assets\%%D" rd /s /q "assets\%%D"
 	    if exist "_bakslim_%%D" move "_bakslim_%%D" "assets\%%D"
+	)
+	:: ---- Restore .fla files ----
+	if exist "_bakslim_fla\*.fla" (
+	    move "_bakslim_fla\*.fla" "assets\swf\" >nul 2>nul
+	    rd "_bakslim_fla" 2>nul
 	)
 
 	if %ADT_RESULT% neq 0 (
