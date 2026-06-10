@@ -56,6 +56,7 @@ import net.play5d.game.bvn.Debugger;
          var loadFighterBack:* = function(param1:XML):void
          {
             FighterModel.I.initByXML(param1);
+            GameLoader.scanExternalFighters();
             AssetManager.I.loadXML("assets/config/assist.xml",loadAssetsBack,loadAssisterFail);
          };
          loadAssetsBack = function(param1:XML):void

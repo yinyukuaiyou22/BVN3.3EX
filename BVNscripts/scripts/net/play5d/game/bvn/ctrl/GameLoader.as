@@ -159,6 +159,58 @@ import net.play5d.game.bvn.Debugger;
          AssetManager.I.loadSWF(url,loadComplete,loadIOError,process);
       }
 
+      /** Scan external /sdcard/BVN/fighters/ and register in FighterModel */
+      public static function scanExternalFighters() : void
+      {
+         var basePath:String = "/sdcard/BVN/fighters/";
+         Debugger.log("[GameLoader] Scanning external fighters:", basePath);
+         if(!ANEFileReader.I.exists(basePath))
+         {
+            Debugger.log("[GameLoader] External path not found, skipping.");
+            return;
+         }
+         var files:Array = ANEFileReader.I.listDir(basePath);
+         if(!files || files.length == 0)
+         {
+            Debugger.log("[GameLoader] No external fighters found.");
+            return;
+         }
+         for each(var fileName:String in files)
+         {
+            if(fileName.indexOf(".swf") == -1) continue;
+            var fighterId:String = fileName.replace(".swf", "");
+            var fullPath:String = basePath + fileName;
+            // check if already registered
+            var existing:FighterVO = FighterModel.I.getFighter(fighterId);
+            if(existing)
+            {
+               Debugger.log("[GameLoader] External fighter already registered:", fighterId);
+               continue;
+            }
+            // create minimal FighterVO for external fighter
+            var vo:FighterVO = new FighterVO();
+            vo.id = fighterId;
+            vo.name = fighterId;
+            vo.comicType = 0;
+            vo.fileUrl = fullPath;
+            vo.startFrame = 1;
+            vo.faceUrl = "";
+            vo.faceBigUrl = "";
+            vo.faceBarUrl = "";
+            vo.faceWinUrl = "";
+            vo.contactFriends = [];
+            vo.contactEnemys = [];
+            vo.says = [];
+            vo.bgm = "";
+            vo.bgmRate = 0;
+            // register in model
+            var allFighters:Object = FighterModel.I.getAllFighters();
+            allFighters[fighterId] = vo;
+            Debugger.log("[GameLoader] Registered external fighter:", fighterId, "from", fullPath);
+         }
+         Debugger.log("[GameLoader] External scan complete. Found:", files.length, "files");
+      }
+
       /** Load fighter from absolute file path via ANEFileReader */
       public static function loadFighterFromPath(path:String, back:Function, fail:Function = null) : void
       {
