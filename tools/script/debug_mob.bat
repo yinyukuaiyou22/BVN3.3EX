@@ -29,16 +29,16 @@ call :ECHO_LANG :TITLE ""
 
 :: ---- Auto-detect or verify FLEX_HOME ----
 REM always check local SDK first
-if exist "%PROJ%\AIRSDK\AIRSDK_33.1.1\bin\fdb.bat" (
-    set "FLEX_HOME=%PROJ%\AIRSDK\AIRSDK_33.1.1"
+if exist "%PROJ%\AIRSDK\AIRSDK_51.3.2\bin\fdb.bat" (
+    set "FLEX_HOME=%PROJ%\AIRSDK\AIRSDK_51.3.2"
     echo [AUTO] FLEX_HOME detected: !FLEX_HOME!
     goto FLEX_OK
 )
 :: Last resort: check common paths
 for %%d in (
-    "C:\AIRSDK\AIRSDK_33.1.1"
-    "D:\AIRSDK\AIRSDK_33.1.1"
-    "E:\AIRSDK\AIRSDK_33.1.1"
+    "C:\AIRSDK\AIRSDK_51.3.2"
+    "D:\AIRSDK\AIRSDK_51.3.2"
+    "E:\AIRSDK\AIRSDK_51.3.2"
 ) do (
     if exist %%d\bin\fdb.bat (
         set "FLEX_HOME=%%~d"
@@ -47,7 +47,7 @@ for %%d in (
     )
 )
 call :ECHO_LANG :UNDEFINE "FLEX_HOME"
-echo   Set it via: setx FLEX_HOME "E:\BaiduNetdiskDownload\BVNY\AIRSDK\AIRSDK_33.1.1"
+echo   Set it via: setx FLEX_HOME "E:\BaiduNetdiskDownload\BVNY\AIRSDK\AIRSDK_51.3.2"
 goto END
 :FLEX_OK
 call :EXIST "%FLEX_HOME%"

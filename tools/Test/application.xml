@@ -33,6 +33,7 @@
 		]]>		</manifestAdditions>
 	</android>
 
-	<!-- ANE disabled: build-tools d8 bug prevents packaging -->
-	<!-- <extensionID>com.bvn.filereader</extensionID> -->
+	<extensions>
+		<extensionID>com.bvn.filereader</extensionID>
+	</extensions>
 </application>

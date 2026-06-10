@@ -7,8 +7,8 @@ set PROJ=%BAT_HOME%..\..
 
 :: ---- Auto-detect AIR SDK (for adl.exe) ----
 if not exist "%FLEX_HOME%\bin\adl.exe" (
-    if exist "%PROJ%\AIRSDK\AIRSDK_33.1.1\bin\adl.exe" (
-        set FLEX_HOME=%PROJ%\AIRSDK\AIRSDK_33.1.1
+    if exist "%PROJ%\AIRSDK\AIRSDK_51.3.2\bin\adl.exe" (
+        set FLEX_HOME=%PROJ%\AIRSDK\AIRSDK_51.3.2
     )
 )
 set FLEX_BIN=%FLEX_HOME%\bin
