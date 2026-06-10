@@ -6,7 +6,8 @@
    import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.fighter.*;
    import net.play5d.game.bvn.map.*;
-   import net.play5d.game.bvn.mob.utils.ANEFileReader;
+   import flash.filesystem.File;
+import net.play5d.game.bvn.mob.utils.ANEFileReader;
 import net.play5d.game.bvn.Debugger;
    
    public class GameLoader
@@ -252,9 +253,26 @@ import net.play5d.game.bvn.Debugger;
          Debugger.log("[GameLoader] External map scan complete.");
       }
 
+      /** Ensure external asset directory structure exists (create if missing) */
+      public static function ensureExternalDirs() : void
+      {
+         var base:File = File.applicationStorageDirectory.resolvePath("BVN/assets");
+         var dirs:Array = ["fighter", "map", "face", "bgm", "config"];
+         for each(var d:String in dirs)
+         {
+            var dir:File = base.resolvePath(d);
+            if(!dir.exists)
+            {
+               try { dir.createDirectory(); } catch(e:Error) {}
+            }
+         }
+         Debugger.log("[GameLoader] External dirs ensured at:", base.nativePath);
+      }
+
       /** Unified entry: scan all external assets on SD card (called at startup) */
       public static function scanExternalAssets() : void
       {
+         ensureExternalDirs();
          scanExternalFighters();
          scanExternalMaps();
       }
