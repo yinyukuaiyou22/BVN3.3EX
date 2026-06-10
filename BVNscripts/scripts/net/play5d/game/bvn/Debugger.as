@@ -647,7 +647,7 @@ package net.play5d.game.bvn
          ++_frameCounter;
          if(_frameCounter >= FLUSH_INTERVAL && _logQueue.length > 0)
          {
-            for each(var item in _logQueue)
+            for each(var item:Object in _logQueue)
             {
                var time:String = _getTimeStamp();
                var line:String = time + " " + item.msg + "\n";
