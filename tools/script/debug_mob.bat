@@ -86,10 +86,24 @@ call :EXIST "%APP_XML%"
 call :ECHO_LANG :PACKAGE_MSG ""
 call :EXIST "%ADT%"
 cd /d "%TEST_DIR%"
-:: Include ANE if present
+:: Include ANE if present (check multiple locations)
 set "ANE_EXTDIR="
-if exist "%PROJ%\extensions\BVNFileReader\BVNFileReader.ane" set "ANE_EXTDIR=-extdir %PROJ%\extensions\BVNFileReader"
-if exist "%TEST_DIR%\ANEFileReader.ane" set "ANE_EXTDIR=-extdir %TEST_DIR%"
+set "ANE_FILE="
+if exist "%TEST_DIR%\BVNFileReader.ane" (
+    set "ANE_FILE=%TEST_DIR%\BVNFileReader.ane"
+    set "ANE_EXTDIR=-extdir %TEST_DIR%"
+)
+if exist "%PROJ%\extensions\BVNFileReader\BVNFileReader.ane" (
+    set "ANE_FILE=%PROJ%\extensions\BVNFileReader\BVNFileReader.ane"
+    set "ANE_EXTDIR=-extdir %PROJ%\extensions\BVNFileReader"
+)
+if "%ANE_EXTDIR%"=="" (
+    echo [WARN] BVNFileReader.ane NOT FOUND - ANE will NOT be included.
+    echo   Build it: extensions\BVNFileReaderuild_ane.bat
+    echo   Place it: tools\Test\BVNFileReader.ane
+) else (
+    echo [ANE] Found: !ANE_FILE!
+)
 
 :: ---- Slim APK: backup heavy content, create empty dir placeholders ----
 for %%D in (fighter map face bgm) do (
@@ -117,6 +131,7 @@ for %%D in (fighter map face bgm) do (
 	)
 
 	if %ADT_RESULT% neq 0 (
+	    echo [ERROR] ADT packaging failed with code %ADT_RESULT%
 	    call :ECHO_LANG :PACKAGE_FAIL ""
 	    goto END
 	)
@@ -213,7 +228,7 @@ echo.
 echo =============================================
 echo   Script finished. Press any key to exit.
 echo =============================================
-pause >nul
+pause
 exit /b
 
 :EXIST

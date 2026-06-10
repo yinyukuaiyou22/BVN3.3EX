@@ -1,39 +1,92 @@
 @echo off
+chcp 65001 >nul
 setlocal
 :: =============================================
 :: Build BVNFileReader ANE for BVN
+:: Full pipeline: Java → JAR → SWC → ANE → Copy to Test
 :: =============================================
 set PROJ=%~dp0
 set SRC=%PROJ%Android\src
 set LIB=%PROJ%Android\lib
+set AS3=%PROJ%as3
 set BUILD=%PROJ%build
 set PLATFORM=Android-ARM
 
+:: ---- Env checks ----
+if not defined JAVA_HOME (
+    for %%d in ("C:\Program Files\Android\openjdk\jdk-21.0.8" "C:\Program Files\Java\jdk-17") do (
+        if exist %%d\bin\javac.exe set JAVA_HOME=%%~d
+    )
+)
+set JAVAC=%JAVA_HOME%\bin\javac.exe
+set JAR=%JAVA_HOME%\bin\jar.exe
+
+if not defined FLEX_HOME (
+    for %%d in ("%~dp0..\..\AIRSDK5\AIRSDK_51.3.2") do (
+        if exist %%d\bin\adt.bat set FLEX_HOME=%%~d
+    )
+)
+set ADT=%FLEX_HOME%\bin\adt.bat
+
+set FLEX_SDK=%~dp0..\..\flex4.16.1-air51.0.1.1
+set COMPC_JAR=%FLEX_SDK%\lib\compc.jar
+set AIR_GLOBAL=%FLEX_SDK%\frameworks\libs\air\airglobal.swc
+
+:: ---- Clean build dirs ----
 if exist "%BUILD%" rd /s /q "%BUILD%"
 mkdir "%BUILD%\java"
 mkdir "%BUILD%\%PLATFORM%"
+mkdir "%BUILD%\swc"
 
-:: ---- Compile Java ----
-echo [1/3] Compiling Java...
-javac -d "%BUILD%\java" -cp "%LIB%\FlashRuntimeExtensions.jar" -sourcepath "%SRC%" "%SRC%\com\bvn\filereader\*.java"
+:: ---- [1/5] Compile Java ----
+echo [1/5] Compiling Java...
+"%JAVAC%" -d "%BUILD%\java" -cp "%LIB%\FlashRuntimeExtensions.jar" -sourcepath "%SRC%" "%SRC%\com\bvn\filereader\*.java"
 if %errorlevel% neq 0 (
     echo [ERROR] Java compile failed.
     pause & exit 1
 )
 
-:: ---- Package JAR ----
-echo [2/3] Packaging JAR...
+:: ---- [2/5] Package JAR ----
+echo [2/5] Packaging JAR...
 cd "%BUILD%\java"
-jar cf "%BUILD%\%PLATFORM%\BVNFileReader.jar" .
+"%JAR%" cf "%BUILD%\%PLATFORM%\BVNFileReader.jar" .
 cd "%PROJ%"
 
-:: ---- Package ANE ----
-echo [3/3] Packaging ANE...
-call adt -package -target ane "%PROJ%BVNFileReader.ane" "%PROJ%extension.xml" -platform %PLATFORM% -C "%BUILD%\%PLATFORM%\" .
+:: ---- [3/5] Compile AS3 into SWC ----
+echo [3/5] Compiling SWC...
+java -jar "%COMPC_JAR%" +flexlib="%FLEX_SDK%\frameworks" -source-path "%AS3%" -include-classes com.bvn.filereader.BVNFileReaderLib -external-library-path="%AIR_GLOBAL%" -output "%BUILD%\swc\BVNFileReader.swc" -swf-version 37
+if %errorlevel% neq 0 (
+    echo [ERROR] SWC compile failed.
+    pause & exit 1
+)
+
+:: ---- Extract library.swf from SWC ----
+echo   Extracting library.swf...
+set SWC_ZIP=%BUILD%\swc\BVNFileReader.swc
+set LIB_SWF=%BUILD%\%PLATFORM%\library.swf
+powershell -NoProfile -Command "Add-Type -AssemblyName System.IO.Compression.FileSystem; $z=[System.IO.Compression.ZipFile]::OpenRead('%SWC_ZIP%'); [System.IO.Compression.ZipFileExtensions]::ExtractToFile($z.GetEntry('library.swf'), '%LIB_SWF%', $true); $z.Dispose()"
+if not exist "%LIB_SWF%" (
+    echo [ERROR] library.swf extraction failed.
+    pause & exit 1
+)
+
+:: ---- [4/5] Package ANE ----
+echo [4/5] Packaging ANE...
+"%ADT%" -package -target ane "%PROJ%BVNFileReader.ane" "%PROJ%extension.xml" -swc "%BUILD%\swc\BVNFileReader.swc" -platform %PLATFORM% -C "%BUILD%\%PLATFORM%\" .
+if %errorlevel% neq 0 (
+    echo [ERROR] ANE package failed.
+    pause & exit 1
+)
+
+:: ---- [5/5] Copy to tools\Test ----
+echo [5/5] Copying to tools\Test...
+set TEST_DIR=%~dp0..\..\tools\Test
+copy /y "%PROJ%BVNFileReader.ane" "%TEST_DIR%\BVNFileReader.ane" >nul
 if %errorlevel%==0 (
     echo [OK] %PROJ%BVNFileReader.ane
+    echo [OK] Copied to %TEST_DIR%\BVNFileReader.ane
 ) else (
-    echo [ERROR] ANE package failed. Ensure adt is in PATH (set FLEX_HOME).
+    echo [WARN] ANE built but copy to tools\Test failed.
 )
 
 pause
