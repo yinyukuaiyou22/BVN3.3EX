@@ -48,11 +48,12 @@
          return _hasANE;
       }
 
-      /** Map assets/ relative path to user-accessible documents dir (no root needed) */
+      public static var EXTERNAL_BASE:String = "/storage/emulated/0/BVN/assets/";
+
+      /** Map assets/ relative path to external base dir */
       public static function resolveExternalPath(assetPath:String) : String
       {
-         var base:File = File.documentsDirectory.resolvePath("BVN/assets");
-         return base.resolvePath(assetPath).nativePath;
+         return EXTERNAL_BASE + assetPath;
       }
 
       /** Check if a file exists on external SD card */
