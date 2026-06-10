@@ -540,14 +540,47 @@ GameLoader.loadFighterFromPath("/sdcard/BVN/assets/fighter/ichigo.swf", callback
 | **10** | 上次中断遗留 `_bakslim_*` | `already exists` | 打包前先检查并恢复遗留备份目录 |
 | **11** | APK 文件名含中文 | `no such file ...死神vs火影.apk` | ADT 不认中文输出路径 → 改用纯英文名如 `bvn.apk` |
 
+### bat 脚本强制规范
+
+**所有项目 `.bat` 脚本必须遵守以下模板**，确保双击运行时窗口停留、错误可见：
+
+```bat
+@echo off
+setlocal
+...脚本主体...
+
+:: 所有错误出口统一用 goto END
+if errorlevel 1 goto END
+
+:END
+echo.
+echo =============================================
+echo   Script finished. Press any key to exit.
+echo =============================================
+pause
+goto :EOF
+```
+
+**禁止事项**：
+| 禁止 | 原因 | 替代 |
+|------|------|------|
+| `exit /b` | 双击时关闭窗口 | `goto END` |
+| `pause >nul` | 用户看不到提示 | `pause` |
+| 直接调用 `.bat` 不加 `call` | 子 bat 退出时连带终止主脚本 | `call xxx.bat` |
+| `::` 注释在 `()` 块内 | 括号匹配错误 → 闪退 | `REM` |
+| 内联 PowerShell 含 `)` `$` `^` | 批处理括号逃逸灾难 | 独立 `.ps1` 文件 |
+| APK/文件输出用中文名 | ADT 不认非 ASCII 路径 | 纯英文名 |
+
+**例外**：`build.bat` 作为被调用的叶子工具脚本，不加 `pause`（由调用方处理）。
+
 ### 安全修改模式
 
 修改 `.bat` 文件时必须遵守：
 1. **先备份后可回滚**：用 `git checkout -- <file>` 恢复
 2. **每次只改一个点**：改完双击测试，确认无误再改下一个
-3. **避免内联 PowerShell**：涉及 `)`、`$`、`^` 时极易出问题 → 写独立 `.ps1` 文件
+3. **用 `goto END` 而非 `exit /b`**：统一汇聚到 `:END` 标签执行 `pause`
 4. **用 `call` 调子 bat**：永不直接调用另一个 `.bat`
-5. **用 `goto :EOF` 而非 `exit /b`**：前者返回调用方，后者会关闭最外层 cmd 窗口
+5. **避免内联 PowerShell**：涉及 `)`、`$`、`^` 时极易出问题 → 写独立 `.ps1` 文件
 
 ### 调试技巧
 

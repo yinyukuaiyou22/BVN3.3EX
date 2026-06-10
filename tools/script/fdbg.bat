@@ -15,8 +15,8 @@ set FLEX_BIN=%FLEX_HOME%\bin
 if not exist "%FLEX_BIN%\fdb.bat" (
     echo [ERROR] fdb.bat not found.
     echo Set FLEX_HOME to AIR SDK root or ensure AIRSDK5 exists.
-    pause >nul
-    goto :EOF
+    pause
+    goto END
 )
 
 :: ---- SWF argument ----
@@ -28,8 +28,8 @@ if "%~1"=="" (
 if not exist "%SWF_FILE%" (
     echo [ERROR] SWF not found: %SWF_FILE%
     echo Usage: %~nx0 [swf_file]
-    pause >nul
-    goto :EOF
+    pause
+    goto END
 )
 
 echo AIR SDK: %FLEX_HOME%
@@ -43,4 +43,8 @@ set PATH=%FLEX_BIN%;%PATH%
     echo continue
 ) | fdb -unit
 
-exit /b 0
+goto END
+
+:END
+pause
+goto :EOF
