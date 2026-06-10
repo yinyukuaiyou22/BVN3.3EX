@@ -33,7 +33,6 @@
 		]]>		</manifestAdditions>
 	</android>
 
-	<extensions>
-		<extensionID>com.bvn.filereader</extensionID>
-	</extensions>
+	<!-- extensions disabled: ANE incompatible with AIR 33.1 captive runtime -->
+	<!-- <extensionID>com.bvn.filereader</extensionID> -->
 </application>

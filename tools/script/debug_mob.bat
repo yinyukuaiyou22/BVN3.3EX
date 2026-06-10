@@ -86,15 +86,6 @@ call :EXIST "%APP_XML%"
 call :ECHO_LANG :PACKAGE_MSG ""
 call :EXIST "%ADT%"
 cd /d "%TEST_DIR%"
-:: ---- Include ANE if present ----
-set "ANE_EXTDIR="
-if exist "%TEST_DIR%\BVNFileReader.ane" set "ANE_EXTDIR=-extdir %TEST_DIR%"
-if exist "%PROJ%\extensions\BVNFileReader\BVNFileReader.ane" set "ANE_EXTDIR=-extdir %PROJ%\extensions\BVNFileReader"
-if "%ANE_EXTDIR%"=="" (
-    echo [WARN] ANE not found, packaging without native extension.
-)
-echo [ANE] !ANE_EXTDIR!
-
 :: ---- Slim APK: backup heavy content, create empty dir placeholders ----
 for %%D in (fighter map face bgm) do (
     REM recover dangling backup from previous interrupted run
@@ -117,7 +108,7 @@ for %%D in (fighter map face bgm) do (
 	    echo [FLA] Stripped .fla files from APK
 	)
 
-	call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" !ANE_EXTDIR! "launch.swf" -C . assets
+	call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "D:/Android/SDK" "launch.swf" -C . assets
 	set ADT_RESULT=%errorlevel%
 
 	:: ---- Restore backed-up content dirs (ALWAYS run, even on ADT failure) ----

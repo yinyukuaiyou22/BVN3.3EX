@@ -35,6 +35,7 @@ launch-fla/
 # Flex SDK & AIR SDK (local environment)
 flex4.16.1-air51.0.1.1/
 AIRSDK5/
+AIRSDK/
 
 # Test resources — track config only, exclude binaries
 tools/Test/*

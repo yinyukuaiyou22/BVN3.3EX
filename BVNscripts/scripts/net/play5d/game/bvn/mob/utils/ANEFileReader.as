@@ -15,11 +15,11 @@
 
       private static const TAG:String = "[ANEFileReader]";
 
-      /** Set to true when ANE (.ane file) is bundled in APK. Requires:
+      /** Set to false when ANE (.ane file) is bundled in APK. Requires:
        *   1. application.xml: uncomment <extensions><extensionID>com.bvn.filereader</extensionID></extensions>
        *   2. debug_mob.bat: ensure BVNFileReader.ane is in tools/Test/ before packaging
        *   When ANE is not bundled, AIR File API fallback handles all file operations. */
-      public static var ANE_ENABLED:Boolean = true;
+      public static var ANE_ENABLED:Boolean = false;
 
       public function ANEFileReader()
       {
@@ -52,6 +52,7 @@
          return _hasANE;
       }
 
+      /** External resource base path. On Android: /storage/emulated/0/BVN/assets/ */
       public static var EXTERNAL_BASE:String = "/storage/emulated/0/BVN/assets/";
 
       /** Map assets/ relative path to external base dir */
