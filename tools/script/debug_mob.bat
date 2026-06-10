@@ -243,7 +243,7 @@ goto END
 	echo   Script finished. Press any key to exit.
 	echo =============================================
 	pause
-	exit /b
+	goto :EOF
 
 	:EXIST "%FLEX_HOME%"
 echo FLEX_HOME: %FLEX_HOME%
@@ -431,7 +431,7 @@ echo =============================================
 echo   Script finished. Press any key to exit.
 echo =============================================
 pause
-exit /b
+goto :EOF
 
 :EXIST
 if not exist %1 (

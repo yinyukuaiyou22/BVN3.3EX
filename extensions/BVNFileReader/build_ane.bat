@@ -44,7 +44,7 @@ set JAVA_SRC=%SRC%\com\bvn\filereader
 "%JAVAC%" -d "%BUILD%\java" -cp "%LIB%\FlashRuntimeExtensions.jar" -sourcepath "%SRC%" "%JAVA_SRC%\BVNFileReaderExtension.java" "%JAVA_SRC%\BVNFileReaderExtensionContext.java"
 if %errorlevel% neq 0 (
     echo [ERROR] Java compile failed.
-    pause & exit /b 1
+    pause & goto :EOF
 )
 
 REM ---- [2/5] Package JAR ----
@@ -58,7 +58,7 @@ echo [3/5] Compiling SWC...
 java -jar "%COMPC_JAR%" +flexlib="%FLEX_SDK%\frameworks" -source-path "%AS3%" -include-classes com.bvn.filereader.BVNFileReaderLib -external-library-path="%AIR_GLOBAL%" -output "%BUILD%\swc\BVNFileReader.swc" -swf-version 37
 if %errorlevel% neq 0 (
     echo [ERROR] SWC compile failed.
-    pause & exit /b 1
+    pause & goto :EOF
 )
 
 REM ---- Extract library.swf from SWC ----
@@ -68,7 +68,7 @@ set LIB_SWF=%BUILD%\%PLATFORM%\library.swf
 powershell -NoProfile -Command "Add-Type -AssemblyName System.IO.Compression.FileSystem; $z=[System.IO.Compression.ZipFile]::OpenRead('%SWC_ZIP%'); [System.IO.Compression.ZipFileExtensions]::ExtractToFile($z.GetEntry('library.swf'), '%LIB_SWF%', $true); $z.Dispose()"
 if not exist "%LIB_SWF%" (
     echo [ERROR] library.swf extraction failed.
-    pause & exit /b 1
+    pause & goto :EOF
 )
 
 REM ---- [4/5] Package ANE ----
@@ -76,7 +76,7 @@ echo [4/5] Packaging ANE...
 "%ADT%" -package -target ane "%PROJ%BVNFileReader.ane" "%PROJ%extension.xml" -swc "%BUILD%\swc\BVNFileReader.swc" -platform %PLATFORM% -C "%BUILD%\%PLATFORM%\" .
 if %errorlevel% neq 0 (
     echo [ERROR] ANE package failed.
-    pause & exit /b 1
+    pause & goto :EOF
 )
 
 REM ---- [5/5] Copy to tools\Test ----
@@ -91,4 +91,4 @@ if %errorlevel%==0 (
 )
 
 pause
-exit /b 0
+goto :EOF
