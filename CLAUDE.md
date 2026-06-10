@@ -72,7 +72,7 @@ cd tools/Test
 adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%FLEX_HOME%\bin\mycert.p12" -storepass yinyu7798 bvn.apk application.xml launch.swf -C assets .
 ```
 
-> **APK 瘦身**：`debug_mob.bat` 打包时自动将 fighter/map/face/bgm 备份，以空目录打包进 APK，打包后恢复。实际内容部署在 `/sdcard/BVN/assets/` 外部存储。
+> **APK 瘦身**：`debug_mob.bat` 打包时自动将 fighter/map/face/bgm 备份，以空目录打包进 APK，打包后恢复。实际内容部署在 `app-storage://BVN/assets/` 外部存储。
 
 ### 运行时资源结构（`tools/Test/assets/`）
 
@@ -412,8 +412,8 @@ AI 等级：
 - **ScreenRotater** — 屏幕旋转
 - **InputManager** — 多种输入源管理（触控 + 摇杆 + 键盘 + 网络）
 - **LAN 多人** — `sockets/` + `ctrls/` 局域网对战（TCP + UDP 混合，含锁帧同步）
-- **ANEFileReader** — 原生文件读取，支持 SD 卡外部资源加载
-- **外部资源加载** — 启动时自动扫描 `/sdcard/BVN/assets/fighter/` + `/sdcard/BVN/assets/map/`，追加到内置资源后
+- **ANEFileReader** — 原生文件读取，支持 应用私有目录外部资源加载
+- **外部资源加载** — 启动时自动扫描 `app-storage://BVN/assets/fighter/` + `app-storage://BVN/assets/map/`，追加到内置资源后
 
 ### 资源加载架构
 
@@ -421,12 +421,12 @@ AI 等级：
 
 1. **嵌入资源**：`_assets/` 中的 PNG/MP3/JPG/BIN 通过 `[Embed]` 标签嵌入 SWF（`EmbeddedAssets.as` 统一管理）
 2. **APK 内置资源**：`tools/Test/assets/` 打包进 APK（sounds/font/config/swf/effect.swf/movelist.jpg）
-3. **SD 卡外部资源**：`/sdcard/BVN/assets/{fighter,map,face,bgm}/` 运行时加载（追加到内置资源后）
+3. **应用私有目录外部资源**：`app-storage://BVN/assets/{fighter,map,face,bgm}/` 运行时加载（追加到内置资源后）
 
 #### 双路径加载（手机端）
 
 ```
-加载资源 → 先查 SD 卡: /sdcard/BVN/assets/fighter/xxx.swf (ANEFileReader)
+加载资源 → 先查 应用私有目录: app-storage://BVN/assets/fighter/xxx.swf (ANEFileReader)
          → 不存在: assets/fighter/xxx.swf (APK 内置)
 ```
 
@@ -436,19 +436,19 @@ AI 等级：
 GameData.loadConfig()
   → 加载 APK 内置 fighter.xml → FighterModel.initByXML()
   → GameLoader.scanExternalAssets()
-  │   ├─ scanExternalFighters(): /sdcard/BVN/assets/fighter/*.swf → 追加到 FighterModel
-  │   └─ scanExternalMaps(): /sdcard/BVN/assets/map/*.swf → 追加到 MapModel
+  │   ├─ scanExternalFighters(): app-storage://BVN/assets/fighter/*.swf → 追加到 FighterModel
+  │   └─ scanExternalMaps(): app-storage://BVN/assets/map/*.swf → 追加到 MapModel
   → 加载 APK 内置 assist.xml / select.xml / map.xml / mission.xml
   → GameLoader.loadExternalConfigs()
-      ├─ /sdcard/BVN/assets/config/fighter.xml → FighterModel.mergeByXML()
-      ├─ /sdcard/BVN/assets/config/assist.xml → AssisterModel.mergeByXML()
-      ├─ /sdcard/BVN/assets/config/map.xml → MapModel.mergeByXML()
-      └─ /sdcard/BVN/assets/config/mission.xml → MessionModel.mergeByXML()
+      ├─ app-storage://BVN/assets/config/fighter.xml → FighterModel.mergeByXML()
+      ├─ app-storage://BVN/assets/config/assist.xml → AssisterModel.mergeByXML()
+      ├─ app-storage://BVN/assets/config/map.xml → MapModel.mergeByXML()
+      └─ app-storage://BVN/assets/config/mission.xml → MessionModel.mergeByXML()
 ```
 
-SD 卡外部目录结构（与 APK 内 `assets/` 一致）：
+外部目录结构（应用私有存储）（与 APK 内 `assets/` 一致）：
 ```
-/sdcard/BVN/assets/
+app-storage://BVN/assets/
 ├── fighter/    # 额外角色 SWF
 ├── map/        # 额外地图 SWF
 ├── face/       # 额外头像 PNG
@@ -460,12 +460,12 @@ SD 卡外部目录结构（与 APK 内 `assets/` 一致）：
     └── mission.xml   # 额外关卡
 ```
 
-> **config 合并规则**：SD 卡 XML 中的条目追加到 APK 内置条目之后，ID 冲突时内置优先（SD 卡重复条目被跳过）。
+> **config 合并规则**：应用私有目录 XML 中的条目追加到 APK 内置条目之后，ID 冲突时内置优先（应用私有目录重复条目被跳过）。
 
 UI SWF 加载流程：
 ```
 ResUtils.as → 从 assets/swf/ 加载 UI SWF（仅 APK 内置） → 创建 UI 实例
-GameLoader.as → 从 assets/fighter/ 或 SD 卡加载角色 SWF → FighterMain 实例化
+GameLoader.as → 从 assets/fighter/ 或 应用私有目录加载角色 SWF → FighterMain 实例化
 ```
 
 ## ANE 原生扩展
@@ -476,17 +476,17 @@ GameLoader.as → 从 assets/fighter/ 或 SD 卡加载角色 SWF → FighterMain
 
 ```as3
 // AS3 端（mob/utils/ANEFileReader.as 封装）
-var ba:ByteArray = ANEFileReader.I.readBytes("/sdcard/BVN/assets/fighter/ichigo.swf");
-var files:Array = ANEFileReader.I.listDir("/sdcard/BVN/assets/fighter/");
-if (ANEFileReader.I.exists("/sdcard/BVN/assets/fighter/")) { ... }
+var ba:ByteArray = ANEFileReader.I.readBytes("app-storage://BVN/assets/fighter/ichigo.swf");
+var files:Array = ANEFileReader.I.listDir("app-storage://BVN/assets/fighter/");
+if (ANEFileReader.I.exists("app-storage://BVN/assets/fighter/")) { ... }
 
 // 路径映射工具
 var extPath:String = ANEFileReader.resolveExternalPath("assets/fighter/ichigo.swf");
-// → "/sdcard/BVN/assets/fighter/ichigo.swf"
+// → "app-storage://BVN/assets/fighter/ichigo.swf"
 var exists:Boolean = ANEFileReader.hasExternalAsset("assets/fighter/ichigo.swf");
 
 // 从绝对路径加载角色（集成 GameLoader）
-GameLoader.loadFighterFromPath("/sdcard/BVN/assets/fighter/ichigo.swf", callback, failCallback);
+GameLoader.loadFighterFromPath("app-storage://BVN/assets/fighter/ichigo.swf", callback, failCallback);
 ```
 
 **ANE 未安装时**自动降级为 AIR `flash.filesystem.File` API（仅沙箱内可用）。

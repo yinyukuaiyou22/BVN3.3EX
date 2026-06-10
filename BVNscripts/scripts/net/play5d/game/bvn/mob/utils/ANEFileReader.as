@@ -46,10 +46,11 @@
          return _hasANE;
       }
 
-      /** Map assets/ relative path to /sdcard/BVN/ absolute path */
+      /** Map assets/ relative path to app-private external dir (no ANE needed) */
       public static function resolveExternalPath(assetPath:String) : String
       {
-         return "/sdcard/BVN/" + assetPath;
+         var base:File = File.applicationStorageDirectory.resolvePath("BVN/assets");
+         return base.resolvePath(assetPath).nativePath;
       }
 
       /** Check if a file exists on external SD card */

@@ -159,10 +159,10 @@ import net.play5d.game.bvn.Debugger;
          AssetManager.I.loadSWF(url,loadComplete,loadIOError,process);
       }
 
-      /** Scan external /sdcard/BVN/assets/fighter/ and register in FighterModel (appended after built-in) */
+      /** Scan external app-storage://BVN/assets/fighter/ and register in FighterModel (appended after built-in) */
       public static function scanExternalFighters() : void
       {
-         var basePath:String = "/sdcard/BVN/assets/fighter/";
+         var basePath:String = ANEFileReader.resolveExternalPath("fighter") + "/";
          Debugger.log("[GameLoader] Scanning external fighters:", basePath);
          if(!ANEFileReader.I.exists(basePath))
          {
@@ -211,10 +211,10 @@ import net.play5d.game.bvn.Debugger;
          Debugger.log("[GameLoader] External fighter scan complete. Found:", files.length, "files");
       }
 
-      /** Scan external /sdcard/BVN/assets/map/ and register in MapModel (appended after built-in) */
+      /** Scan external app-storage://BVN/assets/map/ and register in MapModel (appended after built-in) */
       public static function scanExternalMaps() : void
       {
-         var basePath:String = "/sdcard/BVN/assets/map/";
+         var basePath:String = ANEFileReader.resolveExternalPath("map") + "/";
          Debugger.log("[GameLoader] Scanning external maps:", basePath);
          if(!ANEFileReader.I.exists(basePath))
          {
@@ -259,10 +259,10 @@ import net.play5d.game.bvn.Debugger;
          scanExternalMaps();
       }
 
-      /** Load and merge external config XMLs from /sdcard/BVN/assets/config/ */
+      /** Load and merge external config XMLs from app-storage://BVN/assets/config/ */
       public static function loadExternalConfigs() : void
       {
-         var basePath:String = "/sdcard/BVN/assets/config/";
+         var basePath:String = ANEFileReader.resolveExternalPath("config") + "/";
          Debugger.log("[GameLoader] Loading external configs from:", basePath);
          if(!ANEFileReader.I.exists(basePath))
          {
@@ -291,7 +291,7 @@ import net.play5d.game.bvn.Debugger;
       /** Helper: load a single external XML and call back, silently skip if missing */
       private static function tryLoadExternalXML(fileName:String, back:Function) : void
       {
-         var fullPath:String = "/sdcard/BVN/assets/config/" + fileName;
+         var fullPath:String = basePath + fileName;
          if(!ANEFileReader.I.exists(fullPath))
          {
             return;
