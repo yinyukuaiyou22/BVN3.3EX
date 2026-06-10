@@ -3,7 +3,7 @@
     <id>com.bvn.filereader</id>
     <versionNumber>1.0</versionNumber>
     <platforms>
-        <platform name="Android-ARM">
+        <platform name="Android-ARM64">
             <applicationDeployment>
                 <nativeLibrary>BVNFileReader.jar</nativeLibrary>
                 <initializer>com.bvn.filereader.BVNFileReaderExtension</initializer>

@@ -34,7 +34,8 @@ set ADT=%FLEX_HOME%\bin\adt.bat
 
 set FLEX_SDK=%~dp0..\..\flex4.16.1-air51.0.1.1
 set COMPC_JAR=%FLEX_SDK%\lib\compc.jar
-set AIR_GLOBAL=%FLEX_SDK%\frameworks\libs\air\airglobal.swc
+REM Use AIR 33 airglobal.swc for ANE library.swf compatibility
+	set AIR_GLOBAL=%FLEX_HOME%\frameworks\libs\air\airglobal.swc
 
 REM ---- Clean build dirs ----
 if exist "%BUILD%" rd /s /q "%BUILD%"

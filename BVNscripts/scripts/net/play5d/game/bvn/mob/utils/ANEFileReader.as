@@ -19,7 +19,7 @@
        *   1. application.xml: uncomment <extensions><extensionID>com.bvn.filereader</extensionID></extensions>
        *   2. debug_mob.bat: ensure BVNFileReader.ane is in tools/Test/ before packaging
        *   When ANE is not bundled, AIR File API fallback handles all file operations. */
-      public static var ANE_ENABLED:Boolean = false;
+      public static var ANE_ENABLED:Boolean = true;
 
       public function ANEFileReader()
       {

@@ -28,7 +28,7 @@ set PROJ=%BAT_HOME%..\..
 call :ECHO_LANG :TITLE ""
 
 :: ---- Auto-detect or verify FLEX_HOME ----
-if not "%FLEX_HOME%"=="" goto FLEX_OK
+REM always check local SDK first
 if exist "%PROJ%\AIRSDK\AIRSDK_33.1.1\bin\fdb.bat" (
     set "FLEX_HOME=%PROJ%\AIRSDK\AIRSDK_33.1.1"
     echo [AUTO] FLEX_HOME detected: !FLEX_HOME!
