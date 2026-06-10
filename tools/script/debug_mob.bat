@@ -65,7 +65,7 @@ set "PATH=%PLATFORM_TOOLS%;%FLEX_BIN%;%PATH%"
 set "TEST_DIR=%PROJ%\tools\Test"
 set "SWF_FILE=%TEST_DIR%\launch.swf"
 set "APP_XML=%TEST_DIR%\application.xml"
-set "APK_FILE=%TEST_DIR%\死神vs火影银鱼改.apk"
+set "APK_FILE=%TEST_DIR%\bvn.apk"
 
 :: ---- App info ----
 set DBG_ID=com.bvn.yinyu
@@ -86,19 +86,19 @@ call :EXIST "%APP_XML%"
 call :ECHO_LANG :PACKAGE_MSG ""
 call :EXIST "%ADT%"
 cd /d "%TEST_DIR%"
-:: Include ANE if present (check multiple locations)
-	set "ANE_EXTDIR="
-	if exist "%TEST_DIR%\BVNFileReader.ane" set "ANE_EXTDIR=-extdir %TEST_DIR%"
-	if exist "%PROJ%\extensions\BVNFileReader\BVNFileReader.ane" set "ANE_EXTDIR=-extdir %PROJ%\extensions\BVNFileReader"
-	if "%ANE_EXTDIR%"=="" (
-	    echo [ERROR] BVNFileReader.ane NOT FOUND!
-	    echo   Build it: extensions\BVNFileReader\build_ane.bat
-	    echo   Or place: tools\Test\BVNFileReader.ane
-	    pause
-	    goto END
-	)
-	echo [ANE] Found and will be included.
-
+:: Include ANE if present (check multiple locations)
+	set "ANE_EXTDIR="
+	if exist "%TEST_DIR%\BVNFileReader.ane" set "ANE_EXTDIR=-extdir %TEST_DIR%"
+	if exist "%PROJ%\extensions\BVNFileReader\BVNFileReader.ane" set "ANE_EXTDIR=-extdir %PROJ%\extensions\BVNFileReader"
+	if "%ANE_EXTDIR%"=="" (
+	    echo [ERROR] BVNFileReader.ane NOT FOUND!
+	    echo   Build it: extensions\BVNFileReader\build_ane.bat
+	    echo   Or place: tools\Test\BVNFileReader.ane
+	    pause
+	    goto END
+	)
+	echo [ANE] Found and will be included.
+
 :: ---- Slim APK: backup heavy content, create empty dir placeholders ----
 for %%D in (fighter map face bgm) do (
     :: recover dangling backup from previous interrupted run
@@ -114,7 +114,7 @@ for %%D in (fighter map face bgm) do (
     )
 )
 
-call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 %ANE_EXTDIR% "死神vs火影银鱼改.apk" "application.xml" "launch.swf" -C . assets
+call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 %ANE_EXTDIR% "bvn.apk" "application.xml" "launch.swf" -C . assets
 	set ADT_RESULT=%errorlevel%
 
 	:: ---- Restore backed-up content dirs (ALWAYS run, even on ADT failure) ----

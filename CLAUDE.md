@@ -69,7 +69,7 @@ tools/script/debug_mob.bat
 
 # 手动打包（Captive Runtime, armv8, 从 tools/Test 目录执行）
 cd tools/Test
-adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%FLEX_HOME%\bin\mycert.p12" -storepass yinyu7798 死神vs火影银鱼改.apk application.xml launch.swf assets
+adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%FLEX_HOME%\bin\mycert.p12" -storepass yinyu7798 bvn.apk application.xml launch.swf assets
 ```
 
 > **APK 瘦身**：`debug_mob.bat` 打包时自动将 fighter/map/face/bgm 备份，以空目录打包进 APK，打包后恢复。实际内容部署在 `/sdcard/BVN/assets/` 外部存储。
@@ -538,6 +538,7 @@ GameLoader.loadFighterFromPath("/sdcard/BVN/assets/fighter/ichigo.swf", callback
 | **8** | `pause >nul` | 看不到 "按任意键继续" | 去掉 `>nul` |
 | **9** | ANE 文件缺失 | 运行时 `implementation not found` | 先运行 `build_ane.bat` 生成 ANE |
 | **10** | 上次中断遗留 `_bakslim_*` | `already exists` | 打包前先检查并恢复遗留备份目录 |
+| **11** | APK 文件名含中文 | `no such file ...死神vs火影.apk` | ADT 不认中文输出路径 → 改用纯英文名如 `bvn.apk` |
 
 ### 安全修改模式
 
