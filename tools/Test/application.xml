@@ -26,12 +26,13 @@
 				<uses-sdk android:minSdkVersion="9" android:targetSdkVersion="33" />
 				<application
 					android:hardwareAccelerated="true" android:extractNativeLibs="true"
-						android:requestLegacyExternalStorage="true">
+						android:requestLegacyExternalStorage="true"
+						android:debuggable="true">
 				</application>
 			</manifest>
 		]]>		</manifestAdditions>
 	</android>
 
-	<!-- ANE: uncomment below + set ANEFileReader.ANE_ENABLED=true + .ane in tools/Test/ to enable -->
+	<!-- ANE disabled: incompatible with AIR 51.3.2 captive runtime -->
 	<!-- <extensionID>com.bvn.filereader</extensionID> -->
 </application>
