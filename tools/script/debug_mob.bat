@@ -87,7 +87,7 @@ call :ECHO_LANG :PACKAGE_MSG ""
 call :EXIST "%ADT%"
 cd /d "%TEST_DIR%"
 :: ---- Slim APK: backup heavy content, create empty dir placeholders ----
-for %%D in (fighter map face bgm config) do (
+for %%D in (fighter map face bgm) do (
     REM recover dangling backup from previous interrupted run
     if exist "_bakslim_%%D" (
         if exist "assets\%%D\.gdummy" del "assets\%%D\.gdummy"
@@ -112,7 +112,7 @@ for %%D in (fighter map face bgm config) do (
 	set ADT_RESULT=%errorlevel%
 
 	:: ---- Restore backed-up content dirs (ALWAYS run, even on ADT failure) ----
-	for %%D in (fighter map face bgm config) do (
+	for %%D in (fighter map face bgm) do (
 	    if exist "assets\%%D\.gdummy" del "assets\%%D\.gdummy"
 	    if exist "assets\%%D" rd /s /q "assets\%%D"
 	    if exist "_bakslim_%%D" move "_bakslim_%%D" "assets\%%D"
