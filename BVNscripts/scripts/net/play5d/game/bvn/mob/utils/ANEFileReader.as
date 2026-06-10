@@ -15,13 +15,15 @@
 
       private static const TAG:String = "[ANEFileReader]";
 
+      public static var ANE_ENABLED:Boolean = false;
+
       public function ANEFileReader()
       {
          super();
          try
          {
-            _ctx = ExtensionContext.createExtensionContext("com.bvn.filereader", "");
-            _hasANE = (_ctx != null);
+            if(ANE_ENABLED) { _ctx = ExtensionContext.createExtensionContext("com.bvn.filereader", "");
+            _hasANE = (_ctx != null); } else { _ctx = null; _hasANE = false; }
             Debugger.log(TAG, "ANE init:", _hasANE ? "OK" : "FAILED (ctx=null)");
          }
          catch(e:Error)
