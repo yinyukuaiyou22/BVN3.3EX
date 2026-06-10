@@ -539,6 +539,7 @@ GameLoader.loadFighterFromPath("/sdcard/BVN/assets/fighter/ichigo.swf", callback
 | **9** | ANE 文件缺失 | 运行时 `implementation not found` | 先运行 `build_ane.bat` 生成 ANE |
 | **10** | 上次中断遗留 `_bakslim_*` | `already exists` | 打包前先检查并恢复遗留备份目录 |
 | **11** | APK 文件名含中文 | `no such file ...死神vs火影.apk` | ADT 不认中文输出路径 → 改用纯英文名如 `bvn.apk` |
+| **12** | `enabledelayedexpansion` + `%VAR%` | `implementation not found`（ANE 未被传入） | `setlocal enabledelayedexpansion` 下运行时设的变量须用 `!VAR!` |
 
 ### bat 脚本强制规范
 
