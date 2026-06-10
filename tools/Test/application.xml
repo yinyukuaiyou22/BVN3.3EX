@@ -21,6 +21,7 @@
 		<manifestAdditions><![CDATA[
 			<manifest android:installLocation="auto">
 				<uses-permission android:name="android.permission.INTERNET" />
+					<uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
 				<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 					<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 				<uses-sdk android:minSdkVersion="9" android:targetSdkVersion="33" />
