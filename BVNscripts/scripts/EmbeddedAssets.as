@@ -23,6 +23,8 @@ package {
       public static var dash_png:Class;
       [Embed(source="_assets/10_spskill_png$693b104ec62ea9070df9579f85fd9cda511725570.png")]
       public static var spskill_png:Class;
+      [Embed(source="_assets/11_light_png.png")]
+      public static var light_png:Class;
       [Embed(source="_assets/20_special_png$7df6ea19056c6383d8763edd190b0dfe-1405122497.png")]
       public static var special_png:Class;
       [Embed(source="_assets/15_wanjie_png$24837ac1b951600032b07c7d11d220e1-348075342.png")]
