@@ -22,14 +22,16 @@
 			<manifest android:installLocation="auto">
 				<uses-permission android:name="android.permission.INTERNET" />
 				<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+					<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 				<uses-sdk android:minSdkVersion="9" android:targetSdkVersion="33" />
 				<application
-					android:hardwareAccelerated="true" android:extractNativeLibs="true">
+					android:hardwareAccelerated="true" android:extractNativeLibs="true"
+						android:requestLegacyExternalStorage="true">
 				</application>
 			</manifest>
 		]]>		</manifestAdditions>
 	</android>
 
-	<!-- extensions disabled: ANE not compatible with AIR 51.3.2 -->
+	<!-- ANE: uncomment below + set ANEFileReader.ANE_ENABLED=true + .ane in tools/Test/ to enable -->
 	<!-- <extensionID>com.bvn.filereader</extensionID> -->
 </application>
