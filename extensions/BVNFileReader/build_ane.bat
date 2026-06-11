@@ -106,6 +106,12 @@ if not exist "%LIB_SWF%" (
     pause & goto :EOF
 )
 
+REM ---- Copy AndroidManifest.xml into platform dir (merged during APK packaging) ----
+if exist "%PROJ%Android\AndroidManifest.xml" (
+    copy /y "%PROJ%Android\AndroidManifest.xml" "%BUILD%\%PLATFORM%\AndroidManifest.xml" >nul
+    echo   AndroidManifest.xml copied to platform dir
+)
+
 REM ---- [4/5] Package ANE ----
 echo [4/5] Packaging ANE...
 call "%ADT%" -package -target ane "%PROJ%BVNFileReader.ane" "%PROJ%extension.xml" -swc "%BUILD%\swc\BVNFileReader.swc" -platform %PLATFORM% -C "%BUILD%\%PLATFORM%" .
