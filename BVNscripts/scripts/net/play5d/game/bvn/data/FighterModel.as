@@ -61,7 +61,13 @@ package net.play5d.game.bvn.data
          }
       }
 
-      /** Merge fighters from external XML (append only, skip duplicates) */
+      /** Ensure backing store is initialized (safe to call before any operations) */
+      public function ensureInit() : void
+      {
+         if(!this._fighterObj) { this._fighterObj = {}; }
+      }
+
+      /** Merge/update fighters from external XML (overwrites entries previously registered by SWF scan) */
       public function mergeByXML(param1:XML) : void
       {
          var _loc3_:* = undefined;
@@ -74,10 +80,7 @@ package net.play5d.game.bvn.data
          {
             _loc2_ = new FighterVO();
             _loc2_.initByXML(_loc3_);
-            if(!this._fighterObj[_loc2_.id])
-            {
-               this._fighterObj[_loc2_.id] = _loc2_;
-            }
+            this._fighterObj[_loc2_.id] = _loc2_;
          }
       }
    }

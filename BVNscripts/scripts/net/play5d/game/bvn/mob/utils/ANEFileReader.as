@@ -52,8 +52,38 @@
          return _hasANE;
       }
 
-      /** External resource base path. On Android: /storage/emulated/0/BVN/assets/ */
-      public static var EXTERNAL_BASE:String = "/storage/emulated/0/Android/data/air.com.bvn.yinyu/files/BVN/assets/";
+      /** External resource base path — app-private external storage on Android.
+       *  Path: /storage/emulated/0/Android/data/air.com.bvn.yinyu/BVN/assets/
+       *  Users can push custom content via:
+       *    adb push <local_dir>/ /storage/emulated/0/Android/data/air.com.bvn.yinyu/BVN/assets/
+       *  Subdirs: fighter/ map/ face/ bgm/ config/  (auto-created on first launch) */
+      public static var EXTERNAL_BASE:String = "/storage/emulated/0/Android/data/air.com.bvn.yinyu/BVN/assets/";
+
+      /** DocumentsProvider authority string. File managers (e.g. MT Manager) use this to browse app data.
+       *  Call registerProvider() to wake the process before opening in a file manager. */
+      public static const PROVIDER_AUTHORITY:String = "air.com.bvn.yinyu.BVNDataFilesProvider";
+
+      /** Wake up the DocumentsProvider process so file managers can browse app-private data.
+       *  Only works when ANE is active. Returns true on success, false on failure or ANE unavailable. */
+      public function registerProvider() : Boolean
+      {
+         if(!_hasANE || !_ctx)
+         {
+            Debugger.log(TAG, "registerProvider: ANE not available, cannot wake provider");
+            return false;
+         }
+         try
+         {
+            var result:Object = _ctx.call("registerProvider");
+            Debugger.log(TAG, "registerProvider:", result ? "OK" : "FAILED");
+            return result as Boolean;
+         }
+         catch(e:Error)
+         {
+            Debugger.log(TAG, "registerProvider ERROR:", e.message);
+            return false;
+         }
+      }
 
       /** Map assets/ relative path to external base dir */
       public static function resolveExternalPath(assetPath:String) : String

@@ -45,6 +45,12 @@ import net.play5d.game.bvn.Debugger;
          }
       }
 
+      /** Ensure backing store is initialized (safe to call before any operations) */
+      public function ensureInit() : void
+      {
+         if(!this._messions) { this._messions = []; }
+      }
+
       /** Merge missions from external XML (append only, skip duplicates by comicType+gameMode) */
       public function mergeByXML(param1:XML) : void
       {

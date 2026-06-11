@@ -26,6 +26,31 @@ if not defined JAVA_HOME (
 set JAVAC=%JAVA_HOME%\bin\javac.exe
 set JAR=%JAVA_HOME%\bin\jar.exe
 
+REM ---- Auto-detect Android SDK android.jar ----
+set ANDROID_JAR=
+for %%d in (
+    "D:\Android\SDK"
+    "C:\Android\SDK"
+    "E:\Android\SDK"
+) do (
+    if exist %%d\platforms (
+        REM Find highest platform version
+        for /f "tokens=*" %%v in ('dir /b /ad /o-n %%d\platforms\android-* 2^>nul ^| findstr /r "android-[0-9]"') do (
+            if not defined ANDROID_JAR (
+                if exist %%d\platforms\%%v\android.jar (
+                    set ANDROID_JAR=%%d\platforms\%%v\android.jar
+                )
+            )
+        )
+    )
+)
+if not defined ANDROID_JAR (
+    echo [ERROR] Android SDK android.jar not found!
+    echo   Checked: D:\Android\SDK\platforms\android-*
+    pause & goto :EOF
+)
+echo [AUTO] android.jar: %ANDROID_JAR%
+
 :: Always prefer local AIR SDK over environment variable
 	for %%d in ("%~dp0..\..\AIRSDK\AIRSDK_51.3.2") do (
 	    if exist %%d\bin\adt.bat set FLEX_HOME=%%~d
@@ -51,7 +76,7 @@ mkdir "%BUILD%\swc"
 REM ---- [1/5] Compile Java ----
 echo [1/5] Compiling Java...
 set JAVA_SRC=%SRC%\com\bvn\filereader
-"%JAVAC%" -d "%BUILD%\java" -cp "%LIB%\FlashRuntimeExtensions.jar" -sourcepath "%SRC%" "%JAVA_SRC%\BVNFileReaderExtension.java" "%JAVA_SRC%\BVNFileReaderExtensionContext.java"
+"%JAVAC%" -d "%BUILD%\java" -cp "%LIB%\FlashRuntimeExtensions.jar;%ANDROID_JAR%" -sourcepath "%SRC%" "%JAVA_SRC%\BVNFileReaderExtension.java" "%JAVA_SRC%\BVNFileReaderExtensionContext.java" "%JAVA_SRC%\BVNDataFilesProvider.java" "%JAVA_SRC%\BVNDataFilesWakeUpActivity.java"
 if %errorlevel% neq 0 (
     echo [ERROR] Java compile failed.
     pause & goto :EOF

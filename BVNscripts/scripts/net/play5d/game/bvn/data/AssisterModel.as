@@ -61,7 +61,13 @@ package net.play5d.game.bvn.data
          }
       }
 
-      /** Merge assisters from external XML (append only, skip duplicates) */
+      /** Ensure backing store is initialized (safe to call before any operations) */
+      public function ensureInit() : void
+      {
+         if(!this._assisterObj) { this._assisterObj = {}; }
+      }
+
+      /** Merge/update assisters from external XML (overwrites entries with authoritative config data) */
       public function mergeByXML(param1:XML) : void
       {
          var _loc3_:* = undefined;
@@ -74,10 +80,7 @@ package net.play5d.game.bvn.data
          {
             _loc2_ = new FighterVO();
             _loc2_.initByXML(_loc3_);
-            if(!this._assisterObj[_loc2_.id])
-            {
-               this._assisterObj[_loc2_.id] = _loc2_;
-            }
+            this._assisterObj[_loc2_.id] = _loc2_;
          }
       }
    }

@@ -287,14 +287,41 @@ import net.play5d.game.bvn.Debugger;
          flash.utils.setTimeout(doScan, 2000);
       }
 
-      /** Load and merge external config XMLs from app-storage://BVN/assets/config/ */
+      /** Load and merge external config XMLs (deferred, non-blocking) */
       public static function loadExternalConfigs() : void
       {
+         trace("[GameLoader] External config loading queued (non-blocking)");
+         flash.utils.setTimeout(function():void {
+            try {
+               _loadExternalConfigsImpl();
+               trace("[GameLoader] External config loading complete");
+            } catch(e:Error) {
+               trace("[GameLoader] External config error:", e.message);
+            }
+         }, 3000);
+      }
+
+      /** Synchronous fallback: load ALL external configs immediately and call back.
+       *  Used when APK configs are missing — blocks startup until external data is ready. */
+      public static function loadExternalConfigsNow(onComplete:Function) : void
+      {
+         trace("[GameLoader] External config loading NOW (APK configs missing)...");
          try {
+            // Ensure model backing stores are initialized so scans don't crash
+            FighterModel.I.ensureInit();
+            AssisterModel.I.ensureInit();
+            MapModel.I.ensureInit();
+            MessionModel.I.ensureInit();
+            // Run scan + config load synchronously
+            ensureExternalDirs();
+            scanExternalFighters();
+            scanExternalMaps();
             _loadExternalConfigsImpl();
+            trace("[GameLoader] External config loading complete");
          } catch(e:Error) {
-            Debugger.log("[GameLoader] External config error (non-fatal):", e.message);
+            trace("[GameLoader] External config error:", e.message);
          }
+         if(onComplete != null) onComplete();
       }
 
       private static function _loadExternalConfigsImpl() : void
@@ -307,26 +334,30 @@ import net.play5d.game.bvn.Debugger;
             return;
          }
          // Try to load and merge each config XML
-         tryLoadExternalXML("fighter.xml", function(xml:XML):void {
+         tryLoadExternalXML(basePath, "fighter.xml", function(xml:XML):void {
             FighterModel.I.mergeByXML(xml);
             Debugger.log("[GameLoader] External fighter.xml merged.");
          });
-         tryLoadExternalXML("assist.xml", function(xml:XML):void {
+         tryLoadExternalXML(basePath, "assist.xml", function(xml:XML):void {
             AssisterModel.I.mergeByXML(xml);
             Debugger.log("[GameLoader] External assist.xml merged.");
          });
-         tryLoadExternalXML("map.xml", function(xml:XML):void {
+         tryLoadExternalXML(basePath, "select.xml", function(xml:XML):void {
+            GameData.I.config.select_config.setByXML(xml);
+            Debugger.log("[GameLoader] External select.xml merged.");
+         });
+         tryLoadExternalXML(basePath, "map.xml", function(xml:XML):void {
             MapModel.I.mergeByXML(xml);
             Debugger.log("[GameLoader] External map.xml merged.");
          });
-         tryLoadExternalXML("mission.xml", function(xml:XML):void {
+         tryLoadExternalXML(basePath, "mission.xml", function(xml:XML):void {
             MessionModel.I.mergeByXML(xml);
             Debugger.log("[GameLoader] External mission.xml merged.");
          });
       }
 
       /** Helper: load a single external XML and call back, silently skip if missing */
-      private static function tryLoadExternalXML(fileName:String, back:Function) : void
+      private static function tryLoadExternalXML(basePath:String, fileName:String, back:Function) : void
       {
          var fullPath:String = basePath + fileName;
          if(!ANEFileReader.I.exists(fullPath))

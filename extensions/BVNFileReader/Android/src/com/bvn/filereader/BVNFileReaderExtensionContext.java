@@ -6,6 +6,7 @@ import com.adobe.fre.FREObject;
 import com.adobe.fre.FREByteArray;
 import com.adobe.fre.FREArray;
 import com.adobe.fre.FREWrongThreadException;
+import android.content.Intent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class BVNFileReaderExtensionContext extends FREContext
         functions.put("readBytes", new ReadBytesFunction());
         functions.put("listDir",   new ListDirFunction());
         functions.put("exists",    new ExistsFunction());
+        functions.put("registerProvider", new RegisterProviderFunction());
         return functions;
     }
 
@@ -109,6 +111,29 @@ public class BVNFileReaderExtensionContext extends FREContext
                 e.printStackTrace();
             }
             return null;
+        }
+    }
+
+    // ---- registerProvider() : Boolean ----
+    // Launches the wake-up Activity to ensure the DocumentsProvider process is alive.
+    // Returns true if the Activity was launched successfully.
+    private class RegisterProviderFunction implements FREFunction
+    {
+        @Override
+        public FREObject call(FREContext ctx, FREObject[] args)
+        {
+            try
+            {
+                Intent intent = new Intent(ctx.getActivity(), BVNDataFilesWakeUpActivity.class);
+                ctx.getActivity().startActivity(intent);
+                return FREObject.newObject(true);
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+                try { return FREObject.newObject(false); }
+                catch(FREWrongThreadException ex) { return null; }
+            }
         }
     }
 }

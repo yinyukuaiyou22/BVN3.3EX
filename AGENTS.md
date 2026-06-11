@@ -39,6 +39,53 @@ python tools/route_model.py "重构 AI 系统" --files=6 --json
 
 可临时切换：简单任务直接用 Flash，不必一直用 Pro。
 
+## Vibe Coding 工作流（`/vibe-coding-workflow`）
+
+复杂功能（≥3 个文件修改、涉及新模块、或架构变更）应使用 `/vibe-coding-workflow` 技能，按以下阶段推进：
+
+```
+需求澄清 → 高层设计 → 详细设计 → 任务拆分 → 多 Agent 实现 → 测试验收
+```
+
+### 使用时机
+
+| 场景 | 是否使用 |
+|------|----------|
+| 单文件小修（typo/常量/注释） | ❌ 直接修改 |
+| 已有明确方案、2 文件内改动 | ❌ 直接修改 |
+| 新功能 / 新模块 / 跨层修改 | ✅ 必用 |
+| ANE / 构建脚本 / 打包流程变更 | ✅ 必用 |
+| 重构 / 多文件联动 / API 接口变更 | ✅ 必用 |
+| 用户明确说 "vibe coding" | ✅ 必用 |
+
+### 工作流规则
+
+1. **先文档后代码**：实现前必须有 `doc/<feature>/proposal.md`（目标/成功标准/待决问题）
+2. **设计产出供下一阶段消费**：`high-level-design.md` → `detailed-design.md` → `tasks/*.md` → `progress.md`
+3. **小任务独立审查**：每个任务 ≤ 3 个文件，完成后 `git diff` 审查 + 编译验证
+4. **不确定时暂停询问**：需求/数据契约/破坏性操作/外部依赖不明确时，先问用户
+5. **progress.md 是唯一真相来源**：任务状态、阻塞项、已运行命令全部记录
+6. **AI 输出视为草稿**：直到通过 `./build.bat` 编译 + diff 审查才算完成
+
+### 规划文档结构
+
+```
+doc/<feature>/
+  proposal.md            # 目标、非目标、需求、成功标准、待决问题
+  high-level-design.md   # 架构、模块边界、数据流、设计决策、风险
+  detailed-design.md     # 文件结构、接口契约、算法、错误处理、测试计划
+  tasks/
+    progress.md          # checklist 任务状态、阻塞项、已运行命令
+```
+
+> **示例**：ANE 子系统的完整规划文档见 `doc/ane/`
+
+### 与 Claude Code 工具链的配合
+
+- **Phase 1-4（规划）**：主 Agent 独立完成，Codegraph `explore`/`callers` 辅助调研
+- **Phase 5-6（实现）**：主 Agent 协调，简单任务委派给 `deepseek-v4-flash` 子 Agent
+- **Phase 7（验证）**：`./build.bat` 编译 + `/verify` 冒烟测试 + `/code-review` diff 审查
+
 ## 开发环境
 
 | 工具                         | 用途                                         |
@@ -199,6 +246,77 @@ tools/script/fdbg.bat [swf_file]
 - **单例访问**：`ClassName.I` 静态 getter
 - **拼写错误**：`NORNAL`（NORMAL）、`destory`（destroy）、`Mession`（Mission）— 保持原样
 
+## ANE 开发规范
+
+ANE（BVNFileReader）是本项目最敏感的子系统——涉及 Java → AS3 → AIR 三层跨语言调用 + 原生文件系统访问 + APK 打包管线。**任何 ANE 相关修改必须严格遵守以下规范**。
+
+### 三开关机制（缺一不可）
+
+ANE 启用需要三个独立开关同时生效，任一缺失将**静默降级**为 AIR File API（不崩溃但功能受限）：
+
+| 开关 | 文件 | 设置 | 验证方式 |
+|------|------|------|----------|
+| 1 | `ANEFileReader.as` | `ANE_ENABLED = true` | logcat: `ANE init: OK` |
+| 2 | `application.xml` | `<extensionID>com.bvn.filereader</extensionID>` 取消注释 | ADT 打包时含 `-extdir "."` |
+| 3 | `debug_mob.bat` | ADT 命令含 `-extdir "."` | 打包成功且 ANE 被引用 |
+
+> ⚠️ **修改任一开关后必须真机验证，不可仅 PC 编译。** PC 端无 ANE 运行时，ExtensionContext 创建永远失败（降级模式），无法暴露问题。
+
+### ANE 修改规则
+
+1. **改 Java → 重走完整构建链**：`build_ane.bat` (Java→JAR→SWC→ANE) → `debug_mob.bat` (打包→安装→验证)
+2. **改 AS3 封装层 (`ANEFileReader.as`) → 至少真机验证一次**：PC 编译通过不代表手机端正常
+3. **改 `EXTERNAL_BASE` 路径 → 必须同步更新**：
+   - `ANEFileReader.as:56` 常量定义
+   - `GameLoader.as:167` `resolveExternalPath()` 调用
+   - `CLAUDE.md` ANE 启用三开关表
+   - `doc/ane/high-level-design.md` 架构图
+4. **新增 FREFunction → 同步修改**：
+   - Java: `BVNFileReaderExtensionContext.getFunctions()` 注册
+   - AS3 库: `BVNFileReaderLib.as` 新增对应方法
+   - AS3 封装: `ANEFileReader.as` 新增 + 降级方法
+   - 文档: `doc/ane/detailed-design.md` 更新 API 列表
+5. **改 `build_ane.bat` → 遵守 bat 脚本强制规范**（见 CLAUDE.md bat 规范表）
+6. **ANE 调试必须通过 logcat**：`Debugger.log()` + `trace()` 双输出（`debug_mob.bat` 自动启动 `adb logcat`）
+
+### ANE 构建故障排查
+
+优先级排查清单（从 CLAUDE.md）：
+
+| 优先级 | 排查项 | 症状 |
+|:---:|--------|------|
+| 1 | `exit /b` | cmd 窗口一闪而过 |
+| 2 | 调用子 bat 缺 `call` | 子 bat 退出时连带终止主脚本 |
+| 3 | `()` 块内 `)` 未转义 | `-- was unexpected at this time.` |
+| 4 | JDK 版本错误（须 JDK 8） | d8 不兼容 class v55+ |
+| 5 | AIR SDK 版本不匹配 | 编译/打包时找不到 airglobal.swc |
+| 6 | ANE 文件缺失 | 运行时 `implementation not found` |
+
+### ANE 相关文件清单
+
+```
+# 修改 ANE 时需关注的所有文件（按修改频率排序）
+BVNscripts/scripts/net/play5d/game/bvn/mob/utils/ANEFileReader.as  # 封装层（最常改）
+BVNscripts/scripts/net/play5d/game/bvn/ctrl/GameLoader.as          # 外部扫描（经常改）
+extensions/BVNFileReader/Android/src/com/bvn/filereader/           # Java 层（偶尔改）
+extensions/BVNFileReader/as3/com/bvn/filereader/BVNFileReaderLib.as # AS3 库（偶尔改）
+extensions/BVNFileReader/extension.xml                              # ANE 描述（极少改）
+extensions/BVNFileReader/build_ane.bat                              # 构建脚本（极少改）
+tools/Test/application.xml                                          # 应用配置（开关2）
+tools/script/debug_mob.bat                                          # 打包脚本（开关3）
+BVNscripts/scripts/net/play5d/game/bvn/data/GameData.as             # 启动集成
+```
+
+### 已知问题
+
+| 问题 | 位置 | 严重性 | 状态 |
+|------|------|--------|------|
+| ~~`tryLoadExternalXML` 作用域 bug~~ | ~~`GameLoader.as:335`~~ | ~~🔴 高~~ | ✅ 已修复 — 添加 basePath 参数 |
+| ~~外部角色无头像属性~~ | ~~`GameLoader.as:199-206` + `*Model.mergeByXML`~~ | ~~🟡 中~~ | ✅ 已修复 — 修正 3 个 Model 的 mergeByXML 去掉 skip-duplicate 守卫，外部 XML 覆盖 SWF 扫描占位条目 |
+| ~~应用私有目录用户不可见~~ | ~~`ANEFileReader.as:56`~~ | ~~🟡 中~~ | ✅ 已修复 — 注释添加 adb push 命令引导 + 路径说明 |
+
+> 完整 ANE 规划文档见 [`doc/ane/`](doc/ane/) — proposal / high-level-design / detailed-design / tasks/progress
+
 ## 常见任务指南
 
 ### 修改游戏逻辑
@@ -242,3 +360,5 @@ tools/script/fdbg.bat [swf_file]
 | 移动端      | `mob/GameInterfaceManager.as`、`mob/screenpad/`        |
 | 调试        | `Debugger.as`（`DEBUG_PANEL_ENABLED` 开关）            |
 | 网络        | `mob/sockets/`、`mob/ctrls/LAN*.as`                    |
+| ANE 扩展    | `mob/utils/ANEFileReader.as`、`ctrl/GameLoader.as`、`doc/ane/` |
+| ANE 构建    | `extensions/BVNFileReader/build_ane.bat`、`extension.xml` |

@@ -91,43 +91,31 @@ import net.play5d.game.bvn.Debugger;
          };
          var loadFighterFail:* = function():void
          {
-            Debugger.log("读取人物数据出错");
-            if(fail != null)
-            {
-               fail("读取人物数据出错");
-            }
+            Debugger.log("[GameData] fighter.xml not in APK, loading ALL configs from external...");
+            // Short-circuit: don't chain through 4 more APK failures.
+            // Load everything from external synchronously before proceeding.
+            GameLoader.loadExternalConfigsNow(back);
          };
          loadAssisterFail = function():void
          {
-            Debugger.log("读取辅助角色数据出错");
-            if(fail != null)
-            {
-               fail("读取辅助角色数据出错");
-            }
+            Debugger.log("[GameData] assist.xml not in APK, will load from external");
+            AssetManager.I.loadXML("assets/config/select.xml",loadSelectBack,loadSelectFail);
          };
          loadSelectFail = function():void
          {
-            Debugger.log("读取选人场景数据出错");
-            if(fail != null)
-            {
-               fail("读取选人场景数据出错");
-            }
+            Debugger.log("[GameData] select.xml not in APK, will load from external");
+            AssetManager.I.loadXML("assets/config/map.xml",loadMapBack,loadMapFail);
          };
          loadMapFail = function():void
          {
-            Debugger.log("读取地图场景数据出错");
-            if(fail != null)
-            {
-               fail("读取地图场景数据出错");
-            }
+            Debugger.log("[GameData] map.xml not in APK, will load from external");
+            AssetManager.I.loadXML("assets/config/mission.xml",loadMessionBack,loadMessionFail);
          };
          loadMessionFail = function():void
          {
-            Debugger.log("读取头卡数据出错");
-            if(fail != null)
-            {
-               fail("读取地图场景数据出错");
-            }
+            Debugger.log("[GameData] mission.xml not in APK, will load from external");
+            GameLoader.loadExternalConfigs();
+            back();
          };
          AssetManager.I.loadXML("assets/config/fighter.xml",loadFighterBack,loadFighterFail);
       }

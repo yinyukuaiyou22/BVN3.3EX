@@ -48,7 +48,14 @@ package net.play5d.game.bvn.data
          }
       }
 
-      /** Merge maps from external XML (append only, skip duplicates) */
+      /** Ensure backing stores are initialized (safe to call before any operations) */
+      public function ensureInit() : void
+      {
+         if(!this._mapObj) { this._mapObj = {}; }
+         if(!this._mapArray) { this._mapArray = []; }
+      }
+
+      /** Merge/update maps from external XML (overwrites entries previously registered by SWF scan) */
       public function mergeByXML(param1:XML) : void
       {
          var _loc3_:* = undefined;
@@ -62,11 +69,8 @@ package net.play5d.game.bvn.data
          {
             _loc2_ = new MapVO();
             _loc2_.initByXML(_loc3_);
-            if(!this._mapObj[_loc2_.id])
-            {
-               this._mapObj[_loc2_.id] = _loc2_;
-               this._mapArray.push(_loc2_);
-            }
+            this._mapObj[_loc2_.id] = _loc2_;
+            this._mapArray.push(_loc2_);
          }
       }
    }
