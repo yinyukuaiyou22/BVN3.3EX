@@ -9,6 +9,9 @@ package net.play5d.game.bvn
    import flash.events.KeyboardEvent;
    import flash.events.MouseEvent;
    import flash.events.UncaughtErrorEvent;
+   import flash.filesystem.File;
+   import flash.filesystem.FileMode;
+   import flash.filesystem.FileStream;
    import flash.geom.Rectangle;
    import flash.system.System;
    import flash.text.TextField;
@@ -59,6 +62,14 @@ package net.play5d.game.bvn
       private static var _debugEnabled:Boolean = false;
 
       private static var _logQueue:Array = [];
+
+      private static var _logFile:File;
+
+      private static var _logStream:FileStream;
+
+      private static var _fileLogBuffer:String = "";
+
+      private static const FILE_FLUSH_FRAMES:int = 5;  // write to file every N frames
 
       private static const MAX_QUEUE_SIZE:int = 300;
 
@@ -153,16 +164,17 @@ package net.play5d.game.bvn
          _stage = param1;
          _debugEnabled = true;
 
-         // Mobile scaling: base on 800px desktop reference
+         // Mobile scaling: base on 480px reference for phone screens
          var screenW:Number = _stage.fullScreenWidth > 0 ? _stage.fullScreenWidth : _stage.stageWidth;
          var screenH:Number = _stage.fullScreenHeight > 0 ? _stage.fullScreenHeight : _stage.stageHeight;
-         _scale = Math.max(1.0, Math.min(screenW, screenH) / 600);
-         if(_scale > 2.5) { _scale = 2.5; }
+         var baseDim:Number = Math.min(screenW, screenH);
+         _scale = Math.max(1.0, baseDim / 480);
+         if(_scale > 3.5) { _scale = 3.5; }
          if(_scale < 1.0) { _scale = 1.0; }
 
-         PANEL_WIDTH = int(400 * _scale);
-         TITLE_HEIGHT = int(30 * _scale);
-         LOG_HEIGHT = int(220 * _scale);
+         PANEL_WIDTH = int(screenW * 0.45);
+         TITLE_HEIGHT = int(28 * _scale);
+         LOG_HEIGHT = int(screenH * 0.35);
          PERF_PANEL_WIDTH = int(200 * _scale);
          PERF_TITLE_HEIGHT = int(22 * _scale);
          PERF_BODY_HEIGHT = int(140 * _scale);
@@ -180,6 +192,25 @@ package net.play5d.game.bvn
          _createPerfPanel();
          param1.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR,_onUncaughtError);
          _stage.addEventListener(Event.ENTER_FRAME,_onEnterFrame);
+
+         // Set up file logging — writes to app-private internal storage.
+         // Retrieve via: adb exec-out run-as air.com.bvn.yinyu cat /data/data/air.com.bvn.yinyu/air.com.bvn.yinyu/Local\ Store/bvn_debug.log
+         try {
+            _logFile = File.applicationStorageDirectory.resolvePath("bvn_debug.log");
+            _logStream = new FileStream();
+            _logStream.open(_logFile, FileMode.WRITE);
+            _logStream.writeUTFBytes("=== BVN Debug Log ===\n");
+         } catch(e:Error) {}
+      }
+
+      /** Flush buffered log lines to file and close the stream. Safe to call anytime. */
+      public static function flushLogFile() : void
+      {
+         if(_logStream && _fileLogBuffer.length > 0)
+         {
+            try { _logStream.writeUTFBytes(_fileLogBuffer); _fileLogBuffer = ""; }
+            catch(e:Error) {}
+         }
       }
       
       public static function addChild(param1:DisplayObject) : void
@@ -262,20 +293,54 @@ package net.play5d.game.bvn
          _panel.addChild(_logContainer);
          _logTf = new TextField();
          _logTf.defaultTextFormat = _fmtInfo;
-         _logTf.selectable = true;
+         _logTf.selectable = false;
          _logTf.mouseEnabled = true;
          _logTf.wordWrap = true;
          _logTf.multiline = true;
-         _logTf.width = PANEL_WIDTH - int(10 * _scale);
-         _logTf.height = LOG_HEIGHT;
-         _logTf.x = int(5 * _scale);
+         _logTf.width = int(PANEL_WIDTH * 0.95);
+         _logTf.height = LOG_HEIGHT * 10;  // tall enough to hold all lines, scrolled by scrollRect
+         _logTf.x = int(3 * _scale);
          _logTf.y = int(2 * _scale);
          _logContainer.addChild(_logTf);
+         // Touch-scroll support: drag on log area scrolls content
+         _logContainer.addEventListener(MouseEvent.MOUSE_DOWN, _onLogScrollStart);
+         _stage.addEventListener(MouseEvent.MOUSE_UP, _onLogScrollEnd);
          _titleBar.addEventListener(MouseEvent.MOUSE_DOWN,_onDragStart);
          _stage.addEventListener(MouseEvent.MOUSE_UP,_onDragEnd);
          _stage.addChild(_panel);
       }
-      
+
+      private static var _logScrollStartY:Number;
+      private static var _logScrollRectY:Number;
+      private static var _logDragging:Boolean;
+
+      private static function _onLogScrollStart(e:MouseEvent) : void
+      {
+         if(!_logContainer || !_logContainer.scrollRect) return;
+         _logDragging = true;
+         _logScrollStartY = e.stageY;
+         _logScrollRectY = _logContainer.scrollRect.y;
+         _stage.addEventListener(MouseEvent.MOUSE_MOVE, _onLogScrollMove);
+         e.stopPropagation();
+      }
+
+      private static function _onLogScrollMove(e:MouseEvent) : void
+      {
+         if(!_logDragging || !_logContainer) return;
+         var dy:Number = _logScrollStartY - e.stageY;
+         var newY:Number = _logScrollRectY + dy;
+         var maxY:Number = _logTf.textHeight - LOG_HEIGHT;
+         if(newY < 0) newY = 0;
+         if(newY > maxY) newY = maxY;
+         _logContainer.scrollRect = new Rectangle(0, newY, PANEL_WIDTH, LOG_HEIGHT);
+      }
+
+      private static function _onLogScrollEnd(e:MouseEvent) : void
+      {
+         _logDragging = false;
+         try { _stage.removeEventListener(MouseEvent.MOUSE_MOVE, _onLogScrollMove); } catch(e2:Error) {}
+      }
+
       private static function _createPerfPanel() : void
       {
          if(!_stage)
@@ -661,14 +726,24 @@ package net.play5d.game.bvn
                {
                   _logTf.setTextFormat(_fmtInfo,_logTf.length - line.length,_logTf.length);
                }
+               // Buffer for file output
+               _fileLogBuffer += line;
             }
             _logQueue.length = 0;
-            if(_logTf.textHeight > LOG_HEIGHT)
+            // Only auto-scroll to bottom if user is not currently dragging
+            if(!_logDragging && _logTf.textHeight > LOG_HEIGHT)
             {
                var offset:Number = _logTf.textHeight - LOG_HEIGHT;
-               _logContainer.scrollRect = new Rectangle(0,offset,PANEL_WIDTH,LOG_HEIGHT);
-               _logTf.scrollV = _logTf.maxScrollV;
+               _logContainer.scrollRect = new Rectangle(0, offset, PANEL_WIDTH, LOG_HEIGHT);
             }
+         }
+         // Flush accumulated log lines to file every FILE_FLUSH_FRAMES
+         if(_logStream && (_frameCounter % FILE_FLUSH_FRAMES == 0) && _fileLogBuffer.length > 0)
+         {
+            try {
+               _logStream.writeUTFBytes(_fileLogBuffer);
+               _fileLogBuffer = "";
+            } catch(e:Error) {}
          }
          if(_perfPanel)
          {

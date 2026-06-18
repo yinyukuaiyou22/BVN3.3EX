@@ -26,7 +26,7 @@ package
       
       public static var FULL_SCREEN_SIZE:Point = new Point();
       
-      private static const DEBUG_PANEL_ENABLED:Boolean = false;
+      private static const DEBUG_PANEL_ENABLED:Boolean = true;
       
       private var _mainGame:MainGame;
       
@@ -41,6 +41,7 @@ package
       public function launch()
       {
          super();
+         trace("=== BVN TRACE-01 launch() ===");
          I = this;
          GameConfig.TOUCH_MODE = false;
          addEventListener("addedToStage",this.initlize);
@@ -54,7 +55,10 @@ package
       
       private function initlize(param1:Event = null) : void
       {
+         trace("=== BVN TRACE-02 initlize(stage) ===");
          removeEventListener("addedToStage",this.initlize);
+         STAGE = stage;
+         if(DEBUG_PANEL_ENABLED) { Debugger.initDebug(stage); }
          stage.align = "TL";
          stage.scaleMode = "noScale";
          this.updateFullScreenSize();
@@ -78,6 +82,7 @@ package
       
       private function initGame() : void
       {
+         trace("=== BVN TRACE-03 initGame() ===");
          ScreenRotater.I.init(stage);
          stage.addEventListener("deactivate",this.activeHandler);
          stage.addEventListener("activate",this.activeHandler);
@@ -116,6 +121,7 @@ package
       {
          if(param1.type == "deactivate")
          {
+            Debugger.flushLogFile();
             MobileCtrler.I.pause();
          }
          else
@@ -134,6 +140,7 @@ package
       
       private function buildGame() : void
       {
+         trace("=== BVN TRACE-04 buildGame() ===");
          this._gameSprite = new Sprite();
          addChild(this._gameSprite);
          this._mainGame = new MainGame();
@@ -217,6 +224,7 @@ package
       
       private function initBackHandler() : void
       {
+         trace("=== BVN TRACE-05 initBackHandler(LOAD COMPLETE) ===");
          ScreenPadManager.listen();
          FightUI.QI_BAR_MODE = 1;
          if(DEBUG_PANEL_ENABLED)

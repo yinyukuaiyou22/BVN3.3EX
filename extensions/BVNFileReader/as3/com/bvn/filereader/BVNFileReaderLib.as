@@ -45,5 +45,35 @@ package com.bvn.filereader
          if(ctx != null) return ctx.call("exists", path) as Boolean;
          return false;
       }
+
+      public function createDirectory(path:String) : Boolean
+      {
+         if(ctx != null) return ctx.call("createDirectory", path) as Boolean;
+         return false;
+      }
+
+      public function writeBytes(path:String, data:ByteArray, append:Boolean=false) : Boolean
+      {
+         if(ctx != null) return ctx.call("writeBytes", path, data, append) as Boolean;
+         return false;
+      }
+
+      public function deleteFile(path:String) : Boolean
+      {
+         if(ctx != null) return ctx.call("deleteFile", path) as Boolean;
+         return false;
+      }
+
+      public function getFileState(path:String) : Object
+      {
+         if(ctx != null) return ctx.call("getFileState", path);
+         return null;
+      }
+
+      public function getExternalFilesDir(subPath:String="") : String
+      {
+         if(ctx != null) return ctx.call("getExternalFilesDir", subPath) as String;
+         return null;
+      }
    }
 }

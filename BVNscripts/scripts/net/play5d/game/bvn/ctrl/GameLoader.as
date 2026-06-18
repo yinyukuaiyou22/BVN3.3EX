@@ -254,20 +254,18 @@ import net.play5d.game.bvn.Debugger;
          Debugger.log("[GameLoader] External map scan complete.");
       }
 
-      /** Ensure external asset directory structure exists (create if missing) */
+      /** Ensure external asset directory structure exists (create if missing).
+       *  Uses ANE java.io.File.mkdirs() to bypass AIR sandbox on Android 11+. */
       public static function ensureExternalDirs() : void
       {
-         var base:File = new File(ANEFileReader.EXTERNAL_BASE);
+         var basePath:String = ANEFileReader.EXTERNAL_BASE;
          var dirs:Array = ["fighter", "map", "face", "bgm", "config"];
          for each(var d:String in dirs)
          {
-            var dir:File = base.resolvePath(d);
-            if(!dir.exists)
-            {
-               try { dir.createDirectory(); } catch(e:Error) {}
-            }
+            var fullPath:String = basePath + d;
+            ANEFileReader.I.createDirectory(fullPath);
          }
-         Debugger.log("[GameLoader] External dirs ensured at:", base.nativePath);
+         Debugger.log("[GameLoader] External dirs ensured at:", basePath);
       }
 
       /** Unified entry: scan external assets (deferred to avoid blocking startup) */

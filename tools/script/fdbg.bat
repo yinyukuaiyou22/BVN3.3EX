@@ -5,16 +5,18 @@ set BAT_HOME=%~dp0
 set PROJ=%BAT_HOME%..\..
 
 :: ---- Auto-detect AIR SDK (for fdb.bat) ----
+set "SDK_HOME=%PROJ%\AIRSDK\flex4.16.1-air51.0.1.1"
+if not defined FLEX_HOME set "FLEX_HOME=%SDK_HOME%"
 if not exist "%FLEX_HOME%\bin\fdb.bat" (
-    if exist "%PROJ%\AIRSDK\AIRSDK_51.3.2\bin\fdb.bat" (
-        set FLEX_HOME=%PROJ%\AIRSDK\AIRSDK_51.3.2
+    if exist "%SDK_HOME%\bin\fdb.bat" (
+        set "FLEX_HOME=%SDK_HOME%"
     )
 )
 set FLEX_BIN=%FLEX_HOME%\bin
 
 if not exist "%FLEX_BIN%\fdb.bat" (
-    echo [ERROR] fdb.bat not found.
-    echo Set FLEX_HOME to AIR SDK root or ensure AIRSDK exists.
+    echo [ERROR] fdb.bat not found at %FLEX_BIN%\fdb.bat
+    echo Ensure the AIR SDK is at %SDK_HOME% or set FLEX_HOME.
     pause
     goto END
 )

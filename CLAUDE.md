@@ -14,7 +14,7 @@
 | `tools/Test/assets/` | 运行时加载资源：角色 SWF / 地图 / BGM / 头像 / 配置文件 |
 | `tools/script/` | 调试/打包/同步脚本 |
 | `extensions/BVNFileReader/` | ANE 原生扩展（Java + AS3） |
-| `BVN3.9/` | BVN 3.9 参考源码（只读，多模块 CORE/LIB/SHELL 结构） |
+| `reference/BVN3.9/` | BVN 3.9 参考源码（只读，多模块 CORE/LIB/SHELL 结构） |
 | `build.bat` | 一键编译脚本（`Ctrl+Shift+B` 或直接运行） |
 | `asconfig.json` / `.vscode/` | VSCode 构建配置 |
 
@@ -24,14 +24,13 @@
 
 | 变量 | 位置 | 用途 |
 |------|------|------|
-| Flex SDK | `项目根\flex4.16.1-air51.0.1.1\` | mxmlc 编译器 + Flex 框架 + AIR 运行时 |
-| AIR SDK | `项目根\AIRSDK\AIRSDK_51.3.2\` | ADT 打包 / adl 启动 / fdb 调试（签名证书 `bin\mycert.p12`） |
+| Flex + AIR SDK | `AIRSDK\flex4.16.1-air51.0.1.1\` | mxmlc 编译 + ADT 打包 + fdb 调试（合并包） |
 | JDK 8 | `D:\JDK8\` | ANE Java 编译（必须 JDK 8 兼容 build-tools d8） |
 | Android SDK | `D:\Android\SDK\` | ADT `-platformsdk`（platform-33 + build-tools 33.0.2） |
-| `FLEX_HOME` | 自动检测 → AIR SDK | 调试脚本定位 `bin\fdb`、`bin\adl.exe` |
+| `FLEX_HOME` | 自动检测 → 合并 SDK | 调试脚本定位 `bin\fdb.bat`、`bin\adt.bat` |
 | `JAVA_HOME` | JDK 17 | mxmlc 运行时 |
 | ADB | `tools\platform-tools\adb.exe` | 手机真机调试 |
-| 证书 | `AIRSDK5\AIRSDK_51.3.2\bin\mycert.p12` | APK 签名（密码 yinyu7798） |
+| 证书 | `AIRSDK\flex4.16.1-air51.0.1.1\bin\mycert.p12` | APK 签名（密码 yinyu7798） |
 | App 描述 | `tools\Test\application.xml` | AIR 应用配置（`com.bvn.yinyu`） |
 
 ### PC 端开发
@@ -59,7 +58,7 @@
 ### 移动端开发（Android）
 
 #### 前置条件
-- `FLEX_HOME` 指向 AIR SDK 根目录
+- `FLEX_HOME` 指向合并 SDK 根目录（`AIRSDK\flex4.16.1-air51.0.1.1\`）
 - `adb` 在 PATH 中（或使用 `tools/platform-tools/adb.exe`）
 - 手机启用「USB 调试」并连接电脑
 
@@ -312,7 +311,7 @@ BVNscripts/scripts/
 | `tools/ane/` | 旧版 ANE 实现（功能已由 extensions/BVNFileReader 取代） |
 | `tools/platform-tools/` | Android SDK 工具（adb/fastboot/sqlite3） |
 | `tools/script/lang/` | 多代码页 bat 包装（437/932/936/949 编码适配） |
-| `BVN3.9/` | BVN 3.9 参考源码（CORE_Components/CORE_KernelLogic/CORE_Shared/CORE_Utils/LIB_KyoLib/LIB_Other/SHELL_Dev/SHELL_Mob/SHELL_Pc） |
+| `reference/BVN3.9/` | BVN 3.9 参考源码（CORE_Components/CORE_KernelLogic/CORE_Shared/CORE_Utils/LIB_KyoLib/LIB_Other/SHELL_Dev/SHELL_Mob/SHELL_Pc） |
 | `.codegraph/` | Codegraph 知识图谱索引 |
 | `.claude/` | Claude Code 会话数据 |
 
@@ -606,7 +605,7 @@ git checkout HEAD -- tools/script/debug_mob.bat
 - 不提交 `*.swf`、`*.apk`、SDK、参考/蓝图目录
 
 ### .gitignore / .claudeignore
-排除：`*.swf` / `*.swc` / `*.apk` / `*.png` / `*.jpg` / `*.mp3` / `*.bin` / `_assets/` / `assets/swf/` / `flex4.16.1-air51.0.1.1/` / `AIRSDK5/` / `tools/Test/` / `last/` / `OLD/` / `BVN3.9/` / `Outscripts/` / `node_modules/` / `dist/`
+排除：`*.swf` / `*.swc` / `*.apk` / `*.png` / `*.jpg` / `*.mp3` / `*.bin` / `_assets/` / `assets/swf/` / `AIRSDK/` / `flex4.16.1-air51.0.1.1/` / `tools/Test/` / `last/` / `OLD/` / `reference/BVN3.9/` / `Outscripts/` / `node_modules/` / `dist/`
 
 **例外**：`tools/Test/assets/config/` 被 git 追踪（XML 配置文件需版本控制）。
 

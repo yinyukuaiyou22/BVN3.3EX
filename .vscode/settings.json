@@ -1,5 +1,9 @@
 {
-    "as3mxml.sdk.framework": "D:\\flex4.16.1-air51.0.1.1",
+    "as3mxml.sdk.framework": "E:\\BaiduNetdiskDownload\\BVNY\\AIRSDK\\flex4.16.1-air51.0.1.1",
+    "java.project.referencedLibraries": [
+        "extensions/BVNFileReader/Android/lib/FlashRuntimeExtensions.jar",
+        "D:/Android/SDK/platforms/android-33/android.jar"
+    ],
     "cSpell.words": [
         "5dplay",
         "assister",

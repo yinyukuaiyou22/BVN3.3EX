@@ -52,20 +52,20 @@ if not defined ANDROID_JAR (
 echo [AUTO] android.jar: %ANDROID_JAR%
 
 :: Always prefer local AIR SDK over environment variable
-	for %%d in ("%~dp0..\..\AIRSDK\AIRSDK_51.3.2") do (
+	for %%d in ("%~dp0..\..\AIRSDK\flex4.16.1-air51.0.1.1") do (
 	    if exist %%d\bin\adt.bat set FLEX_HOME=%%~d
 	)
 	if not defined FLEX_HOME (
-	    echo [ERROR] AIR SDK not found at: %~dp0..\..\AIRSDK\AIRSDK_51.3.2
+	    echo [ERROR] Merged SDK not found at: %~dp0..\..\AIRSDK\flex4.16.1-air51.0.1.1
 	    echo   Set FLEX_HOME or ensure the SDK directory exists.
 	    pause & goto :EOF
 	)
 set ADT=%FLEX_HOME%\bin\adt.bat
 
-set FLEX_SDK=%~dp0..\..\flex4.16.1-air51.0.1.1
+set FLEX_SDK=%~dp0..\..\AIRSDK\flex4.16.1-air51.0.1.1
 set COMPC_JAR=%FLEX_SDK%\lib\compc.jar
 REM Use AIR 33 airglobal.swc for ANE library.swf compatibility
-	set AIR_GLOBAL=%FLEX_HOME%\frameworks\libs\air\airglobal.swc
+	set AIR_GLOBAL=%FLEX_SDK%\frameworks\libs\air\airglobal.swc
 
 REM ---- Clean build dirs ----
 if exist "%BUILD%" rd /s /q "%BUILD%"
