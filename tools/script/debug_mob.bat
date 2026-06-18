@@ -112,11 +112,11 @@ REM )
 	set ADT_RESULT=%errorlevel%
 
 	:: ---- Restore backed-up content dirs (ALWAYS run, even on ADT failure) ----
-	for %%D in (fighter map face bgm config) do (
-	    if exist "assets\%%D\.gdummy" del "assets\%%D\.gdummy"
-	    if exist "assets\%%D" rd /s /q "assets\%%D"
-	    if exist "_bakslim_%%D" move "_bakslim_%%D" "assets\%%D"
-	)
+	REM for %%D in (fighter map face bgm config) do (
+	REM     if exist "assets\%%D\.gdummy" del "assets\%%D\.gdummy"
+	REM     if exist "assets\%%D" rd /s /q "assets\%%D"
+	REM     if exist "_bakslim_%%D" move "_bakslim_%%D" "assets\%%D"
+	REM )
 	:: ---- Restore .fla files ----
 	if exist "_bakslim_fla\*.fla" (
 	    move "_bakslim_fla\*.fla" "assets\swf\" >nul 2>nul
