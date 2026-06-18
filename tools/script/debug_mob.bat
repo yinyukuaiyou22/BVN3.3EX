@@ -86,20 +86,20 @@ call :EXIST "%APP_XML%"
 call :ECHO_LANG :PACKAGE_MSG ""
 call :EXIST "%ADT%"
 cd /d "%TEST_DIR%"
-:: ---- Slim APK: backup heavy content, create empty dir placeholders ----
-for %%D in (fighter map face bgm config) do (
-    REM recover dangling backup from previous interrupted run
-    if exist "_bakslim_%%D" (
-        if exist "assets\%%D\.gdummy" del "assets\%%D\.gdummy"
-        if exist "assets\%%D" rd /s /q "assets\%%D"
-        move "_bakslim_%%D" "assets\%%D"
-    )
-    if exist "assets\%%D" (
-        move "assets\%%D" "_bakslim_%%D"
-        mkdir "assets\%%D"
-        echo. > "assets\%%D\.gdummy"
-    )
-)
+:: ---- Slim APK DISABLED (ANE disabled — resources must stay in APK) ----
+REM for %%D in (fighter map face bgm config) do (
+REM     REM recover dangling backup from previous interrupted run
+REM     if exist "_bakslim_%%D" (
+REM         if exist "assets\%%D\.gdummy" del "assets\%%D\.gdummy"
+REM         if exist "assets\%%D" rd /s /q "assets\%%D"
+REM         move "_bakslim_%%D" "assets\%%D"
+REM     )
+REM     if exist "assets\%%D" (
+REM         move "assets\%%D" "_bakslim_%%D"
+REM         mkdir "assets\%%D"
+REM         echo. > "assets\%%D\.gdummy"
+REM     )
+REM )
 
 	:: ---- Strip .fla source files from swf/ (only .swf needed at runtime) ----
 	if exist "assets\swf\*.fla" (
@@ -108,7 +108,7 @@ for %%D in (fighter map face bgm config) do (
 	    echo [FLA] Stripped .fla files from APK
 	)
 
-	call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -extdir "." -platformsdk "D:/Android/SDK" "launch.swf" -C . assets
+	call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "D:/Android/SDK" "launch.swf" -C . assets
 	set ADT_RESULT=%errorlevel%
 
 	:: ---- Restore backed-up content dirs (ALWAYS run, even on ADT failure) ----

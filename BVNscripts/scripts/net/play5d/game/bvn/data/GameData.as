@@ -4,7 +4,8 @@
    import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.interfaces.*;
 import net.play5d.game.bvn.Debugger;
-   
+import net.play5d.game.bvn.mob.utils.ANEFileReader;
+
    public class GameData
    {
       
@@ -53,13 +54,18 @@ import net.play5d.game.bvn.Debugger;
          var loadMessionFail:* = undefined;
          var back:Function = param1;
          fail = param2;
+
+         // All platforms (PC + Mobile) use APK-internal-first loading.
+         // External asset scanning is guarded by ANEFileReader.ANE_ENABLED.
          trace("[GameData] loadConfig start, loading fighter.xml...");
          var loadFighterBack:* = function(param1:XML):void
          {
             trace("[GameData] fighter.xml loaded");
             FighterModel.I.initByXML(param1);
-            trace("[GameData] scanning external assets...");
-            GameLoader.scanExternalAssets();
+            if (ANEFileReader.ANE_ENABLED) {
+               trace("[GameData] scanning external assets...");
+               GameLoader.scanExternalAssets();
+            }
             trace("[GameData] loading assist.xml...");
             AssetManager.I.loadXML("assets/config/assist.xml",loadAssetsBack,loadAssisterFail);
          };
@@ -83,18 +89,23 @@ import net.play5d.game.bvn.Debugger;
          };
          loadMessionBack = function(param1:String):void
          {
-            trace("[GameData] mission.xml loaded, loading external configs...");
+            trace("[GameData] mission.xml loaded" + (ANEFileReader.ANE_ENABLED ? ", loading external configs..." : ""));
             MessionModel.I.initByXML(new XML(param1));
-            GameLoader.loadExternalConfigs();
+            if (ANEFileReader.ANE_ENABLED) {
+               GameLoader.loadExternalConfigs();
+            }
             trace("[GameData] config loading complete");
             back();
          };
          var loadFighterFail:* = function():void
          {
-            Debugger.log("[GameData] fighter.xml not in APK, loading ALL configs from external...");
-            // Short-circuit: don't chain through 4 more APK failures.
-            // Load everything from external synchronously before proceeding.
-            GameLoader.loadExternalConfigsNow(back);
+            if (ANEFileReader.ANE_ENABLED) {
+               Debugger.log("[GameData] fighter.xml not in APK, loading ALL configs from external...");
+               GameLoader.loadExternalConfigsNow(back);
+            } else {
+               Debugger.log("[GameData] fighter.xml not in APK, ANE disabled — proceeding without configs");
+               back();
+            }
          };
          loadAssisterFail = function():void
          {
@@ -113,8 +124,10 @@ import net.play5d.game.bvn.Debugger;
          };
          loadMessionFail = function():void
          {
-            Debugger.log("[GameData] mission.xml not in APK, will load from external");
-            GameLoader.loadExternalConfigs();
+            Debugger.log("[GameData] mission.xml not in APK" + (ANEFileReader.ANE_ENABLED ? ", will load from external" : ""));
+            if (ANEFileReader.ANE_ENABLED) {
+               GameLoader.loadExternalConfigs();
+            }
             back();
          };
          AssetManager.I.loadXML("assets/config/fighter.xml",loadFighterBack,loadFighterFail);

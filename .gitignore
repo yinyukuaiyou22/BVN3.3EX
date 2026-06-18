@@ -4,6 +4,7 @@
 # Build artifacts
 localFonts.ser
 flex-config.xml
+build_output.txt
 
 # Temp & debug directories
 debug_export/
@@ -26,7 +27,8 @@ jpexs-decompiler-master/
 .claude/
 
 # Reference / blueprint (not source)
-BVN3.9/
+reference/BVN3.9/
+reference/MTDataFilesProvider/
 BVNscripts/OLD/
 BVNscripts/last/
 BVNscripts/PC/
@@ -54,4 +56,10 @@ flashplayer_*.exe
 
 # Android SDK (local environment)
 android-sdk/
-commandlinetools-win-*/
+tools/cmdline-tools/
+
+# ANE toolkit (reference only)
+anetoolkit-master/
+
+# Codegraph runtime
+.codegraph/daemon.pid

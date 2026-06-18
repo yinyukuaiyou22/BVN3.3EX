@@ -19,7 +19,7 @@
        *   1. application.xml: uncomment <extensions><extensionID>com.bvn.filereader</extensionID></extensions>
        *   2. debug_mob.bat: ensure BVNFileReader.ane is in tools/Test/ before packaging
        *   When ANE is not bundled, AIR File API fallback handles all file operations. */
-      public static var ANE_ENABLED:Boolean = true;
+      public static var ANE_ENABLED:Boolean = false;
 
       public function ANEFileReader()
       {
@@ -29,6 +29,11 @@
             if(ANE_ENABLED) { _ctx = ExtensionContext.createExtensionContext("com.bvn.filereader", "");
             _hasANE = (_ctx != null); } else { _ctx = null; _hasANE = false; }
             Debugger.log(TAG, "ANE init:", _hasANE ? "OK" : "FAILED (ctx=null)");
+            // Dynamic EXTERNAL_BASE — get Android path via ANE, fall back to hardcoded
+            if(_hasANE)
+            {
+               tryInitExternalBase();
+            }
          }
          catch(e:Error)
          {
@@ -36,6 +41,27 @@
             _hasANE = false;
             Debugger.log(TAG, "ANE init ERROR:", e.message);
          }
+      }
+
+      private function tryInitExternalBase() : void
+      {
+         try
+         {
+            var apiPath:String = _ctx.call("getExternalFilesDir", "") as String;
+            if(apiPath && apiPath.length > 0)
+            {
+               // apiPath is like "/storage/.../files/", append BVN/assets/
+               EXTERNAL_BASE = apiPath + "BVN/assets/";
+               Debugger.log(TAG, "EXTERNAL_BASE from API:", EXTERNAL_BASE);
+               return;
+            }
+         }
+         catch(e:Error)
+         {
+            Debugger.log(TAG, "getExternalFilesDir failed, using hardcoded path");
+         }
+         // Keep hardcoded default (already set)
+         Debugger.log(TAG, "EXTERNAL_BASE (hardcoded):", EXTERNAL_BASE);
       }
 
       public static function get I() : ANEFileReader
@@ -89,6 +115,81 @@
       public static function resolveExternalPath(assetPath:String) : String
       {
          return EXTERNAL_BASE + assetPath;
+      }
+
+      /** Create a directory (including parents) via ANE java.io.File.mkdirs().
+       *  Bypasses AIR File API sandbox on Android 11+. */
+      public function createDirectory(path:String) : Boolean
+      {
+         Debugger.log(TAG, "createDirectory:", path);
+         if(_hasANE)
+         {
+            var result:Object = _ctx.call("createDirectory", path);
+            return result as Boolean;
+         }
+         // Fallback: AIR File API
+         try {
+            var f:File = new File(path);
+            if(f.exists) return true;
+            f.createDirectory();
+            return f.exists;
+         } catch(e:Error) {
+            return false;
+         }
+      }
+
+      /** Write ByteArray data to a file via ANE. Creates parent dirs if needed.
+       *  @param append  If true, append to existing file; otherwise overwrite. */
+      public function writeBytes(path:String, data:ByteArray, append:Boolean=false) : Boolean
+      {
+         Debugger.log(TAG, "writeBytes:", path, data ? data.length + " bytes" : "null");
+         if(_hasANE)
+         {
+            var result:Object = _ctx.call("writeBytes", path, data, append);
+            return result as Boolean;
+         }
+         // Fallback: AIR File API
+         try {
+            var f:File = new File(path);
+            var fs:FileStream = new FileStream();
+            var mode:String = append ? FileMode.APPEND : FileMode.WRITE;
+            fs.open(f, mode);
+            fs.writeBytes(data, 0, data.length);
+            fs.close();
+            return true;
+         } catch(e:Error) {
+            Debugger.log(TAG, "writeBytes fallback ERROR:", e.message);
+            return false;
+         }
+      }
+
+      /** Delete a file via ANE. */
+      public function deleteFile(path:String) : Boolean
+      {
+         Debugger.log(TAG, "deleteFile:", path);
+         if(_hasANE)
+         {
+            var result:Object = _ctx.call("deleteFile", path);
+            return result as Boolean;
+         }
+         try {
+            var f:File = new File(path);
+            if(f.exists) { f.deleteFile(); return true; }
+            return false;
+         } catch(e:Error) { return false; }
+      }
+
+      /** Get file state: {exists:Boolean, isDirectory:Boolean, isFile:Boolean}. */
+      public function getFileState(path:String) : Object
+      {
+         if(_hasANE)
+         {
+            return _ctx.call("getFileState", path);
+         }
+         try {
+            var f:File = new File(path);
+            return {exists: f.exists, isDirectory: f.isDirectory, isFile: f.exists && !f.isDirectory};
+         } catch(e:Error) { return null; }
       }
 
       /** Check if a file exists on external SD card */
