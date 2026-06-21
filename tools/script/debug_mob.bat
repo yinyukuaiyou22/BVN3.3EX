@@ -82,62 +82,30 @@ call :EXIST "%APP_XML%"
 call :ECHO_LANG :PACKAGE_MSG ""
 call :EXIST "%ADT%"
 cd /d "%TEST_DIR%"
-:: ---- Slim APK DISABLED (ANE disabled — resources must stay in APK) ----
-REM for %%D in (fighter map face bgm config) do (
-REM     REM recover dangling backup from previous interrupted run
-REM     if exist "_bakslim_%%D" (
-REM         if exist "assets\%%D\.gdummy" del "assets\%%D\.gdummy"
-REM         if exist "assets\%%D" rd /s /q "assets\%%D"
-REM         move "_bakslim_%%D" "assets\%%D"
-REM     )
-REM     if exist "assets\%%D" (
-REM         move "assets\%%D" "_bakslim_%%D"
-REM         mkdir "assets\%%D"
-REM         echo. > "assets\%%D\.gdummy"
-REM     )
-REM )
 
-	:: ---- Strip .fla source files from swf/ (only .swf needed at runtime) ----
-	if exist "assets\swf\*.fla" (
-	    mkdir "_bakslim_fla" 2>nul
-	    move "assets\swf\*.fla" "_bakslim_fla\" >nul 2>nul
-	    echo [FLA] Stripped .fla files from APK
-	)
+		:: ---- Whitelist: only pack effect.swf + movelist.jpg + swf/ + sounds/ + font/ ----
+		:: ---- Strip .fla source files from swf/ (only .swf needed at runtime) ----
+		if exist "assets\swf\*.fla" (
+		    mkdir "_bakslim_fla" 2>nul
+		    move "assets\swf\*.fla" "_bakslim_fla\" >nul 2>nul
+		    echo [FLA] Stripped .fla files from APK
+		)
 
-	:: ---- Slim bgm: 206MB, exclude from APK to avoid ADT error 12 ----
-	if exist "assets\bgm" (
-	    move "assets\bgm" "_bakslim_bgm"
-	    mkdir "assets\bgm"
-	    echo. > "assets\bgm\.gdummy"
-	    echo [BGM] Excluded from APK (slim)
-	)
+		call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "D:/Android/SDK" "launch.swf" -C . assets\effect.swf -C . assets\movelist.jpg -C assets swf -C assets sounds -C assets font
+		set ADT_RESULT=%errorlevel%
 
-	call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "D:/Android/SDK" "launch.swf" -C . assets
-	set ADT_RESULT=%errorlevel%
+		:: ---- Restore .fla files ----
+		if exist "_bakslim_fla\*.fla" (
+		    move "_bakslim_fla\*.fla" "assets\swf\" >nul 2>nul
+		    rd "_bakslim_fla" 2>nul
+		)
 
-	:: ---- Restore bgm ----
-	if exist "assets\bgm\.gdummy" del "assets\bgm\.gdummy"
-	if exist "assets\bgm" rd /s /q "assets\bgm"
-	if exist "_bakslim_bgm" move "_bakslim_bgm" "assets\bgm"
-
-	:: ---- Restore backed-up content dirs (ALWAYS run, even on ADT failure) ----
-	REM for %%D in (fighter map face bgm config) do (
-	REM     if exist "assets\%%D\.gdummy" del "assets\%%D\.gdummy"
-	REM     if exist "assets\%%D" rd /s /q "assets\%%D"
-	REM     if exist "_bakslim_%%D" move "_bakslim_%%D" "assets\%%D"
-	REM )
-	:: ---- Restore .fla files ----
-	if exist "_bakslim_fla\*.fla" (
-	    move "_bakslim_fla\*.fla" "assets\swf\" >nul 2>nul
-	    rd "_bakslim_fla" 2>nul
-	)
-
-	if %ADT_RESULT% neq 0 (
-	    echo [ERROR] ADT packaging failed with code %ADT_RESULT%
-	    call :ECHO_LANG :PACKAGE_FAIL ""
-	    goto END
-	)
-	call :EXIST "%APK_FILE%"
+		if %ADT_RESULT% neq 0 (
+		    echo [ERROR] ADT packaging failed with code %ADT_RESULT%
+		    call :ECHO_LANG :PACKAGE_FAIL ""
+		    goto END
+		)
+		call :EXIST "%APK_FILE%"
 
 :: ---- Check: ADB ----
 call :CHK_CMD adb
