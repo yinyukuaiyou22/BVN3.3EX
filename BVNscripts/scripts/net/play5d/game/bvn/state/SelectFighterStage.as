@@ -260,6 +260,11 @@ import net.play5d.game.bvn.Debugger;
             _pagArr.push(pi * -PAGE_HEIGHT);
          }
          CURRENT_PAGE = 0;
+         // AS3 timeline var 即 MovieClip 属性，设 speed = PAGE_HEIGHT 实现一帧到位
+         if (this._ui && this._ui.hasOwnProperty("speed")) {
+            this._ui["speed"] = int(PAGE_HEIGHT);
+            Debugger.log("[SelectFighterStage] timeline speed =", int(PAGE_HEIGHT));
+         }
          Debugger.log("[SelectFighterStage] pagination pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "positions:", _pagArr);
       }
 
@@ -960,44 +965,22 @@ import net.play5d.game.bvn.Debugger;
       }
 
       // ================================================================
-      // 分页稳定器 — timeline 的 Animate 用 speed=100（SWF内不可改）
-      // PAGE_HEIGHT 不一定整除 100（如 520），导致 bg.y 在目标附近震荡。
-      // 解决：每帧强制 enable=true + 吸附 bg.y 到最近页面位置。
-      // 输入（键盘/点击/滚轮）由 timeline 全权处理，此处不重复监听。
+      // 分页 — 设 timeline speed=页高（AS3 timeline var 即 MC 属性，可改）
+      // speed=PAGE_HEIGHT → 一帧到位，无震荡。仅保留 enable 解锁保底。
       // ================================================================
 
       private function initPagination() : void
       {
          if (_pagInitialized) return;
          _pagInitialized = true;
-         Debugger.log("[SelectFighterStage] initPagination — page snap stabilizer enabled");
+         Debugger.log("[SelectFighterStage] initPagination");
 
-         // 每帧稳定器：timeline Animate 之后运行，纠正震荡
-         this._ui.addEventListener(Event.ENTER_FRAME, _pagStabilize, false, 0, false);
-      }
-
-      private function _pagStabilize(e:Event) : void
-      {
-         if (!this._ui || !this._ui.bg || _pagArr.length <= 1) return;
-
-         // ① 强制解除 timeline 的 enable 锁（防止 Animate 未完成导致 goNext/goPrev 永久 BLOCKED）
-         if (this._ui.hasOwnProperty("enable")) {
-            this._ui["enable"] = true;
-         }
-
-         // ② 吸附 bg.y 到最近页面（消除 speed=100 不能整除 PAGE_HEIGHT 的震荡）
-         var bgY:Number = this._ui.bg.y;
-         var nearest:int = 0;
-         var bestDist:Number = Number.MAX_VALUE;
-         for (var i:int = 0; i < _pagArr.length; i++) {
-            var target:Number = Number(_pagArr[i]);
-            var dist:Number = Math.abs(bgY - target);
-            if (dist < bestDist) { bestDist = dist; nearest = i; }
-         }
-         if (bgY != Number(_pagArr[nearest])) {
-            this._ui.bg.y = Number(_pagArr[nearest]);
-            CURRENT_PAGE = nearest;
-         }
+         // 保底：每帧解锁 enable（防止 Animate 因任何原因未完成导致永久BLOCKED）
+         this._ui.addEventListener(Event.ENTER_FRAME, function(e:Event):void {
+            if (_ui && _ui.hasOwnProperty("enable")) {
+               _ui["enable"] = true;
+            }
+         }, false, 0, false);
       }
 
       public function destory(param1:Function = null) : void
