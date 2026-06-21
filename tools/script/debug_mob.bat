@@ -104,8 +104,21 @@ REM )
 	    echo [FLA] Stripped .fla files from APK
 	)
 
+	:: ---- Slim bgm: 206MB, exclude from APK to avoid ADT error 12 ----
+	if exist "assets\bgm" (
+	    move "assets\bgm" "_bakslim_bgm"
+	    mkdir "assets\bgm"
+	    echo. > "assets\bgm\.gdummy"
+	    echo [BGM] Excluded from APK (slim)
+	)
+
 	call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "D:/Android/SDK" "launch.swf" -C . assets
 	set ADT_RESULT=%errorlevel%
+
+	:: ---- Restore bgm ----
+	if exist "assets\bgm\.gdummy" del "assets\bgm\.gdummy"
+	if exist "assets\bgm" rd /s /q "assets\bgm"
+	if exist "_bakslim_bgm" move "_bakslim_bgm" "assets\bgm"
 
 	:: ---- Restore backed-up content dirs (ALWAYS run, even on ADT failure) ----
 	REM for %%D in (fighter map face bgm config) do (
