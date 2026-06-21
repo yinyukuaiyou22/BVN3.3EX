@@ -970,11 +970,16 @@ import net.play5d.game.bvn.Debugger;
          var isMobile:Boolean = Capabilities.version.indexOf("AND") != -1;
          Debugger.log("[SelectFighterStage] initPagination — isMobile:", isMobile, "TOUCH_MODE:", GameConfig.TOUCH_MODE);
 
-         var stageRef:* = this._ui && this._ui.stage ? this._ui.stage : null;
-         if (!stageRef) return;
+         // 禁用旧的 timeline 翻页脚本（防止双系统冲突 + 震荡 bug）
+         if (this._ui) {
+            // 阻止 timeline 的 ENTER_FRAME（Animate + clear）继续触发
+            this._ui.addEventListener(Event.ENTER_FRAME, function(e:Event):void {
+               e.stopImmediatePropagation();
+            }, false, 999);
+         }
 
          // 键盘翻页（Q/E 或 +/-）
-         stageRef.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent):void {
+         MainGame.I.stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent):void {
             if (GameUI.showingDialog()) return;
             if (_selectState == 1) return;
             if (e.keyCode == 69 || e.keyCode == 107) { pagGoNext(); }
@@ -983,7 +988,7 @@ import net.play5d.game.bvn.Debugger;
 
          if (!isMobile) {
             // PC：鼠标滚轮
-            stageRef.addEventListener(MouseEvent.MOUSE_WHEEL, function(e:MouseEvent):void {
+            MainGame.I.stage.addEventListener(MouseEvent.MOUSE_WHEEL, function(e:MouseEvent):void {
                if (GameUI.showingDialog()) return;
                if (_selectState == 1) return;
                if (e.delta > 0) { pagGoPrev(); }
@@ -993,14 +998,20 @@ import net.play5d.game.bvn.Debugger;
          }
 
          if (isMobile || GameConfig.TOUCH_MODE) {
-            // 触控：up/down 按钮 tap
+            // 触控：up/down 按钮 tap（覆盖旧 timeline handler，用 capture=true 抢占）
             if (this._ui.up) {
-               this._ui.up.addEventListener("touchTap", function(e:*):void { pagGoPrev(); });
+               this._ui.up.addEventListener("touchTap", function(e:*):void {
+                  e.stopImmediatePropagation();
+                  pagGoPrev();
+               }, false, 999);
             }
             if (this._ui.down) {
-               this._ui.down.addEventListener("touchTap", function(e:*):void { pagGoNext(); });
+               this._ui.down.addEventListener("touchTap", function(e:*):void {
+                  e.stopImmediatePropagation();
+                  pagGoNext();
+               }, false, 999);
             }
-            Debugger.log("[SelectFighterStage] pagination: touch enabled");
+            Debugger.log("[SelectFighterStage] pagination: touch enabled (priority)");
          }
       }
 
@@ -1010,8 +1021,9 @@ import net.play5d.game.bvn.Debugger;
          var bgY:Number = Math.abs(this._ui.bg.y);
          for (_pagSelect = 0; _pagSelect < _pagArr.length; _pagSelect++) {
             if (int(bgY) + PAGE_HEIGHT == int(Math.abs(Number(_pagArr[_pagSelect])))) {
+               _pagEnabled = false;
                Debugger.log("[SelectFighterStage] pagGoNext → page", _pagSelect, "target:", _pagArr[_pagSelect]);
-               this._ui.stage.addEventListener(Event.ENTER_FRAME, pagAnimate);
+               this._ui.addEventListener(Event.ENTER_FRAME, pagAnimate, false, 0, true);
                return;
             }
          }
@@ -1023,8 +1035,9 @@ import net.play5d.game.bvn.Debugger;
          var bgY:Number = Math.abs(this._ui.bg.y);
          for (_pagSelect = _pagArr.length - 1; _pagSelect >= 0; _pagSelect--) {
             if (int(bgY) - PAGE_HEIGHT == int(Math.abs(Number(_pagArr[_pagSelect])))) {
+               _pagEnabled = false;
                Debugger.log("[SelectFighterStage] pagGoPrev → page", _pagSelect, "target:", _pagArr[_pagSelect]);
-               this._ui.stage.addEventListener(Event.ENTER_FRAME, pagAnimate);
+               this._ui.addEventListener(Event.ENTER_FRAME, pagAnimate, false, 0, true);
                return;
             }
          }
@@ -1033,22 +1046,24 @@ import net.play5d.game.bvn.Debugger;
       private function pagAnimate(e:Event) : void
       {
          if (!this._ui || !this._ui.bg || _pagSelect >= _pagArr.length) {
-            this._ui && this._ui.stage && this._ui.stage.removeEventListener(Event.ENTER_FRAME, pagAnimate);
+            this._ui && this._ui.removeEventListener(Event.ENTER_FRAME, pagAnimate);
+            _pagEnabled = true;
             return;
          }
          var target:Number = Number(_pagArr[_pagSelect]);
          if (this._ui.bg.y > target) {
-            _pagEnabled = false;
             this._ui.bg.y -= _pagSpeed;
+            // 防震荡：超过目标时钳位
+            if (this._ui.bg.y < target) this._ui.bg.y = target;
          } else if (this._ui.bg.y < target) {
-            _pagEnabled = false;
             this._ui.bg.y += _pagSpeed;
-         } else {
+            if (this._ui.bg.y > target) this._ui.bg.y = target;
+         }
+         if (this._ui.bg.y == target) {
             _pagEnabled = true;
-            this._ui.bg.y = target;
             CURRENT_PAGE = _pagSelect;
             Debugger.log("[SelectFighterStage] pagAnimate done — page", _pagSelect, "bg.y:", this._ui.bg.y);
-            this._ui.stage.removeEventListener(Event.ENTER_FRAME, pagAnimate);
+            this._ui.removeEventListener(Event.ENTER_FRAME, pagAnimate);
          }
       }
 
