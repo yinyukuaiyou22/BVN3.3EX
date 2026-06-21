@@ -4,6 +4,7 @@
    import com.greensock.easing.*;
    import flash.display.DisplayObject;
    import flash.events.*;
+   import flash.system.Capabilities;
    import flash.utils.*;
    import net.play5d.game.bvn.*;
    import net.play5d.game.bvn.ctrl.*;
@@ -60,7 +61,14 @@ import net.play5d.game.bvn.Debugger;
       private var _tweenTime:int = 500;
       
       private var _twoPlayerSelectFin:Boolean;
-      
+
+      // 分页控制
+      private var _pagEnabled:Boolean = true;
+      private var _pagSelect:int = 0;
+      private var _pagSpeed:int = 100;
+      private var _pagArr:Array = [];
+      private var _pagInitialized:Boolean = false;
+
       public function SelectFighterStage()
       {
          super();
@@ -78,6 +86,7 @@ import net.play5d.game.bvn.Debugger;
          GameRender.add(this.render);
          GameInputer.focus();
          GameInputer.enabled = false;
+         this.initPagination();
          this.nextStep();
          SoundCtrl.I.BGM(AssetManager.I.getSound("select"));
          StateCtrl.I.clearTrans();
@@ -185,7 +194,7 @@ import net.play5d.game.bvn.Debugger;
          var _loc7_:Number = NaN;
          var _loc8_:Number = this._config.x + this._config.left;
          var _loc9_:Number = this._config.y + this._config.top;
-         var _loc10_:Number = param1.HCount > 1 ? (this._config.width - this._config.unitSize.x - this._config.left - this._config.right) / (param1.HCount - 1) : 0;
+         var _loc10_:Number = param1.HCount > 1 ? 1.35 * (this._config.width - this._config.unitSize.x - this._config.left - this._config.right) / (param1.HCount - 1) : 0;
          var _loc11_:Number = param1.VCount > 1 ? (this._config.height - this._config.unitSize.y - this._config.top - this._config.bottom) / (param1.VCount - 1) : 0;
          var _loc12_:Array = param1.list;
          this._curListConfig = param1;
@@ -193,10 +202,9 @@ import net.play5d.game.bvn.Debugger;
          var _loc13_:Number = GameConfig.GAME_SIZE.x / 2 - 30;
          var _loc14_:Number = GameConfig.GAME_SIZE.y / 2 - 30;
 
-         // 分页: 每页最多 ROWS_PER_PAGE 行，页高 = config.height
+         // 分页: 每页最多 ROWS_PER_PAGE 行，页高 = 实际行数 * 行间距
          var rowsPerPage:int = 8;
          if(rowsPerPage < 1) { rowsPerPage = 1; }
-         var pageHeight:Number = this._config.height;
          var maxY:int = 0;
          for each(var _itemVO:SelectCharListItemVO in _loc12_)
          {
@@ -209,8 +217,9 @@ import net.play5d.game.bvn.Debugger;
          {
             _loc11_ = (this._config.height - this._config.unitSize.y - this._config.top - this._config.bottom) / (displayedVCount - 1);
          }
+         var pageHeight:Number = rowsPerPage * _loc11_;
          PAGE_HEIGHT = pageHeight;
-         TOTAL_PAGES = 5;
+         TOTAL_PAGES = Math.max(1, Math.ceil((maxY + 1) / rowsPerPage));
          CURRENT_PAGE = 0;
          Debugger.log("[SelectFighterStage] pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "rowsPerPage:", rowsPerPage);
 
@@ -245,8 +254,15 @@ import net.play5d.game.bvn.Debugger;
             }
             _loc2_++;
          }
+         // 重新计算分页位置
+         _pagArr = [0];
+         for (var pi:int = 1; pi < TOTAL_PAGES; pi++) {
+            _pagArr.push(pi * -PAGE_HEIGHT);
+         }
+         CURRENT_PAGE = 0;
+         Debugger.log("[SelectFighterStage] pagination pages:", TOTAL_PAGES, "positions:", _pagArr);
       }
-      
+
       private function addFighterItem(param1:SelectCharListItemVO) : SelectFighterItem
       {
          if(!param1.fighterID)
@@ -646,6 +662,18 @@ import net.play5d.game.bvn.Debugger;
       
       private function render() : void
       {
+         // 分页：辅助界面时隐藏按钮并归位
+         if (_pagInitialized && this._ui) {
+            if (this._selectState == 1) {
+               if (this._ui.bg) this._ui.bg.y = 0;
+               if (this._ui.up) this._ui.up.visible = false;
+               if (this._ui.down) this._ui.down.visible = false;
+            } else {
+               if (this._ui.up) this._ui.up.visible = true;
+               if (this._ui.down) this._ui.down.visible = true;
+            }
+         }
+
          var _loc1_:String = null;
          if(GameInputer.back(1))
          {
@@ -930,7 +958,100 @@ import net.play5d.game.bvn.Debugger;
       public function afterBuild() : void
       {
       }
-      
+
+      // ================================================================
+      // 分页控制（键盘 / 鼠标滚轮 / 触控 + 动画）
+      // ================================================================
+
+      private function initPagination() : void
+      {
+         if (_pagInitialized) return;
+         _pagInitialized = true;
+         var isMobile:Boolean = Capabilities.version.indexOf("AND") != -1;
+         Debugger.log("[SelectFighterStage] initPagination — isMobile:", isMobile, "TOUCH_MODE:", GameConfig.TOUCH_MODE);
+
+         var stageRef:* = this._ui && this._ui.stage ? this._ui.stage : null;
+         if (!stageRef) return;
+
+         // 键盘翻页（Q/E 或 +/-）
+         stageRef.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent):void {
+            if (GameUI.showingDialog()) return;
+            if (_selectState == 1) return;
+            if (e.keyCode == 69 || e.keyCode == 107) { pagGoNext(); }
+            if (e.keyCode == 81 || e.keyCode == 109) { pagGoPrev(); }
+         });
+
+         if (!isMobile) {
+            // PC：鼠标滚轮
+            stageRef.addEventListener(MouseEvent.MOUSE_WHEEL, function(e:MouseEvent):void {
+               if (GameUI.showingDialog()) return;
+               if (_selectState == 1) return;
+               if (e.delta > 0) { pagGoPrev(); }
+               else if (e.delta < 0) { pagGoNext(); }
+            });
+            Debugger.log("[SelectFighterStage] pagination: keyboard + mouse wheel enabled");
+         }
+
+         if (isMobile || GameConfig.TOUCH_MODE) {
+            // 触控：up/down 按钮 tap
+            if (this._ui.up) {
+               this._ui.up.addEventListener("touchTap", function(e:*):void { pagGoPrev(); });
+            }
+            if (this._ui.down) {
+               this._ui.down.addEventListener("touchTap", function(e:*):void { pagGoNext(); });
+            }
+            Debugger.log("[SelectFighterStage] pagination: touch enabled");
+         }
+      }
+
+      private function pagGoNext() : void
+      {
+         if (!_pagEnabled || _pagArr.length <= 1 || !this._ui || !this._ui.bg) return;
+         var bgY:Number = Math.abs(this._ui.bg.y);
+         for (_pagSelect = 0; _pagSelect < _pagArr.length; _pagSelect++) {
+            if (int(bgY) + PAGE_HEIGHT == int(Math.abs(Number(_pagArr[_pagSelect])))) {
+               Debugger.log("[SelectFighterStage] pagGoNext → page", _pagSelect, "target:", _pagArr[_pagSelect]);
+               this._ui.stage.addEventListener(Event.ENTER_FRAME, pagAnimate);
+               return;
+            }
+         }
+      }
+
+      private function pagGoPrev() : void
+      {
+         if (!_pagEnabled || _pagArr.length <= 1 || !this._ui || !this._ui.bg) return;
+         var bgY:Number = Math.abs(this._ui.bg.y);
+         for (_pagSelect = _pagArr.length - 1; _pagSelect >= 0; _pagSelect--) {
+            if (int(bgY) - PAGE_HEIGHT == int(Math.abs(Number(_pagArr[_pagSelect])))) {
+               Debugger.log("[SelectFighterStage] pagGoPrev → page", _pagSelect, "target:", _pagArr[_pagSelect]);
+               this._ui.stage.addEventListener(Event.ENTER_FRAME, pagAnimate);
+               return;
+            }
+         }
+      }
+
+      private function pagAnimate(e:Event) : void
+      {
+         if (!this._ui || !this._ui.bg || _pagSelect >= _pagArr.length) {
+            this._ui && this._ui.stage && this._ui.stage.removeEventListener(Event.ENTER_FRAME, pagAnimate);
+            return;
+         }
+         var target:Number = Number(_pagArr[_pagSelect]);
+         if (this._ui.bg.y > target) {
+            _pagEnabled = false;
+            this._ui.bg.y -= _pagSpeed;
+         } else if (this._ui.bg.y < target) {
+            _pagEnabled = false;
+            this._ui.bg.y += _pagSpeed;
+         } else {
+            _pagEnabled = true;
+            this._ui.bg.y = target;
+            CURRENT_PAGE = _pagSelect;
+            Debugger.log("[SelectFighterStage] pagAnimate done — page", _pagSelect, "bg.y:", this._ui.bg.y);
+            this._ui.stage.removeEventListener(Event.ENTER_FRAME, pagAnimate);
+         }
+      }
+
       public function destory(param1:Function = null) : void
       {
          this.clear();

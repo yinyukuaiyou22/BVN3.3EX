@@ -2,7 +2,7 @@
 
 <select_config>
     <stage_setting>
-        <layout x="0" y="0" width="800" height="600" left="15" right="15" top="50" bottom="110"/>
+        <layout x="0" y="0" width="800" height="600" left="15" right="15" top="15" bottom="80"/>
     </stage_setting>
 
     <char_list>
