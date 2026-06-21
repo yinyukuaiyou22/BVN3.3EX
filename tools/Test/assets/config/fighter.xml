@@ -1,4 +1,4 @@
-<fighter_config>
+﻿<fighter_config>
 
 	<fighter id="一护 零段" name="一护 零段（服熊）" comic_type="0">
 		<file url="assets/fighter/ichigo_zero.swf" startFrame="1"/>
@@ -30,8 +30,6 @@
 		<bgm url="assets/bgm/naruto.mp3" rate="70" />
 	</fighter>
 
-
-
 	<fighter id="暗影大人" name="暗影（六币神名）" comic_type="0">
 		<file url="assets/fighter/暗影大人.swf" startFrame="1"/>
 		<face url="assets/face/暗影大人.png" big_url="assets/face/暗影大人_b.png" bar_url="assets/face/暗影大人_m.png" win_url="assets/face/暗影大人_w.png"/>
@@ -62,7 +60,6 @@
 		<bgm url="assets/bgm/ichigo.mp3" rate="70"/>
 	</fighter>
 
-
 	<fighter id="织姬" name="井上织姬·千年血战(朽木zg)" comic_type="0">
 		<file url="assets/fighter/井上织姬·千年血战.swf" startFrame="1"/>
 		<face url="assets/face/井上织姬.png" big_url="assets/face/井上织姬_b.png" bar_url="assets/face/orihime_m.png" win_url="assets/face/orihime_w.png"/>
@@ -87,7 +84,6 @@
 		</contact>
 		<bgm url="assets/bgm/ichigo.mp3" rate="70"/>
 	</fighter>
-
 
 	<fighter id="利威尔" name="利威尔.阿克曼" comic_type="0">
 		<file url="assets/fighter/利威尔.swf" startFrame="1" />
@@ -143,7 +139,6 @@
 		</contact>
 		<bgm url="assets/bgm/.mp3" rate="90" />
 	</fighter>
-
 
 	<fighter id="saito" name="斋藤一(BearBrine)" comic_type="0">
 		<file url="assets/fighter/斋藤一.swf" startFrame="1" />
@@ -225,7 +220,6 @@
 		</contact>
 		<bgm url="assets/bgm/kazuma.mp3" rate="70"/>
 	</fighter>
-
 
 	<fighter id="Kujo Jotaro" name="空条承太郎（Hunter）" comic_type="0">
 		<file url="assets/fighter/Kujo Jotaro.swf" startFrame="1" />
@@ -1268,7 +1262,6 @@
 		<bgm url="assets/bgm/bleachboss.mp3" rate="100" />
 	</fighter>
 
-
 	<fighter id="蓝染 血战" name="蓝染 血战 " comic_type="0">
 		<file url="assets/fighter/aizen_xz.swf" startFrame="1" />
 		<face url="assets/face/aizen_xz.png" big_url="assets/face/aizen_xz_b.png" bar_url="assets/face/aizen_xz_m.png" win_url="assets/face/aizen_xz_w.png" />
@@ -1351,7 +1344,6 @@
 		</says>
 		<bgm url="assets/bgm/minren.mp3" rate="100" />
 	</fighter>
-
 
 	<fighter id="鸣人 六尾" name="鸣人 六尾（星空）" comic_type="1">
 		<file url="assets/fighter/naruto_lw.swf" startFrame="1" />
@@ -1895,7 +1887,6 @@
 		<bgm url="assets/bgm/narutoboss.mp3" rate="100" />
 	</fighter>
 
-
 	<fighter id="大蛇丸" name="大蛇丸（嘉木）" comic_type="1">
 		<file url="assets/fighter/orochimaru.swf" startFrame="1" />
 		<face url="assets/face/orochimaru.png" big_url="assets/face/orochimaru_b.png" bar_url="assets/face/orochimaru_m.png" win_url="assets/face/orochimaru_w.png" />
@@ -2213,32 +2204,6 @@
 		<bgm url="assets/bgm/naruto.mp3" rate="70" />
 	</fighter>
 
-	<fighter id="布罗利1" name="布罗利（沃特水）" comic_type="0">
-		<file url="assets/fighter/broly_max.swf" startFrame="1" />
-		<face url="assets/face/broly.png" big_url="assets/face/broly_b.png" bar_url="assets/face/broly_m.png" win_url="assets/face/broly_w.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item>...</say_item>
-		</says>
-		<bgm url="assets/bgm/naruto.mp3" rate="70" />
-	</fighter>
-
-	<fighter id="扎马斯_合体" name="扎马斯_合体（残殇）" comic_type="0">
-		<file url="assets/fighter/zms_ht.swf" startFrame="1" />
-		<face url="assets/face/zms_ht.png" big_url="assets/face/zms_ht_b.png" bar_url="assets/face/zms_ht_m.png" win_url="assets/face/zms_ht_w.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item>...</say_item>
-		</says>
-		<bgm url="assets/bgm/naruto.mp3" rate="70" />
-	</fighter>
-
 	<fighter id="假面骑士创骑" name="假面骑士创骑(光速吃瘪)" comic_type="0">
 		<file url="assets/fighter/假面骑士创骑.swf" startFrame="1" />
 		<face url="assets/face/假面骑士创骑1.png" big_url="assets/face/假面骑士创骑2.png" bar_url="assets/face/假面骑士创骑3.png" win_url="assets/face/假面骑士创骑4.png" />
@@ -2282,319 +2247,9 @@
 		<bgm url="assets/bgm/ichigo.mp3" rate="70"/>
 	</fighter>
 
-
-	<fighter id="孙悟空" name="孙悟空" comic_type="0">
-		<file url="assets/fighter/孙悟空.swf" startFrame="1" />
-		<face url="assets/face/孙悟空1.png" big_url="assets/face/孙悟空2.png" bar_url="assets/face/孙悟空3.png" win_url="assets/face/孙悟空4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="新悟空" name="孙悟空" comic_type="0">
-		<file url="assets/fighter/新悟空.swf" startFrame="1" />
-		<face url="assets/face/新悟空1.png" big_url="assets/face/新悟空2.png" bar_url="assets/face/新悟空3.png" win_url="assets/face/新悟空4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-
-	<fighter id="孙悟空z中期" name="［Z中期］孙悟空" comic_type="0">
-		<file url="assets/fighter/孙悟空z中期.swf" startFrame="1" />
-		<face url="assets/face/孙悟空z中期1.png" big_url="assets/face/孙悟空z中期2.png" bar_url="assets/face/孙悟空z中期3.png" win_url="assets/face/孙悟空z中期4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="孙悟空赛亚人3" name="［超级赛亚人3］孙悟空" comic_type="0">
-		<file url="assets/fighter/孙悟空赛亚人3.swf" startFrame="1" />
-		<face url="assets/face/孙悟空赛亚人31.png" big_url="assets/face/孙悟空赛亚人32.png" bar_url="assets/face/孙悟空赛亚人33.png" win_url="assets/face/孙悟空赛亚人34.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
 	<fighter id="ss4" name="［超级赛亚人4 GT］孙悟空" comic_type="0">
 		<file url="assets/fighter/ss4.swf" startFrame="1" />
 		<face url="assets/face/ss41.png" big_url="assets/face/ss42.png" bar_url="assets/face/ss43.png" win_url="assets/face/ss44.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="超4悟空" name="［超级赛亚人4 GT］孙悟空" comic_type="0">
-		<file url="assets/fighter/超4悟空.swf" startFrame="1" />
-		<face url="assets/face/超4悟空1.png" big_url="assets/face/超4悟空2.png" bar_url="assets/face/超4悟空3.png" win_url="assets/face/超4悟空4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="孙悟空超4" name="［超级赛亚人4］孙悟空" comic_type="0">
-		<file url="assets/fighter/孙悟空超4.swf" startFrame="1" />
-		<face url="assets/face/孙悟空超41.png" big_url="assets/face/孙悟空超42.png" bar_url="assets/face/孙悟空超43.png" win_url="assets/face/孙悟空超44.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="卡卡罗特" name="［Z后期］孙悟空" comic_type="0">
-		<file url="assets/fighter/卡卡罗特.swf" startFrame="1" />
-		<face url="assets/face/卡卡罗特1.png" big_url="assets/face/卡卡罗特2.png" bar_url="assets/face/卡卡罗特3.png" win_url="assets/face/卡卡罗特4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="新卡卡罗特" name="［Z后期］孙悟空" comic_type="0">
-		<file url="assets/fighter/新卡卡罗特.swf" startFrame="1" />
-		<face url="assets/face/新卡卡罗特1.png" big_url="assets/face/新卡卡罗特2.png" bar_url="assets/face/新卡卡罗特3.png" win_url="assets/face/新卡卡罗特4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="超一孙悟空" name="［传说中的超级赛亚人］孙悟空" comic_type="0">
-		<file url="assets/fighter/超一孙悟空.swf" startFrame="2" />
-		<face url="assets/face/超一孙悟空1.png" big_url="assets/face/超一孙悟空2.png" bar_url="assets/face/超一孙悟空3.png" win_url="assets/face/超一孙悟空4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="孙悟空神" name="［超级赛亚人神］孙悟空" comic_type="0">
-		<file url="assets/fighter/孙悟空神.swf" startFrame="1" />
-		<face url="assets/face/孙悟空神1.png" big_url="assets/face/孙悟空神2.png" bar_url="assets/face/孙悟空神3.png" win_url="assets/face/孙悟空神4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="超蓝悟空" name="［超级赛亚人蓝］孙悟空" comic_type="0">
-		<file url="assets/fighter/超蓝悟空.swf" startFrame="1" />
-		<face url="assets/face/超蓝悟空1.png" big_url="assets/face/超蓝悟空2.png" bar_url="assets/face/超蓝悟空3.png" win_url="assets/face/超蓝悟空4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="孙悟空超蓝" name="［超级赛亚人蓝］孙悟空" comic_type="0">
-		<file url="assets/fighter/孙悟空超蓝.swf" startFrame="1" />
-		<face url="assets/face/孙悟空超蓝1.png" big_url="assets/face/孙悟空超蓝2.png" bar_url="assets/face/孙悟空超蓝3.png" win_url="assets/face/孙悟空超蓝4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="悟空10倍" name="［超级赛亚人蓝·10倍界王拳］孙悟空" comic_type="0">
-		<file url="assets/fighter/悟空10倍.swf" startFrame="2" />
-		<face url="assets/face/悟空10倍1.png" big_url="assets/face/悟空10倍2.png" bar_url="assets/face/悟空10倍3.png" win_url="assets/face/悟空10倍4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="极意孙悟空" name="［自在极意功］孙悟空" comic_type="0">
-		<file url="assets/fighter/极意孙悟空.swf" startFrame="1" />
-		<face url="assets/face/极意孙悟空1.png" big_url="assets/face/极意孙悟空2.png" bar_url="assets/face/极意孙悟空3.png" win_url="assets/face/极意孙悟空4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="自在空" name="［自在极意功］孙悟空" comic_type="0">
-		<file url="assets/fighter/自在空.swf" startFrame="1" />
-		<face url="assets/face/自在空1.png" big_url="assets/face/自在空2.png" bar_url="assets/face/自在空3.png" win_url="assets/face/自在空4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="白神孙悟空" name="［白神］孙悟空" comic_type="0">
-		<file url="assets/fighter/白神孙悟空.swf" startFrame="1" />
-		<face url="assets/face/白神孙悟空1.png" big_url="assets/face/白神孙悟空2.png" bar_url="assets/face/白神孙悟空3.png" win_url="assets/face/白神孙悟空4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-
-	<fighter id="悟空常态" name="［常态］孙悟空" comic_type="0">
-		<file url="assets/fighter/悟空常态.swf" startFrame="1" />
-		<face url="assets/face/悟空常态1.png" big_url="assets/face/悟空常态2.png" bar_url="assets/face/悟空常态3.png" win_url="assets/face/悟空常态4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="千年悟空" name="千年悟空" comic_type="0">
-		<file url="assets/fighter/千年悟空.swf" startFrame="1" />
-		<face url="assets/face/千年悟空1.png" big_url="assets/face/千年悟空2.png" bar_url="assets/face/千年悟空3.png" win_url="assets/face/千年悟空4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="邪恶悟空" name="邪恶悟空" comic_type="0">
-		<file url="assets/fighter/邪恶悟空.swf" startFrame="1" />
-		<face url="assets/face/邪恶悟空1.png" big_url="assets/face/邪恶悟空2.png" bar_url="assets/face/邪恶悟空3.png" win_url="assets/face/邪恶悟空4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="孙悟饭" name="［超级赛亚人］孙悟饭" comic_type="0">
-		<file url="assets/fighter/孙悟饭.swf" startFrame="1" />
-		<face url="assets/face/孙悟饭1.png" big_url="assets/face/孙悟饭2.png" bar_url="assets/face/孙悟饭3.png" win_url="assets/face/孙悟饭4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="神秘悟饭" name="神秘悟饭" comic_type="0">
-		<file url="assets/fighter/神秘悟饭.swf" startFrame="1" />
-		<face url="assets/face/神秘悟饭1.png" big_url="assets/face/神秘悟饭2.png" bar_url="assets/face/神秘悟饭3.png" win_url="assets/face/神秘悟饭4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="孙悟饭超级赛亚人" name="［超级赛亚人］孙悟饭" comic_type="0">
-		<file url="assets/fighter/孙悟饭超级赛亚人.swf" startFrame="1" />
-		<face url="assets/face/孙悟饭超级赛亚人1.png" big_url="assets/face/孙悟饭超级赛亚人2.png" bar_url="assets/face/孙悟饭超级赛亚人3.png" win_url="assets/face/孙悟饭超级赛亚人4.png" />
 		<contact>
 			<friend></friend>
 			<enemy></enemy>
@@ -2660,19 +2315,6 @@
 		<bgm url="assets/bgm/1.mp3" rate="100" />
 	</fighter>
 
-	<fighter id="超4悟吉塔" name="［超级赛亚人4］悟吉塔" comic_type="0">
-		<file url="assets/fighter/超4悟吉塔.swf" startFrame="1" />
-		<face url="assets/face/超4悟吉塔1.png" big_url="assets/face/超4悟吉塔2.png" bar_url="assets/face/超4悟吉塔3.png" win_url="assets/face/超4悟吉塔4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
 	<fighter id="gtwjt" name="［超级赛亚人4］悟吉塔" comic_type="0">
 		<file url="assets/fighter/gtwjt.swf" startFrame="1" />
 		<face url="assets/face/gtwjt1.png" big_url="assets/face/gtwjt2.png" bar_url="assets/face/gtwjt3.png" win_url="assets/face/gtwjt4.png" />
@@ -2685,48 +2327,6 @@
 		</says>
 		<bgm url="assets/bgm/1.mp3" rate="100" />
 	</fighter>
-
-	<fighter id="悟吉塔超蓝" name="［超级赛亚人蓝］悟吉塔" comic_type="0">
-		<file url="assets/fighter/悟吉塔超蓝.swf" startFrame="1" />
-		<face url="assets/face/悟吉塔超蓝1.png" big_url="assets/face/悟吉塔超蓝2.png" bar_url="assets/face/悟吉塔超蓝3.png" win_url="assets/face/悟吉塔超蓝4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="自在悟吉塔" name="［自在极意功］悟吉塔" comic_type="0">
-		<file url="assets/fighter/自在悟吉塔.swf" startFrame="1" />
-		<face url="assets/face/自在悟吉塔1.png" big_url="assets/face/自在悟吉塔2.png" bar_url="assets/face/自在悟吉塔3.png" win_url="assets/face/自在悟吉塔4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="自在贝吉特" name="［自在极意功］贝吉特" comic_type="0">
-		<file url="assets/fighter/自在贝吉特.swf" startFrame="1" />
-		<face url="assets/face/自在贝吉特1.png" big_url="assets/face/自在贝吉特2.png" bar_url="assets/face/自在贝吉特3.png" win_url="assets/face/自在贝吉特4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
 
 	<fighter id="zzwjt" name="［自在极意功］悟吉塔" comic_type="0">
 		<file url="assets/fighter/zzwjt.swf" startFrame="1" />
@@ -2770,7 +2370,6 @@
 		<bgm url="assets/bgm/1.mp3" rate="100" />
 	</fighter>
 
-
 	<fighter id="贝吉特" name="［常态］贝吉特" comic_type="0">
 		<file url="assets/fighter/贝吉特.swf" startFrame="1" />
 		<face url="assets/face/贝吉特1.png" big_url="assets/face/贝吉特2.png" bar_url="assets/face/贝吉特3.png" win_url="assets/face/贝吉特4.png" />
@@ -2783,115 +2382,6 @@
 			<say_item></say_item>
 		</says>
 		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="天津饭" name="天津饭" comic_type="0">
-		<file url="assets/fighter/天津饭.swf" startFrame="1" />
-		<face url="assets/face/天津饭1.png" big_url="assets/face/天津饭2.png" bar_url="assets/face/天津饭3.png" win_url="assets/face/天津饭4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="比克" name="［大魔王］比克" comic_type="0">
-		<file url="assets/fighter/比克.swf" startFrame="1" />
-		<face url="assets/face/比克1.png" big_url="assets/face/比克2.png" bar_url="assets/face/比克3.png" win_url="assets/face/比克4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="橙色比克" name="橙色比克" comic_type="0">
-		<file url="assets/fighter/橙色比克.swf" startFrame="1" />
-		<face url="assets/face/橙色比克1.png" big_url="assets/face/橙色比克2.png" bar_url="assets/face/橙色比克3.png" win_url="assets/face/橙色比克4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="黑空" name="黑悟空" comic_type="0">
-		<file url="assets/fighter/黑空.swf" startFrame="1" />
-		<face url="assets/face/黑空1.png" big_url="assets/face/黑空2.png" bar_url="assets/face/黑空3.png" win_url="assets/face/黑空4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/3.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="新黑空" name="黑悟空" comic_type="0">
-		<file url="assets/fighter/新黑空.swf" startFrame="1" />
-		<face url="assets/face/新黑空1.png" big_url="assets/face/新黑空2.png" bar_url="assets/face/新黑空3.png" win_url="assets/face/新黑空4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/3.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="黑悟空" name="黑悟空" comic_type="0">
-		<file url="assets/fighter/黑悟空.swf" startFrame="1" />
-		<face url="assets/face/黑悟空1.png" big_url="assets/face/黑悟空2.png" bar_url="assets/face/黑悟空3.png" win_url="assets/face/黑悟空4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/3.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="新黑悟空" name="黑悟空" comic_type="0">
-		<file url="assets/fighter/新黑悟空.swf" startFrame="1" />
-		<face url="assets/face/新黑悟空1.png" big_url="assets/face/新黑悟空2.png" bar_url="assets/face/新黑悟空3.png" win_url="assets/face/新黑悟空4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/3.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="桃红黑悟空" name="［桃红］黑悟空" comic_type="0">
-		<file url="assets/fighter/桃红黑悟空.swf" startFrame="1" />
-		<face url="assets/face/桃红黑悟空1.png" big_url="assets/face/桃红黑悟空2.png" bar_url="assets/face/桃红黑悟空3.png" win_url="assets/face/桃红黑悟空4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/3.mp3" rate="100" />
 	</fighter>
 
 	<fighter id="thhwk" name="［桃红］黑悟空" comic_type="0">
@@ -2908,93 +2398,9 @@
 		<bgm url="assets/bgm/3.mp3" rate="100" />
 	</fighter>
 
-	<fighter id="贝吉塔" name="贝吉塔" comic_type="0">
-		<file url="assets/fighter/贝吉塔.swf" startFrame="1" />
-		<face url="assets/face/贝吉塔1.png" big_url="assets/face/贝吉塔2.png" bar_url="assets/face/贝吉塔3.png" win_url="assets/face/贝吉塔4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/2.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="新贝吉塔" name="贝吉塔" comic_type="0">
-		<file url="assets/fighter/新贝吉塔.swf" startFrame="1" />
-		<face url="assets/face/新贝吉塔1.png" big_url="assets/face/新贝吉塔2.png" bar_url="assets/face/新贝吉塔3.png" win_url="assets/face/新贝吉塔4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/2.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="超级贝吉塔" name="［超级赛亚人］贝吉塔" comic_type="0">
-		<file url="assets/fighter/超级贝吉塔.swf" startFrame="1" />
-		<face url="assets/face/超级贝吉塔1.png" big_url="assets/face/超级贝吉塔2.png" bar_url="assets/face/超级贝吉塔3.png" win_url="assets/face/超级贝吉塔4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/2.mp3" rate="100" />
-	</fighter>
-
 	<fighter id="cbjt" name="［超级赛亚人］贝吉塔" comic_type="0">
 		<file url="assets/fighter/cbjt.swf" startFrame="2" />
 		<face url="assets/face/cbjt1.png" big_url="assets/face/cbjt2.png" bar_url="assets/face/cbjt3.png" win_url="assets/face/cbjt4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/2.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="超贝吉塔" name="［超级赛亚人］贝吉塔" comic_type="0">
-		<file url="assets/fighter/超贝吉塔.swf" startFrame="1" />
-		<face url="assets/face/超贝吉塔1.png" big_url="assets/face/超贝吉塔2.png" bar_url="assets/face/超贝吉塔3.png" win_url="assets/face/超贝吉塔4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/2.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="超蓝贝吉塔" name="［超级赛亚人蓝］贝吉塔" comic_type="0">
-		<file url="assets/fighter/超蓝贝吉塔.swf" startFrame="1" />
-		<face url="assets/face/超蓝贝吉塔1.png" big_url="assets/face/超蓝贝吉塔2.png" bar_url="assets/face/超蓝贝吉塔3.png" win_url="assets/face/超蓝贝吉塔4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/2.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="超蓝悟吉塔" name="［超级赛亚人蓝］悟吉塔" comic_type="0">
-		<file url="assets/fighter/超蓝悟吉塔.swf" startFrame="1" />
-		<face url="assets/face/超蓝悟吉塔1.png" big_url="assets/face/超蓝悟吉塔2.png" bar_url="assets/face/超蓝悟吉塔3.png" win_url="assets/face/超蓝悟吉塔4.png" />
 		<contact>
 			<friend></friend>
 			<enemy></enemy>
@@ -3020,20 +2426,6 @@
 		<bgm url="assets/bgm/2.mp3" rate="100" />
 	</fighter>
 
-	<fighter id="贝吉塔破坏神" name="［破坏神·形态］贝吉塔" comic_type="0">
-		<file url="assets/fighter/贝吉塔破坏神.swf" startFrame="1" />
-		<face url="assets/face/贝吉塔破坏神1.png" big_url="assets/face/贝吉塔破坏神2.png" bar_url="assets/face/贝吉塔破坏神3.png" win_url="assets/face/贝吉塔破坏神4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/2.mp3" rate="100" />
-	</fighter>
-
 	<fighter id="bjt" name="［超级赛亚人神］贝吉塔" comic_type="0">
 		<file url="assets/fighter/bjt.swf" startFrame="1" />
 		<face url="assets/face/bjt1.png" big_url="assets/face/bjt2.png" bar_url="assets/face/bjt3.png" win_url="assets/face/bjt4.png" />
@@ -3048,19 +2440,6 @@
 		<bgm url="assets/bgm/2.mp3" rate="100" />
 	</fighter>
 
-	<fighter id="特兰克斯" name="特兰克斯" comic_type="0">
-		<file url="assets/fighter/特兰克斯.swf" startFrame="1" />
-		<face url="assets/face/特兰克斯1.png" big_url="assets/face/特兰克斯2.png" bar_url="assets/face/特兰克斯3.png" win_url="assets/face/特兰克斯4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
 	<fighter id="cttlks" name="特兰克斯" comic_type="0">
 		<file url="assets/fighter/cttlks.swf" startFrame="1" />
 		<face url="assets/face/cttlks1.png" big_url="assets/face/cttlks2.png" bar_url="assets/face/cttlks3.png" win_url="assets/face/cttlks4.png" />
@@ -3069,251 +2448,6 @@
 			<enemy></enemy>
 		</contact>
 		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="特兰克斯超赛" name="［超级赛亚人］特兰克斯" comic_type="0">
-		<file url="assets/fighter/特兰克斯超赛.swf" startFrame="1" />
-		<face url="assets/face/特兰克斯超赛1.tiff" big_url="assets/face/特兰克斯超赛2.tiff" bar_url="assets/face/特兰克斯超赛3.tiff" win_url="assets/face/特兰克斯超赛4.tiff" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="龟仙人" name="龟仙人" comic_type="0">
-		<file url="assets/fighter/龟仙人.swf" startFrame="1" />
-		<face url="assets/face/龟仙人1.png" big_url="assets/face/龟仙人2.png" bar_url="assets/face/龟仙人3.png" win_url="assets/face/龟仙人4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="弗利萨" name="［Z中期］弗利萨" comic_type="0">
-		<file url="assets/fighter/弗利萨.swf" startFrame="1" />
-		<face url="assets/face/弗利萨1.png" big_url="assets/face/弗利萨2.png" bar_url="assets/face/弗利萨3.png" win_url="assets/face/弗利萨4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-	<fighter id="新弗利萨" name="［中期］弗利萨" comic_type="0">
-		<file url="assets/fighter/新弗利萨.swf" startFrame="1" />
-		<face url="assets/face/新弗利萨1.png" big_url="assets/face/新弗利萨2.png" bar_url="assets/face/新弗利萨3.png" win_url="assets/face/新弗利萨4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="希特" name="希特" comic_type="0">
-		<file url="assets/fighter/希特.swf" startFrame="1" />
-		<face url="assets/face/希特1.png" big_url="assets/face/希特2.png" bar_url="assets/face/希特3.png" win_url="assets/face/希特4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="新希特" name="希特" comic_type="0">
-		<file url="assets/fighter/新希特.swf" startFrame="1" />
-		<face url="assets/face/新希特1.png" big_url="assets/face/新希特2.png" bar_url="assets/face/新希特3.png" win_url="assets/face/新希特4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="扎马斯" name="扎马斯" comic_type="0">
-		<file url="assets/fighter/扎马斯.swf" startFrame="1" />
-		<face url="assets/face/扎马斯1.png" big_url="assets/face/扎马斯2.png" bar_url="assets/face/扎马斯3.png" win_url="assets/face/扎马斯4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="新扎马斯" name="扎马斯" comic_type="0">
-		<file url="assets/fighter/新扎马斯.swf" startFrame="1" />
-		<face url="assets/face/新扎马斯1.png" big_url="assets/face/新扎马斯2.png" bar_url="assets/face/新扎马斯3.png" win_url="assets/face/新扎马斯4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="比鲁斯" name="［破坏神］比鲁斯" comic_type="0">
-		<file url="assets/fighter/比鲁斯.swf" startFrame="2" />
-		<face url="assets/face/比鲁斯1.png" big_url="assets/face/比鲁斯2.png" bar_url="assets/face/比鲁斯3.png" win_url="assets/face/比鲁斯4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-
-
-	<fighter id="新布罗利" name="［常态］布罗利" comic_type="0">
-		<file url="assets/fighter/新布罗利.swf" startFrame="1" />
-		<face url="assets/face/新布罗利1.png" big_url="assets/face/新布罗利2.png" bar_url="assets/face/新布罗利3.png" win_url="assets/face/新布罗利4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-
-	<fighter id="魔人布欧" name="［纯粹］魔人普乌" comic_type="0">
-		<file url="assets/fighter/魔人布欧.swf" startFrame="1" />
-		<face url="assets/face/魔人布欧1.png" big_url="assets/face/魔人布欧2.png" bar_url="assets/face/魔人布欧3.png" win_url="assets/face/魔人布欧4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="新魔人普乌" name="魔人普乌［纯粹］" comic_type="0">
-		<file url="assets/fighter/新魔人普乌.swf" startFrame="1" />
-		<face url="assets/face/新魔人普乌1.png" big_url="assets/face/新魔人普乌2.png" bar_url="assets/face/新魔人普乌3.png" win_url="assets/face/新魔人普乌4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="新魔人布欧" name="魔人布欧" comic_type="0">
-		<file url="assets/fighter/新魔人布欧.swf" startFrame="1" />
-		<face url="assets/face/新魔人布欧1.png" big_url="assets/face/新魔人布欧2.png" bar_url="assets/face/新魔人布欧3.png" win_url="assets/face/新魔人布欧4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="吉连" name="灰色吉连" comic_type="0">
-		<file url="assets/fighter/吉连.swf" startFrame="1" />
-		<face url="assets/face/吉连1.png" big_url="assets/face/吉连2.png" bar_url="assets/face/吉连3.png" win_url="assets/face/吉连4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="暴怒吉连" name="暴怒吉连" comic_type="0">
-		<file url="assets/fighter/暴怒吉连.swf" startFrame="1" />
-		<face url="assets/face/暴怒吉连1.png" big_url="assets/face/暴怒吉连2.png" bar_url="assets/face/暴怒吉连3.png" win_url="assets/face/暴怒吉连4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="悟空超赛" name="［传说中的超级赛亚人］孙悟空" comic_type="0">
-		<file url="assets/fighter/悟空超赛.swf" startFrame="1" />
-		<face url="assets/face/悟空超赛1.png" big_url="assets/face/悟空超赛2.png" bar_url="assets/face/悟空超赛3.png" win_url="assets/face/悟空超赛4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="新孙悟饭" name="孙悟饭" comic_type="0">
-		<file url="assets/fighter/新孙悟饭.swf" startFrame="1" />
-		<face url="assets/face/新孙悟饭1.png" big_url="assets/face/新孙悟饭2.png" bar_url="assets/face/新孙悟饭3.png" win_url="assets/face/新孙悟饭4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="克林" name="克林" comic_type="0">
-		<file url="assets/fighter/克林.swf" startFrame="1" />
-		<face url="assets/face/克林1.png" big_url="assets/face/克林2.png" bar_url="assets/face/克林3.png" win_url="assets/face/克林4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
 			<say_item></say_item>
 		</says>
 		<bgm url="assets/bgm/1.mp3" rate="100" />
@@ -3333,106 +2467,9 @@
 		<bgm url="assets/bgm/1.mp3" rate="100" />
 	</fighter>
 
-	<fighter id="人造人17号" name="人造人17号" comic_type="0">
-		<file url="assets/fighter/人造人17号.swf" startFrame="1" />
-		<face url="assets/face/人造人17号1.png" big_url="assets/face/人造人17号2.png" bar_url="assets/face/人造人17号3.png" win_url="assets/face/人造人17号4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="人造人18号" name="人造人18号" comic_type="0">
-		<file url="assets/fighter/人造人18号.swf" startFrame="1" />
-		<face url="assets/face/人造人18号1.png" big_url="assets/face/人造人18号2.png" bar_url="assets/face/人造人18号3.png" win_url="assets/face/人造人18号4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-	<fighter id="人造人21号" name="人造人21号" comic_type="0">
-		<file url="assets/fighter/人造人21号.swf" startFrame="1" />
-		<face url="assets/face/人造人21号1.png" big_url="assets/face/人造人21号2.png" bar_url="assets/face/人造人21号3.png" win_url="assets/face/人造人21号4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="古拉" name="古拉" comic_type="0">
-		<file url="assets/fighter/古拉.swf" startFrame="1" />
-		<face url="assets/face/古拉1.png" big_url="assets/face/古拉2.png" bar_url="assets/face/古拉3.png" win_url="assets/face/古拉4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="大布欧" name="［魔人布欧］大布欧" comic_type="0">
-		<file url="assets/fighter/大布欧.swf" startFrame="1" />
-		<face url="assets/face/大布欧1.png" big_url="assets/face/大布欧2.png" bar_url="assets/face/大布欧3.png" win_url="assets/face/大布欧4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
 	<fighter id="拉蒂兹" name="拉蒂兹" comic_type="0">
 		<file url="assets/fighter/拉蒂兹.swf" startFrame="1" />
 		<face url="assets/face/拉蒂兹1.png" big_url="assets/face/拉蒂兹2.png" bar_url="assets/face/拉蒂兹3.png" win_url="assets/face/拉蒂兹4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="沙鲁" name="［完全体］沙鲁" comic_type="0">
-		<file url="assets/fighter/沙鲁.swf" startFrame="1" />
-		<face url="assets/face/沙鲁1.png" big_url="assets/face/沙鲁2.png" bar_url="assets/face/沙鲁3.png" win_url="assets/face/沙鲁4.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item></say_item>
-			<say_item></say_item>
-		</says>
-		<bgm url="assets/bgm/1.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="新沙鲁" name="［完全体］沙鲁" comic_type="0">
-		<file url="assets/fighter/新沙鲁.swf" startFrame="1" />
-		<face url="assets/face/新沙鲁1.png" big_url="assets/face/新沙鲁2.png" bar_url="assets/face/新沙鲁3.png" win_url="assets/face/新沙鲁4.png" />
 		<contact>
 			<friend></friend>
 			<enemy></enemy>
@@ -3471,7 +2508,6 @@
 		</says>
 		<bgm url="assets/bgm/1.mp3" rate="100" />
 	</fighter>
-
 
 	<fighter id="random" name="随机人物" comic_type="-1">
 		<face url="assets/face/random.png" />
