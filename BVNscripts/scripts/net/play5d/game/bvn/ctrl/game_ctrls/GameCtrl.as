@@ -329,6 +329,12 @@ import net.play5d.game.bvn.Debugger;
                (_loc3_ as FighterKeyCtrl).classicMode = GameData.I.config.keyInputMode == 1;
          }
          param1.initlize();
+         if(param1.initFailed)
+         {
+            Debugger.log("[GameCtrl] addFighter FAILED — 此角色不可用: " + param1.data.id);
+            GameUI.confrim("此角色暂时不可用","该角色文件不完整，请选择其他角色。",MainGame.I.goMenu);
+            return;
+         }
          param1.setActionCtrl(_loc3_);
          this.addGameSprite(param2,param1);
       }

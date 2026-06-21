@@ -37,6 +37,8 @@ package net.play5d.game.bvn.fighter
       public var isSuperSteelBody:Boolean = false;
       
       public var data:FighterVO;
+
+      public var initFailed:Boolean = false;
       
       public var airHitTimes:int = 1;
       
@@ -291,7 +293,8 @@ package net.play5d.game.bvn.fighter
             _mainMc.gotoAndStop(this.data ? this.data.startFrame + 1 : 2);
             return;
          }
-         throw new Error("初始化失败，SWF未定义setFighterCtrler()");
+         this.initFailed = true;
+         Debugger.log("[FighterMain] 此角色不可用 — SWF缺少setFighterCtrler: " + (this.data ? this.data.id : "unknown"));
       }
       
       override public function renderAnimate() : void
