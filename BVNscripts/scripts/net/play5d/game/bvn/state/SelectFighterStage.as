@@ -260,10 +260,6 @@ import net.play5d.game.bvn.Debugger;
             _pagArr.push(pi * -PAGE_HEIGHT);
          }
          CURRENT_PAGE = 0;
-         // 同步 timeline 翻页速度 = 当前页高（一帧到位，避免震荡）
-         if (this._ui && this._ui.hasOwnProperty("speed")) {
-            this._ui["speed"] = PAGE_HEIGHT;
-         }
          Debugger.log("[SelectFighterStage] pagination pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "positions:", _pagArr);
       }
 
@@ -964,8 +960,9 @@ import net.play5d.game.bvn.Debugger;
       }
 
       // ================================================================
-      // 分页控制 — 复用 timeline 的 goNext/goPrev/Animate
-      // 只做三件事：① 修 speed=页高（一帧到位防震荡）② 加键盘/滚轮输入 ③ 辅助界面归位
+      // 分页控制 — 直接跳转（跳过 timeline 的 100px 步长动画，避免震荡）
+      // timeline 的 goNext/goPrev 有 Animate 震荡 bug（speed=100→SWF内不可改）
+      // 本系统直接设 bg.y = 目标页，等效 speed=∞，零震荡
       // ================================================================
 
       private function initPagination() : void
@@ -975,29 +972,51 @@ import net.play5d.game.bvn.Debugger;
          var isMobile:Boolean = Capabilities.version.indexOf("AND") != -1;
          Debugger.log("[SelectFighterStage] initPagination — isMobile:", isMobile);
 
-         // ① speed 在 buildList() 中随 PAGE_HEIGHT 动态同步，这里只设输入监听
-
-         // ② 键盘翻页（Q/E 或 +/-）→ 调 timeline 的 goNext/goPrev
+         // 键盘翻页（Q/E 或 +/-）
          MainGame.I.stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent):void {
             if (GameUI.showingDialog()) return;
             if (_selectState == 1) return;
-            if (_ui && _ui.hasOwnProperty("goNext")) {
-               if (e.keyCode == 69 || e.keyCode == 107) { _ui.goNext(); }
-               if (e.keyCode == 81 || e.keyCode == 109) { _ui.goPrev(); }
-            }
+            if (e.keyCode == 69 || e.keyCode == 107) { _doPageStep(-1); }
+            if (e.keyCode == 81 || e.keyCode == 109) { _doPageStep(1); }
          });
 
-         // PC：鼠标滚轮 → 调 timeline 的 goNext/goPrev
+         // PC：鼠标滚轮
          if (!isMobile) {
             MainGame.I.stage.addEventListener(MouseEvent.MOUSE_WHEEL, function(e:MouseEvent):void {
                if (GameUI.showingDialog()) return;
                if (_selectState == 1) return;
-               if (!_ui || !_ui.hasOwnProperty("goNext")) return;
-               if (e.delta > 0) { _ui.goPrev(); }
-               else if (e.delta < 0) { _ui.goNext(); }
+               if (e.delta > 0) { _doPageStep(1); }
+               else if (e.delta < 0) { _doPageStep(-1); }
             });
             Debugger.log("[SelectFighterStage] pagination: keyboard + mouse wheel enabled");
          }
+      }
+
+      /** dir: -1=下一页, 1=上一页（bg.y 负方向） */
+      private function _doPageStep(dir:int) : void
+      {
+         if (!this._ui || !this._ui.bg || _pagArr.length <= 1) return;
+         var curPage:int = _findCurrentPage();
+         var newPage:int = curPage + dir;
+         if (newPage < 0) newPage = 0;
+         if (newPage >= _pagArr.length) newPage = _pagArr.length - 1;
+         if (newPage == curPage) return;
+         this._ui.bg.y = Number(_pagArr[newPage]);
+         CURRENT_PAGE = newPage;
+         Debugger.log("[SelectFighterStage] page " + curPage + " -> " + newPage + "  bg.y=" + this._ui.bg.y);
+      }
+
+      private function _findCurrentPage() : int
+      {
+         if (!this._ui || !this._ui.bg || _pagArr.length == 0) return 0;
+         var bgY:Number = Math.abs(this._ui.bg.y);
+         var best:int = 0;
+         var bestDist:Number = Number.MAX_VALUE;
+         for (var i:int = 0; i < _pagArr.length; i++) {
+            var dist:Number = Math.abs(bgY - Math.abs(Number(_pagArr[i])));
+            if (dist < bestDist) { bestDist = dist; best = i; }
+         }
+         return best;
       }
 
       public function destory(param1:Function = null) : void
