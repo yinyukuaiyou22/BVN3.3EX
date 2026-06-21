@@ -260,7 +260,11 @@ import net.play5d.game.bvn.Debugger;
             _pagArr.push(pi * -PAGE_HEIGHT);
          }
          CURRENT_PAGE = 0;
-         Debugger.log("[SelectFighterStage] pagination pages:", TOTAL_PAGES, "positions:", _pagArr);
+         // 同步 timeline 翻页速度 = 当前页高（一帧到位，避免震荡）
+         if (this._ui && this._ui.hasOwnProperty("speed")) {
+            this._ui["speed"] = PAGE_HEIGHT;
+         }
+         Debugger.log("[SelectFighterStage] pagination pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "positions:", _pagArr);
       }
 
       private function addFighterItem(param1:SelectCharListItemVO) : SelectFighterItem
@@ -971,11 +975,7 @@ import net.play5d.game.bvn.Debugger;
          var isMobile:Boolean = Capabilities.version.indexOf("AND") != -1;
          Debugger.log("[SelectFighterStage] initPagination — isMobile:", isMobile);
 
-         // ① 复用 timeline 翻页，修 speed = 页高（520 → 一帧翻到位，避免震荡）
-         if (this._ui && this._ui.hasOwnProperty("speed")) {
-            this._ui["speed"] = PAGE_HEIGHT;
-            Debugger.log("[SelectFighterStage] timeline speed set to PAGE_HEIGHT:", PAGE_HEIGHT);
-         }
+         // ① speed 在 buildList() 中随 PAGE_HEIGHT 动态同步，这里只设输入监听
 
          // ② 键盘翻页（Q/E 或 +/-）→ 调 timeline 的 goNext/goPrev
          MainGame.I.stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent):void {
