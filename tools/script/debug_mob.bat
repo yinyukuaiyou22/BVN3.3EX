@@ -28,23 +28,19 @@ set PROJ=%BAT_HOME%..\..
 call :ECHO_LANG :TITLE ""
 
 :: ---- Auto-detect or verify FLEX_HOME ----
+:: Always prefer local SDK over environment variable
 set "SDK_HOME=%PROJ%\AIRSDK\flex4.16.1-air51.0.1.1"
-REM always check local SDK first
+set "FALLBACK=%PROJ%\AIRSDK\AIRSDK_51.1.2"
+
 if exist "%SDK_HOME%\bin\fdb.bat" (
     set "FLEX_HOME=%SDK_HOME%"
     echo [AUTO] FLEX_HOME detected: !FLEX_HOME!
     goto FLEX_OK
 )
-:: Fallback: check common paths
-for %%d in (
-    "%PROJ%\AIRSDK\AIRSDK_51.3.2"
-    "E:\BaiduNetdiskDownload\BVNY\AIRSDK\flex4.16.1-air51.0.1.1"
-) do (
-    if exist %%d\bin\fdb.bat (
-        set "FLEX_HOME=%%~d"
-        echo [AUTO] FLEX_HOME found: !FLEX_HOME!
-        goto FLEX_OK
-    )
+if exist "%FALLBACK%\bin\fdb.bat" (
+    set "FLEX_HOME=%FALLBACK%"
+    echo [AUTO] FLEX_HOME fallback: !FLEX_HOME!
+    goto FLEX_OK
 )
 call :ECHO_LANG :UNDEFINE "FLEX_HOME"
 echo   Set it via: setx FLEX_HOME "E:\BaiduNetdiskDownload\BVNY\AIRSDK\flex4.16.1-air51.0.1.1"

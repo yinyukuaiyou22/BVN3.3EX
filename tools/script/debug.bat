@@ -6,20 +6,20 @@ set BAT_HOME=%~dp0
 set PROJ=%BAT_HOME%..\..
 
 :: ---- Auto-detect AIR SDK (for adl.exe) ----
+:: Always prefer local SDK over environment variable
 set "SDK_HOME=%PROJ%\AIRSDK\flex4.16.1-air51.0.1.1"
-if not defined FLEX_HOME set "FLEX_HOME=%SDK_HOME%"
+set "FALLBACK=%PROJ%\AIRSDK\AIRSDK_51.1.2"
+
+if exist "%SDK_HOME%\bin\adl.exe" (
+    set "FLEX_HOME=%SDK_HOME%"
+) else if exist "%FALLBACK%\bin\adl.exe" (
+    set "FLEX_HOME=%FALLBACK%"
+)
 set FLEX_BIN=%FLEX_HOME%\bin
 
 if not exist "%FLEX_BIN%\adl.exe" (
-    if exist "%SDK_HOME%\bin\adl.exe" (
-        set "FLEX_HOME=%SDK_HOME%"
-        set "FLEX_BIN=%FLEX_HOME%\bin"
-    )
-)
-
-if not exist "%FLEX_BIN%\adl.exe" (
     echo [ERROR] adl.exe not found at %FLEX_BIN%\adl.exe
-    echo Ensure the AIR SDK native tools are installed, or set FLEX_HOME.
+    echo Ensure the AIR SDK is at %SDK_HOME% or set FLEX_HOME.
     pause
     goto END
 )
