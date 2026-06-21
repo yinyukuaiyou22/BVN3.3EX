@@ -960,63 +960,44 @@ import net.play5d.game.bvn.Debugger;
       }
 
       // ================================================================
-      // 分页控制 — 直接跳转（跳过 timeline 的 100px 步长动画，避免震荡）
-      // timeline 的 goNext/goPrev 有 Animate 震荡 bug（speed=100→SWF内不可改）
-      // 本系统直接设 bg.y = 目标页，等效 speed=∞，零震荡
+      // 分页稳定器 — timeline 的 Animate 用 speed=100（SWF内不可改）
+      // PAGE_HEIGHT 不一定整除 100（如 520），导致 bg.y 在目标附近震荡。
+      // 解决：每帧强制 enable=true + 吸附 bg.y 到最近页面位置。
+      // 输入（键盘/点击/滚轮）由 timeline 全权处理，此处不重复监听。
       // ================================================================
 
       private function initPagination() : void
       {
          if (_pagInitialized) return;
          _pagInitialized = true;
-         var isMobile:Boolean = Capabilities.version.indexOf("AND") != -1;
-         Debugger.log("[SelectFighterStage] initPagination — isMobile:", isMobile);
+         Debugger.log("[SelectFighterStage] initPagination — page snap stabilizer enabled");
 
-         // 键盘翻页（Q/E 或 +/-）
-         MainGame.I.stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent):void {
-            if (GameUI.showingDialog()) return;
-            if (_selectState == 1) return;
-            if (e.keyCode == 69 || e.keyCode == 107) { _doPageStep(-1); }
-            if (e.keyCode == 81 || e.keyCode == 109) { _doPageStep(1); }
-         });
-
-         // PC：鼠标滚轮
-         if (!isMobile) {
-            MainGame.I.stage.addEventListener(MouseEvent.MOUSE_WHEEL, function(e:MouseEvent):void {
-               if (GameUI.showingDialog()) return;
-               if (_selectState == 1) return;
-               if (e.delta > 0) { _doPageStep(1); }
-               else if (e.delta < 0) { _doPageStep(-1); }
-            });
-            Debugger.log("[SelectFighterStage] pagination: keyboard + mouse wheel enabled");
-         }
+         // 每帧稳定器：timeline Animate 之后运行，纠正震荡
+         this._ui.addEventListener(Event.ENTER_FRAME, _pagStabilize, false, 0, false);
       }
 
-      /** dir: -1=下一页, 1=上一页（bg.y 负方向） */
-      private function _doPageStep(dir:int) : void
+      private function _pagStabilize(e:Event) : void
       {
          if (!this._ui || !this._ui.bg || _pagArr.length <= 1) return;
-         var curPage:int = _findCurrentPage();
-         var newPage:int = curPage + dir;
-         if (newPage < 0) newPage = 0;
-         if (newPage >= _pagArr.length) newPage = _pagArr.length - 1;
-         if (newPage == curPage) return;
-         this._ui.bg.y = Number(_pagArr[newPage]);
-         CURRENT_PAGE = newPage;
-         Debugger.log("[SelectFighterStage] page " + curPage + " -> " + newPage + "  bg.y=" + this._ui.bg.y);
-      }
 
-      private function _findCurrentPage() : int
-      {
-         if (!this._ui || !this._ui.bg || _pagArr.length == 0) return 0;
-         var bgY:Number = Math.abs(this._ui.bg.y);
-         var best:int = 0;
+         // ① 强制解除 timeline 的 enable 锁（防止 Animate 未完成导致 goNext/goPrev 永久 BLOCKED）
+         if (this._ui.hasOwnProperty("enable")) {
+            this._ui["enable"] = true;
+         }
+
+         // ② 吸附 bg.y 到最近页面（消除 speed=100 不能整除 PAGE_HEIGHT 的震荡）
+         var bgY:Number = this._ui.bg.y;
+         var nearest:int = 0;
          var bestDist:Number = Number.MAX_VALUE;
          for (var i:int = 0; i < _pagArr.length; i++) {
-            var dist:Number = Math.abs(bgY - Math.abs(Number(_pagArr[i])));
-            if (dist < bestDist) { bestDist = dist; best = i; }
+            var target:Number = Number(_pagArr[i]);
+            var dist:Number = Math.abs(bgY - target);
+            if (dist < bestDist) { bestDist = dist; nearest = i; }
          }
-         return best;
+         if (bgY != Number(_pagArr[nearest])) {
+            this._ui.bg.y = Number(_pagArr[nearest]);
+            CURRENT_PAGE = nearest;
+         }
       }
 
       public function destory(param1:Function = null) : void
