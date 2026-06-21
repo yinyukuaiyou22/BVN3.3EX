@@ -70,10 +70,10 @@ tools/script/debug_mob.bat
 
 # 手动打包（Captive Runtime, armv8, 从 tools/Test 目录执行）
 cd tools/Test
-adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%FLEX_HOME%\bin\mycert.p12" -storepass yinyu7798 bvn.apk application.xml -extdir "." -platformsdk "D:/Android/SDK" launch.swf -C assets .
+adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%FLEX_HOME%\bin\mycert.p12" -storepass yinyu7798 bvn.apk application.xml -platformsdk "D:/Android/SDK" launch.swf -C assets .
 ```
 
-> **APK 瘦身**：`debug_mob.bat` 打包时自动将 fighter/map/face/bgm 备份到 Test 根目录，以空目录 + `.gdummy` 占位打包进 APK，打包后恢复。实际内容部署在 `/storage/emulated/0/BVN/assets/` 外部存储（手机文件管理器直接可访问）。
+> **APK 瘦身已禁用**：ANE 关闭后 fighter/map/face/bgm/config 全部打包进 APK。历史瘦身逻辑（`debug_mob.bat` 中 `for %%D ...` 循环）已注释保留。
 
 ### 运行时资源结构（`tools/Test/assets/`）
 
@@ -413,79 +413,43 @@ AI 等级：
 - **ScreenRotater** — 屏幕旋转
 - **InputManager** — 多种输入源管理（触控 + 摇杆 + 键盘 + 网络）
 - **LAN 多人** — `sockets/` + `ctrls/` 局域网对战（TCP + UDP 混合，含锁帧同步）
-- **ANEFileReader** — 原生文件读取，支持 应用私有目录外部资源加载
-- **外部资源加载** — 启动时自动扫描 `app-storage://BVN/assets/fighter/` + `app-storage://BVN/assets/map/`，追加到内置资源后
+- **ANEFileReader（已禁用）** — 源文件保留，运行时开关 `ANE_ENABLED = false`，全部走 APK 内置资源
 
 ### 资源加载架构
 
-游戏资源分为三个层级：
+游戏资源分为两个层级（ANE 禁用后）：
 
 1. **嵌入资源**：`_assets/` 中的 PNG/MP3/JPG/BIN 通过 `[Embed]` 标签嵌入 SWF（`EmbeddedAssets.as` 统一管理）
-2. **APK 内置资源**：`tools/Test/assets/` 打包进 APK（sounds/font/config/swf/effect.swf/movelist.jpg）
-3. **应用私有目录外部资源**：`app-storage://BVN/assets/{fighter,map,face,bgm}/` 运行时加载（追加到内置资源后）
+2. **APK 内置资源**：`tools/Test/assets/` 打包进 APK（sounds/font/config/swf/effect.swf/movelist.jpg/fighter/map/face/bgm）
 
-#### 双路径加载（手机端）
-
-```
-加载资源 → 先查 应用私有目录: app-storage://BVN/assets/fighter/xxx.swf (ANEFileReader)
-         → 不存在: assets/fighter/xxx.swf (APK 内置)
-```
+> **外部资源加载已禁用**：原 `app-storage://BVN/assets/` 外部路径扫描逻辑保留但受 `ANEFileReader.ANE_ENABLED` 守卫，当前不执行。重新启用 ANE 后自动恢复。
 
 #### 启动流程
 
 ```
 GameData.loadConfig()
   → 加载 APK 内置 fighter.xml → FighterModel.initByXML()
-  → GameLoader.scanExternalAssets()
-  │   ├─ scanExternalFighters(): app-storage://BVN/assets/fighter/*.swf → 追加到 FighterModel
-  │   └─ scanExternalMaps(): app-storage://BVN/assets/map/*.swf → 追加到 MapModel
   → 加载 APK 内置 assist.xml / select.xml / map.xml / mission.xml
-  → GameLoader.loadExternalConfigs()
-      ├─ app-storage://BVN/assets/config/fighter.xml → FighterModel.mergeByXML()
-      ├─ app-storage://BVN/assets/config/assist.xml → AssisterModel.mergeByXML()
-      ├─ app-storage://BVN/assets/config/map.xml → MapModel.mergeByXML()
-      └─ app-storage://BVN/assets/config/mission.xml → MessionModel.mergeByXML()
+  → 完成（外部扫描受 ANE_ENABLED 守卫跳过）
 ```
 
-外部目录结构（应用私有存储）（与 APK 内 `assets/` 一致）：
-```
-app-storage://BVN/assets/
-├── fighter/    # 额外角色 SWF
-├── map/        # 额外地图 SWF
-├── face/       # 额外头像 PNG
-├── bgm/        # 额外 BGM MP3
-└── config/     # 额外配置 XML（追加合并，不替换内置配置）
-    ├── fighter.xml   # 额外角色定义
-    ├── assist.xml    # 额外辅助角色
-    ├── map.xml       # 额外地图
-    └── mission.xml   # 额外关卡
-```
-
-> **config 合并规则**：应用私有目录 XML 中的条目追加到 APK 内置条目之后，ID 冲突时内置优先（应用私有目录重复条目被跳过）。
-
-UI SWF 加载流程：
-```
-ResUtils.as → 从 assets/swf/ 加载 UI SWF（仅 APK 内置） → 创建 UI 实例
-GameLoader.as → 从 assets/fighter/ 或 应用私有目录加载角色 SWF → FighterMain 实例化
-```
-
-## ANE 原生扩展
+## ANE 原生扩展（当前已禁用）
 
 ### BVNFileReader（`extensions/BVNFileReader/`）
 
-突破 AIR 沙箱限制，访问 Android 外部存储。
+突破 AIR 沙箱限制，访问 Android 外部存储。**当前 `ANE_ENABLED = false`，源文件保留备用**。
 
-**ANE 启用三开关（缺一不可）**：
+**重新启用需同时打开三开关**：
 | 开关 | 文件 | 设置 |
 |------|------|------|
 | 1 | `application.xml` | `<extensionID>com.bvn.filereader</extensionID>` 取消注释 |
 | 2 | `ANEFileReader.as` | `ANE_ENABLED = true` |
-| 3 | `debug_mob.bat` | ADT 命令含 `-extdir "."` |
+| 3 | `debug_mob.bat` | ADT 命令恢复 `-extdir "."` |
 
 **ANE 构建（`build_ane.bat`）**：
 - Java：**必须 JDK 8**（class v52 兼容 build-tools d8）
 - 平台名：`Android-ARM64`（armv8 架构）
-- airglobal.swc：使用 AIR SDK 51 的版本
+- airglobal.swc：使用合并 SDK 的 `frameworks/libs/air/airglobal.swc`
 - 输出：`BVNFileReader.ane` → 复制到 `tools/Test/`
 
 **ANE 未安装时**自动降级为 AIR `flash.filesystem.File` API。
@@ -507,7 +471,7 @@ GameLoader.as → 从 assets/fighter/ 或 应用私有目录加载角色 SWF →
 | AI 无限气关闭时必杀 | 3 处修复 | 关闭时角色仍可无视条件释放必杀 |
 | trace() → Debugger.log() | 全局 | 全面替换，支持 logcat 实时输出 + 面板显示 |
 | Debugger 面板 | `Debugger.as` | 修复空白行 + 文本复制 + 折叠/展开 + 手机端自适应 |
-| 选人分页布局 | `SelectFighterStage.as` | 固定 rowsPerPage=3 + FLA 翻页联动 + _ui.bg |
+| 选人分页布局 | `SelectFighterStage.as` | 分页集成：键盘/滚轮/触控翻页 + 辅助界面归位 |
 | fighter.xml 语法错误 | `fighter.xml:1026` | XML 格式修复，解决手机端白屏 |
 | ScreenPadAsset.light | `ScreenPadAsset.as` | 使用真实 light.png 替代 skill_png |
 | build.bat SWF 输出 | `build.bat` + `debug.bat` | 直出 tools/Test/launch.swf |
@@ -515,6 +479,9 @@ GameLoader.as → 从 assets/fighter/ 或 应用私有目录加载角色 SWF →
 | .bat UTF-8 BOM | 所有 .bat | CRLF + BOM 编码修复解决双击闪退 |
 | SetBtn 重入 | `SetBtn.as` | 全局静态重入守卫 + deferred dispatchEvent |
 | debug_mob.bat | 多次迭代 | FLEX_HOME 自动检测 + PATH 方式 adb + 基于 BVN3.9 重写 |
+| ANE 禁用 | `ANEFileReader` + `GameData` + `application.xml` | 三开关全关，统一 APK 内部资源优先 |
+| SDK 路径统一 | `build.bat` + `debug*.bat` + `fdbg.bat` + `build_ane.bat` | 合并到 `AIRSDK/flex4.16.1-air51.0.1.1`，本地优先检测 |
+| 证书丢失 | `adt.bat` + `mycert.p12` | filter-branch 清除后重新生成签名证书 |
 
 ## 构建脚本故障排查
 
