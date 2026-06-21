@@ -960,7 +960,8 @@ import net.play5d.game.bvn.Debugger;
       }
 
       // ================================================================
-      // 分页控制（键盘 / 鼠标滚轮 / 触控 + 动画）
+      // 分页控制 — 复用 timeline 的 goNext/goPrev/Animate
+      // 只做三件事：① 修 speed=页高（一帧到位防震荡）② 加键盘/滚轮输入 ③ 辅助界面归位
       // ================================================================
 
       private function initPagination() : void
@@ -968,102 +969,34 @@ import net.play5d.game.bvn.Debugger;
          if (_pagInitialized) return;
          _pagInitialized = true;
          var isMobile:Boolean = Capabilities.version.indexOf("AND") != -1;
-         Debugger.log("[SelectFighterStage] initPagination — isMobile:", isMobile, "TOUCH_MODE:", GameConfig.TOUCH_MODE);
+         Debugger.log("[SelectFighterStage] initPagination — isMobile:", isMobile);
 
-         // 禁用旧的 timeline 翻页脚本（防止双系统冲突 + 震荡 bug）
-         if (this._ui) {
-            // 阻止 timeline 的 ENTER_FRAME（Animate + clear）继续触发
-            this._ui.addEventListener(Event.ENTER_FRAME, function(e:Event):void {
-               e.stopImmediatePropagation();
-            }, false, 999);
+         // ① 复用 timeline 翻页，修 speed = 页高（520 → 一帧翻到位，避免震荡）
+         if (this._ui && this._ui.hasOwnProperty("speed")) {
+            this._ui["speed"] = PAGE_HEIGHT;
+            Debugger.log("[SelectFighterStage] timeline speed set to PAGE_HEIGHT:", PAGE_HEIGHT);
          }
 
-         // 键盘翻页（Q/E 或 +/-）
+         // ② 键盘翻页（Q/E 或 +/-）→ 调 timeline 的 goNext/goPrev
          MainGame.I.stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent):void {
             if (GameUI.showingDialog()) return;
             if (_selectState == 1) return;
-            if (e.keyCode == 69 || e.keyCode == 107) { pagGoNext(); }
-            if (e.keyCode == 81 || e.keyCode == 109) { pagGoPrev(); }
+            if (_ui && _ui.hasOwnProperty("goNext")) {
+               if (e.keyCode == 69 || e.keyCode == 107) { _ui.goNext(); }
+               if (e.keyCode == 81 || e.keyCode == 109) { _ui.goPrev(); }
+            }
          });
 
+         // PC：鼠标滚轮 → 调 timeline 的 goNext/goPrev
          if (!isMobile) {
-            // PC：鼠标滚轮
             MainGame.I.stage.addEventListener(MouseEvent.MOUSE_WHEEL, function(e:MouseEvent):void {
                if (GameUI.showingDialog()) return;
                if (_selectState == 1) return;
-               if (e.delta > 0) { pagGoPrev(); }
-               else if (e.delta < 0) { pagGoNext(); }
+               if (!_ui || !_ui.hasOwnProperty("goNext")) return;
+               if (e.delta > 0) { _ui.goPrev(); }
+               else if (e.delta < 0) { _ui.goNext(); }
             });
             Debugger.log("[SelectFighterStage] pagination: keyboard + mouse wheel enabled");
-         }
-
-         if (isMobile || GameConfig.TOUCH_MODE) {
-            // 触控：up/down 按钮 tap（覆盖旧 timeline handler，用 capture=true 抢占）
-            if (this._ui.up) {
-               this._ui.up.addEventListener("touchTap", function(e:*):void {
-                  e.stopImmediatePropagation();
-                  pagGoPrev();
-               }, false, 999);
-            }
-            if (this._ui.down) {
-               this._ui.down.addEventListener("touchTap", function(e:*):void {
-                  e.stopImmediatePropagation();
-                  pagGoNext();
-               }, false, 999);
-            }
-            Debugger.log("[SelectFighterStage] pagination: touch enabled (priority)");
-         }
-      }
-
-      private function pagGoNext() : void
-      {
-         if (!_pagEnabled || _pagArr.length <= 1 || !this._ui || !this._ui.bg) return;
-         var bgY:Number = Math.abs(this._ui.bg.y);
-         for (_pagSelect = 0; _pagSelect < _pagArr.length; _pagSelect++) {
-            if (int(bgY) + PAGE_HEIGHT == int(Math.abs(Number(_pagArr[_pagSelect])))) {
-               _pagEnabled = false;
-               Debugger.log("[SelectFighterStage] pagGoNext → page", _pagSelect, "target:", _pagArr[_pagSelect]);
-               this._ui.addEventListener(Event.ENTER_FRAME, pagAnimate, false, 0, true);
-               return;
-            }
-         }
-      }
-
-      private function pagGoPrev() : void
-      {
-         if (!_pagEnabled || _pagArr.length <= 1 || !this._ui || !this._ui.bg) return;
-         var bgY:Number = Math.abs(this._ui.bg.y);
-         for (_pagSelect = _pagArr.length - 1; _pagSelect >= 0; _pagSelect--) {
-            if (int(bgY) - PAGE_HEIGHT == int(Math.abs(Number(_pagArr[_pagSelect])))) {
-               _pagEnabled = false;
-               Debugger.log("[SelectFighterStage] pagGoPrev → page", _pagSelect, "target:", _pagArr[_pagSelect]);
-               this._ui.addEventListener(Event.ENTER_FRAME, pagAnimate, false, 0, true);
-               return;
-            }
-         }
-      }
-
-      private function pagAnimate(e:Event) : void
-      {
-         if (!this._ui || !this._ui.bg || _pagSelect >= _pagArr.length) {
-            this._ui && this._ui.removeEventListener(Event.ENTER_FRAME, pagAnimate);
-            _pagEnabled = true;
-            return;
-         }
-         var target:Number = Number(_pagArr[_pagSelect]);
-         if (this._ui.bg.y > target) {
-            this._ui.bg.y -= _pagSpeed;
-            // 防震荡：超过目标时钳位
-            if (this._ui.bg.y < target) this._ui.bg.y = target;
-         } else if (this._ui.bg.y < target) {
-            this._ui.bg.y += _pagSpeed;
-            if (this._ui.bg.y > target) this._ui.bg.y = target;
-         }
-         if (this._ui.bg.y == target) {
-            _pagEnabled = true;
-            CURRENT_PAGE = _pagSelect;
-            Debugger.log("[SelectFighterStage] pagAnimate done — page", _pagSelect, "bg.y:", this._ui.bg.y);
-            this._ui.removeEventListener(Event.ENTER_FRAME, pagAnimate);
          }
       }
 
