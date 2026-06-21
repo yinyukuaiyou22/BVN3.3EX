@@ -217,9 +217,8 @@ import net.play5d.game.bvn.Debugger;
          {
             _loc11_ = (this._config.height - this._config.unitSize.y - this._config.top - this._config.bottom) / (displayedVCount - 1);
          }
-         var pageHeight:Number = rowsPerPage * _loc11_;
-         PAGE_HEIGHT = pageHeight;
-         TOTAL_PAGES = Math.max(1, Math.ceil((maxY + 1) / rowsPerPage));
+         PAGE_HEIGHT = 500;  // 固定整数，整除 timeline speed=100（520=8×65 不整除100导致震荡）
+         TOTAL_PAGES = Math.max(1, Math.ceil((maxY * _loc11_) / PAGE_HEIGHT) + 1);
          CURRENT_PAGE = 0;
          Debugger.log("[SelectFighterStage] pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "rowsPerPage:", rowsPerPage);
 
