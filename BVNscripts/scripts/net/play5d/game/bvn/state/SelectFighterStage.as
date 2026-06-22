@@ -24,7 +24,7 @@ import net.play5d.game.bvn.Debugger;
       public static var AUTO_FINISH:Boolean = true;
 
       /** 当前每页高度（buildList 时动态计算） */
-      public static var PAGE_HEIGHT:Number = 600;
+      public static var PAGE_HEIGHT:Number = 500;
       /** 当前总页数 */
       public static var TOTAL_PAGES:int = 5;
       /** 当前页号（0-based，用于翻页动画） */
@@ -259,34 +259,9 @@ import net.play5d.game.bvn.Debugger;
             _pagArr.push(pi * -PAGE_HEIGHT);
          }
          CURRENT_PAGE = 0;
-         // 替换 timeline goNext/goPrev 为直接跳页（帧脚本 speed/arr 是局部变量不可外部改）
-         if (this._ui && _pagArr.length > 1) {
-            var self:SelectFighterStage = this;
-            var pagArr:Array = _pagArr.concat();
-            this._ui["goNext"] = function():void {
-               var best:int = 0;
-               var bestDist:Number = Number.MAX_VALUE;
-               for (var i:int = 0; i < pagArr.length; i++) {
-                  var d:Number = Math.abs(this.bg.y - Number(pagArr[i]));
-                  if (d < bestDist) { bestDist = d; best = i; }
-               }
-               if (best < pagArr.length - 1) {
-                  this.bg.y = Number(pagArr[best + 1]);
-               }
-            };
-            this._ui["goPrev"] = function():void {
-               var best:int = 0;
-               var bestDist:Number = Number.MAX_VALUE;
-               for (var i:int = 0; i < pagArr.length; i++) {
-                  var d:Number = Math.abs(this.bg.y - Number(pagArr[i]));
-                  if (d < bestDist) { bestDist = d; best = i; }
-               }
-               if (best > 0) {
-                  this.bg.y = Number(pagArr[best - 1]);
-               }
-            };
-            Debugger.log("[SelectFighterStage] goNext/goPrev overridden — direct jump");
-         }
+         // 不覆盖 goNext/goPrev（stg_select 类方法是 final 的不可运行时替换）
+         // 帧脚本用 SelectFighterStage.PAGE_HEIGHT（静态默认值500已对齐 buildList）
+         // speed=100, pageHeight=500 → 500÷100=5 帧正好到位，无震荡
          Debugger.log("[SelectFighterStage] pagination pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "positions:", _pagArr);
       }
 
@@ -987,27 +962,14 @@ import net.play5d.game.bvn.Debugger;
       }
 
       // ================================================================
-      // 分页 — buildList 中把 timeline goNext/goPrev 替换为直接跳页
-      // 帧脚本的 speed/arr/pageHeight 是局部变量无法外部修改，故用方法替换
+      // 分页 — 帧脚本读取 SelectFighterStage.PAGE_HEIGHT(默认500) 初始化 arr
+      // buildList 对齐 PAGE_HEIGHT=500，speed=100 → 500÷100=5帧 无震荡
+      // render() 处理辅助界面归位（隐藏按钮 + bg.y=0）
       // ================================================================
 
       private function initPagination() : void
       {
-         if (_pagInitialized) return;
          _pagInitialized = true;
-         Debugger.log("[SelectFighterStage] initPagination — goNext/goPrev will be overridden in buildList");
-      }
-
-      /** 从 bg.y 查找当前页码（供替换后的 goNext/goPrev 闭包使用） */
-      private function _findPageIndex(bgY:Number) : int
-      {
-         var best:int = 0;
-         var bestDist:Number = Number.MAX_VALUE;
-         for (var i:int = 0; i < _pagArr.length; i++) {
-            var d:Number = Math.abs(bgY - Number(_pagArr[i]));
-            if (d < bestDist) { bestDist = d; best = i; }
-         }
-         return best;
       }
 
       public function destory(param1:Function = null) : void
