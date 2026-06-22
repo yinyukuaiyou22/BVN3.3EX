@@ -280,14 +280,16 @@ import net.play5d.game.bvn.Debugger;
          GameLogic.initGameLogic(_loc4_,this.gameState.camera);
          this._mainLogicCtrl = new GameMainLogicCtrler();
          this._mainLogicCtrl.initlize(this.gameState,this._teamMap,_loc4_);
-         if(GameMode.currentMode != 40 || GameMode.currentMode == 40 && Boolean(TrainingCtrler.SAY_INTRO))
+         if(GameMode.currentMode == 40 && !TrainingCtrler.SAY_INTRO)
          {
+            // 训练模式跳过开场动画，直接开打
             this.actionEnable = true;
             GameUI.I.fadIn();
             SoundCtrl.I.playFightBGM("map");
          }
          else
          {
+            // 正常模式 / 训练中手动开启开场 → 播放开场动画
             this._startCtrl = new GameStartCtrl(this.gameState);
             this.actionEnable = false;
             this._startCtrl.start1v1(_loc2_,_loc3_);
@@ -360,6 +362,12 @@ import net.play5d.game.bvn.Debugger;
       
       private function doBuildNextRound(param1:Boolean) : void
       {
+         // 训练模式跳过所有跨轮开场
+         if(GameMode.currentMode == 40 && !TrainingCtrler.SAY_INTRO)
+         {
+            this.actionEnable = true;
+            return;
+         }
          var _loc2_:* = 0;
          this.gameState.resetFight(this.gameRunData.p1FighterGroup,this.gameRunData.p2FighterGroup);
          this._startCtrl = new GameStartCtrl(this.gameState);
