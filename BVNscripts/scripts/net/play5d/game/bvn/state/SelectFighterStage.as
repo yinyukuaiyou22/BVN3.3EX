@@ -231,7 +231,7 @@ import net.play5d.game.bvn.Debugger;
                _loc5_ = _loc8_ + _loc10_ * (_loc4_.selectData.x);
                var pageIdx:int = int(_loc4_.selectData.y / rowsPerPage);
                var yInPage:int = int(_loc4_.selectData.y % rowsPerPage);
-               _loc6_ = _loc9_ + _loc11_ * yInPage + pageIdx * pageHeight;
+               _loc6_ = _loc9_ + _loc11_ * yInPage + pageIdx * PAGE_HEIGHT;
                if(Boolean(_loc4_.selectData.offset))
                {
                   _loc5_ += _loc4_.selectData.offset.x;
@@ -259,10 +259,12 @@ import net.play5d.game.bvn.Debugger;
             _pagArr.push(pi * -PAGE_HEIGHT);
          }
          CURRENT_PAGE = 0;
-         // AS3 timeline var 即 MovieClip 属性，设 speed = PAGE_HEIGHT 实现一帧到位
-         if (this._ui && this._ui.hasOwnProperty("speed")) {
+         // 同步 timeline 变量：pageHeight/arr/speed（timeline 初始化时用旧默认值600）
+         if (this._ui) {
+            this._ui["pageHeight"] = int(PAGE_HEIGHT);
+            this._ui["arr"] = _pagArr.concat();
             this._ui["speed"] = int(PAGE_HEIGHT);
-            Debugger.log("[SelectFighterStage] timeline speed =", int(PAGE_HEIGHT));
+            Debugger.log("[SelectFighterStage] timeline synced: pageHeight=", int(PAGE_HEIGHT), "arr=", _pagArr);
          }
          Debugger.log("[SelectFighterStage] pagination pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "positions:", _pagArr);
       }
@@ -974,10 +976,25 @@ import net.play5d.game.bvn.Debugger;
          _pagInitialized = true;
          Debugger.log("[SelectFighterStage] initPagination");
 
-         // 保底：每帧解锁 enable（防止 Animate 因任何原因未完成导致永久BLOCKED）
+         // 被动稳定器：每帧 ① 解锁 enable ② 钳位 bg.y 到最近页（防震荡）
          this._ui.addEventListener(Event.ENTER_FRAME, function(e:Event):void {
-            if (_ui && _ui.hasOwnProperty("enable")) {
+            if (!_ui) return;
+            if (_ui.hasOwnProperty("enable")) {
                _ui["enable"] = true;
+            }
+            // 钳位：如果 bg.y 偏离所有页面位置，吸附到最近页
+            if (_ui.bg && _pagArr.length > 1) {
+               var curY:Number = _ui.bg.y;
+               var best:int = 0;
+               var bestDist:Number = Number.MAX_VALUE;
+               for (var i:int = 0; i < _pagArr.length; i++) {
+                  var d:Number = Math.abs(curY - Number(_pagArr[i]));
+                  if (d < bestDist) { bestDist = d; best = i; }
+               }
+               // 仅当偏离超过 speed 时才钳位（避免干扰正常动画）
+               if (bestDist > 0 && bestDist <= int(PAGE_HEIGHT)) {
+                  _ui.bg.y = Number(_pagArr[best]);
+               }
             }
          }, false, 0, false);
       }
