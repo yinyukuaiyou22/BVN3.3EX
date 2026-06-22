@@ -33,16 +33,36 @@ if %errorlevel% neq 0 (
     goto END
 )
 
-:: ---- Launch via ADL ----
-set SWF_FILE=%PROJ%\tools\Test\launch.swf
-set APP_XML=%PROJ%\tools\Test\application.xml
+:: ---- SWF 选择 ----
+set "DEFAULT_SWF=%PROJ%\tools\Test\launch.swf"
+set "APP_XML=%PROJ%\tools\Test\application.xml"
+echo.
+echo Default SWF: tools\Test\launch.swf
+set /p "SWF_INPUT=Enter SWF path (Enter = default): "
+if "!SWF_INPUT!"=="" (
+    set "SWF_FILE=!DEFAULT_SWF!"
+) else (
+    set "SWF_FILE=!SWF_INPUT!"
+    REM Resolve relative path
+    if not "!SWF_FILE:~1,1!"==":" set "SWF_FILE=%PROJ%\!SWF_FILE!"
+)
 
-if not exist "%SWF_FILE%" (
-    echo [ERROR] SWF not found: %SWF_FILE%
+if not exist "!SWF_FILE!" (
+    echo [ERROR] SWF not found: !SWF_FILE!
     pause
     goto END
 )
 
+:: 如果不是默认 SWF，复制到 tools\Test\launch.swf
+if not "!SWF_FILE!"=="!DEFAULT_SWF!" (
+    echo [COPY] !SWF_FILE! -^> !DEFAULT_SWF!
+    copy /y "!SWF_FILE!" "!DEFAULT_SWF!" >nul
+    set "SWF_FILE=!DEFAULT_SWF!"
+)
+
+echo [SWF] !SWF_FILE!
+
+:: ---- Launch via ADL ----
 set PATH=%FLEX_BIN%;%PATH%
 
 echo [RUN] adl "%APP_XML%"

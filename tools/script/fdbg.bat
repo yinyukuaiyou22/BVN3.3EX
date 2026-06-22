@@ -24,13 +24,22 @@ if not exist "%FLEX_BIN%\fdb.bat" (
 )
 
 :: ---- SWF argument ----
-if "%~1"=="" (
-    set SWF_FILE=%PROJ%\launch.swf
+if not "%~1"=="" (
+    set "SWF_FILE=%~1"
 ) else (
-    set SWF_FILE=%~1
+    set "DEFAULT_SWF=%PROJ%\tools\Test\launch.swf"
+    echo.
+    echo Default SWF: tools\Test\launch.swf
+    set /p "SWF_INPUT=Enter SWF path (Enter = default): "
+    if "!SWF_INPUT!"=="" (
+        set "SWF_FILE=!DEFAULT_SWF!"
+    ) else (
+        set "SWF_FILE=!SWF_INPUT!"
+        if not "!SWF_FILE:~1,1!"==":" set "SWF_FILE=%PROJ%\!SWF_FILE!"
+    )
 )
-if not exist "%SWF_FILE%" (
-    echo [ERROR] SWF not found: %SWF_FILE%
+if not exist "!SWF_FILE!" (
+    echo [ERROR] SWF not found: !SWF_FILE!
     echo Usage: %~nx0 [swf_file]
     pause
     goto END
