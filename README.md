@@ -300,6 +300,64 @@ public static function getSelectCount() : int {
 
 1v2 模式需要区分 P1/P2 的选人数：P1 选 1 人，P2 选 2 人。可通过在 `SelectVO` 或调用处传入 `playerType` 参数实现。
 
+### 现有代码已实现的基础设施（无需重新发明）
+
+以下机制**已在现有小队模式中完整实现**，2v2/1v2 直接复用：
+
+**① 全部 fighter 一次性加载**
+
+`LoadingState.gotoGame()` 在游戏开始前一次性加载选择的所有 fighter：
+```as
+// 现有代码（LoadingState.as L309-323）
+p1Group.fighter1 = getCacheFighter("p1", selectVO.fighter1);
+p1Group.fighter2 = getCacheFighter("p1", selectVO.fighter2);
+p1Group.fighter3 = getCacheFighter("p1", selectVO.fighter3);
+p1Group.currentFighter = p1Group.fighter1;  // 默认第一个上场
+// P2 同理
+```
+→ 2v2 时只需把多余的 slot 设为 null（如 `fighter3 = null`）。
+
+**② 第一个上场由玩家/CPU 控制，其余默认 CPU**
+
+`GameCtrl.addFighter()` 按 `playerId` 分配控制器：
+```as
+// 现有代码（GameCtrl.as L300-330）
+// playerId=1(P1) → FighterKeyCtrl（玩家键盘）
+// playerId=2(P2) → isVsCPU 时为 FighterAICtrl（AI），否则为 FighterKeyCtrl
+```
+→ 当前 fighter 用玩家/AI，换人时 `setFighterActionCtrl()` 给新上场 fighter 重新分配控制器。
+
+**③ 战败自动换人**
+
+`GameCtrl.startNextTeamFight()` → `nextFighter()` 调用 `GameRunFighterGroup.getNextFighter()`：
+```as
+// 现有代码（GameRunFighterGroup.as L33-44）
+switch(currentFighter) {
+    case fighter1: return fighter2;
+    case fighter2: return fighter3;
+    default: return null;  // 无下一人 → 队伍全灭
+}
+```
+→ 2v2 时需确保 fighter3 为 null 时正确返回 null。
+
+**④ 回合间 HP 恢复**
+
+`GameEndCtrl.renderEND()` 中 `isTeamMode()` 已覆盖新模式，赢家恢复 5%~20% HP。
+
+**⑤ 出场顺序选择**
+
+`SelectIndexUI.initSelect()` 的 `currentMode - 10` switch 中追加新模式 case，玩家可拖拽调整 fighter 出场顺序。
+
+---
+
+**总结**：实现 2v2/1v2 的核心改动仅 3 处：
+| 改动 | 文件 |
+|------|------|
+| 选人数参数化（3→2 或 1） | `GameMode.getSelectCount()` |
+| 多余 slot 置 null（2v2: fighter3=null） | `LoadingState.gotoGame()` |
+| getNextFighter 正确处理 null | `GameRunFighterGroup.getNextFighter()` |
+| **其余全部复用现有小队模式逻辑** | |
+
 ### 不需要修改的文件
 
 - `GameStartCtrl.as` — 开场动画逻辑不依赖模式
