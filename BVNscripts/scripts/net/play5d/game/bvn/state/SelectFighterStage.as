@@ -259,12 +259,33 @@ import net.play5d.game.bvn.Debugger;
             _pagArr.push(pi * -PAGE_HEIGHT);
          }
          CURRENT_PAGE = 0;
-         // 同步 timeline 变量：pageHeight/arr/speed（timeline 初始化时用旧默认值600）
-         if (this._ui) {
-            this._ui["pageHeight"] = int(PAGE_HEIGHT);
-            this._ui["arr"] = _pagArr.concat();
-            this._ui["speed"] = int(PAGE_HEIGHT);
-            Debugger.log("[SelectFighterStage] timeline synced: pageHeight=", int(PAGE_HEIGHT), "arr=", _pagArr);
+         // 替换 timeline goNext/goPrev 为直接跳页（帧脚本 speed/arr 是局部变量不可外部改）
+         if (this._ui && _pagArr.length > 1) {
+            var self:SelectFighterStage = this;
+            var pagArr:Array = _pagArr.concat();
+            this._ui["goNext"] = function():void {
+               var best:int = 0;
+               var bestDist:Number = Number.MAX_VALUE;
+               for (var i:int = 0; i < pagArr.length; i++) {
+                  var d:Number = Math.abs(this.bg.y - Number(pagArr[i]));
+                  if (d < bestDist) { bestDist = d; best = i; }
+               }
+               if (best < pagArr.length - 1) {
+                  this.bg.y = Number(pagArr[best + 1]);
+               }
+            };
+            this._ui["goPrev"] = function():void {
+               var best:int = 0;
+               var bestDist:Number = Number.MAX_VALUE;
+               for (var i:int = 0; i < pagArr.length; i++) {
+                  var d:Number = Math.abs(this.bg.y - Number(pagArr[i]));
+                  if (d < bestDist) { bestDist = d; best = i; }
+               }
+               if (best > 0) {
+                  this.bg.y = Number(pagArr[best - 1]);
+               }
+            };
+            Debugger.log("[SelectFighterStage] goNext/goPrev overridden — direct jump");
          }
          Debugger.log("[SelectFighterStage] pagination pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "positions:", _pagArr);
       }
@@ -966,37 +987,27 @@ import net.play5d.game.bvn.Debugger;
       }
 
       // ================================================================
-      // 分页 — 设 timeline speed=页高（AS3 timeline var 即 MC 属性，可改）
-      // speed=PAGE_HEIGHT → 一帧到位，无震荡。仅保留 enable 解锁保底。
+      // 分页 — buildList 中把 timeline goNext/goPrev 替换为直接跳页
+      // 帧脚本的 speed/arr/pageHeight 是局部变量无法外部修改，故用方法替换
       // ================================================================
 
       private function initPagination() : void
       {
          if (_pagInitialized) return;
          _pagInitialized = true;
-         Debugger.log("[SelectFighterStage] initPagination");
+         Debugger.log("[SelectFighterStage] initPagination — goNext/goPrev will be overridden in buildList");
+      }
 
-         // 被动稳定器：每帧 ① 解锁 enable ② 钳位 bg.y 到最近页（防震荡）
-         this._ui.addEventListener(Event.ENTER_FRAME, function(e:Event):void {
-            if (!_ui) return;
-            if (_ui.hasOwnProperty("enable")) {
-               _ui["enable"] = true;
-            }
-            // 钳位：如果 bg.y 偏离所有页面位置，吸附到最近页
-            if (_ui.bg && _pagArr.length > 1) {
-               var curY:Number = _ui.bg.y;
-               var best:int = 0;
-               var bestDist:Number = Number.MAX_VALUE;
-               for (var i:int = 0; i < _pagArr.length; i++) {
-                  var d:Number = Math.abs(curY - Number(_pagArr[i]));
-                  if (d < bestDist) { bestDist = d; best = i; }
-               }
-               // 仅当偏离超过 speed 时才钳位（避免干扰正常动画）
-               if (bestDist > 0 && bestDist <= int(PAGE_HEIGHT)) {
-                  _ui.bg.y = Number(_pagArr[best]);
-               }
-            }
-         }, false, 0, false);
+      /** 从 bg.y 查找当前页码（供替换后的 goNext/goPrev 闭包使用） */
+      private function _findPageIndex(bgY:Number) : int
+      {
+         var best:int = 0;
+         var bestDist:Number = Number.MAX_VALUE;
+         for (var i:int = 0; i < _pagArr.length; i++) {
+            var d:Number = Math.abs(bgY - Number(_pagArr[i]));
+            if (d < bestDist) { bestDist = d; best = i; }
+         }
+         return best;
       }
 
       public function destory(param1:Function = null) : void
