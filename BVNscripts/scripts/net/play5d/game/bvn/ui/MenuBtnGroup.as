@@ -332,6 +332,20 @@ package net.play5d.game.bvn.ui
                   MainGame.I.goSelect();
                };
                break;
+            case "TEAM DUO":
+               func = function():void
+               {
+                  GameMode.currentMode = 14;
+                  MainGame.I.goSelect();
+               };
+               break;
+            case "TEAM DUO WATCH":
+               func = function():void
+               {
+                  GameMode.currentMode = 15;
+                  MainGame.I.goSelect();
+               };
+               break;
             case "SINGLE ACRADE":
                func = function():void
                {
@@ -365,6 +379,20 @@ package net.play5d.game.bvn.ui
                func = function():void
                {
                   GameMode.currentMode = 23;
+                  MainGame.I.goSelect();
+               };
+               break;
+            case "SINGLE VS DUO":
+               func = function():void
+               {
+                  GameMode.currentMode = 24;
+                  MainGame.I.goSelect();
+               };
+               break;
+            case "SINGLE VS DUO WATCH":
+               func = function():void
+               {
+                  GameMode.currentMode = 25;
                   MainGame.I.goSelect();
                };
                break;

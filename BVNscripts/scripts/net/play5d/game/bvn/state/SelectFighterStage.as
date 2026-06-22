@@ -422,17 +422,17 @@ import net.play5d.game.bvn.Debugger;
       {
          this._p1Slt = SelectUIFactory.createSelecter(1);
          this._p1Slt.isSelectAssist = this._selectState == 1;
-         this._p1Slt.selectTimesCount = Boolean(GameMode.isTeamMode()) && !this._p1Slt.isSelectAssist ? 3 : 1;
+         this._p1Slt.selectTimesCount = this._p1Slt.isSelectAssist ? 1 : GameMode.getSelectCount(1);
          this._ui.addChild(this._p1Slt.ui);
          this._ui.addChild(this._p1Slt.group);
          this.moveSlt(this._p1Slt,0,0);
       }
-      
+
       private function initSelecterP2() : void
       {
          this._p2Slt = SelectUIFactory.createSelecter(2);
          this._p2Slt.isSelectAssist = this._selectState == 1;
-         this._p2Slt.selectTimesCount = Boolean(GameMode.isTeamMode()) && !this._p2Slt.isSelectAssist ? 3 : 1;
+         this._p2Slt.selectTimesCount = this._p2Slt.isSelectAssist ? 1 : GameMode.getSelectCount(2);
          this._ui.addChild(this._p2Slt.ui);
          this._ui.addChild(this._p2Slt.group);
          this.moveSlt(this._p2Slt,9,0);

@@ -24,6 +24,12 @@ package net.play5d.game.bvn.interfaces
             },{
                "txt":"TEAM VS CPU",
                "cn":"对战电脑"
+            },{
+               "txt":"TEAM DUO",
+               "cn":"2v2对战"
+            },{
+               "txt":"TEAM DUO WATCH",
+               "cn":"2v2观战"
             }]
          },{
             "txt":"SINGLE PLAY",
@@ -37,6 +43,12 @@ package net.play5d.game.bvn.interfaces
             },{
                "txt":"SINGLE VS CPU",
                "cn":"对战电脑"
+            },{
+               "txt":"SINGLE VS DUO",
+               "cn":"1v2对战"
+            },{
+               "txt":"SINGLE VS DUO WATCH",
+               "cn":"1v2观战"
             }]
          },{
             "txt":"OPTION",
