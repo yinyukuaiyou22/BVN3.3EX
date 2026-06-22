@@ -275,6 +275,16 @@ import net.play5d.game.bvn.Debugger;
          }
          this.addFighter(_loc2_,1);
          this.addFighter(_loc3_,2);
+         // 2v2/1v2：额外 fighter 同时上场（最小原型）
+         if (GameMode.isDuoMode()) {
+            var _p1f2:FighterMain = this.gameRunData.p1FighterGroup.fighter2;
+            var _p2f2:FighterMain = this.gameRunData.p2FighterGroup.fighter2;
+            if (_p1f2) { this.addFighter(_p1f2, 1); _p1f2.x += 60; }
+            if (_p2f2) { this.addFighter(_p2f2, 2); _p2f2.x -= 60; }
+         } else if (GameMode.is1v2Mode()) {
+            var _p2f2_1v2:FighterMain = this.gameRunData.p2FighterGroup.fighter2;
+            if (_p2f2_1v2) { this.addFighter(_p2f2_1v2, 2); _p2f2_1v2.x -= 60; }
+         }
          _loc4_.initlize();
          this.gameState.initFight(this.gameRunData.p1FighterGroup,this.gameRunData.p2FighterGroup,_loc4_);
          GameLogic.initGameLogic(_loc4_,this.gameState.camera);
