@@ -126,9 +126,9 @@ face/
 
 | 工具 | 用途 |
 |------|------|
-| Flex SDK 4.16.1 (AIR 51) | 编译 ActionScript → SWF |
-| AIR SDK 51.3.2 | 打包 APK / 调试 |
-| JDK 8 | ANE Java 编译 |
+| Flex+AIR 合并 SDK | `AIRSDK/flex4.16.1-air51.0.1.1/`（编译 + 打包 + 调试） |
+| JDK 17 | mxmlc 编译器运行时 |
+| JDK 8 | ANE Java 编译（可选，ANE 当前已禁用） |
 | Android SDK (platform-33) | ADT platform SDK |
 
 ### 构建命令
@@ -137,11 +137,18 @@ face/
 # 编译 SWF
 .\build.bat
 
+# PC 调试（启动时询问 SWF 路径，回车使用默认）
+.\tools\script\debug.bat
+
 # 编译 + 打包 APK + 安装 + logcat
 .\tools\script\debug_mob.bat
 
-# 重建 ANE 扩展
-.\extensions\BVNFileReader\build_ane.bat
+# 断点调试 SWF（支持命令行参数指定 SWF）
+.\tools\script\fdbg.bat [swf_file]
+
+# 自动添加角色/辅助/地图工具
+python tools\script\add_asset.py --mode wizard
+python tools\script\add_asset.py --swf path\to\char.swf --name "角色名" --comic-type 0
 ```
 
 > 完整开发文档见 [CLAUDE.md](CLAUDE.md) 和 [AGENTS.md](AGENTS.md)。
@@ -162,7 +169,8 @@ BVNY/
 ├── doc/                         ← 架构与规划文档
 ├── build.bat                    ← 编译入口
 ├── CLAUDE.md                    ← 开发者完整手册
-└── AGENTS.md                    ← AI 助手工作流规则
+├── AGENTS.md                    ← AI 助手工作流规则
+└── README.md                    ← 用户文档（本文件）
 ```
 
 ---
@@ -374,7 +382,7 @@ switch(currentFighter) {
 |------|------|
 | 游戏版本 | V3.3（2019.3.32） |
 | 原作 | 5dplay |
-| 修改 | 银鱼改 |
-| 引擎 | Adobe AIR 51.3.2 |
-| 目标 | Android ARM64 (64位) |
+| 修改 | 银鱼改（2v2/1v2 模式 + 翻页优化 + 训练无开场） |
+| SDK | Flex 4.16.1 + AIR 51.0.1.1（合并包） |
+| 目标 | PC (adl) + Android ARM64 |
 | 许可 | GPL-3.0 |
