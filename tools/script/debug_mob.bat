@@ -83,7 +83,7 @@ call :ECHO_LANG :PACKAGE_MSG ""
 call :EXIST "%ADT%"
 cd /d "%TEST_DIR%"
 
-		:: ---- Whitelist: only pack effect.swf + movelist.jpg + swf/ + sounds/ + font/ ----
+		:: ---- Whitelist: effect.swf + movelist.jpg + swf/ + sounds/ + font/ + config/ ----
 		:: ---- Strip .fla source files from swf/ (only .swf needed at runtime) ----
 		if exist "assets\swf\*.fla" (
 		    mkdir "_bakslim_fla" 2>nul
@@ -91,7 +91,7 @@ cd /d "%TEST_DIR%"
 		    echo [FLA] Stripped .fla files from APK
 		)
 
-		call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "D:/Android/SDK" "launch.swf" -C . assets\effect.swf -C . assets\movelist.jpg -C . assets\swf -C . assets\sounds -C . assets\font
+		call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "D:/Android/SDK" "launch.swf" -C . assets\effect.swf -C . assets\movelist.jpg -C . assets\swf -C . assets\sounds -C . assets\font -C . assets\config
 		set ADT_RESULT=%errorlevel%
 
 		:: ---- Restore .fla files ----
