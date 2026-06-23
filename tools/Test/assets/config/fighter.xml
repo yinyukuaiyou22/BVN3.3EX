@@ -762,22 +762,7 @@
 		<bgm url="assets/bgm/ichigo.mp3" rate="100" />
 	</fighter>
 
-	<fighter id="一护 修行" name="一护 修行" comic_type="0">
-		<file url="assets/fighter/修行一护.swf" startFrame="1" />
-		<face url="assets/face/ichigo.png" big_url="assets/face/ichigo_xy_b.png" bar_url="assets/face/ichigo_xy_m.png" win_url="assets/face/ichigo_xy_w.png" />
-		<contact>
-			<friend></friend>
-			<enemy></enemy>
-		</contact>
-		<says>
-			<say_item>光是战斗根本没有意思 只是活下去也没有意义。</say_item>
-			<say_item>我也不知道为什么，总之很爽就是了！</say_item>
-			<say_item>正因为我们看不见，那才可怕。</say_item>
-		</says>
-		<bgm url="assets/bgm/ichigo.mp3" rate="100" />
-	</fighter>
-
-	<fighter id="一护 无月" name="一护 无月（墨尘）" comic_type="0">
+		<fighter id="一护 无月" name="一护 无月（墨尘）" comic_type="0">
 		<file url="assets/fighter/ichigo_wy.swf" startFrame="1"/>
 		<face url="assets/face/ichigo_wy.png" big_url="assets/face/ichigo_wy_b.png" bar_url="assets/face/ichigo_wy_m.png" win_url="assets/face/ichigo_wy_w.png"/>
 		<contact>
