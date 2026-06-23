@@ -1,4 +1,4 @@
-# BVN（死神vs火影）— AS3 格斗游戏
+﻿# BVN（死神vs火影）— AS3 格斗游戏
 
 > **AI 开发助手**：请同时阅读 [AGENTS.md](AGENTS.md) 获取本项目专属的开发行为准则和工具配置。简单工作优先交给 `deepseek-v4-flash` 执行。
 
@@ -49,9 +49,11 @@
 | 工具 | 位置 | 用途 |
 |------|------|------|
 | `build.bat` | 项目根 | 编译 tools/Test/launch.swf |
-| `debug.bat` | `tools/script/` | 编译 + adl 启动（自动复制 SWF + 使用 application.xml） |
+| `debug.bat` | `tools/script/` | 编译 + adl 启动（启动时询问 SWF 路径，回车使用默认） |
 | `debug_mob.bat` | `tools/script/` | 编译 → ADT 打包 → ADB 安装 → adb logcat 实时日志 |
-| `fdbg.bat` | `tools/script/` | 通用 fdb 连接 SWF 进行断点调试 |
+| `fdbg.bat` | `tools/script/` | 通用 fdb 连接 SWF 断点调试（支持命令行参数指定 SWF 路径） |
+
+| `add_asset.py` | `tools/script/` | 自动添加角色/辅助/地图到游戏（向导/快速/批量模式） |
 
 `tools/script/lang/` 目录包含多代码页包装脚本（437/932/936/949），解决系统编码兼容。
 
@@ -70,7 +72,7 @@ tools/script/debug_mob.bat
 
 # 手动打包（Captive Runtime, armv8, 从 tools/Test 目录执行）
 cd tools/Test
-adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%FLEX_HOME%\bin\mycert.p12" -storepass yinyu7798 bvn.apk application.xml -platformsdk "D:/Android/SDK" launch.swf -C assets .
+adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%FLEX_HOME%\bin\mycert.p12" -storepass yinyu7798 bvn.apk application.xml -platformsdk "D:/Android/SDK" launch.swf -C . assets\effect.swf -C . assets\movelist.jpg -C . assets\swf -C . assets\sounds -C . assets\font -C . assets\config
 ```
 
 > **APK 瘦身已禁用**：ANE 关闭后 fighter/map/face/bgm/config 全部打包进 APK。历史瘦身逻辑（`debug_mob.bat` 中 `for %%D ...` 循环）已注释保留。
@@ -405,6 +407,28 @@ AI 等级：
 - 类型：水平（移速 8）/ 跳跃（移速 -12）/ 下落（移速 15）
 - 过程无敌 + 可穿越对手
 
+
+### 游戏模式
+
+| 模式 | 常量 | 值 | 菜单 | 选人数 |
+|------|------|----|------|--------|
+| 小队闯关 | `TEAM_ACRADE` | 10 | 小队模式 | 3v3 |
+| 小队对战 | `TEAM_VS_PEOPLE` | 11 | 小队模式 | 3v3 |
+| 小队vsCPU | `TEAM_VS_CPU` | 12 | 小队模式 | 3v3 |
+| 小队观战 | `TEAM_WATCH` | 13 | 小队模式 | 3v3 |
+| 小队2v2 | `TEAM_DUO` | 14 | 小队模式 | 2v2 |
+| 小队2v2观战 | `TEAM_DUO_WATCH` | 15 | 小队模式 | 2v2 |
+| 单人闯关 | `SINGLE_ACRADE` | 20 | 单人模式 | 1v1 |
+| 单人2P | `SINGLE_VS_PEOPLE` | 21 | 单人模式 | 1v1 |
+| 单人vsCPU | `SINGLE_VS_CPU` | 22 | 单人模式 | 1v1 |
+| 单人观战 | `SINGLE_WATCH` | 23 | 单人模式 | 1v1 |
+| 单人1v2 | `SINGLE_VS_DUO` | 24 | 单人模式 | 1v2 |
+| 单人1v2观战 | `SINGLE_VS_DUO_WATCH` | 25 | 单人模式 | 1v2 |
+| 生存模式 | `SURVIVOR` | 30 | 其他 | 1v1 |
+| 练习模式 | `TRAINING` | 40 | 主菜单 | 1v1 |
+
+> 2v2/1v2 模式复用原版预留的 Debugger._getModeName 槽位。`GameMode.getSelectCount(playerId)` 参数化选人数。
+> 2v2 多人同屏：`buildGame()` 额外 `addFighter(fighter2)`，同队偏移 ±60px。
 ### 移动端特性
 
 - **TOUCH_MODE** — 默认 `true`
@@ -482,6 +506,15 @@ GameData.loadConfig()
 | ANE 禁用 | `ANEFileReader` + `GameData` + `application.xml` | 三开关全关，统一 APK 内部资源优先 |
 | SDK 路径统一 | `build.bat` + `debug*.bat` + `fdbg.bat` + `build_ane.bat` | 合并到 `AIRSDK/flex4.16.1-air51.0.1.1`，本地优先检测 |
 | 证书丢失 | `adt.bat` + `mycert.p12` | filter-branch 清除后重新生成签名证书 |
+| FighterModel 过滤器 | `FighterModel.as` | `\|\|` → `&&`（与 BVN3.9 对比修复逻辑错误） |
+| 闯关 null 崩溃 | `MessionModel.as` | initMession() 加 fighter/mission null 守卫 |
+| AssetManager NPE | `AssetManager.as` | getFighterFaceWin 加 param1 null 检查 |
+| FighterAttacker NPE | `FighterAttackerCtrler.as` | owner_fighter_ctrler getter 加 null 保护 |
+| 1v2/2v2 模式 | `GameMode` + `MenuBtnGroup` 等 4 文件 | 启用原版预留 TEAM_DUO(14/15) + SINGLE_VS_DUO(24/25) |
+| 翻页抽搐 | `SelectFighterStage.as` | PAGE_HEIGHT=500 对齐，timeline speed 同步 |
+| 训练模式开场 | `GameCtrl.as` | buildGame + doBuildNextRound 跳过 GameStartCtrl |
+| APK config 缺失 | `debug_mob.bat` | 白名单补上 assets\config 防 URLLoader 挂起 |
+| add_asset 工具 | `tools/script/add_asset.py` | 自动添加角色/辅助/地图到游戏 |
 
 ## 构建脚本故障排查
 
