@@ -664,12 +664,13 @@ import net.play5d.game.bvn.Debugger;
       
       private function render() : void
       {
-         // 分页：辅助界面时隐藏按钮并归位
+         // 分页：辅助界面时隐藏按钮并归位 + 强制解锁（防止 render 重置 bg.y 与 timeline Animate 拉扯导致死锁）
          if (_pagInitialized && this._ui) {
             if (this._selectState == 1) {
                if (this._ui.bg) this._ui.bg.y = 0;
                if (this._ui.up) this._ui.up.visible = false;
                if (this._ui.down) this._ui.down.visible = false;
+               if (this._ui.hasOwnProperty("enable")) this._ui["enable"] = true;
             } else {
                if (this._ui.up) this._ui.up.visible = true;
                if (this._ui.down) this._ui.down.visible = true;
