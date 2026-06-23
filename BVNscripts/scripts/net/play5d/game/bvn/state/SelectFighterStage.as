@@ -194,7 +194,7 @@ import net.play5d.game.bvn.Debugger;
          var _loc7_:Number = NaN;
          var _loc8_:Number = this._config.x + this._config.left;
          var _loc9_:Number = this._config.y + this._config.top;
-         var _loc10_:Number = param1.HCount > 1 ? 1.35 * (this._config.width - this._config.unitSize.x - this._config.left - this._config.right) / (param1.HCount - 1) : 0;
+         var _loc10_:Number = param1.HCount > 1 ? (this._config.width - this._config.unitSize.x - this._config.left - this._config.right) / (param1.HCount - 1) : 0;
          var _loc11_:Number = param1.VCount > 1 ? (this._config.height - this._config.unitSize.y - this._config.top - this._config.bottom) / (param1.VCount - 1) : 0;
          var _loc12_:Array = param1.list;
          this._curListConfig = param1;
