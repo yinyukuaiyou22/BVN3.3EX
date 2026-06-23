@@ -102,11 +102,27 @@ package net.play5d.game.bvn.mob
                   MainGame.I.goSelect();
                }
             },{
+               "txt":"SINGLE VS DUO",
+               "cn":"1v2",
+               "func":function():void
+               {
+                  GameMode.currentMode = 24;
+                  MainGame.I.goSelect();
+               }
+            },{
                "txt":"SINGLE WATCH",
-               "cn":"观战",
+               "cn":"观战(1v1)",
                "func":function():void
                {
                   GameMode.currentMode = 23;
+                  MainGame.I.goSelect();
+               }
+            },{
+               "txt":"SINGLE VS DUO WATCH",
+               "cn":"观战(1v2)",
+               "func":function():void
+               {
+                  GameMode.currentMode = 25;
                   MainGame.I.goSelect();
                }
             }]
@@ -131,11 +147,27 @@ package net.play5d.game.bvn.mob
                   MainGame.I.goSelect();
                }
             },{
+               "txt":"TEAM DUO",
+               "cn":"2v2",
+               "func":function():void
+               {
+                  GameMode.currentMode = 14;
+                  MainGame.I.goSelect();
+               }
+            },{
                "txt":"TEAM WATCH",
-               "cn":"观战",
+               "cn":"观战(3v3)",
                "func":function():void
                {
                   GameMode.currentMode = 13;
+                  MainGame.I.goSelect();
+               }
+            },{
+               "txt":"TEAM DUO WATCH",
+               "cn":"观战(2v2)",
+               "func":function():void
+               {
+                  GameMode.currentMode = 15;
                   MainGame.I.goSelect();
                }
             }]
