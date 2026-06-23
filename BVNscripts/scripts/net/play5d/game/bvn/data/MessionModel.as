@@ -102,8 +102,10 @@ import net.play5d.game.bvn.Debugger;
       {
          var _loc1_:int = 0;
          var _loc2_:FighterVO = FighterModel.I.getFighter(GameData.I.p1Select.fighter1);
+         if(!_loc2_) { Debugger.log("[MessionModel] initMession FAILED: fighter not found"); return; }
          var _loc3_:int = GameMode.isTeamMode() ? 0 : 1;
          var _loc4_:MessionVO = this.getMession(_loc2_.comicType,_loc3_);
+         if(!_loc4_) { Debugger.log("[MessionModel] initMession FAILED: no mission for comicType=" + _loc2_.comicType); return; }
          this._curMession = _loc4_;
          this._curStage = _loc4_.stageList[this._curStageId];
          GameData.I.p2Select = GameData.I.p2Select || new SelectVO();

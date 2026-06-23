@@ -266,6 +266,7 @@ package net.play5d.game.bvn.ctrl
       
       public function getFighterFaceWin(param1:FighterVO, param2:Point = null) : DisplayObject
       {
+         if(!param1) { return null; }
          if(!param1.faceWinUrl)
          {
             return null;

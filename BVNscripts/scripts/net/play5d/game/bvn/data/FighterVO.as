@@ -1,4 +1,4 @@
-锘縫ackage net.play5d.game.bvn.data
+package net.play5d.game.bvn.data
 {
    import net.play5d.kyo.utils.*;
 import net.play5d.game.bvn.Debugger;
@@ -34,7 +34,7 @@ import net.play5d.game.bvn.Debugger;
       
       public var bgmRate:Number = 1;
       
-      private var _cloneKey:Array = ["id","name","comicType","fileUrl","AIUrl","startFrame","faceUrl","contactFriends","contactEnemys","says","faceBigUrl","faceBarUrl","bgm","bgmRate"];
+      private var _cloneKey:Array = ["id","name","comicType","fileUrl","startFrame","faceUrl","contactFriends","contactEnemys","says","faceBigUrl","faceBarUrl","bgm","bgmRate"];
       
       public function FighterVO()
       {
@@ -64,7 +64,7 @@ import net.play5d.game.bvn.Debugger;
          }
          if(this.startFrame != 0 && !this.bgm)
          {
-            Debugger.log(this.id + "娌℃湁瀹氫箟bgm!");
+            Debugger.log(this.id + "没有定义bgm!");
          }
       }
       

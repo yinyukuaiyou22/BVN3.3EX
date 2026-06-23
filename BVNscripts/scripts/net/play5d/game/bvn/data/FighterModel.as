@@ -32,7 +32,7 @@ package net.play5d.game.bvn.data
          var _loc3_:Vector.<FighterVO> = new Vector.<FighterVO>();
          for each(_loc4_ in this._fighterObj)
          {
-            if(param2 != null || Boolean(param2(_loc4_)))
+            if(param2 == null || Boolean(param2(_loc4_)))
             {
                if(param1 == -1 || _loc4_.comicType == param1)
                {
