@@ -6,32 +6,32 @@
 
 本项目是 **5dplay 出品的"死神vs火影" V3.3** — 基于 ActionScript 3 开发的 2D Flash 格斗游戏。源码从 SWF 反编译后经手动修复，现基于可编译基线持续开发。
 
-| 目录 | 说明 |
-|------|------|
-| `BVNscripts/scripts/` | 可编译源码（含 `_assets/` 嵌入资源、`mx/` Flex 框架桩） |
-| `Outscripts/` | 修改后脚本导出目录（git 忽略，`sync.py` 同步回 BVNscripts） |
-| `tools/Test/` | 编译产物与运行时资源 |
-| `tools/Test/assets/` | 运行时加载资源：角色 SWF / 地图 / BGM / 头像 / 配置文件 |
-| `tools/script/` | 调试/打包/同步脚本 |
-| `extensions/BVNFileReader/` | ANE 原生扩展（Java + AS3） |
-| `reference/BVN3.9/` | BVN 3.9 参考源码（只读，多模块 CORE/LIB/SHELL 结构） |
-| `build.bat` | 一键编译脚本（`Ctrl+Shift+B` 或直接运行） |
-| `asconfig.json` / `.vscode/` | VSCode 构建配置 |
+| 目录                         | 说明                                                        |
+| ---------------------------- | ----------------------------------------------------------- |
+| `BVNscripts/scripts/`        | 可编译源码（含 `_assets/` 嵌入资源、`mx/` Flex 框架桩）     |
+| `Outscripts/`                | 修改后脚本导出目录（git 忽略，`sync.py` 同步回 BVNscripts） |
+| `tools/Test/`                | 编译产物与运行时资源                                        |
+| `tools/Test/assets/`         | 运行时加载资源：角色 SWF / 地图 / BGM / 头像 / 配置文件     |
+| `tools/script/`              | 调试/打包/同步脚本                                          |
+| `extensions/BVNFileReader/`  | ANE 原生扩展（Java + AS3）                                  |
+| `reference/BVN3.9/`          | BVN 3.9 参考源码（只读，多模块 CORE/LIB/SHELL 结构）        |
+| `build.bat`                  | 一键编译脚本（`Ctrl+Shift+B` 或直接运行）                   |
+| `asconfig.json` / `.vscode/` | VSCode 构建配置                                             |
 
 ## 构建与调试
 
 ### 环境配置
 
-| 变量 | 位置 | 用途 |
-|------|------|------|
-| Flex + AIR SDK | `AIRSDK\flex4.16.1-air51.0.1.1\` | mxmlc 编译 + ADT 打包 + fdb 调试（合并包） |
-| JDK 8 | `D:\JDK8\` | ANE Java 编译（必须 JDK 8 兼容 build-tools d8） |
-| Android SDK | `D:\Android\SDK\` | ADT `-platformsdk`（platform-33 + build-tools 33.0.2） |
-| `FLEX_HOME` | 自动检测 → 合并 SDK | 调试脚本定位 `bin\fdb.bat`、`bin\adt.bat` |
-| `JAVA_HOME` | JDK 17 | mxmlc 运行时 |
-| ADB | `tools\platform-tools\adb.exe` | 手机真机调试 |
-| 证书 | `AIRSDK\flex4.16.1-air51.0.1.1\bin\mycert.p12` | APK 签名（密码 yinyu7798） |
-| App 描述 | `tools\Test\application.xml` | AIR 应用配置（`com.bvn.yinyu`） |
+| 变量           | 位置                                           | 用途                                                   |
+| -------------- | ---------------------------------------------- | ------------------------------------------------------ |
+| Flex + AIR SDK | `AIRSDK\flex4.16.1-air51.0.1.1\`               | mxmlc 编译 + ADT 打包 + fdb 调试（合并包）             |
+| JDK 8          | `D:\JDK8\`                                     | ANE Java 编译（必须 JDK 8 兼容 build-tools d8）        |
+| Android SDK    | `D:\Android\SDK\`                              | ADT `-platformsdk`（platform-33 + build-tools 33.0.2） |
+| `FLEX_HOME`    | 自动检测 → 合并 SDK                            | 调试脚本定位 `bin\fdb.bat`、`bin\adt.bat`              |
+| `JAVA_HOME`    | JDK 17                                         | mxmlc 运行时                                           |
+| ADB            | `tools\platform-tools\adb.exe`                 | 手机真机调试                                           |
+| 证书           | `AIRSDK\flex4.16.1-air51.0.1.1\bin\mycert.p12` | APK 签名（密码 yinyu7798）                             |
+| App 描述       | `tools\Test\application.xml`                   | AIR 应用配置（`com.bvn.yinyu`）                        |
 
 ### PC 端开发
 
@@ -46,12 +46,12 @@
 
 #### 调试工具
 
-| 工具 | 位置 | 用途 |
-|------|------|------|
-| `build.bat` | 项目根 | 编译 tools/Test/launch.swf |
-| `debug.bat` | `tools/script/` | 编译 + adl 启动（启动时询问 SWF 路径，回车使用默认） |
-| `debug_mob.bat` | `tools/script/` | 编译 → ADT 打包 → ADB 安装 → adb logcat 实时日志 |
-| `fdbg.bat` | `tools/script/` | 通用 fdb 连接 SWF 断点调试（支持命令行参数指定 SWF 路径） |
+| 工具            | 位置            | 用途                                                      |
+| --------------- | --------------- | --------------------------------------------------------- |
+| `build.bat`     | 项目根          | 编译 tools/Test/launch.swf                                |
+| `debug.bat`     | `tools/script/` | 编译 + adl 启动（启动时询问 SWF 路径，回车使用默认）      |
+| `debug_mob.bat` | `tools/script/` | 编译 → ADT 打包 → ADB 安装 → adb logcat 实时日志          |
+| `fdbg.bat`      | `tools/script/` | 通用 fdb 连接 SWF 断点调试（支持命令行参数指定 SWF 路径） |
 
 | `add_asset.py` | `tools/script/` | 自动添加角色/辅助/地图到游戏（向导/快速/批量模式） |
 
@@ -60,6 +60,7 @@
 ### 移动端开发（Android）
 
 #### 前置条件
+
 - `FLEX_HOME` 指向合并 SDK 根目录（`AIRSDK\flex4.16.1-air51.0.1.1\`）
 - `adb` 在 PATH 中（或使用 `tools/platform-tools/adb.exe`）
 - 手机启用「USB 调试」并连接电脑
@@ -75,7 +76,7 @@ cd tools/Test
 adt -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%FLEX_HOME%\bin\mycert.p12" -storepass yinyu7798 bvn.apk application.xml -platformsdk "D:/Android/SDK" launch.swf -C . assets\effect.swf -C . assets\movelist.jpg -C . assets\swf -C . assets\sounds -C . assets\font -C . assets\config
 ```
 
-> **APK 瘦身已禁用**：ANE 关闭后 fighter/map/face/bgm/config 全部打包进 APK。历史瘦身逻辑（`debug_mob.bat` 中 `for %%D ...` 循环）已注释保留。
+> **APK 白名单打包**：仅 `effect.swf` + `movelist.jpg` + `swf/` + `sounds/` + `font/` + `config/` 进 APK。fighter/map/face/bgm 从外部存储加载。BGM 瘦身逻辑已注释保留。
 
 ### 运行时资源结构（`tools/Test/assets/`）
 
@@ -305,17 +306,17 @@ BVNscripts/scripts/
 
 ### 其他重要目录
 
-| 目录 | 说明 |
-|------|------|
-| `extensions/BVNFileReader/` | ANE 原生扩展完整实现（Android Java + AS3 库 + 构建脚本） |
-| `extensions/BVNFileReader/Android/src/com/bvn/filereader/` | Java 源码：Extension / ExtensionContext / ReadBytesFunction / ListDirFunction / ExistsFunction |
-| `extensions/BVNFileReader/as3/com/bvn/filereader/` | AS3 库：BVNFileReaderLib.as |
-| `tools/ane/` | 旧版 ANE 实现（功能已由 extensions/BVNFileReader 取代） |
-| `tools/platform-tools/` | Android SDK 工具（adb/fastboot/sqlite3） |
-| `tools/script/lang/` | 多代码页 bat 包装（437/932/936/949 编码适配） |
-| `reference/BVN3.9/` | BVN 3.9 参考源码（CORE_Components/CORE_KernelLogic/CORE_Shared/CORE_Utils/LIB_KyoLib/LIB_Other/SHELL_Dev/SHELL_Mob/SHELL_Pc） |
-| `.codegraph/` | Codegraph 知识图谱索引 |
-| `.claude/` | Claude Code 会话数据 |
+| 目录                                                       | 说明                                                                                                                          |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `extensions/BVNFileReader/`                                | ANE 原生扩展完整实现（Android Java + AS3 库 + 构建脚本）                                                                      |
+| `extensions/BVNFileReader/Android/src/com/bvn/filereader/` | Java 源码：Extension / ExtensionContext / ReadBytesFunction / ListDirFunction / ExistsFunction                                |
+| `extensions/BVNFileReader/as3/com/bvn/filereader/`         | AS3 库：BVNFileReaderLib.as                                                                                                   |
+| `tools/ane/`                                               | 旧版 ANE 实现（功能已由 extensions/BVNFileReader 取代）                                                                       |
+| `tools/platform-tools/`                                    | Android SDK 工具（adb/fastboot/sqlite3）                                                                                      |
+| `tools/script/lang/`                                       | 多代码页 bat 包装（437/932/936/949 编码适配）                                                                                 |
+| `reference/BVN3.9/`                                        | BVN 3.9 参考源码（CORE_Components/CORE_KernelLogic/CORE_Shared/CORE_Utils/LIB_KyoLib/LIB_Other/SHELL_Dev/SHELL_Mob/SHELL_Pc） |
+| `.codegraph/`                                              | Codegraph 知识图谱索引                                                                                                        |
+| `.claude/`                                                 | Claude Code 会话数据                                                                                                          |
 
 ## 核心系统
 
@@ -323,32 +324,33 @@ BVNscripts/scripts/
 
 #### 动作状态常量（FighterActionState）
 
-| 常量 | 值 | 含义 |
-|------|----|------|
-| `NORNAL` | 0 | 站立 |
-| `ATTACK_ING` | 10 | 攻击中 |
-| `SKILL_ING` | 11 | 技能中 |
-| `BISHA_ING` | 12 | 必杀中 |
-| `BISHA_SUPER_ING` | 13 | 超必杀中 |
-| `JUMP_ING` | 14 | 跳跃中 |
-| `DASH_ING` | 15 | 冲刺/瞬步中 |
-| `JUSHOU_ING` | 16 | 受身中 |
-| `DEFENCE_ING` | 20 | 防御中 |
-| `HURT_ING` | 21 | 受伤中 |
-| `HURT_FLYING` | 22 | 击飞中 |
-| `HURT_DOWN` | 23 | 倒地中 |
-| `DEAD` | 30 | 死亡 |
-| `ATTACK_AIR` | 40 | 空中攻击 |
-| `WAN_KAI_ING` | 50 | 卍解中 |
-| `KAI_CHANG` | 60 | 开场 |
-| `WIN` | 61 | 胜利 |
-| `LOSE` | 62 | 失败 |
+| 常量              | 值  | 含义        |
+| ----------------- | --- | ----------- |
+| `NORNAL`          | 0   | 站立        |
+| `ATTACK_ING`      | 10  | 攻击中      |
+| `SKILL_ING`       | 11  | 技能中      |
+| `BISHA_ING`       | 12  | 必杀中      |
+| `BISHA_SUPER_ING` | 13  | 超必杀中    |
+| `JUMP_ING`        | 14  | 跳跃中      |
+| `DASH_ING`        | 15  | 冲刺/瞬步中 |
+| `JUSHOU_ING`      | 16  | 受身中      |
+| `DEFENCE_ING`     | 20  | 防御中      |
+| `HURT_ING`        | 21  | 受伤中      |
+| `HURT_FLYING`     | 22  | 击飞中      |
+| `HURT_DOWN`       | 23  | 倒地中      |
+| `DEAD`            | 30  | 死亡        |
+| `ATTACK_AIR`      | 40  | 空中攻击    |
+| `WAN_KAI_ING`     | 50  | 卍解中      |
+| `KAI_CHANG`       | 60  | 开场        |
+| `WIN`             | 61  | 胜利        |
+| `LOSE`            | 62  | 失败        |
 
 静态工具方法：`isAttacking(state)`, `isHurt(state)`, `isNormal(state)` 等。
 
 #### IFighterActionCtrl 接口（31 方法）
 
 PC 版在原始 26 方法基础上扩展了 5 个：
+
 - **方向移动**: `moveLEFT()` / `moveRIGHT()` / `moveUP()` / `moveDOWN()`
 - **跳跃**: `jump()` / `jumpQuick()` / `jumpDown()`
 - **瞬步**: `dash()` / `dashJump()`
@@ -374,6 +376,7 @@ IFighterActionCtrl (接口)
 ```
 
 **核心机制**:
+
 - **6 元概率数组** `[p0,p1,p2,p3,p4,p5]` 对应 AI 等级 1,2,3,4,5,6+
 - **对手状态感知**: `getAIByFighterState()` 根据对手 actionState 动态选择概率数组
 - **连招连续性**: `_isConting` 状态 + `ContOrder` 优先级队列（降序 + 随机微调）
@@ -407,28 +410,28 @@ AI 等级：
 - 类型：水平（移速 8）/ 跳跃（移速 -12）/ 下落（移速 15）
 - 过程无敌 + 可穿越对手
 
-
 ### 游戏模式
 
-| 模式 | 常量 | 值 | 菜单 | 选人数 |
-|------|------|----|------|--------|
-| 小队闯关 | `TEAM_ACRADE` | 10 | 小队模式 | 3v3 |
-| 小队对战 | `TEAM_VS_PEOPLE` | 11 | 小队模式 | 3v3 |
-| 小队vsCPU | `TEAM_VS_CPU` | 12 | 小队模式 | 3v3 |
-| 小队观战 | `TEAM_WATCH` | 13 | 小队模式 | 3v3 |
-| 小队2v2 | `TEAM_DUO` | 14 | 小队模式 | 2v2 |
-| 小队2v2观战 | `TEAM_DUO_WATCH` | 15 | 小队模式 | 2v2 |
-| 单人闯关 | `SINGLE_ACRADE` | 20 | 单人模式 | 1v1 |
-| 单人2P | `SINGLE_VS_PEOPLE` | 21 | 单人模式 | 1v1 |
-| 单人vsCPU | `SINGLE_VS_CPU` | 22 | 单人模式 | 1v1 |
-| 单人观战 | `SINGLE_WATCH` | 23 | 单人模式 | 1v1 |
-| 单人1v2 | `SINGLE_VS_DUO` | 24 | 单人模式 | 1v2 |
-| 单人1v2观战 | `SINGLE_VS_DUO_WATCH` | 25 | 单人模式 | 1v2 |
-| 生存模式 | `SURVIVOR` | 30 | 其他 | 1v1 |
-| 练习模式 | `TRAINING` | 40 | 主菜单 | 1v1 |
+| 模式        | 常量                  | 值  | 菜单     | 选人数 |
+| ----------- | --------------------- | --- | -------- | ------ |
+| 小队闯关    | `TEAM_ACRADE`         | 10  | 小队模式 | 3v3    |
+| 小队对战    | `TEAM_VS_PEOPLE`      | 11  | 小队模式 | 3v3    |
+| 小队vsCPU   | `TEAM_VS_CPU`         | 12  | 小队模式 | 3v3    |
+| 小队观战    | `TEAM_WATCH`          | 13  | 小队模式 | 3v3    |
+| 小队2v2     | `TEAM_DUO`            | 14  | 小队模式 | 2v2    |
+| 小队2v2观战 | `TEAM_DUO_WATCH`      | 15  | 小队模式 | 2v2    |
+| 单人闯关    | `SINGLE_ACRADE`       | 20  | 单人模式 | 1v1    |
+| 单人2P      | `SINGLE_VS_PEOPLE`    | 21  | 单人模式 | 1v1    |
+| 单人vsCPU   | `SINGLE_VS_CPU`       | 22  | 单人模式 | 1v1    |
+| 单人观战    | `SINGLE_WATCH`        | 23  | 单人模式 | 1v1    |
+| 单人1v2     | `SINGLE_VS_DUO`       | 24  | 单人模式 | 1v2    |
+| 单人1v2观战 | `SINGLE_VS_DUO_WATCH` | 25  | 单人模式 | 1v2    |
+| 生存模式    | `SURVIVOR`            | 30  | 其他     | 1v1    |
+| 练习模式    | `TRAINING`            | 40  | 主菜单   | 1v1    |
 
-> 2v2/1v2 模式复用原版预留的 Debugger._getModeName 槽位。`GameMode.getSelectCount(playerId)` 参数化选人数。
+> 2v2/1v2 模式复用原版预留的 Debugger.\_getModeName 槽位。`GameMode.getSelectCount(playerId)` 参数化选人数。
 > 2v2 多人同屏：`buildGame()` 额外 `addFighter(fighter2)`，同队偏移 ±60px。
+
 ### 移动端特性
 
 - **TOUCH_MODE** — 默认 `true`
@@ -471,6 +474,7 @@ GameData.loadConfig()
 | 3 | `debug_mob.bat` | ADT 命令恢复 `-extdir "."` |
 
 **ANE 构建（`build_ane.bat`）**：
+
 - Java：**必须 JDK 8**（class v52 兼容 build-tools d8）
 - 平台名：`Android-ARM64`（armv8 架构）
 - airglobal.swc：使用合并 SDK 的 `frameworks/libs/air/airglobal.swc`
@@ -479,6 +483,7 @@ GameData.loadConfig()
 **ANE 未安装时**自动降级为 AIR `flash.filesystem.File` API。
 
 #### 文件位置
+
 - `mob/utils/ANEFileReader.as` — AS3 封装层（`ANE_ENABLED` 开关 + `EXTERNAL_BASE` 路径）
 - `extensions/BVNFileReader/as3/com/bvn/filereader/BVNFileReaderLib.as` — ANE 库接口
 - `extensions/BVNFileReader/Android/src/com/bvn/filereader/` — Java 原生实现（JDK 8 编译）
@@ -486,35 +491,35 @@ GameData.loadConfig()
 
 ## 关键 Bug 修复记录
 
-| 修复 | 涉及文件 | 说明 |
-|------|----------|------|
-| PauseDialog visible | `PauseDialog.as` | showMoveList 隐藏按钮组，hideMoveList 恢复 |
-| 训练模式 AI 开关 | `GameCtrl.as` + `PauseDialog.as` | `toggleFighterAI()` 绕过模式强制 AI |
-| 开场帧检查 | `FighterMcCtrler.as` | sayIntro/doWin/doLose 先 checkFrame |
-| INFINITE_ENERGY | `FighterMcCtrler` + `FighterAction` | setBisha/doBisha/doWaiKai/render 全部检查 |
-| AI 无限气关闭时必杀 | 3 处修复 | 关闭时角色仍可无视条件释放必杀 |
-| trace() → Debugger.log() | 全局 | 全面替换，支持 logcat 实时输出 + 面板显示 |
-| Debugger 面板 | `Debugger.as` | 修复空白行 + 文本复制 + 折叠/展开 + 手机端自适应 |
-| 选人分页布局 | `SelectFighterStage.as` | 分页集成：键盘/滚轮/触控翻页 + 辅助界面归位 |
-| fighter.xml 语法错误 | `fighter.xml:1026` | XML 格式修复，解决手机端白屏 |
-| ScreenPadAsset.light | `ScreenPadAsset.as` | 使用真实 light.png 替代 skill_png |
-| build.bat SWF 输出 | `build.bat` + `debug.bat` | 直出 tools/Test/launch.swf |
-| ADT 打包 assets | `debug_mob.bat` | slim APK： fighter/map/face/bgm 空目录 + 打包后恢复 |
-| .bat UTF-8 BOM | 所有 .bat | CRLF + BOM 编码修复解决双击闪退 |
-| SetBtn 重入 | `SetBtn.as` | 全局静态重入守卫 + deferred dispatchEvent |
-| debug_mob.bat | 多次迭代 | FLEX_HOME 自动检测 + PATH 方式 adb + 基于 BVN3.9 重写 |
-| ANE 禁用 | `ANEFileReader` + `GameData` + `application.xml` | 三开关全关，统一 APK 内部资源优先 |
-| SDK 路径统一 | `build.bat` + `debug*.bat` + `fdbg.bat` + `build_ane.bat` | 合并到 `AIRSDK/flex4.16.1-air51.0.1.1`，本地优先检测 |
-| 证书丢失 | `adt.bat` + `mycert.p12` | filter-branch 清除后重新生成签名证书 |
-| FighterModel 过滤器 | `FighterModel.as` | `\|\|` → `&&`（与 BVN3.9 对比修复逻辑错误） |
-| 闯关 null 崩溃 | `MessionModel.as` | initMession() 加 fighter/mission null 守卫 |
-| AssetManager NPE | `AssetManager.as` | getFighterFaceWin 加 param1 null 检查 |
-| FighterAttacker NPE | `FighterAttackerCtrler.as` | owner_fighter_ctrler getter 加 null 保护 |
-| 1v2/2v2 模式 | `GameMode` + `MenuBtnGroup` 等 4 文件 | 启用原版预留 TEAM_DUO(14/15) + SINGLE_VS_DUO(24/25) |
-| 翻页抽搐 | `SelectFighterStage.as` | PAGE_HEIGHT=500 对齐，timeline speed 同步 |
-| 训练模式开场 | `GameCtrl.as` | buildGame + doBuildNextRound 跳过 GameStartCtrl |
-| APK config 缺失 | `debug_mob.bat` | 白名单补上 assets\config 防 URLLoader 挂起 |
-| add_asset 工具 | `tools/script/add_asset.py` | 自动添加角色/辅助/地图到游戏 |
+| 修复                     | 涉及文件                                                  | 说明                                                  |
+| ------------------------ | --------------------------------------------------------- | ----------------------------------------------------- |
+| PauseDialog visible      | `PauseDialog.as`                                          | showMoveList 隐藏按钮组，hideMoveList 恢复            |
+| 训练模式 AI 开关         | `GameCtrl.as` + `PauseDialog.as`                          | `toggleFighterAI()` 绕过模式强制 AI                   |
+| 开场帧检查               | `FighterMcCtrler.as`                                      | sayIntro/doWin/doLose 先 checkFrame                   |
+| INFINITE_ENERGY          | `FighterMcCtrler` + `FighterAction`                       | setBisha/doBisha/doWaiKai/render 全部检查             |
+| AI 无限气关闭时必杀      | 3 处修复                                                  | 关闭时角色仍可无视条件释放必杀                        |
+| trace() → Debugger.log() | 全局                                                      | 全面替换，支持 logcat 实时输出 + 面板显示             |
+| Debugger 面板            | `Debugger.as`                                             | 修复空白行 + 文本复制 + 折叠/展开 + 手机端自适应      |
+| 选人分页布局             | `SelectFighterStage.as`                                   | 分页集成：键盘/滚轮/触控翻页 + 辅助界面归位           |
+| fighter.xml 语法错误     | `fighter.xml:1026`                                        | XML 格式修复，解决手机端白屏                          |
+| ScreenPadAsset.light     | `ScreenPadAsset.as`                                       | 使用真实 light.png 替代 skill_png                     |
+| build.bat SWF 输出       | `build.bat` + `debug.bat`                                 | 直出 tools/Test/launch.swf                            |
+| ADT 打包 assets          | `debug_mob.bat`                                           | slim APK： fighter/map/face/bgm 空目录 + 打包后恢复   |
+| .bat UTF-8 BOM           | 所有 .bat                                                 | CRLF + BOM 编码修复解决双击闪退                       |
+| SetBtn 重入              | `SetBtn.as`                                               | 全局静态重入守卫 + deferred dispatchEvent             |
+| debug_mob.bat            | 多次迭代                                                  | FLEX_HOME 自动检测 + PATH 方式 adb + 基于 BVN3.9 重写 |
+| ANE 禁用                 | `ANEFileReader` + `GameData` + `application.xml`          | 三开关全关，统一 APK 内部资源优先                     |
+| SDK 路径统一             | `build.bat` + `debug*.bat` + `fdbg.bat` + `build_ane.bat` | 合并到 `AIRSDK/flex4.16.1-air51.0.1.1`，本地优先检测  |
+| 证书丢失                 | `adt.bat` + `mycert.p12`                                  | filter-branch 清除后重新生成签名证书                  |
+| FighterModel 过滤器      | `FighterModel.as`                                         | `\|\|` → `&&`（与 BVN3.9 对比修复逻辑错误）           |
+| 闯关 null 崩溃           | `MessionModel.as`                                         | initMession() 加 fighter/mission null 守卫            |
+| AssetManager NPE         | `AssetManager.as`                                         | getFighterFaceWin 加 param1 null 检查                 |
+| FighterAttacker NPE      | `FighterAttackerCtrler.as`                                | owner_fighter_ctrler getter 加 null 保护              |
+| 1v2/2v2 模式             | `GameMode` + `MenuBtnGroup` 等 4 文件                     | 启用原版预留 TEAM_DUO(14/15) + SINGLE_VS_DUO(24/25)   |
+| 翻页抽搐                 | `SelectFighterStage.as`                                   | PAGE_HEIGHT=500 对齐，timeline speed 同步             |
+| 训练模式开场             | `GameCtrl.as`                                             | buildGame + doBuildNextRound 跳过 GameStartCtrl       |
+| APK config 缺失          | `debug_mob.bat`                                           | 白名单补上 assets\config 防 URLLoader 挂起            |
+| add_asset 工具           | `tools/script/add_asset.py`                               | 自动添加角色/辅助/地图到游戏                          |
 
 ## 构建脚本故障排查
 
@@ -524,20 +529,20 @@ GameData.loadConfig()
 
 出现 `双击闪退` 或 `报错后立即关闭` 时，按以下顺序排查：
 
-| 优先级 | 排查项 | 症状 | 修复法 |
-|:---:|--------|------|--------|
-| **1** | `exit /b` | cmd 窗口一闪而过 | 全部改为 `goto :EOF`，末尾加 `pause` |
-| **2** | 调用其他 `.bat` 缺 `call` | 子 bat 退出时连带终止主脚本 | `call "%ADT%"` 而非 `"%ADT%"` |
-| **3** | `()` 块内 `)` 未转义 | `-- was unexpected at this time.` | 批处理 `()` 内的文字 `)` 须用 `^)` 转义；或避免在 `if ()` 块中嵌入含 `)` 的多行命令 |
-| **4** | `-C "path\"` 末尾反斜杠 | `No such directory: ..." .` | Windows 命令行 `\"` 会被解析为转义引号 → 去掉末尾 `\` |
-| **5** | `::` 注释含特殊字符 | `'xxx' 不是内部或外部命令` | 中文/Unicode 字符多时改用 `REM` |
-| **6** | javac 不认 `*.java` 通配符 | `无效文件名: ...\*.java` | 显式列出 `.java` 源文件 |
-| **7** | powershell 内联 `^` 续行 | `-- was unexpected` | 内联 PowerShell 的在 `if ()` 块中极易破坏括号匹配 → 改用独立 `.ps1` 文件或简化逻辑 |
-| **8** | `pause >nul` | 看不到 "按任意键继续" | 去掉 `>nul` |
-| **9** | ANE 文件缺失 | 运行时 `implementation not found` | 先运行 `build_ane.bat` 生成 ANE |
-| **10** | 上次中断遗留 `_bakslim_*` | `already exists` | 打包前先检查并恢复遗留备份目录 |
-| **11** | APK 文件名含中文 | `no such file ...死神vs火影.apk` | ADT 不认中文输出路径 → 改用纯英文名如 `bvn.apk` |
-| **12** | `enabledelayedexpansion` + `%VAR%` | `implementation not found`（ANE 未被传入） | `setlocal enabledelayedexpansion` 下运行时设的变量须用 `!VAR!` |
+| 优先级 | 排查项                             | 症状                                       | 修复法                                                                              |
+| :----: | ---------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------- |
+| **1**  | `exit /b`                          | cmd 窗口一闪而过                           | 全部改为 `goto :EOF`，末尾加 `pause`                                                |
+| **2**  | 调用其他 `.bat` 缺 `call`          | 子 bat 退出时连带终止主脚本                | `call "%ADT%"` 而非 `"%ADT%"`                                                       |
+| **3**  | `()` 块内 `)` 未转义               | `-- was unexpected at this time.`          | 批处理 `()` 内的文字 `)` 须用 `^)` 转义；或避免在 `if ()` 块中嵌入含 `)` 的多行命令 |
+| **4**  | `-C "path\"` 末尾反斜杠            | `No such directory: ..." .`                | Windows 命令行 `\"` 会被解析为转义引号 → 去掉末尾 `\`                               |
+| **5**  | `::` 注释含特殊字符                | `'xxx' 不是内部或外部命令`                 | 中文/Unicode 字符多时改用 `REM`                                                     |
+| **6**  | javac 不认 `*.java` 通配符         | `无效文件名: ...\*.java`                   | 显式列出 `.java` 源文件                                                             |
+| **7**  | powershell 内联 `^` 续行           | `-- was unexpected`                        | 内联 PowerShell 的在 `if ()` 块中极易破坏括号匹配 → 改用独立 `.ps1` 文件或简化逻辑  |
+| **8**  | `pause >nul`                       | 看不到 "按任意键继续"                      | 去掉 `>nul`                                                                         |
+| **9**  | ANE 文件缺失                       | 运行时 `implementation not found`          | 先运行 `build_ane.bat` 生成 ANE                                                     |
+| **10** | 上次中断遗留 `_bakslim_*`          | `already exists`                           | 打包前先检查并恢复遗留备份目录                                                      |
+| **11** | APK 文件名含中文                   | `no such file ...死神vs火影.apk`           | ADT 不认中文输出路径 → 改用纯英文名如 `bvn.apk`                                     |
+| **12** | `enabledelayedexpansion` + `%VAR%` | `implementation not found`（ANE 未被传入） | `setlocal enabledelayedexpansion` 下运行时设的变量须用 `!VAR!`                      |
 
 ### bat 脚本强制规范
 
@@ -575,6 +580,7 @@ goto :EOF
 ### 安全修改模式
 
 修改 `.bat` 文件时必须遵守：
+
 1. **先备份后可回滚**：用 `git checkout -- <file>` 恢复
 2. **每次只改一个点**：改完双击测试，确认无误再改下一个
 3. **用 `goto END` 而非 `exit /b`**：统一汇聚到 `:END` 标签执行 `pause`
@@ -597,20 +603,25 @@ git checkout HEAD -- tools/script/debug_mob.bat
 ## 开发规范
 
 ### 交流语言
+
 **所有对话使用中文**，技术术语、代码标识符、文件路径可保留英文。
 
 ### Git 提交
+
 - 仅当用户明确要求时执行
 - commit message 末尾加：`Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`
 - 不提交 `*.swf`、`*.apk`、SDK、参考/蓝图目录
 
 ### .gitignore / .claudeignore
+
 排除：`*.swf` / `*.swc` / `*.apk` / `*.png` / `*.jpg` / `*.mp3` / `*.bin` / `_assets/` / `assets/swf/` / `AIRSDK/` / `flex4.16.1-air51.0.1.1/` / `tools/Test/` / `last/` / `OLD/` / `reference/BVN3.9/` / `Outscripts/` / `node_modules/` / `dist/`
 
 **例外**：`tools/Test/assets/config/` 被 git 追踪（XML 配置文件需版本控制）。
 
 ### 文件变更表格式
+
 每次代码修改后输出：
+
 ```
 | # | 文件 | BVNscripts | Outscripts |
 |---|------|:---:|:---:|
@@ -627,47 +638,47 @@ git checkout HEAD -- tools/script/debug_mob.bat
 
 ### 关键文件速查
 
-| 需求 | 优先查看 |
-|------|---------|
-| 编译 | `build.bat`、`asconfig.json` |
-| 调试 | `tools/script/debug.bat`、`tools/script/debug_mob.bat` |
-| 入口/初始化 | `launch.as`、`MainGame.as` |
-| 物理参数 | `GameConfig.as` |
-| 角色动作状态机 | `FighterMcCtrler.as` |
-| 角色动作定义 | `FighterAction.as`、`FighterActionState.as` |
-| AI 系统 | `fighter/ctrler/ai/FighterAILogic.as`、`fighter/ctrler/ai/FighterAILogicBase.as` |
-| AI 控制适配器 | `fighter/ctrler/FighterAICtrl.as` |
-| AI 系统完整文档 | `AI-SYSTEM-DOC.md` |
-| 碰撞检测 | `GameMainLogicCtrler.as` |
-| 角色实体 | `fighter/FighterMain.as` |
-| 菜单/按钮 | `MenuBtnGroup.as`、`MenuBtn.as` |
-| 暂停菜单 | `PauseDialog.as` |
-| 设置 | `SetBtnGroup.as`、`SettingState.as` |
-| 输入 | `GameInputer.as`、`FighterKeyCtrl.as` |
-| 配置/存档 | `GameData.as`、`ConfigVO.as` |
-| 嵌入式资源 | `EmbeddedAssets.as`、`mx/core/` |
-| UI SWF 加载 | `ResUtils.as` |
-| 角色加载 | `ctrl/GameLoader.as`、`ctrl/AssetManager.as` |
-| 移动端 | `mob/GameInterfaceManager.as`、`mob/ScreenRotater.as` |
-| 触控 | `mob/screenpad/ScreenPadManager.as` |
-| 网络 | `mob/sockets/`、`mob/ctrls/LAN*.as` |
-| 外部角色 | `mob/utils/ANEFileReader.as`、`ctrl/GameLoader.as::scanExternalAssets()` |
-| 调试面板 | `Debugger.as`（`DEBUG_PANEL_ENABLED` 开关） |
-| 运行时配置 | `tools/Test/assets/config/fighter.xml`、`select.xml` |
-| ANE 扩展 | `extensions/BVNFileReader/` |
-| 代码同步 | `sync.py` |
-| 模型路由 | `tools/route_model.py`、`.claude/skills/route-model.md` |
+| 需求            | 优先查看                                                                         |
+| --------------- | -------------------------------------------------------------------------------- |
+| 编译            | `build.bat`、`asconfig.json`                                                     |
+| 调试            | `tools/script/debug.bat`、`tools/script/debug_mob.bat`                           |
+| 入口/初始化     | `launch.as`、`MainGame.as`                                                       |
+| 物理参数        | `GameConfig.as`                                                                  |
+| 角色动作状态机  | `FighterMcCtrler.as`                                                             |
+| 角色动作定义    | `FighterAction.as`、`FighterActionState.as`                                      |
+| AI 系统         | `fighter/ctrler/ai/FighterAILogic.as`、`fighter/ctrler/ai/FighterAILogicBase.as` |
+| AI 控制适配器   | `fighter/ctrler/FighterAICtrl.as`                                                |
+| AI 系统完整文档 | `AI-SYSTEM-DOC.md`                                                               |
+| 碰撞检测        | `GameMainLogicCtrler.as`                                                         |
+| 角色实体        | `fighter/FighterMain.as`                                                         |
+| 菜单/按钮       | `MenuBtnGroup.as`、`MenuBtn.as`                                                  |
+| 暂停菜单        | `PauseDialog.as`                                                                 |
+| 设置            | `SetBtnGroup.as`、`SettingState.as`                                              |
+| 输入            | `GameInputer.as`、`FighterKeyCtrl.as`                                            |
+| 配置/存档       | `GameData.as`、`ConfigVO.as`                                                     |
+| 嵌入式资源      | `EmbeddedAssets.as`、`mx/core/`                                                  |
+| UI SWF 加载     | `ResUtils.as`                                                                    |
+| 角色加载        | `ctrl/GameLoader.as`、`ctrl/AssetManager.as`                                     |
+| 移动端          | `mob/GameInterfaceManager.as`、`mob/ScreenRotater.as`                            |
+| 触控            | `mob/screenpad/ScreenPadManager.as`                                              |
+| 网络            | `mob/sockets/`、`mob/ctrls/LAN*.as`                                              |
+| 外部角色        | `mob/utils/ANEFileReader.as`、`ctrl/GameLoader.as::scanExternalAssets()`         |
+| 调试面板        | `Debugger.as`（`DEBUG_PANEL_ENABLED` 开关）                                      |
+| 运行时配置      | `tools/Test/assets/config/fighter.xml`、`select.xml`                             |
+| ANE 扩展        | `extensions/BVNFileReader/`                                                      |
+| 代码同步        | `sync.py`                                                                        |
+| 模型路由        | `tools/route_model.py`、`.claude/skills/route-model.md`                          |
 
 ## 版本信息
 
-| 项目 | 内容 |
-|------|------|
-| 游戏版本 | V3.3（2019.3.32） |
-| 开发商 | 5dplay（net.play5d） |
-| 平台 | Flash Web + Android/iOS + LAN 局域网对战 |
-| SDK | Apache Flex 4.16.1 + AIR 51.0 |
-| 编译器 | mxmlc.jar（Java 17） |
-| 编辑器 | VSCode + ActionScript & MXML 插件 |
+| 项目     | 内容                                                      |
+| -------- | --------------------------------------------------------- |
+| 游戏版本 | V3.3（2019.3.32）                                         |
+| 开发商   | 5dplay（net.play5d）                                      |
+| 平台     | Flash Web + Android/iOS + LAN 局域网对战                  |
+| SDK      | Apache Flex 4.16.1 + AIR 51.0                             |
+| 编译器   | mxmlc.jar（Java 17）                                      |
+| 编辑器   | VSCode + ActionScript & MXML 插件                         |
 | ANE 扩展 | BVNFileReader（com.bvn.filereader）— Android 外部存储读取 |
-| 调试 | fdb 断点调试 + adb logcat 实时日志 |
-| 许可 | GPL-3.0 |
+| 调试     | fdb 断点调试 + adb logcat 实时日志                        |
+| 许可     | GPL-3.0                                                   |
