@@ -43,6 +43,7 @@ import net.play5d.game.bvn.Debugger;
       
       public function get owner_fighter_ctrler() : FighterCtrler
       {
+         if(!this._attacker) { return null; }
          var _loc1_:FighterMain = this._attacker.getOwner() as FighterMain;
          if(Boolean(_loc1_))
          {
