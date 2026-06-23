@@ -279,11 +279,11 @@ import net.play5d.game.bvn.Debugger;
          if (GameMode.isDuoMode()) {
             var _p1f2:FighterMain = this.gameRunData.p1FighterGroup.fighter2;
             var _p2f2:FighterMain = this.gameRunData.p2FighterGroup.fighter2;
-            if (_p1f2) { this.addFighter(_p1f2, 1); _p1f2.x += 60; }
-            if (_p2f2) { this.addFighter(_p2f2, 2); _p2f2.x -= 60; }
+            if (_p1f2) { this.addFighter(_p1f2, 1); _p1f2.x += 30; }
+            if (_p2f2) { this.addFighter(_p2f2, 2); _p2f2.x -= 30; }
          } else if (GameMode.is1v2Mode()) {
             var _p2f2_1v2:FighterMain = this.gameRunData.p2FighterGroup.fighter2;
-            if (_p2f2_1v2) { this.addFighter(_p2f2_1v2, 2); _p2f2_1v2.x -= 60; }
+            if (_p2f2_1v2) { this.addFighter(_p2f2_1v2, 2); _p2f2_1v2.x -= 30; }
          }
          _loc4_.initlize();
          this.gameState.initFight(this.gameRunData.p1FighterGroup,this.gameRunData.p2FighterGroup,_loc4_);
