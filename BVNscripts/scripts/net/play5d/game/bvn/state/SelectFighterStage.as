@@ -24,7 +24,7 @@ import net.play5d.game.bvn.Debugger;
       public static var AUTO_FINISH:Boolean = true;
 
       /** 当前每页高度（buildList 时动态计算） */
-      public static var PAGE_HEIGHT:Number = 500;
+      public static var PAGE_HEIGHT:Number = 600;
       /** 当前总页数 */
       public static var TOTAL_PAGES:int = 5;
       /** 当前页号（0-based，用于翻页动画） */
@@ -217,7 +217,7 @@ import net.play5d.game.bvn.Debugger;
          {
             _loc11_ = (this._config.height - this._config.unitSize.y - this._config.top - this._config.bottom) / (displayedVCount - 1);
          }
-         PAGE_HEIGHT = 500;  // 固定整数，整除 timeline speed=100（520=8×65 不整除100导致震荡）
+         PAGE_HEIGHT = 600;  // 与 select.xml layout height 一致，整除 timeline speed=100（6帧到位）
          TOTAL_PAGES = Math.max(1, Math.ceil((maxY * _loc11_) / PAGE_HEIGHT) + 1);
          CURRENT_PAGE = 0;
          Debugger.log("[SelectFighterStage] pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "rowsPerPage:", rowsPerPage);
