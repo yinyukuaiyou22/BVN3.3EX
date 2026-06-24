@@ -24,6 +24,8 @@ package net.play5d.game.bvn.mob.screenpad
       private static var _stage:Stage;
       
       private static var _curMode:int = -1;
+
+      private static var _firstGameEntry:Boolean = true;
       
       private static var _listened:Dictionary = new Dictionary();
       
@@ -119,6 +121,7 @@ package net.play5d.game.bvn.mob.screenpad
          {
             return;
          }
+         _firstGameEntry = true;
          _curMode = 1;
          if(Boolean(_stage))
          {
@@ -140,7 +143,10 @@ package net.play5d.game.bvn.mob.screenpad
          }
          _curMode = 2;
          _selectFighter.hide();
-         _game.resetControlPlayer();
+         if (_firstGameEntry) {
+            _game.resetControlPlayer();
+            _firstGameEntry = false;
+         }
          _game.show();
       }
       
