@@ -275,6 +275,7 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       private function renderGameSprite(param1:IGameSprite) : void
       {
+         if(!param1 || param1.isDestoryed()) return;
          var _loc3_:BaseGameSprite = null;
          var _loc2_:Boolean = false;
          try
