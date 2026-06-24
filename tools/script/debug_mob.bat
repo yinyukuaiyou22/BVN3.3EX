@@ -91,15 +91,7 @@ cd /d "%TEST_DIR%"
 		    echo [FLA] Stripped .fla files from APK
 		)
 
-		:: ---- Build mode: embed SWF in APK? ----
-		set /p "SWF_MODE=Embed launch.swf in APK? [Y/n] (default Y): "
-		if /i "!SWF_MODE!"=="n" (
-		    echo [MODE] External SWF — launch.swf excluded from APK
-		    call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "D:/Android/SDK" -C . assets\effect.swf -C . assets\movelist.jpg -C . assets\swf -C . assets\sounds -C . assets\font -C . assets\config
-		) else (
-		    echo [MODE] Embedded SWF — launch.swf included in APK
-		    call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "D:/Android/SDK" "launch.swf" -C . assets\effect.swf -C . assets\movelist.jpg -C . assets\swf -C . assets\sounds -C . assets\font -C . assets\config
-		)
+		call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "D:/Android/SDK" "launch.swf" -C . assets\effect.swf -C . assets\movelist.jpg -C . assets\swf -C . assets\sounds -C . assets\font -C . assets\config
 		set ADT_RESULT=%errorlevel%
 
 		:: ---- Restore .fla files ----
