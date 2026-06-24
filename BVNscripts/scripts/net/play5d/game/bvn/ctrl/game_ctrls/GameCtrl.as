@@ -678,6 +678,11 @@ import net.play5d.game.bvn.Debugger;
       {
          Debugger.log("GameMode.currentMode",GameMode.currentMode);
          this.gameRunData.nextRound();
+         // 2v2/1v2: 双人同屏，全员死后直接结算回到选人，不轮换
+         if (GameMode.isDuoMode() || GameMode.is1v2Mode()) {
+            this.fightFinish();
+            return;
+         }
          if(GameMode.isTeamMode())
          {
             if(this.startNextTeamFight())
