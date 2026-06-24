@@ -808,7 +808,31 @@ import net.play5d.game.bvn.Debugger;
          }
          param1.setActionCtrl(_loc4_);
       }
-      
+
+      /** P1/P2 切换：controlP1=true→控制P1, false→控制P2 */
+      public function switchControlPlayer(controlP1:Boolean) : void
+      {
+         var _p1f:FighterMain = this.gameRunData.p1FighterGroup.currentFighter;
+         var _p2f:FighterMain = this.gameRunData.p2FighterGroup.currentFighter;
+         if (!_p1f || !_p2f || !_p1f.team || !_p2f.team) return;
+         if (controlP1) {
+            var _p1c:FighterKeyCtrl = new FighterKeyCtrl();
+            _p1c.inputType = "P1";
+            _p1c.classicMode = GameData.I.config.keyInputMode == 1;
+            _p1f.setActionCtrl(_p1c);
+            this.toggleFighterAI(_p2f, 2, true);  // P2→AI(设置等级)
+         } else {
+            var _dummy:FighterAICtrl = new FighterAICtrl();
+            _dummy.AILevel = MessionModel.I.AI_LEVEL;
+            _dummy.fighter = _p1f;
+            _p1f.setActionCtrl(_dummy);
+            var _p2c:FighterKeyCtrl = new FighterKeyCtrl();
+            _p2c.inputType = "P1";
+            _p2c.classicMode = GameData.I.config.keyInputMode == 1;
+            _p2f.setActionCtrl(_p2c);
+         }
+      }
+
       public function toggleFighterAI(param1:FighterMain, param2:int, param3:Boolean) : void
       {
          var _loc4_:* = null;
