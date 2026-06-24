@@ -102,7 +102,7 @@ package net.play5d.game.bvn.mob
                   MainGame.I.goSelect();
                }
             },{
-               "txt":"SINGLE VS DUO",
+               "txt":"1 VS 2",
                "cn":"1v2",
                "func":function():void
                {
@@ -111,14 +111,14 @@ package net.play5d.game.bvn.mob
                }
             },{
                "txt":"SINGLE WATCH",
-               "cn":"观战(1v1)",
+               "cn":"观战单人",
                "func":function():void
                {
                   GameMode.currentMode = 23;
                   MainGame.I.goSelect();
                }
             },{
-               "txt":"SINGLE VS DUO WATCH",
+               "txt":"1VS2 WATCH",
                "cn":"观战(1v2)",
                "func":function():void
                {
@@ -156,7 +156,7 @@ package net.play5d.game.bvn.mob
                }
             },{
                "txt":"TEAM WATCH",
-               "cn":"观战(3v3)",
+               "cn":"观战小队",
                "func":function():void
                {
                   GameMode.currentMode = 13;
@@ -617,19 +617,19 @@ package net.play5d.game.bvn.mob
       {
          var _loc2_:Sprite = new Sprite();
          param1 += "游戏官网 : <a href=\"" + URL.markURL("http://www.5dplay.net/") + "\" target=\"_blank\">www.5dplay.net</a>" + "<br/>";
-         param1 += "面板BUG反馈 : <a href=\"" + URL.markURL("https://space.bilibili.com/485366223") + "\" target=\"_blank\">作者主页</a><br/>";
-         param1 += "反馈邮箱 : <a href=\"mailto:yinyu7798@foxmail.com\">yinyu7798@foxmail.com</a><br/>";
+         param1 += "面板BUG反馈 : <a href=\"" + URL.markURL("https://space.bilibili.com/485366223") + "\" target=\"_blank\"><font color=\"#4488ff\"><u>作者主页</u></font></a><br/>";
+         param1 += "反馈邮箱 : <a href=\"mailto:yinyu7798@foxmail.com\"><font color=\"#4488ff\"><u>yinyu7798@foxmail.com</u></font></a><br/>";
          var _loc3_:TextField = new TextField();
          var _loc4_:TextFormat = new TextFormat();
          _loc4_.font = "微软雅黑";
          _loc4_.size = 20;
-         _loc4_.color = 16776960;
+         _loc4_.color = 0xCCCCCC;
          _loc4_.leading = 15;
          _loc3_.defaultTextFormat = _loc4_;
          _loc3_.multiline = true;
          if(ENGLISH_VERSION)
          {
-            _loc3_.htmlText = "website : <a href=\"" + URL.markURL("http://www.5dplay.net/") + "\" target=\"_blank\">www.5dplay.net</a><br/>" + "BUG Report : <a href=\"" + URL.markURL("https://space.bilibili.com/485366223") + "\" target=\"_blank\">BiliBili Space</a><br/>" + "E-mail : <a href=\"mailto:yinyu7798@foxmail.com\">yinyu7798@foxmail.com</a><br/>";
+            _loc3_.htmlText = "website : <a href=\"" + URL.markURL("http://www.5dplay.net/") + "\" target=\"_blank\"><font color=\"#4488ff\"><u>www.5dplay.net</u></font></a><br/>" + "BUG Report : <a href=\"" + URL.markURL("https://space.bilibili.com/485366223") + "\" target=\"_blank\"><font color=\"#4488ff\"><u>BiliBili Space</u></font></a><br/>" + "E-mail : <a href=\"mailto:yinyu7798@foxmail.com\"><font color=\"#4488ff\"><u>yinyu7798@foxmail.com</u></font></a><br/>";
          }
          else
          {
