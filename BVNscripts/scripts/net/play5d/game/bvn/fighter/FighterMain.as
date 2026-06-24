@@ -8,6 +8,7 @@ package net.play5d.game.bvn.fighter
    import net.play5d.game.bvn.fighter.ctrler.*;
    import net.play5d.game.bvn.fighter.models.*;
    import net.play5d.game.bvn.interfaces.*;
+import net.play5d.game.bvn.Debugger;
    
    public class FighterMain extends BaseGameSprite
    {
