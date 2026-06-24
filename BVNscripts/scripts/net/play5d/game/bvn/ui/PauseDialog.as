@@ -47,22 +47,12 @@ package net.play5d.game.bvn.ui
             "label":"GAME TITLE",
             "cn":"返回标题"
          },{
-            "label":"MOVE LIST",
-            "cn":"出招表"
-         },{
             "label":"CONTINUE",
             "cn":"继续游戏"
          },{
             "label":"BERAK SELECT",
             "cn":"返回选人"
          }];
-         if(GameMode.currentMode == 40)
-         {
-            KyoUtils.array_pushAt(this._btnData,{
-               "label":"P2 AI CTRLER-" + (this._bIsOpenAI ? "NO" : "OFF"),
-               "cn":"P2 AI 控制:" + (this._bIsOpenAI ? "启用" : "关闭")
-            },4);
-         }
          this._btnGroup.setBtnData(this._btnData,this._btnData.length - 1);
          this._btnGroup.addEventListener("SELECT",this.btnGroupSelectHandler);
       }
