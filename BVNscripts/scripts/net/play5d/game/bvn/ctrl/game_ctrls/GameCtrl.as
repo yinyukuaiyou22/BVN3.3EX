@@ -824,11 +824,8 @@ import net.play5d.game.bvn.Debugger;
             // 训练模式：切换时自动关闭 P2 AI 再恢复（让用户手动管理）
             this.toggleFighterAI(_p2f, 2, true);  // P2→AI
          } else {
-            // 切到 P2: P1→AI发呆, P2→玩家(训练模式自动关P2 AI)
-            var _dummy:FighterAICtrl = new FighterAICtrl();
-            _dummy.AILevel = 0;  // AI 等级0=发呆
-            _dummy.fighter = _p1f;
-            _p1f.setActionCtrl(_dummy);
+            // 切到 P2: P1→AI, P2→玩家
+            this.toggleFighterAI(_p1f, 1, true);  // P1→AI(设置等级)
             // 训练模式：自动关闭 P2 AI 开关，让用户直接操控
             var _p2c:FighterKeyCtrl = new FighterKeyCtrl();
             _p2c.inputType = "P1";   // 读 P1 输入通道（玩家键盘/触控）
