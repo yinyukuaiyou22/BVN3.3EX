@@ -627,6 +627,15 @@ import net.play5d.game.bvn.Debugger;
          var _loc1_:FighterMain = this.gameRunData.p1FighterGroup.currentFighter;
          var _loc2_:FighterMain = this.gameRunData.p2FighterGroup.currentFighter;
          this.gameRunData.isTimerOver = true;
+         // 2v2/1v2: 全队存活 fighter HP 总和比较
+         if (GameMode.isDuoMode() || GameMode.is1v2Mode()) {
+            var _p1Hp:Number = _p1TeamHp(this.gameRunData.p1FighterGroup);
+            var _p2Hp:Number = _p1TeamHp(this.gameRunData.p2FighterGroup);
+            if (_p1Hp == _p2Hp) { this.drawGame(); return; }
+            if (_p1Hp > _p2Hp) { this.gameEnd(_loc1_,_loc2_); }
+            else { this.gameEnd(_loc2_,_loc1_); }
+            return;
+         }
          if(_loc1_.hp == _loc2_.hp)
          {
             this.drawGame();
@@ -640,6 +649,15 @@ import net.play5d.game.bvn.Debugger;
          {
             this.gameEnd(_loc2_,_loc1_);
          }
+      }
+
+      private function _p1TeamHp(param1:GameRunFighterGroup) : Number
+      {
+         var _sum:Number = 0;
+         if (param1.fighter1 && param1.fighter1.isAlive) _sum += param1.fighter1.hp;
+         if (param1.fighter2 && param1.fighter2.isAlive) _sum += param1.fighter2.hp;
+         if (param1.fighter3 && param1.fighter3.isAlive) _sum += param1.fighter3.hp;
+         return _sum;
       }
       
       public function drawGame() : void

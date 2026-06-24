@@ -163,6 +163,25 @@ package net.play5d.game.bvn.ctrl.game_ctrls
          var _loc2_:FighterMain = null;
          var _loc3_:FighterMain = param1.fighter as FighterMain;
          var _loc4_:TeamVO = GameCtrl.I.getEnemyTeam(param1.fighter);
+
+         // 2v2/1v2: 检查死亡方是否还有存活队友
+         if (GameMode.isDuoMode() || GameMode.is1v2Mode()) {
+            var _team:TeamVO = _loc3_.team;
+            var _hasSurvivor:Boolean = false;
+            if (Boolean(_team)) {
+               for each(var _child:* in _team.children) {
+                  if (_child is FighterMain && (_child as FighterMain).isAlive && _child != _loc3_) {
+                     _hasSurvivor = true;
+                     break;
+                  }
+               }
+            }
+            if (_hasSurvivor) {
+               _loc3_.isAlive = false;
+               return;  // 不结束回合，队友继续战斗
+            }
+         }
+
          if(Boolean(_loc4_))
          {
             for each(_loc5_ in _loc4_.children)

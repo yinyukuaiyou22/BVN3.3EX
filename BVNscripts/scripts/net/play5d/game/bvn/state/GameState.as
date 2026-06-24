@@ -149,6 +149,7 @@ package net.play5d.game.bvn.state
             this._gameLayer.addChild(this._map.frontLayer);
          }
          this._cameraFocus = [];
+         var _isDuo:Boolean = GameMode.isDuoMode() || GameMode.is1v2Mode();
          var _loc5_:FighterMain = param1.currentFighter;
          var _loc6_:FighterMain = param2.currentFighter;
          if(Boolean(_loc5_))
@@ -172,6 +173,15 @@ package net.play5d.game.bvn.state
             _loc6_.direct = -1;
             _loc6_.updatePosition();
             this._cameraFocus.push(_loc6_.getDisplay());
+         }
+         // 2v2/1v2: 额外 fighter 也加入摄像机追踪
+         if (_isDuo) {
+            if (param1.fighter2 && param1.fighter2.isAlive) {
+               this._cameraFocus.push(param1.fighter2.getDisplay());
+            }
+            if (param2.fighter2 && param2.fighter2.isAlive) {
+               this._cameraFocus.push(param2.fighter2.getDisplay());
+            }
          }
          if(Boolean(this._map.mapLayer))
          {
