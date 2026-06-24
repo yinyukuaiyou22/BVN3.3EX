@@ -122,6 +122,7 @@ face/
 | Android SDK (platform-33) | ADT platform SDK                                                    |
 
 > SDK 需要自行下载合并。将 Flex 4.16.1 与 AIR 51.0.1.1 合并后放到 `AIRSDK/flex4.16.1-air51.0.1.1/`。调试脚本会自动检测此路径。
+> APK 签名证书需自行生成: `adt -certificate -cn <名称> 2048-RSA bin/mycert.p12 <密码>`，放到 `AIRSDK/flex4.16.1-air51.0.1.1/bin/mycert.p12`。
 
 ### 构建命令
 
