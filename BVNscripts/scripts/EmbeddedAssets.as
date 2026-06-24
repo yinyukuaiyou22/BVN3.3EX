@@ -45,5 +45,9 @@ package {
       public static var mob_ui_swf_data:Class;
       [Embed(source="_assets/1_startup_png$5ab29dc3fdc04fbdd16afce6653b4bc0756872080.png")]
       public static var startup_png:Class;
+      [Embed(source="_assets/p1.png")]
+      public static var p1_png:Class;
+      [Embed(source="_assets/p2.png")]
+      public static var p2_png:Class;
    }
 }

@@ -5,6 +5,7 @@
    import flash.events.TouchEvent;
    import flash.geom.*;
    import net.play5d.game.bvn.ctrl.game_ctrls.*;
+   import net.play5d.game.bvn.data.GameMode;
    import net.play5d.game.bvn.fighter.FighterMain;
    import net.play5d.game.bvn.mob.*;
    import net.play5d.game.bvn.mob.events.*;
@@ -47,7 +48,11 @@ import net.play5d.game.bvn.Debugger;
       private var _editingStageDownPos:Point;
       
       private var _editStageView:Sprite;
-      
+
+      private var _playerSwitchBtn:ScreenPadBtn;
+
+      private var _controllingP1:Boolean = true;
+
       public function ScreenPadGame(param1:Stage)
       {
          super();
@@ -106,6 +111,10 @@ import net.play5d.game.bvn.Debugger;
          }
          var _loc1_:ScreenPadBtn = this.addBtn("back",ScreenPadAsset.pause,0,0,0,0.3,0.5);
          _loc1_.display.x = (this.W - _loc1_.display.width) / 2;
+         // P1/P2 切换按钮（右上角）
+         this._playerSwitchBtn = this.addBtn("p1p2", ScreenPadAsset.p1, 0, 0.05, 0.3, 0, 0.3);
+         this._playerSwitchBtn.display.x = this.W - this._playerSwitchBtn.display.width - 20;
+         this._playerSwitchBtn.display.y = 10;
          var _loc2_:Object = GameInterfaceManager.config.screenPadConfig.joySet;
          if(Boolean(_loc2_))
          {
@@ -403,6 +412,11 @@ import net.play5d.game.bvn.Debugger;
          {
             return;
          }
+         // P1/P2 切换按钮：仅 touchEnd 触发
+         if (param1 == "p1p2" && !param2) {
+            this._switchPlayer();
+            return;
+         }
          if(Boolean(this.menuInputer))
          {
             switch(param1)
@@ -568,6 +582,27 @@ import net.play5d.game.bvn.Debugger;
             this._editStageView.graphics.lineStyle(2,65535,1);
             this._editStageView.graphics.drawRect(this._editingBtn.display.x,this._editingBtn.display.y,this._editingBtn.display.width,this._editingBtn.display.height);
             this._editStageView.graphics.endFill();
+         }
+      }
+
+      private function _switchPlayer() : void
+      {
+         // VS CPU 或观战模式 P2 为 AI 时不生效
+         if (GameMode.isVsCPU() || GameMode.isWatch()) {
+            Debugger.log("[ScreenPadGame] P1/P2 switch blocked: P2 is AI");
+            return;
+         }
+         _controllingP1 = !_controllingP1;
+         var _p1f:FighterMain = GameCtrl.I.gameRunData.p1FighterGroup.currentFighter;
+         var _p2f:FighterMain = GameCtrl.I.gameRunData.p2FighterGroup.currentFighter;
+         if (_controllingP1) {
+            if (_p1f) GameCtrl.I.toggleFighterAI(_p1f, 1, false);
+            if (_p2f) GameCtrl.I.toggleFighterAI(_p2f, 2, true);
+            if (_playerSwitchBtn) _playerSwitchBtn.display.bitmapData = (new ScreenPadAsset.p1() as Bitmap).bitmapData;
+         } else {
+            if (_p1f) GameCtrl.I.toggleFighterAI(_p1f, 1, true);
+            if (_p2f) GameCtrl.I.toggleFighterAI(_p2f, 2, false);
+            if (_playerSwitchBtn) _playerSwitchBtn.display.bitmapData = (new ScreenPadAsset.p2() as Bitmap).bitmapData;
          }
       }
    }

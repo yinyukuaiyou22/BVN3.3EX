@@ -30,7 +30,11 @@ package net.play5d.game.bvn.mob.screenpad
       public static var pause:Class = EmbeddedAssets.pause_png;
       
       public static var light:Class = EmbeddedAssets.light_png;
-      
+
+      public static var p1:Class = EmbeddedAssets.p1_png;
+
+      public static var p2:Class = EmbeddedAssets.p2_png;
+
       public function ScreenPadAsset()
       {
          super();
