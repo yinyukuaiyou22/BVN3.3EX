@@ -4,7 +4,6 @@
    import flash.events.EventDispatcher;
    import flash.events.TouchEvent;
    import flash.geom.*;
-   import flash.utils.getTimer;
    import net.play5d.game.bvn.ctrl.game_ctrls.*;
    import net.play5d.game.bvn.data.GameMode;
    import net.play5d.game.bvn.fighter.FighterMain;
@@ -591,30 +590,11 @@ import net.play5d.game.bvn.Debugger;
          }
       }
 
-      /** 重置 P1/P2 切换状态（进出选人/新游戏时调用） */
-      public function resetControlPlayer() : void
-      {
-         if (!_controllingP1) {
-            _controllingP1 = true;
-            GameCtrl.I.switchControlPlayer(true);
-            if (_playerSwitchBtn) {
-               _playerSwitchBtn.display.bitmapData = (new ScreenPadAsset.p1() as Bitmap).bitmapData;
-            }
-         }
-      }
-
-      private var _switchLastTime:int = 0;
-
       private function _switchPlayer() : void
       {
          if (GameMode.currentMode != 40 && !GameMode.isVsPeople()) {
             return;
          }
-         // 防连点：500ms 内忽略重复触发
-         var _now:int = getTimer();
-         if (_now - _switchLastTime < 500) return;
-         _switchLastTime = _now;
-
          _controllingP1 = !_controllingP1;
          GameCtrl.I.switchControlPlayer(_controllingP1);
          if (_playerSwitchBtn) {
