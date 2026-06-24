@@ -27,28 +27,36 @@ package net.play5d.game.bvn.utils
       
       private static const SWF_LIST:Array = [{
          "key":"common_ui",
-         "file":"assets/swf/common_ui.swf"
+         "file":"assets/swf/common_ui.swf",
+         "embed":EmbeddedAssets.common_ui_swf
       },{
          "key":"fight",
-         "file":"assets/swf/fight.swf"
+         "file":"assets/swf/fight.swf",
+         "embed":EmbeddedAssets.fight_swf
       },{
          "key":"gameover",
-         "file":"assets/swf/gameover.swf"
+         "file":"assets/swf/gameover.swf",
+         "embed":EmbeddedAssets.gameover_swf
       },{
          "key":"howtoplay",
-         "file":"assets/swf/howtoplay.swf"
+         "file":"assets/swf/howtoplay.swf",
+         "embed":EmbeddedAssets.howtoplay_swf
       },{
          "key":"loading",
-         "file":"assets/swf/loading.swf"
+         "file":"assets/swf/loading.swf",
+         "embed":EmbeddedAssets.loading_swf
       },{
          "key":"select",
-         "file":"assets/swf/select.swf"
+         "file":"assets/swf/select.swf",
+         "embed":EmbeddedAssets.select_swf
       },{
          "key":"setting",
-         "file":"assets/swf/setting.swf"
+         "file":"assets/swf/setting.swf",
+         "embed":EmbeddedAssets.setting_swf
       },{
          "key":"title",
-         "file":"assets/swf/title.swf"
+         "file":"assets/swf/title.swf",
+         "embed":EmbeddedAssets.title_swf
       }];
       
       private var _swfPool:Dictionary;
@@ -139,7 +147,16 @@ package net.play5d.game.bvn.utils
             var li:LoaderInfo = e.currentTarget as LoaderInfo;
             callback(li.applicationDomain,item.key);
          });
-         loader.load(new URLRequest(item.file),ctx);
+         // Embedded SWF data (ByteArrayAsset) — used when external file not available
+         var embedClass:Class = item.embed as Class;
+         if(embedClass)
+         {
+            loader.loadBytes(new embedClass() as ByteArray,ctx);
+         }
+         else
+         {
+            loader.load(new URLRequest(item.file),ctx);
+         }
       }
       
       private function finish() : void

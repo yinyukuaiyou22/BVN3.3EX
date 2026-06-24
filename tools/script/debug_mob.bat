@@ -83,22 +83,9 @@ call :ECHO_LANG :PACKAGE_MSG ""
 call :EXIST "%ADT%"
 cd /d "%TEST_DIR%"
 
-		:: ---- Whitelist: effect.swf + movelist.jpg + swf/ + sounds/ + font/ + config/ ----
-		:: ---- Strip .fla source files from swf/ (only .swf needed at runtime) ----
-		if exist "assets\swf\*.fla" (
-		    mkdir "_bakslim_fla" 2>nul
-		    move "assets\swf\*.fla" "_bakslim_fla\" >nul 2>nul
-		    echo [FLA] Stripped .fla files from APK
-		)
-
-		call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "D:/Android/SDK" "launch.swf" -C . assets\effect.swf -C . assets\movelist.jpg -C . assets\swf -C . assets\sounds -C . assets\font -C . assets\config
+		:: ---- Whitelist: effect.swf + movelist.jpg + sounds/ + font/ + config/ (UI SWF embedded) ----
+		call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "D:/Android/SDK" "launch.swf" -C . assets\effect.swf -C . assets\movelist.jpg -C . assets\sounds -C . assets\font -C . assets\config
 		set ADT_RESULT=%errorlevel%
-
-		:: ---- Restore .fla files ----
-		if exist "_bakslim_fla\*.fla" (
-		    move "_bakslim_fla\*.fla" "assets\swf\" >nul 2>nul
-		    rd "_bakslim_fla" 2>nul
-		)
 
 		if %ADT_RESULT% neq 0 (
 		    echo [ERROR] ADT packaging failed with code %ADT_RESULT%
