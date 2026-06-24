@@ -587,8 +587,9 @@ import net.play5d.game.bvn.Debugger;
 
       private function _switchPlayer() : void
       {
-         // VS CPU 或观战模式 P2 为 AI 时不生效
-         if (GameMode.isVsCPU() || GameMode.isWatch()) {
+         // 训练模式允许切换（用户可通过暂停菜单开关 P2 AI）
+         // VS CPU / 观战模式 P2 固定为 AI，不生效
+         if (GameMode.currentMode != 40 && (GameMode.isVsCPU() || GameMode.isWatch())) {
             Debugger.log("[ScreenPadGame] P1/P2 switch blocked: P2 is AI");
             return;
          }
