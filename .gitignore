@@ -60,4 +60,4 @@ tools/cmdline-tools/
 anetoolkit-master/
 
 # Codegraph runtime
-.codegraph/daemon.pid
+.codegraph/daemon.pidFlaUi/
