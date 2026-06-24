@@ -140,6 +140,7 @@ package net.play5d.game.bvn.mob.screenpad
          }
          _curMode = 2;
          _selectFighter.hide();
+         _game.resetControlPlayer();
          _game.show();
       }
       

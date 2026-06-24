@@ -590,12 +590,30 @@ import net.play5d.game.bvn.Debugger;
          }
       }
 
+      /** 重置 P1/P2 切换状态（进出选人/新游戏时调用） */
+      public function resetControlPlayer() : void
+      {
+         if (!_controllingP1) {
+            _controllingP1 = true;
+            GameCtrl.I.switchControlPlayer(true);
+            if (_playerSwitchBtn) {
+               _playerSwitchBtn.display.bitmapData = (new ScreenPadAsset.p1() as Bitmap).bitmapData;
+            }
+         }
+      }
+
+      private var _switchLastTime:int = 0;
+
       private function _switchPlayer() : void
       {
          if (GameMode.currentMode != 40 && !GameMode.isVsPeople()) {
-            Debugger.log("[ScreenPadGame] P1/P2 switch blocked: mode not supported");
             return;
          }
+         // 防连点：500ms 内忽略重复触发
+         var _now:int = flash.utils.getTimer();
+         if (_now - _switchLastTime < 500) return;
+         _switchLastTime = _now;
+
          _controllingP1 = !_controllingP1;
          GameCtrl.I.switchControlPlayer(_controllingP1);
          if (_playerSwitchBtn) {
