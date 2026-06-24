@@ -54,6 +54,8 @@ import net.play5d.game.bvn.Debugger;
 
       private var _controllingP1:Boolean = true;
 
+      private var _p1p2WasDown:Boolean = false;
+
       public function ScreenPadGame(param1:Stage)
       {
          super();
@@ -417,9 +419,14 @@ import net.play5d.game.bvn.Debugger;
          {
             return;
          }
-         // P1/P2 切换按钮：仅 touchEnd 触发
-         if (param1 == "p1p2" && !param2) {
-            this._switchPlayer();
+         // P1/P2 切换按钮：仅 touchUp 瞬间触发（从 true→false 变化时）
+         if (param1 == "p1p2") {
+            if (param2) {
+               _p1p2WasDown = true;
+            } else if (_p1p2WasDown) {
+               _p1p2WasDown = false;
+               this._switchPlayer();
+            }
             return;
          }
          if(Boolean(this.menuInputer))
