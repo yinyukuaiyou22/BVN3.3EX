@@ -60,4 +60,7 @@ tools/cmdline-tools/
 anetoolkit-master/
 
 # Codegraph runtime
-.codegraph/daemon.pidFlaUi/
+.codegraph/daemon.pid
+
+# Flash authoring files
+FlaUi/
