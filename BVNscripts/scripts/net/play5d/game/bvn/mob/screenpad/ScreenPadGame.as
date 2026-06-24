@@ -4,6 +4,7 @@
    import flash.events.EventDispatcher;
    import flash.events.TouchEvent;
    import flash.geom.*;
+   import flash.utils.getTimer;
    import net.play5d.game.bvn.ctrl.game_ctrls.*;
    import net.play5d.game.bvn.data.GameMode;
    import net.play5d.game.bvn.fighter.FighterMain;
@@ -610,7 +611,7 @@ import net.play5d.game.bvn.Debugger;
             return;
          }
          // 防连点：500ms 内忽略重复触发
-         var _now:int = flash.utils.getTimer();
+         var _now:int = getTimer();
          if (_now - _switchLastTime < 500) return;
          _switchLastTime = _now;
 
