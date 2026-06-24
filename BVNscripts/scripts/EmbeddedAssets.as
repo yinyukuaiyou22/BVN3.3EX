@@ -49,22 +49,5 @@ package {
       public static var p1_png:Class;
       [Embed(source="_assets/p2.png")]
       public static var p2_png:Class;
-      // UI SWF embedded (avoid external loading lag on mobile)
-      [Embed(source="_assets/swf/common_ui.swf", mimeType="application/octet-stream")]
-      public static var common_ui_swf:Class;
-      [Embed(source="_assets/swf/fight.swf", mimeType="application/octet-stream")]
-      public static var fight_swf:Class;
-      [Embed(source="_assets/swf/gameover.swf", mimeType="application/octet-stream")]
-      public static var gameover_swf:Class;
-      [Embed(source="_assets/swf/howtoplay.swf", mimeType="application/octet-stream")]
-      public static var howtoplay_swf:Class;
-      [Embed(source="_assets/swf/loading.swf", mimeType="application/octet-stream")]
-      public static var loading_swf:Class;
-      [Embed(source="_assets/swf/select.swf", mimeType="application/octet-stream")]
-      public static var select_swf:Class;
-      [Embed(source="_assets/swf/setting.swf", mimeType="application/octet-stream")]
-      public static var setting_swf:Class;
-      [Embed(source="_assets/swf/title.swf", mimeType="application/octet-stream")]
-      public static var title_swf:Class;
    }
 }

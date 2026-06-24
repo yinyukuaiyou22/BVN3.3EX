@@ -27,36 +27,28 @@ package net.play5d.game.bvn.utils
       
       private static const SWF_LIST:Array = [{
          "key":"common_ui",
-         "file":"assets/swf/common_ui.swf",
-         "embed":EmbeddedAssets.common_ui_swf
+         "file":"assets/swf/common_ui.swf"
       },{
          "key":"fight",
-         "file":"assets/swf/fight.swf",
-         "embed":EmbeddedAssets.fight_swf
+         "file":"assets/swf/fight.swf"
       },{
          "key":"gameover",
-         "file":"assets/swf/gameover.swf",
-         "embed":EmbeddedAssets.gameover_swf
+         "file":"assets/swf/gameover.swf"
       },{
          "key":"howtoplay",
-         "file":"assets/swf/howtoplay.swf",
-         "embed":EmbeddedAssets.howtoplay_swf
+         "file":"assets/swf/howtoplay.swf"
       },{
          "key":"loading",
-         "file":"assets/swf/loading.swf",
-         "embed":EmbeddedAssets.loading_swf
+         "file":"assets/swf/loading.swf"
       },{
          "key":"select",
-         "file":"assets/swf/select.swf",
-         "embed":EmbeddedAssets.select_swf
+         "file":"assets/swf/select.swf"
       },{
          "key":"setting",
-         "file":"assets/swf/setting.swf",
-         "embed":EmbeddedAssets.setting_swf
+         "file":"assets/swf/setting.swf"
       },{
          "key":"title",
-         "file":"assets/swf/title.swf",
-         "embed":EmbeddedAssets.title_swf
+         "file":"assets/swf/title.swf"
       }];
       
       private var _swfPool:Dictionary;
@@ -147,16 +139,7 @@ package net.play5d.game.bvn.utils
             var li:LoaderInfo = e.currentTarget as LoaderInfo;
             callback(li.applicationDomain,item.key);
          });
-         // Embedded SWF data (ByteArrayAsset) — used when external file not available
-         var embedClass:Class = item.embed as Class;
-         if(embedClass)
-         {
-            loader.loadBytes(new embedClass() as ByteArray,ctx);
-         }
-         else
-         {
-            loader.load(new URLRequest(item.file),ctx);
-         }
+         loader.load(new URLRequest(item.file),ctx);
       }
       
       private function finish() : void
