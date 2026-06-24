@@ -1,0 +1,88 @@
+2026-06-21 20:08:17,131 [INFO] ============================================================
+2026-06-21 20:08:17,132 [INFO] BVN Asset Adder — 2026-06-21 20:08:17
+2026-06-21 20:08:17,132 [INFO] Mode: wizard | Type: fighter | Dry-run: True
+2026-06-21 20:08:17,132 [INFO]   ✓ fighter: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\fighter.xml
+2026-06-21 20:08:17,135 [INFO]   ✓ select: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\select.xml
+2026-06-21 20:08:17,136 [INFO]   ✓ assist: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\assist.xml
+2026-06-21 20:08:17,136 [INFO]   ✓ map: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\map.xml
+2026-06-21 20:08:17,137 [INFO]   ✓ mission: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\mission.xml
+2026-06-21 20:08:17,137 [INFO] ============================================================
+2026-06-21 20:08:17,138 [INFO] 向导模式 — 待实现
+2026-06-21 20:08:50,156 [INFO] ============================================================
+2026-06-21 20:08:50,156 [INFO] BVN Asset Adder — 2026-06-21 20:08:50
+2026-06-21 20:08:50,156 [INFO] Mode: wizard | Type: fighter | Dry-run: True
+2026-06-21 20:08:50,157 [INFO]   ✓ fighter: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\fighter.xml
+2026-06-21 20:08:50,157 [INFO]   ✓ select: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\select.xml
+2026-06-21 20:08:50,157 [INFO]   ✓ assist: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\assist.xml
+2026-06-21 20:08:50,157 [INFO]   ✓ map: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\map.xml
+2026-06-21 20:08:50,157 [INFO]   ✓ mission: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\mission.xml
+2026-06-21 20:08:50,158 [INFO] ============================================================
+2026-06-21 20:08:50,158 [INFO] 向导模式 — 待实现
+2026-06-21 20:10:33,749 [INFO] *** DRY-RUN MODE — 不会修改任何文件 ***
+2026-06-21 20:10:33,750 [INFO] ============================================================
+2026-06-21 20:10:33,750 [INFO] BVN Asset Adder — 2026-06-21 20:10:33
+2026-06-21 20:10:33,750 [INFO]   [OK] fighter: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\fighter.xml
+2026-06-21 20:10:33,750 [INFO]   [OK] select: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\select.xml
+2026-06-21 20:10:33,750 [INFO]   [OK] assist: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\assist.xml
+2026-06-21 20:10:33,750 [INFO]   [OK] map: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\map.xml
+2026-06-21 20:10:33,751 [INFO]   [OK] mission: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\mission.xml
+2026-06-21 20:10:33,751 [INFO] ============================================================
+2026-06-21 20:10:33,751 [INFO] === 向导模式 ===
+2026-06-21 20:11:27,589 [INFO] *** DRY-RUN MODE — 不会修改任何文件 ***
+2026-06-21 20:11:27,590 [INFO] ============================================================
+2026-06-21 20:11:27,590 [INFO] BVN Asset Adder — 2026-06-21 20:11:27
+2026-06-21 20:11:27,590 [INFO]   [OK] fighter: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\fighter.xml
+2026-06-21 20:11:27,590 [INFO]   [OK] select: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\select.xml
+2026-06-21 20:11:27,590 [INFO]   [OK] assist: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\assist.xml
+2026-06-21 20:11:27,590 [INFO]   [OK] map: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\map.xml
+2026-06-21 20:11:27,591 [INFO]   [OK] mission: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\mission.xml
+2026-06-21 20:11:27,591 [INFO] ============================================================
+2026-06-21 20:11:27,591 [INFO] --- Adding fighter: id='ichigo', name='黑崎一护(测试)' ---
+2026-06-21 20:11:27,592 [WARNING]   SWF already exists: tools\Test\assets\fighter\ichigo.swf
+2026-06-21 20:11:27,592 [WARNING]   Face exists, skipping: ichigo.png
+2026-06-21 20:11:27,592 [WARNING]   Face exists, skipping: ichigo_b.png
+2026-06-21 20:11:27,592 [WARNING]   Face exists, skipping: ichigo_m.png
+2026-06-21 20:11:27,592 [WARNING]   Face exists, skipping: ichigo_w.png
+2026-06-21 20:11:27,592 [INFO]   Backup: fighter.xml -> fighter.xml.bak
+2026-06-21 20:11:27,594 [INFO]   fighter.xml: added 'ichigo' (name='黑崎一护(测试)', comic_type=0)
+2026-06-21 20:11:27,594 [INFO]   Backup: select.xml -> select.xml.bak
+2026-06-21 20:11:49,851 [INFO] *** DRY-RUN MODE — 不会修改任何文件 ***
+2026-06-21 20:11:49,851 [INFO] ============================================================
+2026-06-21 20:11:49,851 [INFO] BVN Asset Adder — 2026-06-21 20:11:49
+2026-06-21 20:11:49,851 [INFO]   [OK] fighter: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\fighter.xml
+2026-06-21 20:11:49,851 [INFO]   [OK] select: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\select.xml
+2026-06-21 20:11:49,851 [INFO]   [OK] assist: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\assist.xml
+2026-06-21 20:11:49,851 [INFO]   [OK] map: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\map.xml
+2026-06-21 20:11:49,860 [INFO]   [OK] mission: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\mission.xml
+2026-06-21 20:11:49,860 [INFO] ============================================================
+2026-06-21 20:11:49,860 [INFO] --- Adding fighter: id='ichigo', name='黑崎一护(测试)' ---
+2026-06-21 20:11:49,861 [WARNING]   SWF already exists: tools\Test\assets\fighter\ichigo.swf
+2026-06-21 20:11:49,861 [WARNING]   Face exists, skipping: ichigo.png
+2026-06-21 20:11:49,861 [WARNING]   Face exists, skipping: ichigo_b.png
+2026-06-21 20:11:49,861 [WARNING]   Face exists, skipping: ichigo_m.png
+2026-06-21 20:11:49,861 [WARNING]   Face exists, skipping: ichigo_w.png
+2026-06-21 20:11:49,861 [INFO]   Backup: fighter.xml -> fighter.xml.bak
+2026-06-21 20:11:49,863 [INFO]   fighter.xml: added 'ichigo' (name='黑崎一护(测试)', comic_type=0)
+2026-06-21 20:11:49,863 [INFO]   Backup: select.xml -> select.xml.bak
+2026-06-21 20:11:49,864 [INFO]   select.xml: appended new row (y=210) -> 'ichigo'
+2026-06-21 20:11:49,864 [INFO] --- Done: ichigo ---
+2026-06-21 20:11:56,804 [INFO] *** DRY-RUN MODE — 不会修改任何文件 ***
+2026-06-21 20:11:56,804 [INFO] ============================================================
+2026-06-21 20:11:56,804 [INFO] BVN Asset Adder — 2026-06-21 20:11:56
+2026-06-21 20:11:56,804 [INFO]   [OK] fighter: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\fighter.xml
+2026-06-21 20:11:56,804 [INFO]   [OK] select: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\select.xml
+2026-06-21 20:11:56,805 [INFO]   [OK] assist: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\assist.xml
+2026-06-21 20:11:56,805 [INFO]   [OK] map: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\map.xml
+2026-06-21 20:11:56,805 [INFO]   [OK] mission: E:\BaiduNetdiskDownload\BVNY\tools\Test\assets\config\mission.xml
+2026-06-21 20:11:56,805 [INFO] ============================================================
+2026-06-21 20:11:56,805 [INFO] --- Adding fighter: id='ichigo', name='test_new_char' ---
+2026-06-21 20:11:56,805 [WARNING]   SWF already exists: tools\Test\assets\fighter\ichigo.swf
+2026-06-21 20:11:56,806 [WARNING]   Face exists, skipping: ichigo.png
+2026-06-21 20:11:56,806 [WARNING]   Face exists, skipping: ichigo_b.png
+2026-06-21 20:11:56,806 [WARNING]   Face exists, skipping: ichigo_m.png
+2026-06-21 20:11:56,806 [WARNING]   Face exists, skipping: ichigo_w.png
+2026-06-21 20:11:56,806 [INFO]   Backup: fighter.xml -> fighter.xml.bak
+2026-06-21 20:11:56,807 [INFO]   fighter.xml: added 'ichigo' (name='test_new_char', comic_type=1)
+2026-06-21 20:11:56,807 [INFO]   Backup: select.xml -> select.xml.bak
+2026-06-21 20:11:56,808 [INFO]   select.xml: appended new row (y=420) -> 'ichigo'
+2026-06-21 20:11:56,808 [INFO] --- Done: ichigo ---

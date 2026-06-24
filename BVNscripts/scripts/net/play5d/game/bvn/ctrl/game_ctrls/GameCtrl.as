@@ -808,7 +808,31 @@ import net.play5d.game.bvn.Debugger;
          }
          param1.setActionCtrl(_loc4_);
       }
-      
+
+      /** P1/P2 切换：controlP1=true→控制P1, false→控制P2（P2读P1输入通道） */
+      public function switchControlPlayer(controlP1:Boolean) : void
+      {
+         var _p1f:FighterMain = this.gameRunData.p1FighterGroup.currentFighter;
+         var _p2f:FighterMain = this.gameRunData.p2FighterGroup.currentFighter;
+         if (controlP1) {
+            if (_p1f) {
+               var _p1c:FighterKeyCtrl = new FighterKeyCtrl();
+               _p1c.inputType = "P1";
+               _p1c.classicMode = GameData.I.config.keyInputMode == 1;
+               _p1f.setActionCtrl(_p1c);
+            }
+            if (_p2f) this.toggleFighterAI(_p2f, 2, true);  // P2→AI
+         } else {
+            if (_p1f) this.toggleFighterAI(_p1f, 1, true);  // P1→AI(发呆)
+            if (_p2f) {
+               var _p2c:FighterKeyCtrl = new FighterKeyCtrl();
+               _p2c.inputType = "P1";   // 读 P1 输入通道（玩家键盘/触控）
+               _p2c.classicMode = GameData.I.config.keyInputMode == 1;
+               _p2f.setActionCtrl(_p2c);
+            }
+         }
+      }
+
       public function toggleFighterAI(param1:FighterMain, param2:int, param3:Boolean) : void
       {
          var _loc4_:* = null;

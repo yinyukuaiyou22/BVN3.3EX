@@ -408,8 +408,8 @@ package net.play5d.game.bvn.mob
             }],
             "optoinKey":"screenMode"
          },{
-            "txt":"GAME FPS",
-            "cn":"游戏帧率",
+            "txt":"GRAPHICS QUALITY",
+            "cn":"游戏画质",
             "options":[{
                "label":"30",
                "cn":"30帧",
@@ -417,14 +417,14 @@ package net.play5d.game.bvn.mob
             },{
                "label":"60",
                "cn":"60帧",
-               "value":""
+               "value":"medium"
             },{
-               "label":"90",
-               "cn":"90帧",
+               "label":"60M",
+               "cn":"60中",
                "value":"high"
             },{
-               "label":"120",
-               "cn":"120帧",
+               "label":"60H",
+               "cn":"60高",
                "value":"best"
             }],
             "optoinKey":"quality"
@@ -541,14 +541,14 @@ package net.play5d.game.bvn.mob
          switch(param1.quality)
          {
             case "best":
-               GameConfig.setGameFps(120);
+               GameConfig.setGameFps(90);
                GameConfig.FPS_SHINE_EFFECT = 15;
                EffectCtrl.EFFECT_SMOOTHING = true;
                EffectCtrl.SHADOW_ENABLED = true;
                EffectCtrl.SHAKE_ENABLED = true;
                break;
             case "high":
-               GameConfig.setGameFps(90);
+               GameConfig.setGameFps(60);
                GameConfig.FPS_SHINE_EFFECT = 15;
                EffectCtrl.EFFECT_SMOOTHING = true;
                EffectCtrl.SHADOW_ENABLED = true;

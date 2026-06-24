@@ -26,7 +26,7 @@ package
       
       public static var FULL_SCREEN_SIZE:Point = new Point();
       
-      private static const DEBUG_PANEL_ENABLED:Boolean = true;
+      private static const DEBUG_PANEL_ENABLED:Boolean = false;
       
       private var _mainGame:MainGame;
       
@@ -43,7 +43,7 @@ package
          super();
          trace("=== BVN TRACE-01 launch() ===");
          I = this;
-         GameConfig.TOUCH_MODE = false;
+         GameConfig.TOUCH_MODE = true;
          addEventListener("addedToStage",this.initlize);
       }
       

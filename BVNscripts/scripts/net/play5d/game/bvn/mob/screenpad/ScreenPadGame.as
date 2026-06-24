@@ -2,6 +2,7 @@
 {
    import flash.display.*;
    import flash.events.EventDispatcher;
+   import flash.events.KeyboardEvent;
    import flash.events.TouchEvent;
    import flash.geom.*;
    import net.play5d.game.bvn.ctrl.game_ctrls.*;
@@ -113,8 +114,12 @@ import net.play5d.game.bvn.Debugger;
          _loc1_.display.x = (this.W - _loc1_.display.width) / 2;
          // P1/P2 切换按钮（右上角）
          this._playerSwitchBtn = this.addBtn("p1p2", ScreenPadAsset.p1, 0, 0.05, 0.3, 0, 0.3);
-         this._playerSwitchBtn.display.x = this.W - this._playerSwitchBtn.display.width - 20;
-         this._playerSwitchBtn.display.y = 10;
+         this._playerSwitchBtn.display.x = this.W - this._playerSwitchBtn.display.width * 2 - 20;
+         this._playerSwitchBtn.display.y = 10 + this._playerSwitchBtn.display.height;
+         // 键盘 P 键切换（同步更新按钮图标）
+         this._stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent):void {
+            if (e.keyCode == 80) { _switchPlayer(); }
+         });
          var _loc2_:Object = GameInterfaceManager.config.screenPadConfig.joySet;
          if(Boolean(_loc2_))
          {
@@ -587,22 +592,18 @@ import net.play5d.game.bvn.Debugger;
 
       private function _switchPlayer() : void
       {
-         // 仅在训练(40)和对战(11/21)模式允许切换 P2
          if (GameMode.currentMode != 40 && !GameMode.isVsPeople()) {
             Debugger.log("[ScreenPadGame] P1/P2 switch blocked: mode not supported");
             return;
          }
          _controllingP1 = !_controllingP1;
-         var _p1f:FighterMain = GameCtrl.I.gameRunData.p1FighterGroup.currentFighter;
-         var _p2f:FighterMain = GameCtrl.I.gameRunData.p2FighterGroup.currentFighter;
-         if (_controllingP1) {
-            if (_p1f) GameCtrl.I.toggleFighterAI(_p1f, 1, false);
-            if (_p2f) GameCtrl.I.toggleFighterAI(_p2f, 2, true);
-            if (_playerSwitchBtn) _playerSwitchBtn.display.bitmapData = (new ScreenPadAsset.p1() as Bitmap).bitmapData;
-         } else {
-            if (_p1f) GameCtrl.I.toggleFighterAI(_p1f, 1, true);
-            if (_p2f) GameCtrl.I.toggleFighterAI(_p2f, 2, false);
-            if (_playerSwitchBtn) _playerSwitchBtn.display.bitmapData = (new ScreenPadAsset.p2() as Bitmap).bitmapData;
+         GameCtrl.I.switchControlPlayer(_controllingP1);
+         if (_playerSwitchBtn) {
+            if (_controllingP1) {
+               _playerSwitchBtn.display.bitmapData = (new ScreenPadAsset.p1() as Bitmap).bitmapData;
+            } else {
+               _playerSwitchBtn.display.bitmapData = (new ScreenPadAsset.p2() as Bitmap).bitmapData;
+            }
          }
       }
    }

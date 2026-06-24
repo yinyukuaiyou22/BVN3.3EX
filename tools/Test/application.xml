@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <application xmlns="http://ns.adobe.com/air/application/32.0">
-	<id>com.bvn.yinyu</id>
+	<id>com.bvn.yY</id>
 	<filename>launch</filename>
-	<name>死神vs火影银鱼改</name>
-	<versionNumber>1.0</versionNumber>
+	<name>死神vs火影银鱼</name>
+	<versionNumber>1.1</versionNumber>
 	<copyright>YinYu</copyright>
 
 	<initialWindow>
@@ -24,31 +24,15 @@
 					<uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
 				<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 					<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-				<uses-sdk android:minSdkVersion="9" android:targetSdkVersion="33" />
-				<application
-					android:hardwareAccelerated="true" android:extractNativeLibs="true"
-						android:requestLegacyExternalStorage="true"
-						android:debuggable="true">
-					<!-- ANE disabled: provider and activity not needed
-					<provider
-						android:name="com.bvn.filereader.BVNDataFilesProvider"
-						android:authorities="air.com.bvn.yinyu.BVNDataFilesProvider"
-						android:exported="true"
-						android:grantUriPermissions="true"
-						android:permission="android.permission.MANAGE_DOCUMENTS">
+				<uses-sdk android:minSdkVersion="9" android:targetSdkVersion="33" /> <application android:hardwareAccelerated="true" android:extractNativeLibs="true" android:requestLegacyExternalStorage="true" android:debuggable="true">
+					<!-- ANE disabled: provider and activity not needed <provider android:name="com.bvn.filereader.BVNDataFilesProvider" android:authorities="air.com.bvn.yinyu.BVNDataFilesProvider" android:exported="true" android:grantUriPermissions="true" android:permission="android.permission.MANAGE_DOCUMENTS">
 						<intent-filter>
 							<action android:name="android.content.action.DOCUMENTS_PROVIDER"/>
 						</intent-filter>
-					</provider>
-					<activity
-						android:name="com.bvn.filereader.BVNDataFilesWakeUpActivity"
-						android:taskAffinity="air.com.bvn.yinyu.BVNDataFilesWakeUp"
-						android:excludeFromRecents="true"
-						android:exported="true"
-						android:noHistory="true"/>
+					</provider> <activity android:name="com.bvn.filereader.BVNDataFilesWakeUpActivity" android:taskAffinity="air.com.bvn.yinyu.BVNDataFilesWakeUp" android:excludeFromRecents="true" android:exported="true" android:noHistory="true"/>
 					-->
-				</application>
-			</manifest>
+</application>
+</manifest>
 		]]>		</manifestAdditions>
 	</android>
 
