@@ -814,22 +814,26 @@ import net.play5d.game.bvn.Debugger;
       {
          var _p1f:FighterMain = this.gameRunData.p1FighterGroup.currentFighter;
          var _p2f:FighterMain = this.gameRunData.p2FighterGroup.currentFighter;
+         if (!_p1f || !_p2f || !_p1f.team || !_p2f.team) return;
          if (controlP1) {
-            if (_p1f) {
-               var _p1c:FighterKeyCtrl = new FighterKeyCtrl();
-               _p1c.inputType = "P1";
-               _p1c.classicMode = GameData.I.config.keyInputMode == 1;
-               _p1f.setActionCtrl(_p1c);
-            }
-            if (_p2f) this.toggleFighterAI(_p2f, 2, true);  // P2→AI
+            // 切回 P1: P1→玩家, P2→恢复AI(训练模式由暂停菜单控制)
+            var _p1c:FighterKeyCtrl = new FighterKeyCtrl();
+            _p1c.inputType = "P1";
+            _p1c.classicMode = GameData.I.config.keyInputMode == 1;
+            _p1f.setActionCtrl(_p1c);
+            // 训练模式：切换时自动关闭 P2 AI 再恢复（让用户手动管理）
+            this.toggleFighterAI(_p2f, 2, true);  // P2→AI
          } else {
-            if (_p1f) this.toggleFighterAI(_p1f, 1, true);  // P1→AI(发呆)
-            if (_p2f) {
-               var _p2c:FighterKeyCtrl = new FighterKeyCtrl();
-               _p2c.inputType = "P1";   // 读 P1 输入通道（玩家键盘/触控）
-               _p2c.classicMode = GameData.I.config.keyInputMode == 1;
-               _p2f.setActionCtrl(_p2c);
-            }
+            // 切到 P2: P1→AI发呆, P2→玩家(训练模式自动关P2 AI)
+            var _dummy:FighterAICtrl = new FighterAICtrl();
+            _dummy.AILevel = 0;  // AI 等级0=发呆
+            _dummy.fighter = _p1f;
+            _p1f.setActionCtrl(_dummy);
+            // 训练模式：自动关闭 P2 AI 开关，让用户直接操控
+            var _p2c:FighterKeyCtrl = new FighterKeyCtrl();
+            _p2c.inputType = "P1";   // 读 P1 输入通道（玩家键盘/触控）
+            _p2c.classicMode = GameData.I.config.keyInputMode == 1;
+            _p2f.setActionCtrl(_p2c);
          }
       }
 

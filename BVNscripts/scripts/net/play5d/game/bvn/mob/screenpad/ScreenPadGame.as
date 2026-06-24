@@ -2,7 +2,6 @@
 {
    import flash.display.*;
    import flash.events.EventDispatcher;
-   import flash.events.KeyboardEvent;
    import flash.events.TouchEvent;
    import flash.geom.*;
    import net.play5d.game.bvn.ctrl.game_ctrls.*;
@@ -11,6 +10,7 @@
    import net.play5d.game.bvn.mob.*;
    import net.play5d.game.bvn.mob.events.*;
    import net.play5d.game.bvn.mob.input.ScreenPadInput;
+   import net.play5d.game.bvn.utils.KeyBoarder;
 import net.play5d.game.bvn.Debugger;
    
    public class ScreenPadGame extends EventDispatcher
@@ -116,9 +116,9 @@ import net.play5d.game.bvn.Debugger;
          this._playerSwitchBtn = this.addBtn("p1p2", ScreenPadAsset.p1, 0, 0.05, 0.3, 0, 0.3);
          this._playerSwitchBtn.display.x = this.W - this._playerSwitchBtn.display.width * 2 - 20;
          this._playerSwitchBtn.display.y = 10 + this._playerSwitchBtn.display.height;
-         // 键盘 P 键切换（同步更新按钮图标）
-         this._stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e:KeyboardEvent):void {
-            if (e.keyCode == 80) { _switchPlayer(); }
+         // 键盘 P 键切换 — 用 KeyBoarder.listen（与游戏输入系统一致）
+         KeyBoarder.listen(function(e:*):void {
+            if (e.keyCode == 80 && e.type == "keyDown") { _switchPlayer(); }
          });
          var _loc2_:Object = GameInterfaceManager.config.screenPadConfig.joySet;
          if(Boolean(_loc2_))
