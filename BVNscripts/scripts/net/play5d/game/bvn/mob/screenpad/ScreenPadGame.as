@@ -419,13 +419,13 @@ import net.play5d.game.bvn.Debugger;
          {
             return;
          }
-         // P1/P2 切换按钮：仅 touchUp 瞬间触发（从 true→false 变化时）
+         // P1/P2 切换按钮：按下瞬间触发一次（false→true 边沿），长按不重复
          if (param1 == "p1p2") {
-            if (param2) {
+            if (param2 && !_p1p2WasDown) {
                _p1p2WasDown = true;
-            } else if (_p1p2WasDown) {
-               _p1p2WasDown = false;
                this._switchPlayer();
+            } else if (!param2) {
+               _p1p2WasDown = false;
             }
             return;
          }

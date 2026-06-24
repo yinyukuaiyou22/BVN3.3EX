@@ -816,22 +816,27 @@ import net.play5d.game.bvn.Debugger;
          var _p2f:FighterMain = this.gameRunData.p2FighterGroup.currentFighter;
          if (!_p1f || !_p2f || !_p1f.team || !_p2f.team) return;
          if (controlP1) {
-            // 切回 P1: P1→玩家, P2→恢复AI(训练模式由暂停菜单控制)
             var _p1c:FighterKeyCtrl = new FighterKeyCtrl();
             _p1c.inputType = "P1";
             _p1c.classicMode = GameData.I.config.keyInputMode == 1;
             _p1f.setActionCtrl(_p1c);
-            // 训练模式：切换时自动关闭 P2 AI 再恢复（让用户手动管理）
-            this.toggleFighterAI(_p2f, 2, true);  // P2→AI
+            _setFighterAI(_p2f, 2);
          } else {
-            // 切到 P2: P1→AI, P2→玩家
-            this.toggleFighterAI(_p1f, 1, true);  // P1→AI(设置等级)
-            // 训练模式：自动关闭 P2 AI 开关，让用户直接操控
+            _setFighterAI(_p1f, 1);
             var _p2c:FighterKeyCtrl = new FighterKeyCtrl();
-            _p2c.inputType = "P1";   // 读 P1 输入通道（玩家键盘/触控）
+            _p2c.inputType = "P1";
             _p2c.classicMode = GameData.I.config.keyInputMode == 1;
             _p2f.setActionCtrl(_p2c);
          }
+      }
+
+      /** 设 fighter 为 AI：训练模式 AILevel=0(发呆)，其余用设置等级 */
+      private function _setFighterAI(f:FighterMain, playerId:int) : void
+      {
+         var _ai:FighterAICtrl = new FighterAICtrl();
+         _ai.AILevel = (GameMode.currentMode == 40) ? 0 : MessionModel.I.AI_LEVEL;
+         _ai.fighter = f;
+         f.setActionCtrl(_ai);
       }
 
       public function toggleFighterAI(param1:FighterMain, param2:int, param3:Boolean) : void
