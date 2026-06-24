@@ -810,33 +810,33 @@ import net.play5d.game.bvn.Debugger;
       }
 
       /** P1/P2 切换：controlP1=true→控制P1, false→控制P2（P2读P1输入通道） */
+      /** P1/P2 切换：只交换输入通道，不用 AI。双方始终保持玩家控制 */
       public function switchControlPlayer(controlP1:Boolean) : void
       {
          var _p1f:FighterMain = this.gameRunData.p1FighterGroup.currentFighter;
          var _p2f:FighterMain = this.gameRunData.p2FighterGroup.currentFighter;
          if (!_p1f || !_p2f || !_p1f.team || !_p2f.team) return;
          if (controlP1) {
+            // 默认：P1读P1输入, P2读P2输入
             var _p1c:FighterKeyCtrl = new FighterKeyCtrl();
             _p1c.inputType = "P1";
             _p1c.classicMode = GameData.I.config.keyInputMode == 1;
             _p1f.setActionCtrl(_p1c);
-            _setFighterAI(_p2f, 2);
-         } else {
-            _setFighterAI(_p1f, 1);
             var _p2c:FighterKeyCtrl = new FighterKeyCtrl();
-            _p2c.inputType = "P1";
+            _p2c.inputType = "P2";
             _p2c.classicMode = GameData.I.config.keyInputMode == 1;
             _p2f.setActionCtrl(_p2c);
+         } else {
+            // 切换：P1读P2输入(发呆), P2读P1输入(玩家控制P2)
+            var _p1s:FighterKeyCtrl = new FighterKeyCtrl();
+            _p1s.inputType = "P2";
+            _p1s.classicMode = GameData.I.config.keyInputMode == 1;
+            _p1f.setActionCtrl(_p1s);
+            var _p2s:FighterKeyCtrl = new FighterKeyCtrl();
+            _p2s.inputType = "P1";
+            _p2s.classicMode = GameData.I.config.keyInputMode == 1;
+            _p2f.setActionCtrl(_p2s);
          }
-      }
-
-      /** 设 fighter 为 AI：训练模式 AILevel=0(发呆)，其余用设置等级 */
-      private function _setFighterAI(f:FighterMain, playerId:int) : void
-      {
-         var _ai:FighterAICtrl = new FighterAICtrl();
-         _ai.AILevel = (GameMode.currentMode == 40) ? 0 : MessionModel.I.AI_LEVEL;
-         _ai.fighter = f;
-         f.setActionCtrl(_ai);
       }
 
       public function toggleFighterAI(param1:FighterMain, param2:int, param3:Boolean) : void
