@@ -64,6 +64,9 @@ package net.play5d.game.bvn
             GameLoger.log("res init ok");
             _rootSprite = root;
             _stage = stage;
+            // 先设置初始帧率，避免stage.frameRate未初始化
+            _fps = 30;
+            _stage.frameRate = 30;
             GameLoger.log("init game render");
             GameRender.initlize(stage);
             GameLoger.log("init game inputer");

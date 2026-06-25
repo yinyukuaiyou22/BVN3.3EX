@@ -282,7 +282,9 @@ package net.play5d.game.bvn.input
          var _loc5_:String = param1 + "_" + param2;
          if(_loc4_)
          {
-            _justDownDelayKeys[_loc5_] = 0.1 * MainGame.I.getFPS();
+            // 使用固定延迟值（3帧），避免FPS变化导致延迟异常
+            // 在30 FPS下约为100ms，在60 FPS下约为50ms
+            _justDownDelayKeys[_loc5_] = 3;
          }
          return Boolean(_justDownDelayKeys[_loc5_]) && _justDownDelayKeys[_loc5_] > 0;
       }

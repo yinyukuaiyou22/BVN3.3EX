@@ -48,6 +48,8 @@ package net.play5d.game.bvn.ui.dialog
          _loc1_.graphics.beginFill(0,0.3);
          _loc1_.graphics.drawRect(0,0,GameConfig.GAME_SIZE.x,GameConfig.GAME_SIZE.y);
          _loc1_.graphics.endFill();
+         // 关键修复：禁用遮罩的鼠标/触摸事件，防止拦截按钮点击
+         _loc1_.mouseEnabled = false;
          addChild(_loc1_);
          var _loc2_:Box = new Box(GameConfig.GAME_SIZE.x,400,0,0.8);
          _loc2_.y = (GameConfig.GAME_SIZE.y - _loc2_.height) / 2;
