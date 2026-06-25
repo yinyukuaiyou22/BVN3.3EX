@@ -99,6 +99,12 @@ import net.play5d.game.bvn.Debugger;
          Debugger.log("初始化选人");
          this.clear();
          this._selectState = 0;
+         // 重置分页状态
+         CURRENT_PAGE = 0;
+         if(this._ui && this._ui.hasOwnProperty("bg") && this._ui.bg)
+         {
+            this._ui.bg.y = 0;
+         }
          this.buildList(this._config.charList);
          GameData.I.p1Select = new SelectVO();
          if(Boolean(GameMode.isVsPeople()) || Boolean(GameMode.isVsCPU()))
@@ -114,6 +120,12 @@ import net.play5d.game.bvn.Debugger;
          Debugger.log("初始化辅助");
          this.clear();
          this._selectState = 1;
+         // 重置分页状态
+         CURRENT_PAGE = 0;
+         if(this._ui && this._ui.hasOwnProperty("bg") && this._ui.bg)
+         {
+            this._ui.bg.y = 0;
+         }
          this.buildList(this._config.assistList);
          GameInputer.enabled = false;
          setTimeout(this.initSelecter,this._tweenTime);
@@ -568,7 +580,13 @@ import net.play5d.game.bvn.Debugger;
          param1.randoms = null;
          param1.x = param2.selectData.x;
          param1.y = param2.selectData.y;
-         param1.moveTo(param2.ui.x,param2.ui.y);
+         // 考虑背景容器的偏移，确保选择框正确跟随角色
+         var bgOffsetY:Number = 0;
+         if(this._ui && this._ui.bg && this._ui.bg.hasOwnProperty("y"))
+         {
+            bgOffsetY = this._ui.bg.y;
+         }
+         param1.moveTo(param2.ui.x,param2.ui.y + bgOffsetY);
          param1.currentFighter = param2.fighterData;
          if(Boolean(param1.group))
          {
@@ -667,6 +685,28 @@ import net.play5d.game.bvn.Debugger;
          // 分页：辅助界面不归位，允许翻页；仅每帧保底解锁 enable
          if (_pagInitialized && this._ui) {
             if (this._ui.hasOwnProperty("enable")) this._ui["enable"] = true;
+
+            // FLA 翻页动画控制 bg.y，render 不参与 bg.y 操作
+            // 仅更新选择框位置适配当前 bg.y 偏移
+            if(this._ui.hasOwnProperty("bg") && this._ui.bg)
+            {
+               if(Boolean(this._p1Slt) && this._p1Slt.enabled)
+               {
+                  var p1Item:SelectFighterItem = this.getFighterItem(this._p1Slt.x,this._p1Slt.y);
+                  if(p1Item)
+                  {
+                     this.moveToSelectFighter(this._p1Slt,p1Item);
+                  }
+               }
+               if(Boolean(this._p2Slt) && this._p2Slt.enabled)
+               {
+                  var p2Item:SelectFighterItem = this.getFighterItem(this._p2Slt.x,this._p2Slt.y);
+                  if(p2Item)
+                  {
+                     this.moveToSelectFighter(this._p2Slt,p2Item);
+                  }
+               }
+            }
          }
 
          var _loc1_:String = null;
