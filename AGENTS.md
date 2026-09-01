@@ -111,6 +111,7 @@ doc/<feature>/
 8. **文件删除必须确认**：删除任何文件（包括 `rm`/`rm -rf`/`Move-Item`/`del`）必须有用户明确指令，或在过程中询问确认后执行。严禁自行判断删除。违反此规则是最高优先级错误。
 9. **删除前必须备份**：执行删除操作前，必须先将目标文件/目录复制到 `.backup/` 或用户指定位置。备份完成后再执行删除。
 10. **三次修改累积保护**：同一文件或目录经过 3 次及以上修改操作后，不得直接彻底删除。必须先回退到修改前状态（`git checkout`），经用户确认后再决定是否删除。
+11. **修改前必须手动备份**：本项目无 Git 版本控制。每次使用 `edit_file` / `create_file` 修改任何文件之前，必须先将原始文件复制到 `.backup/` 目录下（文件名加时间戳后缀，如 `.backup/Foo.as.2026-07-28-1945`），确认备份成功后再执行修改。修改后如需回退，直接从此备份恢复。
 12. **精确指定上下文**：避免"分析整个项目"，改为指定文件/模块。先列出相关文件再逐步处理，而非一次性加载全部
 13. **分步执行**：大型任务拆分为多个小步骤，每次修改后手动审核，减少反复重跑整个项目
 14. **利用会话缓存**：相关修改在同一会话中完成，避免频繁开新会话重复加载
@@ -340,6 +341,301 @@ BVNscripts/scripts/net/play5d/game/bvn/data/GameData.as             # 启动集�
 - 仅当用户明确要求时执行
 - commit message 末尾加：`Co-Authored-By: Claude <noreply@anthropic.com>`
 - 不提交 `*.swf`、参考/蓝图目录
+
+## 安卓端开发要点
+
+安卓端（AIR Android 运行时）与 PC 端（AIR Desktop 运行时）行为差异显著，以下是在移动端开发中必须注意的关键事项。
+
+### 0. 工具调用方法（正确写法，减少重试次数）
+
+**工具参数有严格的顺序与格式要求**，乱序/缺失参数是重试的最常见原因。以下为实测有效写法：
+
+| 工具 | 正确调用格式（参数顺序从前往后） | 易错点 |
+|------|----------------------------------|--------|
+| `read_file` | `path` → `environment` | `environment` 必须写 `android`；`path` 必须是 `/storage/emulated/0/BVN3.3EX-master/...` 绝对路径 |
+| `find_files` | `path` → `pattern` → `environment` | 三个参数都必要；`pattern` 支持 `*.as`、`GameMode.as` 等 glob |
+| `edit_file` | `path` → `environment` → `old` → `new` | 缺 `old` 或缺 `new` 都会报 `Both 'old' and 'new' are required`；`old` 必须与文件内容**逐字符精确匹配**（含缩进、Tab） |
+| `copy_file` | `source` → `destination` → `environment` | 必须同时传 `source` 和 `destination`，否则报 `Missing required parameters` |
+| `super_admin:terminal` | `command` → `timeoutMs` | `timeoutMs` 必须显式传（建议 ≥10000），否则前台默认 15 秒超时；禁止用 `set -e` |
+| `grep_code` | `path` → `pattern` → `environment` → `case_insensitive` → `max_results` | `pattern` 是正则表达式，特殊字符需转义 |
+| `read_file_part` | `path` → `environment` → `start_line` → `end_line` | 行号从 1 开始，`end_line` 可选（默认 start+99） |
+
+**通用规则**：
+1. **XML 标签必须用 `<param name="...">` 格式**，每个参数单独一行，参数名与参数值严格对应；不要使用 `<parameter>` 或属性传参，会导致参数被丢弃
+2. **`path` 参数永远放在第一位**。多个工具实测：`path` 放最后会出现 `path parameter is required` 假报错
+3. **绝对路径**：所有文件工具一律用 `/storage/emulated/0/BVN3.3EX-master/` 开头，禁止相对路径
+4. **修改前必须备份**（规则 11）：若 `copy_file` 连续报参数错误，改用 `super_admin:terminal` 执行 `cp` 命令备份，命令格式：
+   ```bash
+   cd /storage/emulated/0/BVN3.3EX-master && cp <目标文件> .backup/<文件名>.$(date +%Y-%m-%d-%H%M)
+   ```
+5. **编译验证必须后台执行**：手机端 mxmlc 编译需 30-60 秒，前台终端 15 秒必超时。正确做法：
+   ```bash
+   cd /storage/emulated/0/BVN3.3EX-master && nohup java -jar flex4.16.1-air51.0.1.1/lib/mxmlc.jar \
+     +flexlib=flex4.16.1-air51.0.1.1/frameworks -debug=true -swf-version=37 -strict=false \
+     -source-path+=BVNscripts/scripts \
+     -library-path+=flex4.16.1-air51.0.1.1/frameworks/libs/core.swc \
+     -external-library-path+=flex4.16.1-air51.0.1.1/frameworks/libs/air/airglobal.swc \
+     -output=tools/Test/launch.swf -- BVNscripts/scripts/launch.as \
+     > /sdcard/build_log.txt 2>&1 &
+   ```
+   然后分轮 `sleep 20 && tail -30 /sdcard/build_log.txt` 轮询，见 `launch.swf (xxx bytes)` 即编译成功
+6. **编译前检查资源一致性**：若 `EmbeddedAssets.as` 引用的 `_assets/*.png` 在手机端不存在（只有同名 `.jpg`），编译必失败。先 `ls BVNscripts/scripts/_assets/` 核对，缺则用 `cp` 补同名文件（不要修改 `EmbeddedAssets.as` 源码）
+7. **一次只传一项任务**：不要在同一轮内混用多个工具包（`extended_file_tools:copy_file` 与 `super_admin:terminal` 交替时，先确保前一个工具返回成功再调用下一个）
+
+### 1. 编译参数（缺一不可）
+
+移动端编译必须携带以下两个参数，否则编译不通过或 SWF 不产出：
+
+```bash
+java -jar flex4.16.1-air51.0.1.1/lib/mxmlc.jar \
+  +flexlib=flex4.16.1-air51.0.1.1/frameworks \
+  -debug=true -swf-version=37 -strict=false \
+  -source-path+=BVNscripts/scripts \
+  -library-path+=flex4.16.1-air51.0.1.1/frameworks/libs/core.swc \
+  -external-library-path+=flex4.16.1-air51.0.1.1/frameworks/libs/air/airglobal.swc \
+  -output=tools/Test/launch.swf -- BVNscripts/scripts/launch.as
+```
+
+| 参数 | 必要性 | 缺失后果 |
+|------|:---:|------|
+| `-strict=false` | **必须** | 预存反编译类型不匹配错误（ScreenRotater、GameInputer、JsonUtils、ANEFileReader 等）阻止 SWF 产出；mxmlc 仍返回 exitCode=0 但无产物 |
+| `-external-library-path+=airglobal.swc` | **必须** | ANEFileReader、FileUtils 等 AIR 库类报 `Type was not found`，编译失败 |
+
+### 2. GPU 渲染模式下的纹理刷新陷阱
+
+AIR Android 使用 GPU 渲染模式，`Bitmap.bitmapData` 属性直接赋值**不保证立即刷新 GPU 纹理缓存**。这是手机端最常见的 UI 显示不同步根因。
+
+**错误做法**（看起来正确但实际不刷新）：
+```actionscript
+// 只替换 bitmapData —— GPU 纹理缓存不会刷新，显示仍为旧图
+display.bitmapData = new BitmapData(...);
+display.width = w;
+display.height = h;
+```
+
+**正确做法**：直接创建全新 `Bitmap` 对象替换整个 `display` 属性：
+```actionscript
+// 创建全新 Bitmap 对象替换 display —— GPU 将重新上传纹理
+var newBmp:Bitmap = new NewAssetClass();
+newBmp.scaleX = ScreenPadUtils.scale;
+newBmp.scaleY = ScreenPadUtils.scale;
+newBmp.alpha = display.alpha;
+newBmp.x = display.x;
+newBmp.y = display.y;
+container.display = newBmp;  // 替换整个对象
+```
+
+> **案例**：`ScreenPadGame._switchPlayer()` 中 P1/P2 切换按钮图片始终显示 p1 图标，根因就是替换 `bitmapData` 后纹理缓存未刷新。修复方案：直接替换 `_playerSwitchBtn.display`（`ScreenPadBtn.display` 是 `Bitmap` 类型）为全新 Bitmap 对象。
+
+### 3. Sprite 尺寸清零陷阱（手机端按钮"消失"的根因）
+
+`Sprite.graphics.clear()` 执行后，`width`/`height` 属性变为 **0**。如果在重绘时依赖这两个动态属性，将画出 0×0 的空矩形，按钮不可见。
+
+**错误做法**：
+```actionscript
+btn.graphics.clear();                          // width/height → 0
+btn.graphics.drawRect(0, 0, btn.width, btn.height);  // 画 0×0 空矩形！
+```
+
+**正确做法**：用静态常量存储按钮尺寸，重绘时用常量：
+```actionscript
+private static var _closeBtnSize:int = 0;  // initDebug 中初始化为 int(14 * _scale)
+
+// toggle 重绘时用常量而非动态属性
+btn.graphics.clear();
+btn.graphics.beginFill(color);
+btn.graphics.drawRect(0, 0, _closeBtnSize, _closeBtnSize);  // 正确
+btn.graphics.endFill();
+```
+
+> **案例**：Debugger 面板的绿色/红色折叠/展开方块按钮，点击后因 `_toggleLogBody` 中 `clear()` 后尺寸归零，`drawRect(0,0,btn.width,btn.height)` 画出空矩形，按钮"消失"。PERF 面板的 `_togglePerfBody` 更是完全没有按钮重绘逻辑。修复：引入 `_closeBtnSize` 静态常量，两个 toggle 函数都用它重绘（展开=绿色 `0x00AA00`，收起=红色 `0xCC0000`）。
+
+### 4. 调试面板（Debugger）移动端注意事项
+
+`Debugger.as` 是运行时调试面板，在手机端有以下特殊问题：
+
+| 问题 | 根因 | 修复 |
+|------|------|------|
+| 面板重复创建 | `launch.as` 第 63 行和第 239 行各调用一次 `initDebug()` | `_inited` 静态守卫变量，开头即 return |
+| 折叠后无法展开 | 绿色小方块按钮极小（`14 * _scale` px），仅响应 `MouseEvent.CLICK` | 正常——手机触摸也触发 CLICK，需确保按钮重绘正确（见上条） |
+| 按钮点击后消失 | `graphics.clear()` 后 `width/height=0`，重绘 0×0 空矩形 | 用 `_closeBtnSize` 常量（见「Sprite 尺寸清零陷阱」） |
+| PERF toggle 无重绘 | `_togglePerfBody` 未写按钮重绘逻辑 | 补全重绘（展开绿色，收起红色） |
+
+**交互原则**：仅使用原始绿色方块按钮触发折叠/展开，**不要在标题栏整条上添加点击监听**（会与按钮监听冲突，且不符合原版设计）。
+
+**开启方式**：
+- `launch.as` 中设 `DEBUG_PANEL_ENABLED:Boolean = true`
+- 游戏内按 `P→L→A→Y` 序列键（Konami 式密技）也可触发
+
+### 5. 手柄路由（单手柄模型，2026-08-15 重构）
+
+**核心模型**：手机端只连一个手柄（Xbox 布局），手柄输入**固定走 "P1" 通道**（`joy_p1` 恒启用、`joy_p2` 恒禁用）。控制哪个角色由 `GameCtrl.switchControlPlayer()` 依据 **joyTarget** 决定（通过交换 FighterKeyCtrl.inputType 实现）。
+
+- `refreshJoystickRouting()`：观战 → joy_p1/joy_p2 双禁用；**其余（vs CPU/闯关/对战）→ `joy_p1.enabled=true`、`joy_p2.enabled=false`**
+- `switchControlPlayer(controlP1)`：按 `GameInterfaceManager.config.joyTarget` 决定实际控制方：
+  - `joyTarget=0`（跟随切换）→ 用 `controlP1`（当前控制角色读 "P1" 通道）
+  - `joyTarget=1`（固定 P1）→ 永远控制 P1（P1←"P1"、P2←"P2"）
+  - `joyTarget=2`（固定 P2）→ 永远控制 P2（P1←"P2"、P2←"P1"）
+- vs CPU/闯关：P2 是 AI，`_switchPlayer` 直接 return，手柄自然只控制 P1
+
+**调用链**：`ScreenPadGame._switchPlayer()` → `GameCtrl.switchControlPlayer()` → `GameInterfaceManager.refreshJoystickRouting()`
+
+**joyTarget 设置入口**：`SetBtnGroup.as`（设置菜单「手柄控制权」：跟随切换/P1/P2，optoinKey=`joyTarget`）
+
+**历史 Bug**：旧版 `refreshJoystickRouting` 按 controllingP1 切换 joy_p1/joy_p2 启用，与 `switchControlPlayer` 交换 inputType 的模型冲突 → 切换后手柄控制对面角色；现统一为单手柄模型后消除。
+
+### 5.5 多手柄配置与批次 4/5 操作规范（2026-08）
+
+**批次背景**：原始 `joy_p1`/`joy_p2` 共享 `joy1Config`，P2 改键覆盖 P1、设备号重连失效。批次 1-5 重构为「单手柄模型 + P2 独立配置 `joy2Config` + 双手柄时 P2 独立改键 UI」。**核心链路见 CLAUDE.md「多手柄配置重构」专节。**
+
+**涉及文件与职责**：
+| 文件 | 职责 |
+|------|------|
+| `ViewManager.as` | `goP1JoyStickSet()`/`goP2JoyStickSet()` → `goJoyStickSet(playerNum, joyConfigVO)`；`isMultiplePads()`/`refreshMultiPadCache()`/`_multiPadCache` 双手柄检测 |
+| `GameInterfaceManager.as` | `getSettingMenu()` 加 P2 条件入口（`isMultiplePads() ? {...} : null`）；`updateInputConfig` 绑定 `joy_p2.setConfig(joy2Config)` |
+| `SelectFighterStage.as` | `build()` 末尾调 `ViewManager.I.refreshMultiPadCache()`（选人时检测一次双手柄） |
+| `ExtendConfig.as` | `joy2Config` 字段 + `toSaveObj/readSaveObj/setDefaultDevice(joy2Config,1)` 独立存档 |
+| `GameJoystickInput.as` | `_prevKeys` 设备级隔离、`_joyLog` 设备感知、`anyKey` 接 `_checkEdge` |
+
+**操作规范（维护时务必遵守）**：
+1. **P2 APPLY 不调 `updateJoyConfig`**：只 `readObj` 直存，与 P1 解耦。改 P2 存档逻辑时勿让 P2 覆盖 P1 设备号。
+2. **双手柄检测只在选人时做一次**（`SelectFighterStage.build()`），不订阅设备热插拔事件。若将来要支持游戏中途热插拔，需在 `refreshMultiPadCache` 加事件订阅——**这是当前唯一留白**。
+3. **单手柄时 P2 入口完全隐藏**（不灰显）：用 `isMultiplePads() ? {...} : null` 三元运算符，`null` 元素被设置菜单渲染层过滤，不会显示空白项。
+4. **保留历史拼写错误**：`getAllDeivces`（Deivces）、`wankai/waikai`——不要"修正"，与既有反编译代码风格一致。
+5. **改键 UI 已参数化多玩家**：`JoyStickSetUI.setConfig(playerNum, configVO)`、`IInnerSetUI` 接口——新增入口时复用此模式，勿新增重复实现。
+6. **编译产物 SWF 字节数变化应控制在 ±1KB 内**：若单批次改动导致 SWF 变化过大，检查是否误嵌入资源（见 `EmbeddedAssets.as`）。
+7. **日志分流**：手柄日志统一带 `P{n}` 前缀（`JOY:P1`/`JOY:P2`）+ `dev=` 设备号，用于多手柄真机定位（批次 5 已实现 `_joyLog` 设备感知）。
+
+**批次 6.7 治本修复备份清单**（黑屏选人界面 face 资源加载失败根因 — BitmapAssetLoader 不派发 Event → SelectFighterItem 加 ENTER_FRAME 监听 + _refreshFace 私有方法）：
+| 文件 | 备份记录 |
+|------|----------|
+| `SelectFighterItem.as` | `.backup/SelectFighterItem.as.batch67fix.$TS`（治标态：face MISS else + TextField fallback + ENTER_FRAME 监听 + _refreshFace）→ `.backup/SelectFighterItem.as.batch67fix.$TS.predestory`（destory 注入前）→ `.backup/SelectFighterItem.as.batch67fix.$TS.zhiben_ok`（治本终态：destory 也清理 ENTER_FRAME = 28 行总量） |
+| `SelectFighterStage.as` | `.backup/SelectFighterStage.as.batch67fix.$TS`（治标：buildList 行 280-282 `_itemObj.length` 统计） |
+| `tools/Test/launch.swf` | `.backup/launch.swf.6.7zhiben.$TS`（治本编译产物 34608882B / 0 error 1 warning，+208B vs 治标 34608674B） |
+| `SelectStageConfigVO.as` | `.backup/SelectStageConfigVO.as.bugfix.2026-08-26-1854`（批次 6.6 BUG FIX：行 88 `.toString()` → `.text()`） |
+
+### 6. P1/P2 切换按钮（ScreenPadGame._switchPlayer）
+
+切换按钮是 `ScreenPadBtn.display` 属性（类型为 `Bitmap`）承载的图片。切换流程：
+
+1. 用户点击 `_playerSwitchBtn`（`ScreenPadBtn` 类型）
+2. `_switchPlayer()` 调用 `GameCtrl.I.switchControlPlayer(!_controllingP1)`
+3. 替换按钮图片：根据新状态 `_controllingP1` 选择 `ScreenPadAsset.p1` 或 `ScreenPadAsset.p2`
+4. **必须**创建全新 `Bitmap` 对象（不能仅替换 `bitmapData`，原因见 GPU 纹理刷新陷阱）
+5. 设置 `newBmp.scaleX/Y = ScreenPadUtils.scale`，复制 `alpha`、`x`、`y` 位置
+6. 调用 `_playerSwitchBtn.initArea()` 刷新触摸热区
+
+**资源类**：`ScreenPadAsset.p1`（`EmbeddedAssets.p1_png`，1067B）、`ScreenPadAsset.p2`（`EmbeddedAssets.p2_png`，2552B）
+
+### 7. 调试输出（文件日志系统，2026-08-15 启用）
+
+移动端 AIR trace 默认**不输出到 logcat**（需 fdb 连接，logcat 抓不到游戏日志）。项目已内置**文件日志系统**：`launch.as` 无条件调用 `Debugger.initFileLog(stage)`（不依赖 `DEBUG_PANEL_ENABLED` 面板开关），所有 `Debugger.log()` 自动缓冲落盘（每 5 帧刷盘）。
+
+**日志文件路径**（AIR 应用私有目录）：
+```
+/data/user/0/air.com.bvn.yy798/com.bvn.yy798/Local Store/bvn_debug.log
+```
+> 注意：路径为 `/data/user/0/<包名>/<applicationID>/Local Store/`（applicationID = application.xml 的 `<id>`，如 `com.bvn.yy798`），不是纯包名目录。
+
+**读取方式（root / shizuku / run-as）**：
+```bash
+run-as air.com.bvn.yy798 cat '/data/user/0/air.com.bvn.yy798/com.bvn.yy798/Local Store/bvn_debug.log'
+```
+
+**日志类型**（排查手柄/输入问题）：
+| 前缀 | 含义 |
+|------|------|
+| `JOY_IN: DOWN/UP device=... control=N value=...` | 手柄 control 边沿（设备侧实际输入，`JoySticker.pollInputLog()` 每帧轮询） |
+| `INPUT: P1.attack = true` | GameInputer 查询按下边沿（**哪个通道收到输入**，`GameInputer.call()` 内置） |
+| `JOY_ROUTE: singlePad joy_p1=true joy_p2=false` | 手柄路由状态（`refreshJoystickRouting()`） |
+| `JOY:P1 up dev=xxx [1:AXIS=0.5]` | `GameJoystickInput._joyLog()` 按键实时扫描（**设备切换感知**，批次 5 起按 `config.deviceId` 匹配设备，P1/P2 用不同设备时各自指向正确设备） |
+| `JOY:P1 EDGE DOWN/UP key=attack dev=xxx ctrl=15,` | `GameJoystickInput._checkEdge()` 边沿（批次 5 起带 `ctrl=` 组合；`key=any` 表示任意键边沿，来自 `anyKey()`） |
+| `goJoyStickSet: enter player=2 deviceId=yyy` | `ViewManager.goJoyStickSet()` 进入改键页（批次 4/5，标注玩家号+设备号，排查 P1/P2 改键分流） |
+| `refreshMultiPadCache: devices=N multiPad=true` | `ViewManager.refreshMultiPadCache()` 双手柄检测（批次 4，选人时执行一次） |
+| `connected / button:N:ID` | 设备连接 + control 布局（核对键位 index） |
+| `initFileLog: <路径>` | 日志文件路径确认（首行） |
+
+**写入方式**：`Debugger.log("msg")` → `trace()` + 文件缓冲。`GameInputer.call()` 内置按下边沿日志（`INPUT:` 前缀）。`JoySticker.pollInputLog()` 每帧轮询手柄变化（`JOY_IN:` 前缀）。
+
+### 8. ANE 子系统
+
+当前 **ANE 已禁用**（`ANE_ENABLED = false`），源文件保留备用。重新启用需打开三开关：`ANEFileReader.as:ANE_ENABLED` + `application.xml:extensionID` + `debug_mob.bat:-extdir`。详见 CLAUDE.md ANE 开发规范。
+
+### 9. 备份文件查找
+
+本项目无 Git 版本控制，每次修改前自动备份到 `.backup/` 目录，格式为 `文件名.时间戳`。如需回退，从此目录恢复对应文件。本次对话全部备份：
+
+| 文件 | 备份文件名 |
+|------|-----------|
+| `ScreenPadGame.as` | `.backup/ScreenPadGame.as.2026-07-29-1023` |
+| `GameInterfaceManager.as` | `.backup/GameInterfaceManager.as.2026-07-29-1023` |
+| `Debugger.as` | `.backup/Debugger.as.2026-07-29-1042` |
+| `CLAUDE.md` | `.backup/CLAUDE.md.2026-07-29-1057` 以及 `.backup/CLAUDE.md.2026-07-29-1059` 以及 `.backup/CLAUDE.md.2026-08-11-1621` 以及 `.backup/CLAUDE.md.2026-08-11-1653` |
+| `AGENTS.md` | `.backup/AGENTS.md.2026-07-29-1057` 以及 `.backup/AGENTS.md.2026-08-11-1621` 以及 `.backup/AGENTS.md.2026-08-11-1653` |
+| `MessionModel.as` | `.backup/MessionModel.as.2026-08-11-1619`（闯关一局即通关修复） |
+| `GameCtrl.as` | `.backup/GameCtrl.as.2026-08-11-1619` |
+| `WinnerState.as` | `.backup/WinnerState.as.2026-08-11-1652`（胜利结算 BGM 不停修复） |
+| `SelectUIFactory.as` | `.backup/SelectUIFactory.as.2026-08-11-1659`（选人界面 2P 显示框移 P1 正上方） |
+| `CLAUDE.md` | `.backup/CLAUDE.md.2026-08-11-1701` |
+| `AGENTS.md` | `.backup/AGENTS.md.2026-08-11-1701` |
+| `FighterMain.as` | `.backup/FighterMain.as.2026-08-11-1808`（僵直 Bug 修复——新增 explodeSteelFrame getter） |
+| `FighterMcCtrler.as` | `.backup/FighterMcCtrler.as.2026-08-11-1808`（僵直 Bug 修复——doHurt 钢体窗口守卫 + renderHurtBreak 空指针防护 + renderHurt 兜底） |
+| `GameLoader.as` | `.backup/GameLoader.as.2026-08-12-1130`（新式 main_mc 人物包兼容——loadFighter/loadFighterFromPath 解析 main_mc） |
+| `FighterCtrler.as` | `.backup/FighterCtrler.as.2026-08-12-1130`（新式 main_mc 人物包兼容——initFighter 双注入分支） |
+| `CLAUDE.md` | `.backup/CLAUDE.md.2026-08-12-1134`（新式包兼容器录写入：GameLoader/FighterCtrler 修改方法 + EffectCtrl/SoundCtrl/GameCtrl 单例检查结论） |
+| `AGENTS.md` | `.backup/AGENTS.md.2026-08-12-1134` |
+| `FighterMcCtrler.as` | `.backup/FighterMcCtrler.as.fix.2026-08-15-1648`（灵压爆发钢体卡死修复——撤销 doHurt 钢体窗口守卫 + renderHurt 兜底加 explodeSteelFrame 条件） |
+| `GameCtrl.as` | `.backup/GameCtrl.as.joyfix.2026-08-15-1703`（手柄路由单手柄模型——switchControlPlayer 按 joyTarget 决定控制方） |
+| `GameInterfaceManager.as` | `.backup/GameInterfaceManager.as.joyfix.2026-08-15-1703`（refreshJoystickRouting 单手柄化 + 设置菜单接入 JoyStickSetUI） |
+| `JoySticker.as` | `.backup/JoySticker.as.joyfix.2026-08-15-1703`（isDown/checkDownValue 边界 `>=` 修复 + pollInputLog 输入轮询） |
+| `ExtendConfig.as` | `.backup/ExtendConfig.as.joyfix.2026-08-15-1703`（备份，未修改） |
+| `JoyStickConfigVO.as` | `.backup/JoyStickConfigVO.as.remap.2026-08-15-1745`（键位重映射为 Xbox 实际布局） |
+| `Debugger.as` | `.backup/Debugger.as.filelog.2026-08-15-*`（文件日志系统：log 落盘不依赖面板 + initFileLog + ENTER_FRAME 轮询） |
+| `launch.as` | `.backup/launch.as.filelog.2026-08-15-*`（无条件调用 Debugger.initFileLog） |
+| `FighterKeyCtrl.as` | `.backup/FighterKeyCtrl.as.fix.2026-08-15-*`（移除 listenKeys 注册——修复按钮边沿抢占无效） |
+| `GameInputer.as` | `.backup/GameInputer.as.fix.2026-08-15-*`（call() 加 INPUT 按下边沿日志） |
+| `CLAUDE.md` / `AGENTS.md` | `.backup/CLAUDE.md.docs.2026-08-15-*` / `.backup/AGENTS.md.docs.2026-08-15-*`（本文档更新备份） |
+| `ViewManager.as` | `.backup/ViewManager.as.2026-08-27-1613.batch4.goP2`（批次 4 起点）→ `.backup/ViewManager.as.2026-08-27-1638.batch4.end`（批次 4 终态：goP2JoyStickSet + isMultiplePads + refreshMultiPadCache）→ `.backup/ViewManager.as.2026-08-28-0010.batch5.start` / `.2026-08-28-0030.batch5.end`（批次 5 改键进入日志） |
+| `GameInterfaceManager.as` | `.backup/GameInterfaceManager.as.2026-08-27-1613.batch4.goP2`（批次 4 起点）→ `.backup/GameInterfaceManager.as.2026-08-27-1625.batch4.menugoP2.mid`（菜单 P2 入口中间态）→ `.backup/GameInterfaceManager.as.2026-08-27-1638.batch4.end`（批次 4 终态） |
+| `SelectFighterStage.as` | `.backup/SelectFighterStage.as.2026-08-27-1632.batch4.refreshCache.mid`（选人 refreshMultiPadCache 中间态）→ `.backup/SelectFighterStage.as.2026-08-27-1638.batch4.end`（批次 4 终态） |
+| `GameJoystickInput.as` | `.backup/GameJoystickInput.as.2026-08-28-0010.batch5.start`（批次 5 起点）→ `.backup/GameJoystickInput.as.2026-08-28-0030.batch5.end`（批次 5 终态：_joyLog 设备感知 + anyKey 接 _checkEdge + EDGE ctrl 组合） |
+| `CLAUDE.md` / `AGENTS.md` | `.backup/CLAUDE.md.2026-08-28-0045.docs` / `.backup/AGENTS.md.2026-08-28-0045.docs`（批次 1-5 文档更新备份） |
+| `Debugger.as` | `.backup/Debugger.as.buildtag.2026-08-27-1602`（版本号机制初版）→ `.backup/Debugger.as.buildtag.injected.2026-08-27-1607`（sed 注入后含 BUILD_TAG `BVN-3.3EX-batch6.14-2026-08-27-1604`） |
+| `build.bat` | `.backup/build.bat.buildtag.2026-08-27-1604`（PowerShell 自动注入 BUILD_TAG 日期时间，批次号 `batch6.14` 硬编码于脚本） |
+| `tools/Test/launch.swf` | `.backup/launch.swf.batch614.2026-08-27-1606` (34611060B) + `.backup/launch.swf.batch614.2026-08-27-1607` (34611060B) — md5 `52f76b80407023419f7daacecedbb0e4`，比 6.13 增 487B（30+ 行 BUILD_TAG/SESSION 写入），0 error 0 warning，编译 70s（swfdump `-abc` 反汇编验证 `BVN-3.3EX-batch6.14-2026-08-27-1604` 字面量在 SWF 中） |
+| `AGENTS.md` | `.backup/AGENTS.md.batch614.2026-08-27-1623`（本批次文档追加前备份） |
+
+### 10. 手柄键位映射（Xbox Wireless Controller 实际布局，2026-08-15）
+
+`JoyStickConfigVO.as` 默认键位按 **Xbox Wireless Controller 实测 control 布局**（AIR GameInput API 报告，24 control）：
+
+```
+control 0/1  = D-pad HAT 轴（AXIS_16 上下 / AXIS_15 左右）
+control 8/9  = 左摇杆（AXIS_1=Y 正1=下拉 / AXIS_0=X）
+control 13=A  14=B  15=X  16=Y
+control 17=LB  18=RB  19=LS  21=Start  22=Select
+control 10/11/12 = D-pad 按钮（BUTTON_19/21/22，缺 down）
+```
+
+| 配置项 | control | 物理键 | 配置项 | control | 物理键 |
+|--------|---------|--------|--------|---------|--------|
+| up2 | (8,-0.5) | 左摇杆上 | attack | (15,1) | X |
+| down2 | (8,0.5) | 左摇杆下（正1=下拉） | jump | (13,1) | A |
+| left2 | (9,-0.5) | 左摇杆左 | dash | (14,1) | B |
+| right2 | (9,0.5) | 左摇杆右 | skill | (16,1) | Y |
+| up | (0,-0.5) | D-pad 上（HAT） | superSkill | (18,1) | RB |
+| down | (0,0.5) | D-pad 下（HAT） | special | (17,1) | LB |
+| left | (1,-0.5) | D-pad 左（HAT） | waikai | (19,1) | LS 按下 |
+| right | (1,0.5) | D-pad 右（HAT） | back | (21,1) | Start（暂停） |
+| | | | select | (22,1) | Select（确认） |
+
+> **历史坑**：旧默认映射（left2/right2=0/1、back=8 等）基于另一设备调试，与 Xbox Wireless Controller 完全错位——back=8 实为左摇杆 Y 轴 → **下拉左摇杆触发暂停**；按钮全部无效。**更换手柄设备时务必先看 `connected/button:N:ID` 日志核对 control 布局再改映射**。
+> 按键设置 UI：设置菜单「控制设置」→ `ViewManager.goP1JoyStickSet()`（JoyStickSetUI，可重新映射）。
+
+> **scripts_cut/ 独立阉割版副本（2026-08-12）**：为产出阉割版 launch.swf，在 `BVNscripts/scripts_cut/` 完整复制主项目源码并做阉割修改（主项目 `BVNscripts/scripts/` **零改动**）。编译素材（12 内嵌 UI SWF + 20 图像）全部反编译自 `FFDEC/面板改.swf`（源见 `FFDEC/_ui_extract_test/`、`FFDEC/_img_extract_test/`）。编译产物 `BVNscripts/_cut_output/launch.swf`（5242613 字节，0 error，独立不覆盖主项目 `tools/Test/launch.swf`）。
+> **阉割项**：隐藏双人玩法(21/11/24/14/23/25/13/15)、制作组(CREDITS)、键盘输入开关(ENABLE_KEYBOARD)、无限气开关(INFINITE_ENERGY)、手柄控制开关(joyTarget 设置项，保留 refreshJoystickRouting 切换逻辑)；暂停菜单新增「出招表 MOVE LIST」按钮与「返回选人 BERAK SELECT」同组；广告(**保持现状**)；设置界面无返回选人按钮(用户澄清"只移除按钮"，实际原无)。
+> **保留项**：练习40、单闯20、单VS CPU22、小闯10、小队VS CPU12、3.6新式 main_mc 兼容(GameLoader/FighterCtrler)、控制权切换(ScreenPadGame/_switchPlayer/refreshJoystickRouting)。
+> **本次副本修改备份**（源文件在 `scripts_cut/` 内，备份于根 `.backup/`）：`GameInterfaceManager.as`、`SetBtnGroup.as`、`PauseDialog.as`、`MenuBtnGroup.as`、`GameInterface.as`（后缀 `.2026-08-12-1629`）。
 
 ## 关键文件速查
 
