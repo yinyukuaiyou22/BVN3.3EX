@@ -29,8 +29,8 @@ call :ECHO_LANG :TITLE ""
 
 :: ---- Auto-detect or verify FLEX_HOME ----
 :: Always prefer local SDK over environment variable
-set "SDK_HOME=%PROJ%\AIRSDK\flex4.16.1-air51.0.1.1"
-set "FALLBACK=%PROJ%\AIRSDK\AIRSDK_51.1.2"
+set "SDK_HOME=%PROJ%\flex4.16.1-air51.0.1.1"
+set "FALLBACK=%PROJ%\AIRSDK_51.1.2"
 
 if exist "%SDK_HOME%\bin\fdb.bat" (
     set "FLEX_HOME=%SDK_HOME%"
@@ -54,6 +54,20 @@ call :EXIST "%FLEX_BIN%"
 
 set "ADT=%FLEX_BIN%\adt.bat"
 set "CERT=%FLEX_BIN%\mycert.p12"
+
+:: ---- Auto-detect Android SDK ----
+set "ANDROID_SDK="
+for %%d in ("D:\Android\SDK" "C:\Android\SDK" "E:\Android\SDK" "%ANDROID_HOME%") do (
+    if exist %%d\platforms (
+        if not defined ANDROID_SDK set "ANDROID_SDK=%%~d"
+    )
+)
+if not defined ANDROID_SDK (
+    echo [ERROR] Android SDK not found! Set ANDROID_HOME or place SDK at D:\Android\SDK
+    goto END
+)
+echo [AUTO] ANDROID_SDK: %ANDROID_SDK%
+
 set "PLATFORM_TOOLS=%PROJ%\tools\platform-tools"
 set "PATH=%PLATFORM_TOOLS%;%FLEX_BIN%;%PATH%"
 
@@ -84,7 +98,7 @@ call :EXIST "%ADT%"
 cd /d "%TEST_DIR%"
 
 		:: ---- Whitelist: effect.swf + movelist.jpg + sounds/ + font/ + config/ (UI SWF embedded) ----
-		call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "D:/Android/SDK" "launch.swf" -C . assets\effect.swf -C . assets\movelist.jpg -C . assets\sounds -C . assets\font -C . assets\config
+		call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "%ANDROID_SDK%" "launch.swf" -C . assets\effect.swf -C . assets\movelist.jpg -C . assets\sounds -C . assets\font -C . assets\config -C . assets\swf
 		set ADT_RESULT=%errorlevel%
 
 		if %ADT_RESULT% neq 0 (

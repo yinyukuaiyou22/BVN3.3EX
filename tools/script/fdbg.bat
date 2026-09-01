@@ -6,8 +6,8 @@ set PROJ=%BAT_HOME%..\..
 
 :: ---- Auto-detect AIR SDK (for fdb.bat) ----
 :: Always prefer local SDK over environment variable
-set "SDK_HOME=%PROJ%\AIRSDK\flex4.16.1-air51.0.1.1"
-set "FALLBACK=%PROJ%\AIRSDK\AIRSDK_51.1.2"
+set "SDK_HOME=%PROJ%\flex4.16.1-air51.0.1.1"
+set "FALLBACK=%PROJ%\AIRSDK_51.1.2"
 
 if exist "%SDK_HOME%\bin\fdb.bat" (
     set "FLEX_HOME=%SDK_HOME%"
