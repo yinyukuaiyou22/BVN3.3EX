@@ -55,6 +55,7 @@ package net.play5d.game.bvn.ui
       
       public function initMainSet() : void
       {
+         Debugger.log("[SetBtnGroup]","initMainSet()");
          this.initMainBtns();
          this.initArrow();
          GameRender.add(this.render,this);
@@ -64,6 +65,7 @@ package net.play5d.game.bvn.ui
       
       public function initKeySet() : void
       {
+         Debugger.log("[SetBtnGroup]","initKeySet()");
          this.setBtnData([{
             "label":"SET ALL",
             "cn":"设置全部"
@@ -79,8 +81,54 @@ package net.play5d.game.bvn.ui
          }]);
       }
       
+      public function initControlSet() : void
+      {
+         Debugger.log("[SetBtnGroup]","initControlSet()");
+         var _loc1_:ConfigVO = GameData.I.config;
+         this.setBtnData([{
+            "label":"Screen Button",
+            "cn":"屏幕按钮设置"
+         },{
+            "label":"Joy Target",
+            "cn":"手柄控制权",
+            "options":[{
+               "label":"Follow Switch",
+               "cn":"跟随切换",
+               "value":0
+            },{
+               "label":"P1",
+               "cn":"1P",
+               "value":1
+            },{
+               "label":"P2",
+               "cn":"2P",
+               "value":2
+            }],
+            "optoinKey":"joyTarget",
+            "optionValue":_loc1_.getValueByKey("joyTarget")
+         },{
+            "label":"Keyboard Input",
+            "cn":"键盘输入",
+            "options":[{
+               "label":"ON",
+               "cn":"开",
+               "value":true
+            },{
+               "label":"OFF",
+               "cn":"关",
+               "value":false
+            }],
+            "optoinKey":"ENABLE_KEYBOARD",
+            "optionValue":_loc1_.getValueByKey("ENABLE_KEYBOARD")
+         },{
+            "label":"BACK",
+            "cn":"返回"
+         }]);
+      }
+      
       public function setBtnData(param1:Array, param2:int = 0) : void
       {
+         Debugger.log("[SetBtnGroup]","setBtnData count=",param1.length);
          var _loc3_:SetBtn = null;
          var _loc4_:int = 0;
          var _loc5_:Object = null;
@@ -312,6 +360,12 @@ package net.play5d.game.bvn.ui
          while(_loc2_ < _loc4_.length)
          {
             _loc3_ = _loc4_[_loc2_];
+            // 批次 6.13 修复：getSettingMenu() 可能在单手柄时返回含 null 元素的数组（P2 改键入口），此处需过滤避免 #1009
+            if(_loc3_ == null)
+            {
+               _loc2_++;
+               continue;
+            }
             _loc1_ = this.addBtn(_loc3_.txt,_loc3_.cn,_loc3_.options);
             if(Boolean(_loc3_.select))
             {
@@ -573,6 +627,7 @@ package net.play5d.game.bvn.ui
       private function onSelect(param1:SetBtnEvent) : void
       {
          var _loc2_:SetBtn = param1.currentTarget as SetBtn;
+         Debugger.log("[SetBtnGroup]","onSelect label=",_loc2_ != null ? _loc2_.label : "?");
          if(_loc2_.onSelect != null)
          {
             _loc2_.onSelect();
@@ -581,4 +636,3 @@ package net.play5d.game.bvn.ui
       }
    }
 }
-

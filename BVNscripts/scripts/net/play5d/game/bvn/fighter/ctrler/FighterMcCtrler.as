@@ -1818,6 +1818,28 @@ package net.play5d.game.bvn.fighter.ctrler
             return;
          }
          this.renderHurtBreak();
+         // 兜底：若僵直帧已归零但 renderAnimate 的恢复分支因渲染链路中断未执行（如 _ghostStepIng 短路、空指针异常），强制恢复，避免永卡
+         // 灵压爆发窗口内（explodeSteelFrame>0）跳过强制恢复，交给 FighterMain.renderAnimate 正常递减链路（_explodeHitFrame==8 → idle）处理，避免钢体与受击状态互相干扰
+         if(this._hurtHoldFrame <= 0 && this._fighter.explodeSteelFrame <= 0)
+         {
+            if(this._fighter.isAlive)
+            {
+               this.hurtResume();
+            }
+            else
+            {
+               this._action.clearState();
+               if(this._fighter.isInAir)
+               {
+                  var _loc1_:Point = this._fighter.getVec2();
+                  this.hurtFly(_loc1_.x,_loc1_.y);
+               }
+               else
+               {
+                  this._mc.playHurtDown();
+               }
+            }
+         }
       }
       
       private function renderHurtBreak() : void
@@ -1834,8 +1856,9 @@ package net.play5d.game.bvn.fighter.ctrler
          {
             return;
          }
-         var _loc1_:Boolean = Boolean(this._fighter.getLastHurtHitVO().isBisha());
-         if(_loc1_)
+         var _loc1_:HitVO = this._fighter.getLastHurtHitVO();
+         var _loc5_:Boolean = Boolean(_loc1_) && _loc1_.isBisha();
+         if(_loc5_)
          {
             return;
          }

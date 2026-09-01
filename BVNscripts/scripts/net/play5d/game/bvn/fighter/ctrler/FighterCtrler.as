@@ -268,6 +268,15 @@ import net.play5d.game.bvn.Debugger;
          this._fighter = param1;
          this.hitModel = new FighterHitModel(this._fighter);
          this._voiceCtrl = new FighterVoiceCtrler();
+         // —— 新式 main_mc 人物包兼容:优先用 initFighter({...}) 单函数注入,失败回退旧式 setter ——
+         if(Boolean(param1.mc.initFighter))
+         {
+            this._effectCtrl = new FighterEffectCtrl(param1);
+            this._fighterMcCtrl = new FighterMcCtrler(param1);
+            this._fighterMcCtrl.effectCtrler = this._effectCtrl;
+            param1.mc.initFighter({fighter_ctrler:this, mc_ctrler:this._fighterMcCtrl, effect_ctrler:this._effectCtrl});
+            return;
+         }
          if(Boolean(param1.mc.setEffectCtrler))
          {
             this._effectCtrl = new FighterEffectCtrl(param1);

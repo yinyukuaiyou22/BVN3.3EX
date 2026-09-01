@@ -294,8 +294,16 @@ import net.play5d.game.bvn.Debugger;
             _mainMc.gotoAndStop(this.data ? this.data.startFrame + 1 : 2);
             return;
          }
+         // —— 3.6+ 新式 main_mc 人物包兼容:无 setFighterCtrler 但有 initFighter({...}) 单函数注入 ——
+         if(Boolean(_mainMc.initFighter))
+         {
+            this._fighterCtrl.initFighter(this);
+            this._buffCtrler = new FighterBuffCtrler(this);
+            _mainMc.gotoAndStop(this.data ? this.data.startFrame + 1 : 2);
+            return;
+         }
          this.initFailed = true;
-         Debugger.log("[FighterMain] 此角色不可用 — SWF缺少setFighterCtrler: " + (this.data ? this.data.id : "unknown"));
+         Debugger.log("[FighterMain] 此角色不可用 — SWF缺少setFighterCtrler/initFighter: " + (this.data ? this.data.id : "unknown"));
       }
       
       override public function renderAnimate() : void
@@ -583,6 +591,11 @@ import net.play5d.game.bvn.Debugger;
          this._explodeHitFrame = 10;
          this._explodeSteelFrame = 60;
          isAllowBeHit = false;
+      }
+      
+      public function get explodeSteelFrame() : int
+      {
+         return this._explodeSteelFrame;
       }
       
       public function replaceSkill() : void

@@ -43,7 +43,7 @@ package {
       public static var movelist_jpg:Class;
       [Embed(source="_assets/4_mob_ui_swf$01fa43d75bc6b68925f58b44b1f860a91273665975ByteArray.bin", mimeType="application/octet-stream")]
       public static var mob_ui_swf_data:Class;
-      [Embed(source="_assets/1_startup_png$5ab29dc3fdc04fbdd16afce6653b4bc0756872080.png")]
+      [Embed(source="_assets/1_startup_png$5ab29dc3fdc04fbdd16afce6653b4bc0756872080.jpg")]
       public static var startup_png:Class;
       [Embed(source="_assets/p1.png")]
       public static var p1_png:Class;

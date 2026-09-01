@@ -13,8 +13,9 @@
    import net.play5d.game.bvn.map.MapMain;
    import net.play5d.game.bvn.state.GameState;
    import net.play5d.game.bvn.ui.*;
-   import net.play5d.game.bvn.utils.*;
-import net.play5d.game.bvn.Debugger;
+import net.play5d.game.bvn.utils.*;
+ import net.play5d.game.bvn.Debugger;
+ import net.play5d.game.bvn.mob.GameInterfaceManager;
    
    public class GameCtrl
    {
@@ -273,17 +274,16 @@ import net.play5d.game.bvn.Debugger;
          {
             _loc3_.colorTransform = null;
          }
-         this.addFighter(_loc2_,1);
-         this.addFighter(_loc3_,2);
-         // 2v2/1v2：额外 fighter 同时上场（最小原型）
+         if (!this.addFighter(_loc2_,1) || !this.addFighter(_loc3_,2)) return;
+         // 2v2/1v2：额外 fighter 同时上场（出生点由 GameState.initFight 设置）
          if (GameMode.isDuoMode()) {
             var _p1f2:FighterMain = this.gameRunData.p1FighterGroup.fighter2;
             var _p2f2:FighterMain = this.gameRunData.p2FighterGroup.fighter2;
-            if (_p1f2) { this.addFighter(_p1f2, 1); _p1f2.x += 30; }
-            if (_p2f2) { this.addFighter(_p2f2, 2); _p2f2.x -= 30; }
+            if (_p1f2) { if (!this.addFighter(_p1f2, 1)) return; }
+            if (_p2f2) { if (!this.addFighter(_p2f2, 2)) return; }
          } else if (GameMode.is1v2Mode()) {
             var _p2f2_1v2:FighterMain = this.gameRunData.p2FighterGroup.fighter2;
-            if (_p2f2_1v2) { this.addFighter(_p2f2_1v2, 2); _p2f2_1v2.x -= 30; }
+            if (_p2f2_1v2) { if (!this.addFighter(_p2f2_1v2, 2)) return; }
          }
          _loc4_.initlize();
          this.gameState.initFight(this.gameRunData.p1FighterGroup,this.gameRunData.p2FighterGroup,_loc4_);
@@ -307,12 +307,12 @@ import net.play5d.game.bvn.Debugger;
          GameInterface.instance.afterBuildGame();
       }
       
-      private function addFighter(param1:FighterMain, param2:int) : void
+      private function addFighter(param1:FighterMain, param2:int) : Boolean
       {
          var _loc3_:* = null;
          if(!param1)
          {
-            return;
+            return false;
          }
          switch(int(param2) - 1)
          {
@@ -343,12 +343,13 @@ import net.play5d.game.bvn.Debugger;
          param1.initlize();
          if(param1.initFailed)
          {
-            Debugger.log("[GameCtrl] addFighter FAILED — 此角色不可用: " + param1.data.id);
-            GameUI.confrim("此角色暂时不可用","该角色文件不完整，请选择其他角色。",MainGame.I.goMenu);
-            return;
+			Debugger.log("[GameCtrl] addFighter FAILED — 此角色不可用: " + param1.data.id);
+			GameUI.confrim("此角色暂时不可用","该角色文件不完整，请选择其他角色。",MainGame.I.goMenu);
+			return false;
          }
-         param1.setActionCtrl(_loc3_);
-         this.addGameSprite(param2,param1);
+			param1.setActionCtrl(_loc3_);
+			this.addGameSprite(param2,param1);
+			return true;
       }
       
       private function removeFighter(param1:FighterMain) : void
@@ -678,8 +679,14 @@ import net.play5d.game.bvn.Debugger;
       {
          Debugger.log("GameMode.currentMode",GameMode.currentMode);
          this.gameRunData.nextRound();
-         // 2v2/1v2: 双人同屏，全员死后直接结算回到选人，不轮换
+         // 2v2/1v2: 双人同屏，三局两胜制（与单人模式一致），第二局回满血继续战斗
          if (GameMode.isDuoMode() || GameMode.is1v2Mode()) {
+            if (this.gameRunData.p1Wins < 2 && this.gameRunData.p2Wins < 2)
+            {
+               this.buildNextRound(false);
+               this.gameRunData.lastWinner = null;
+               return;
+            }
             this.fightFinish();
             return;
          }
@@ -765,11 +772,11 @@ import net.play5d.game.bvn.Debugger;
                }
             }
          }
-         this.removeFighter(param1.currentFighter);
-         param1.removeCurrentFighter();
-         param1.currentFighter = _loc3_;
-         this.addFighter(param1.currentFighter,_loc2_.id);
-         return true;
+			this.removeFighter(param1.currentFighter);
+			param1.removeCurrentFighter();
+			param1.currentFighter = _loc3_;
+			if (!this.addFighter(param1.currentFighter,_loc2_.id)) return false;
+			return true;
       }
       
       public function slow(param1:Number) : void
@@ -809,14 +816,16 @@ import net.play5d.game.bvn.Debugger;
          param1.setActionCtrl(_loc4_);
       }
 
-      /** P1/P2 切换：controlP1=true→控制P1, false→控制P2（P2读P1输入通道） */
-      /** P1/P2 切换：只交换输入通道，不用 AI。双方始终保持玩家控制 */
+      /** P1/P2 切换：单手柄模型。joyTarget: 0=跟随切换, 1=固定P1, 2=固定P2。玩家控制角色读"P1"输入通道（手柄 joy_p1） */
       public function switchControlPlayer(controlP1:Boolean) : void
       {
          var _p1f:FighterMain = this.gameRunData.p1FighterGroup.currentFighter;
          var _p2f:FighterMain = this.gameRunData.p2FighterGroup.currentFighter;
          if (!_p1f || !_p2f || !_p1f.team || !_p2f.team) return;
-         if (controlP1) {
+         // 依据手柄设置（joyTarget）决定实际控制方：0=跟随切换控制, 1=手柄固定控制P1, 2=手柄固定控制P2
+         var joyTarget:int = GameInterfaceManager.config.joyTarget;
+         var effectiveP1:Boolean = joyTarget == 1 ? true : (joyTarget == 2 ? false : controlP1);
+         if (effectiveP1) {
             // 默认：P1读P1输入, P2读P2输入
             var _p1c:FighterKeyCtrl = new FighterKeyCtrl();
             _p1c.inputType = "P1";

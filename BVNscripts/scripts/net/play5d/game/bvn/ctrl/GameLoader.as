@@ -24,23 +24,34 @@ import net.play5d.game.bvn.Debugger;
       public static function loadFighter(fighterId:String, back:Function, fail:Function = null, process:Function = null, customBackParam:Object = null) : void
       {
          var fv:FighterVO = null;
-         var loadComplete:* = function(param1:DisplayObject):void
-         {
-            var _loc2_:FighterMain = new FighterMain(param1 as MovieClip);
-            _loc2_.data = fv;
-            if(back != null)
-            {
-               if(Boolean(customBackParam))
-               {
-                  back(_loc2_,customBackParam);
-               }
-               else
-               {
-                  back(_loc2_);
-               }
-               back = null;
-            }
-         };
+var loadComplete:* = function(param1:DisplayObject):void
+          {
+             var _loc2_:MovieClip = param1 as MovieClip;
+             // —— 新式 main_mc 人物包兼容:优先取库元件 main_mc 类实例作角色主 MC，失败回退旧式 SWF 根 ——
+             try
+             {
+                var _loc3_:Class = param1.loaderInfo.applicationDomain.getDefinition("main_mc") as Class;
+                if(_loc3_)
+                {
+                   _loc2_ = new _loc3_() as MovieClip;
+                }
+             }
+             catch(e:Error) { }
+             var _loc4_:FighterMain = new FighterMain(_loc2_);
+             _loc4_.data = fv;
+             if(back != null)
+             {
+                if(Boolean(customBackParam))
+                {
+                   back(_loc4_,customBackParam);
+                }
+                else
+                {
+                   back(_loc4_);
+                }
+                back = null;
+             }
+          };
          fv = FighterModel.I.getFighter(fighterId,true);
          if(!fv)
          {
@@ -392,13 +403,23 @@ import net.play5d.game.bvn.Debugger;
          }
          Debugger.log("[GameLoader.loadFighterFromPath] loaded", ba.length, "bytes");
          var loader:Loader = new Loader();
-         loader.contentLoaderInfo.addEventListener("complete", function(e:*):void
-         {
-            var mc:MovieClip = loader.content as MovieClip;
-            var fm:FighterMain = new FighterMain(mc);
-            Debugger.log("[GameLoader.loadFighterFromPath] SWF parsed, FighterMain created");
-            if(back != null) back(fm);
-         });
+          loader.contentLoaderInfo.addEventListener("complete", function(e:*):void
+          {
+             var mc:MovieClip = loader.content as MovieClip;
+             // —— 新式 main_mc 人物包兼容:优先取库元件 main_mc 类实例作角色主 MC，失败回退旧式 SWF 根 ——
+             try
+             {
+                var cls:Class = loader.contentLoaderInfo.applicationDomain.getDefinition("main_mc") as Class;
+                if(cls)
+                {
+                   mc = new cls() as MovieClip;
+                }
+             }
+             catch(err:Error) { }
+             var fm:FighterMain = new FighterMain(mc);
+             Debugger.log("[GameLoader.loadFighterFromPath] SWF parsed, FighterMain created");
+             if(back != null) back(fm);
+          });
          loader.loadBytes(ba);
          _loaderCache.push(loader);
       }

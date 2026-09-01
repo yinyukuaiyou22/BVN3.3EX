@@ -1,9 +1,10 @@
 package net.play5d.game.bvn.ui.select
 {
+   import net.play5d.game.bvn.Debugger;
    import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.utils.*;
    import net.play5d.kyo.utils.*;
-   
+
    public class SelecterItemUI
    {
       
@@ -42,6 +43,7 @@ package net.play5d.game.bvn.ui.select
          this.ui = ResUtils.I.createDisplayObject(ResUtils.I.select,"select_item_mc");
          this.ui.mouseEnabled = this.ui.mouseChildren = false;
          this.ui.mc.gotoAndStop(param1 == 1 ? 1 : 2);
+         Debugger.log("[Selecter]", "create player=" + param1);
       }
       
       public function selectFinish() : Boolean
@@ -74,6 +76,7 @@ package net.play5d.game.bvn.ui.select
             this.group.addFighter(FighterModel.I.getFighter(this.selectVO.fighter2));
             this.group.addFighter(FighterModel.I.getFighter(this.selectVO.fighter3));
          }
+         Debugger.log("[Selecter]", "setCurrentSelect player=" + this._playerType + " isAssist=" + this.isSelectAssist + " sel=" + param1.join(","));
          this.selectTimes = this.selectTimesCount;
          this.enabled = false;
       }
@@ -148,6 +151,7 @@ package net.play5d.game.bvn.ui.select
       
       public function destory() : void
       {
+         Debugger.log("[Selecter]", "destory player=" + this._playerType);
          this.enabled = false;
          this.removeSelecter();
          this.removeGroup();

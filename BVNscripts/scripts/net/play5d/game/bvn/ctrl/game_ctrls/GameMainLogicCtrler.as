@@ -25,6 +25,8 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       private var _renderAnimate:Boolean;
       
+      private var _renderErrLogged:Boolean = false;
+      
       public function GameMainLogicCtrler()
       {
          super();
@@ -299,7 +301,18 @@ package net.play5d.game.bvn.ctrl.game_ctrls
          }
          catch(e:Error)
          {
-            Debugger.log("GameMainLogicCtrler.renderGameSprite",e);
+            // 2026-08-16：仅首次记录完整堆栈（#1065 高频异常刷屏，堆栈定位具体缺失方法）
+            if(!_renderErrLogged)
+            {
+               _renderErrLogged = true;
+               var _errStack:String = "";
+               try { _errStack = e.getStackTrace(); } catch(_e:Error) { _errStack = ""; }
+               Debugger.log("RENDER_ERR#1:", e, _errStack);
+            }
+            else
+            {
+               Debugger.log("GameMainLogicCtrler.renderGameSprite",e);
+            }
          }
       }
       

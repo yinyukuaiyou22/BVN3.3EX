@@ -126,40 +126,40 @@ package net.play5d.game.bvn
       {
          MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["go_menu_stage"])));
          this.resetDefault();
-         stageCtrl.goStage(new MenuState());
+         try { stageCtrl.goStage(new MenuState()); } catch(e:Error) { var _st:String = ""; try { _st = e.getStackTrace(); } catch(_e:Error) {} Debugger.log("[MainGame] goMenu FAILED:",e.message,_st); }
          this.setFPS(30);
       }
       
       public function goHowToPlay() : void
       {
-         stageCtrl.goStage(new HowToPlayState());
+         try { stageCtrl.goStage(new HowToPlayState()); } catch(e:Error) { var _st:String = ""; try { _st = e.getStackTrace(); } catch(_e:Error) {} Debugger.log("[MainGame] goHowToPlay FAILED:",e.message,_st); }
          this.setFPS(30);
       }
       
       public function goSelect() : void
       {
-         stageCtrl.goStage(new SelectFighterStage());
+         try { stageCtrl.goStage(new SelectFighterStage()); } catch(e:Error) { var _st:String = ""; try { _st = e.getStackTrace(); } catch(_e:Error) {} Debugger.log("[MainGame] goSelect FAILED:",e.message,_st); }
          this.setFPS(30);
       }
       
       public function loadGame() : void
       {
          var _loc1_:LoadingState = new LoadingState();
-         stageCtrl.goStage(_loc1_,true);
+         try { stageCtrl.goStage(_loc1_,true); } catch(e:Error) { var _st:String = ""; try { _st = e.getStackTrace(); } catch(_e:Error) {} Debugger.log("[MainGame] loadGame FAILED:",e.message,_st); }
          this.setFPS(30);
       }
       
       public function goGame() : void
       {
          var _loc1_:GameState = new GameState();
-         stageCtrl.goStage(_loc1_);
+         try { stageCtrl.goStage(_loc1_); } catch(e:Error) { var _st:String = ""; try { _st = e.getStackTrace(); } catch(_e:Error) {} Debugger.log("[MainGame] goGame FAILED:",e.message,_st); }
          GameCtrl.I.startGame();
          this.setFPS(GameConfig.FPS_GAME);
       }
       
       public function goOption() : void
       {
-         stageCtrl.goStage(new SettingState());
+         try { stageCtrl.goStage(new SettingState()); } catch(e:Error) { var _st:String = ""; try { _st = e.getStackTrace(); } catch(_e:Error) {} Debugger.log("[MainGame] goOption FAILED:",e.message,_st); }
          this.setFPS(30);
       }
       
@@ -167,28 +167,28 @@ package net.play5d.game.bvn
       {
          var _loc1_:GameOverState = new GameOverState();
          _loc1_.showContinue();
-         stageCtrl.goStage(_loc1_);
+         try { stageCtrl.goStage(_loc1_); } catch(e:Error) { var _st:String = ""; try { _st = e.getStackTrace(); } catch(_e:Error) {} Debugger.log("[MainGame] goContinue FAILED:",e.message,_st); }
          this.setFPS(30);
       }
-      
+
       public function goGameOver() : void
       {
          var _loc1_:GameOverState = new GameOverState();
          _loc1_.showGameOver();
-         stageCtrl.goStage(_loc1_);
+         try { stageCtrl.goStage(_loc1_); } catch(e:Error) { var _st:String = ""; try { _st = e.getStackTrace(); } catch(_e:Error) {} Debugger.log("[MainGame] goGameOver FAILED:",e.message,_st); }
          this.setFPS(30);
       }
-      
+
       public function goWinner() : void
       {
          var _loc1_:WinnerState = new WinnerState();
-         stageCtrl.goStage(_loc1_);
+         try { stageCtrl.goStage(_loc1_); } catch(e:Error) { var _st:String = ""; try { _st = e.getStackTrace(); } catch(_e:Error) {} Debugger.log("[MainGame] goWinner FAILED:",e.message,_st); }
          this.setFPS(30);
       }
-      
+
       public function goCredits() : void
       {
-         stageCtrl.goStage(new CreditsState());
+         try { stageCtrl.goStage(new CreditsState()); } catch(e:Error) { var _st:String = ""; try { _st = e.getStackTrace(); } catch(_e:Error) {} Debugger.log("[MainGame] goCredits FAILED:",e.message,_st); }
          this.setFPS(30);
       }
       
@@ -199,7 +199,7 @@ package net.play5d.game.bvn
       
       public function goCongratulations() : void
       {
-         stageCtrl.goStage(new CongratulateState());
+         try { stageCtrl.goStage(new CongratulateState()); } catch(e:Error) { var _st:String = ""; try { _st = e.getStackTrace(); } catch(_e:Error) {} Debugger.log("[MainGame] goCongratulations FAILED:",e.message,_st); }
          this.setFPS(30);
       }
       

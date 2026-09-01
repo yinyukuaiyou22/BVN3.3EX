@@ -17,6 +17,7 @@
    import net.play5d.kyo.stage.*;
    import net.play5d.kyo.utils.*;
 import net.play5d.game.bvn.Debugger;
+import net.play5d.game.bvn.mob.views.ViewManager;
    
    public class SelectFighterStage implements Istage
    {
@@ -91,7 +92,11 @@ import net.play5d.game.bvn.Debugger;
          SoundCtrl.I.BGM(AssetManager.I.getSound("select"));
          StateCtrl.I.clearTrans();
          KeyBoarder.focus();
-         MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["select_fighter"])));
+         // 批次 6.12 修复：移除 MainGame.I.stage.dispatchEvent(DataEvent)（#1006 风险源）
+         // 改为 GameEvent 单例派发（更安全，无 stage 依赖）
+         try { GameEvent.dispatchEvent("SELECT_FIGHTER", null, false, false); } catch(_e:Error) {}
+         // 批次 6.12 修复：refreshMultiPadCache 内部已用 var pads:* 修 #1006（批次 6.9）
+         try { ViewManager.I.refreshMultiPadCache(); } catch(_e:Error) {}
       }
       
       private function initFighter() : void

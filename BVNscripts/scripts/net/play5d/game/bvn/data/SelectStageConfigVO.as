@@ -81,7 +81,11 @@ package net.play5d.game.bvn.data
             while(_loc7_ < _loc3_.children().length())
             {
                _loc8_ = _loc3_.children()[_loc7_];
-               _loc9_ = _loc8_.toString();
+               // === 批次 6.6 BUG FIX: 改用 .text() 而非 .toString() ===
+               // 原因：toString() 会序列化整段 XML（含 <plugin> 子节点），导致 FighterModel 查不到
+               // 修复：.text() 只取 <item> 文本节点，plugin 子节点在行 107-114 单独处理
+               _loc9_ = _loc8_.text();
+               // === 批次 6.6 BUG FIX 结束 ===
                if(Boolean(_loc9_) && _loc9_.length < 1)
                {
                   _loc9_ = null;
@@ -102,6 +106,16 @@ package net.play5d.game.bvn.data
                   }
                }
                _loc13_ = new SelectCharListItemVO(_loc7_,_loc2_,_loc9_,_loc10_);
+               // === 批次 6.1: 解析 item 下的 plugin 子节点列表 ===
+               if(_loc8_.plugin.length() > 0)
+               {
+                  _loc13_.pluginIDs = [];
+                  for each(var _loc15_:XML in _loc8_.plugin)
+                  {
+                     _loc13_.pluginIDs.push(String(_loc15_.@id));
+                  }
+               }
+               // === 批次 6.1 结束 ===
                _loc14_.list.push(_loc13_);
                _loc7_++;
             }

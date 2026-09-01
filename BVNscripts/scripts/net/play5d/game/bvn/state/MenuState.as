@@ -33,11 +33,13 @@ package net.play5d.game.bvn.state
       
       public function build() : void
       {
+         Debugger.log("[MenuState]","build() enter");
          this._ui = ResUtils.I.createDisplayObject(ResUtils.I.title,ResUtils.TITLE);
          this._ui.gotoAndStop(1);
          GameInterface.instance.initTitleUI(this._ui);
          GameInputer.enabled = false;
          SoundCtrl.I.BGM(AssetManager.I.getSound("op"));
+         Debugger.log("[MenuState]","build() done, ui=",this._ui != null ? "ok" : "NULL");
       }
       
       public function afterBuild() : void
@@ -86,6 +88,7 @@ package net.play5d.game.bvn.state
       
       private function showBtns(... rest) : void
       {
+         Debugger.log("[MenuState]","showBtns()");
          var ct:Sprite = null;
          var params:Array = rest;
          this._ui.removeEventListener("click",this.showBtns);
@@ -118,6 +121,7 @@ package net.play5d.game.bvn.state
       
       public function destory(param1:Function = null) : void
       {
+         Debugger.log("[MenuState]","destory()");
          if(Boolean(this._btnGroup))
          {
             try

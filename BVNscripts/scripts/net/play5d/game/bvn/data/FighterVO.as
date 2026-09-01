@@ -27,14 +27,17 @@ import net.play5d.game.bvn.Debugger;
       public var contactFriends:Array;
       
       public var contactEnemys:Array;
-      
+
       public var says:Array;
-      
+
       public var bgm:String;
-      
+
       public var bgmRate:Number = 1;
-      
-      private var _cloneKey:Array = ["id","name","comicType","fileUrl","startFrame","faceUrl","contactFriends","contactEnemys","says","faceBigUrl","faceBarUrl","bgm","bgmRate"];
+
+      // 批次6：人物子框 plugin ID 列表（子角色/觉醒形态集合，默认空）
+      public var pluginIDs:Array;
+
+      private var _cloneKey:Array = ["id","name","comicType","fileUrl","startFrame","faceUrl","contactFriends","contactEnemys","says","faceBigUrl","faceBarUrl","bgm","bgmRate","pluginIDs"];
       
       public function FighterVO()
       {
@@ -64,7 +67,7 @@ import net.play5d.game.bvn.Debugger;
          }
          if(this.startFrame != 0 && !this.bgm)
          {
-            Debugger.log(this.id + "û�ж���bgm!");
+            Debugger.log(this.id + "û�ж���bgm!");
          }
       }
       

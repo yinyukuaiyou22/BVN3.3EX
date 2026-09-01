@@ -174,12 +174,20 @@ package net.play5d.game.bvn.state
             _loc6_.updatePosition();
             this._cameraFocus.push(_loc6_.getDisplay());
          }
-         // 2v2/1v2: 额外 fighter 也加入摄像机追踪
+         // 2v2/1v2: 额外 fighter 出生点 + 摄像机追踪
          if (_isDuo) {
             if (param1.fighter2 && param1.fighter2.isAlive) {
+               param1.fighter2.x = this._map.p1pos.x + 30;
+               param1.fighter2.y = this._map.p1pos.y;
+               param1.fighter2.direct = 1;
+               param1.fighter2.updatePosition();
                this._cameraFocus.push(param1.fighter2.getDisplay());
             }
             if (param2.fighter2 && param2.fighter2.isAlive) {
+               param2.fighter2.x = this._map.p2pos.x - 30;
+               param2.fighter2.y = this._map.p2pos.y;
+               param2.fighter2.direct = -1;
+               param2.fighter2.updatePosition();
                this._cameraFocus.push(param2.fighter2.getDisplay());
             }
          }
@@ -219,6 +227,28 @@ package net.play5d.game.bvn.state
             _loc4_.idle();
             _loc4_.updatePosition();
             this._cameraFocus.push(_loc4_.getDisplay());
+         }
+         // 2v2/1v2: 第二局额外 fighter 也满血复活 + 重置位置（与首局一致）
+         var _isDuo:Boolean = GameMode.isDuoMode() || GameMode.is1v2Mode();
+         if (_isDuo) {
+            if (param1.fighter2) {
+               GameLogic.resetFighterHP(param1.fighter2);
+               param1.fighter2.x = this._map.p1pos.x + 30;
+               param1.fighter2.y = this._map.p1pos.y;
+               param1.fighter2.direct = 1;
+               param1.fighter2.idle();
+               param1.fighter2.updatePosition();
+               if (param1.fighter2.getDisplay()) this._cameraFocus.push(param1.fighter2.getDisplay());
+            }
+            if (param2.fighter2) {
+               GameLogic.resetFighterHP(param2.fighter2);
+               param2.fighter2.x = this._map.p2pos.x - 30;
+               param2.fighter2.y = this._map.p2pos.y;
+               param2.fighter2.direct = -1;
+               param2.fighter2.idle();
+               param2.fighter2.updatePosition();
+               if (param2.fighter2.getDisplay()) this._cameraFocus.push(param2.fighter2.getDisplay());
+            }
          }
          this.gameUI.initFight(param1,param2);
          this.cameraResume();

@@ -5,6 +5,8 @@ package
    import flash.events.KeyboardEvent;
    import flash.geom.*;
    import flash.system.*;
+   import flash.desktop.NativeApplication;
+   import flash.desktop.SystemIdleMode;
    import net.play5d.game.bvn.*;
    import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.interfaces.*;
@@ -43,7 +45,7 @@ package
          super();
          trace("=== BVN TRACE-01 launch() ===");
          I = this;
-         GameConfig.TOUCH_MODE = true;
+         GameConfig.TOUCH_MODE = false;
          addEventListener("addedToStage",this.initlize);
       }
       
@@ -58,10 +60,17 @@ package
          trace("=== BVN TRACE-02 initlize(stage) ===");
          removeEventListener("addedToStage",this.initlize);
          STAGE = stage;
+         // 文件日志：无条件开启（不依赖调试面板），写入应用私有目录 bvn_debug.log 供 root/adb 读取
+         Debugger.initFileLog(stage);
          if(DEBUG_PANEL_ENABLED) { Debugger.initDebug(stage); }
          stage.align = "TL";
          stage.scaleMode = "noScale";
          this.updateFullScreenSize();
+         if(isMobile())
+         {
+            stage.displayState = "fullScreenInteractive";
+            NativeApplication.nativeApplication.systemIdleMode = SystemIdleMode.KEEP_AWAKE;
+         }
          this._startBitmap = new this.startupBitmap();
          if(Boolean(DEBUG_PANEL_ENABLED) && !isMobile())
          {

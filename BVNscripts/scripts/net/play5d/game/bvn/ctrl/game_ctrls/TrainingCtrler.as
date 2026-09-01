@@ -56,7 +56,7 @@ package net.play5d.game.bvn.ctrl.game_ctrls
             }
             else if(this._trainAddDelay[_loc1_] != undefined && this._trainAddDelay[_loc1_] > 0)
             {
-               --this._trainAddDelay[_loc1_];
+               this._trainAddDelay[_loc1_] = int(this._trainAddDelay[_loc1_]) - 1;
                if(this._trainAddDelay[_loc1_] <= 0 && RECOVER_HP)
                {
                   _loc4_.hp = _loc4_.hpMax;
@@ -73,7 +73,7 @@ package net.play5d.game.bvn.ctrl.game_ctrls
             _loc2_ = _loc4_.id + "_qi";
             if(this._trainAddDelay[_loc2_] != undefined && this._trainAddDelay[_loc2_] > 0)
             {
-               --this._trainAddDelay[_loc2_];
+               this._trainAddDelay[_loc2_] = int(this._trainAddDelay[_loc2_]) - 1;
                if(this._trainAddDelay[_loc2_] <= 0 && RECOVER_QI)
                {
                   _loc4_.qi = 300;
@@ -90,7 +90,7 @@ package net.play5d.game.bvn.ctrl.game_ctrls
             _loc3_ = _loc4_.id + "fz";
             if(this._trainAddDelay[_loc3_] != undefined && this._trainAddDelay[_loc3_] > 0)
             {
-               --this._trainAddDelay[_loc3_];
+               this._trainAddDelay[_loc3_] = int(this._trainAddDelay[_loc3_]) - 1;
                if(this._trainAddDelay[_loc3_] <= 0 && RECOVER_FZ_QI)
                {
                   _loc4_.fzqi = 100;

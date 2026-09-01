@@ -92,6 +92,26 @@ import net.play5d.game.bvn.Debugger;
          }
          return null;
       }
+
+      /** 按 comicType 回退查找可用的 mission：优先精确匹配 gameMode，
+       *  否则取该 comicType 下任意 design，再不行取全局第一个可用 design。
+       *  解决随机角色/无精确匹配关卡时 _curMession=null 导致误判通关的问题。 */
+      public function getMessionFallback(param1:int, param2:int) : MessionVO
+      {
+         var anyInComic:MessionVO = null;
+         if(!this._messions) { return null; }
+         for each(var vo:MessionVO in this._messions)
+         {
+            if(vo.comicType == param1)
+            {
+               if(anyInComic == null) { anyInComic = vo; }
+               if(vo.gameMode == param2) { return vo; }
+            }
+         }
+         if(anyInComic != null) { return anyInComic; }
+         if(this._messions.length > 0) { return this._messions[0]; }
+         return null;
+      }
       
       public function getCurrentMessionStage() : MessionStageVO
       {
@@ -105,9 +125,39 @@ import net.play5d.game.bvn.Debugger;
          if(!_loc2_) { Debugger.log("[MessionModel] initMession FAILED: fighter not found"); return; }
          var _loc3_:int = GameMode.isTeamMode() ? 0 : 1;
          var _loc4_:MessionVO = this.getMession(_loc2_.comicType,_loc3_);
-         if(!_loc4_) { Debugger.log("[MessionModel] initMession FAILED: no mission for comicType=" + _loc2_.comicType); return; }
+         if(!_loc4_)
+         {
+            // 无精确匹配关卡（如随机角色 comic_type=-1 等）→ 回退到配置里可用的关卡，避免 _curMession=null 误判通关
+            _loc4_ = this.getMessionFallback(_loc2_.comicType,_loc3_);
+            if(_loc4_)
+            {
+               Debugger.log("[MessionModel] 无精确 mission，回退 comicType=" + _loc4_.comicType + " gameMode=" + _loc4_.gameMode);
+            }
+            else
+            {
+               Debugger.log("[MessionModel] initMession FAILED: no mission at all");
+               return;
+            }
+         }
          this._curMession = _loc4_;
-         this._curStage = _loc4_.stageList[this._curStageId];
+         // 若选中的 design 关卡为空，回退到配置里第一个有 stageList 的可用 design
+         if(!this._curMession.stageList || this._curMession.stageList.length == 0)
+         {
+            var _fb:MessionVO = this.getMessionFallback(_loc2_.comicType,_loc3_);
+            if(_fb && _fb.stageList && _fb.stageList.length > 0)
+            {
+               Debugger.log("[MessionModel] 空 stageList，回退到可用关卡");
+               this._curMession = _fb;
+            }
+         }
+         if(!this._curMession.stageList || this._curMession.stageList.length == 0)
+         {
+            Debugger.log("[MessionModel] initMession FAILED: empty stageList");
+            this._curMession = null;
+            return;
+         }
+         this._curStage = this._curMession.stageList[this._curStageId];
+         if(!this._curStage) { Debugger.log("[MessionModel] initMession FAILED: stage index out of range"); return; }
          GameData.I.p2Select = GameData.I.p2Select || new SelectVO();
          var _loc5_:Array = this._curStage.getFighters();
          while(_loc1_ < _loc5_.length)
@@ -137,7 +187,16 @@ import net.play5d.game.bvn.Debugger;
             Debugger.log("mission all over!!!");
             return;
          }
+         if(!this._curMession || !this._curMession.stageList || this._curMession.stageList.length == 0)
+         {
+            Debugger.log("[MessionModel] messionComplete: 异常状态，本次不推进");
+            return;
+         }
          ++this._curStageId;
+         if (this._curStageId > this._curMession.stageList.length - 1)
+         {
+            this._curStageId = this._curMession.stageList.length - 1;
+         }
          this.initMession();
          if(GameMode.isAcrade())
          {
@@ -147,6 +206,11 @@ import net.play5d.game.bvn.Debugger;
       
       public function missionAllComplete() : Boolean
       {
+         if(!this._curMession || !this._curMession.stageList || this._curMession.stageList.length == 0)
+         {
+            Debugger.log("[MessionModel] missionAllComplete: 无有效关卡数据，视为未通关");
+            return false;
+         }
          return this._curStageId >= this._curMession.stageList.length - 1;
       }
    }

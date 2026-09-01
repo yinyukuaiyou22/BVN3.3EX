@@ -272,6 +272,8 @@ import net.play5d.game.bvn.Debugger;
          GameRender.remove(this.render);
          GameInputer.enabled = false;
          clearTimeout(this._bgmDelay);
+         // 停止胜利循环 BGM（winloop），防止点击继续/退出后残留播放；与 HowToPlay/Loading/SelectFighter 等状态一致
+         SoundCtrl.I.BGM(null);
          MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["winner_end"])));
          if(Boolean(this._ui))
          {

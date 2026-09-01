@@ -41,6 +41,7 @@ package net.play5d.game.bvn.ui.select
       {
          super();
          this.build();
+         Debugger.log("[MapSelect]", "create, maps=" + (this._maps ? this._maps.length : 0));
       }
       
       public function addMouseEvents(param1:Function, param2:Function, param3:Function) : void
@@ -157,6 +158,7 @@ package net.play5d.game.bvn.ui.select
             }
             GameData.I.selectMap = _loc2_.id;
             this.enabled = false;
+            Debugger.log("[MapSelect]", "select map=" + _loc2_.id);
             if(param1 != null)
             {
                param1();

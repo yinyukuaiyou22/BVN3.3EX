@@ -23,7 +23,10 @@ package net.play5d.game.bvn.fighter.ctrler
          if(!this.classicMode)
          {
             this._justDown = 2;
-            GameInputer.listenKeys(this.inputType,["attack","jump","dash","skill","superSkill"],2);
+            // 2026-08-15 修复：不再注册 listenKeys —— renderListenKeys 每帧预查询会抢占 isJustDown 边沿，
+            // 导致本类的 justDown=2 查询（attack/jump/dash/skill/superSkill）永远拿不到"刚按下"边沿，按钮全部无效。
+            // 边沿检测完全由本类的实时查询驱动（isJustDownDelay 的 listened 参数未使用，监听机制无实际功能）。
+            // GameInputer.listenKeys(this.inputType,["attack","jump","dash","skill","superSkill"],2);
          }
          else
          {
@@ -41,10 +44,11 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function destory() : void
       {
-         if(!this.classicMode)
-         {
-            GameInputer.unListenKeys(this.inputType,2);
-         }
+         // listenKeys 已停用（见 initlize），unListenKeys 同步停用
+         // if(!this.classicMode)
+         // {
+         //    GameInputer.unListenKeys(this.inputType,2);
+         // }
       }
       
       public function enabled() : Boolean

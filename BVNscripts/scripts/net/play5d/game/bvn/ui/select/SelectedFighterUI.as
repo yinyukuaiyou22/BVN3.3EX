@@ -10,7 +10,7 @@ package net.play5d.game.bvn.ui.select
    import net.play5d.game.bvn.ui.*;
    import net.play5d.game.bvn.utils.*;
    import net.play5d.kyo.display.*;
-   
+
    public class SelectedFighterUI extends EventDispatcher
    {
       
@@ -33,6 +33,7 @@ package net.play5d.game.bvn.ui.select
          super();
          this.ui = param1;
          param1.mouseChildren = false;
+         Debugger.log("[SelectedUI]", "create, name=" + (param1 ? param1.name : "null"));
          if(GameUI.SHOW_CN_TEXT)
          {
             this._text = new BitmapText(true,16777215,[new GlowFilter(0,1,3,3,3)]);
@@ -91,6 +92,7 @@ package net.play5d.game.bvn.ui.select
       
       public function destory() : void
       {
+         Debugger.log("[SelectedUI]", "destory");
          if(Boolean(this.ui))
          {
             this.ui.removeEventListener("touchTap",this.mouseHandler);
@@ -112,6 +114,7 @@ package net.play5d.game.bvn.ui.select
             return;
          }
          this._fighter = param1;
+         Debugger.log("[SelectedUI]", "setFighter id=" + param1.id);
          if(Boolean(this._text))
          {
             this._text.text = param1.name;

@@ -36,6 +36,7 @@ package net.play5d.game.bvn.state
       
       public function build() : void
       {
+         Debugger.log("[SettingState]","build() enter");
          this._ui = ResUtils.I.createDisplayObject(ResUtils.I.setting,ResUtils.SETTING);
          this._btnGroup = new SetBtnGroup();
          this._btnGroup.startY = 30;
@@ -48,6 +49,7 @@ package net.play5d.game.bvn.state
          this._ui.addChild(this._btnGroup);
          this._man = this._ui.ichigo;
          SoundCtrl.I.BGM(AssetManager.I.getSound("back"));
+         Debugger.log("[SettingState]","build() done, man=",this._man != null ? "ok" : "NULL");
       }
       
       private function onOptionChange(param1:SetBtnEvent) : void
@@ -58,6 +60,7 @@ package net.play5d.game.bvn.state
       
       private function onBtnSelect(param1:SetBtnEvent) : void
       {
+         Debugger.log("[SettingState]","onBtnSelect label=",param1.selectedLabel);
          switch(param1.selectedLabel)
          {
             case "P1 KEY SET":
@@ -65,6 +68,10 @@ package net.play5d.game.bvn.state
                break;
             case "P2 KEY SET":
                this.goKeyConfig(2,GameData.I.config.key_p2);
+               break;
+            case "Joystick Setting":
+               var controlSetUI:ControlSetUI = new ControlSetUI();
+               this.goInnerSetPage(controlSetUI);
                break;
             case "APPLY":
                GameData.I.saveData();
@@ -152,6 +159,7 @@ package net.play5d.game.bvn.state
       
       public function destory(param1:Function = null) : void
       {
+         Debugger.log("[SettingState]","destory()");
          if(Boolean(this._btnGroup))
          {
             try
