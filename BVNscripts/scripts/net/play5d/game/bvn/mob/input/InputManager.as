@@ -17,11 +17,13 @@ package net.play5d.game.bvn.mob.input
       
       public var screen_p1:ScreenPadInput = new ScreenPadInput();
       
-      public var joy_menu:GameJoystickInput = new GameJoystickInput(1);
-      
-      public var joy_p1:GameJoystickInput = new GameJoystickInput(1);
-      
-      public var socket_input_p1:GameSocketInput = new GameSocketInput();
+      public var joy_menu:GameJoystickInput = new GameJoystickInput(0);
+
+public var joy_p1:GameJoystickInput = new GameJoystickInput(1);
+
+public var joy_p2:GameJoystickInput = new GameJoystickInput(2);
+
+public var socket_input_p1:GameSocketInput = new GameSocketInput();
       
       public var socket_input_p2:GameSocketInput = new GameSocketInput();
       

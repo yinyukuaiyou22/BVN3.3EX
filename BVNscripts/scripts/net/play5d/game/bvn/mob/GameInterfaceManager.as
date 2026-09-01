@@ -218,22 +218,13 @@ package net.play5d.game.bvn.mob
       {
          return [{
             "txt":"Joystick Setting",
-            "cn":"设置按钮",
-            "select":ViewManager.I.setScreenBtns
-         },{
-            "txt":"Keyboard Input",
-            "cn":"键盘输入",
-            "options":[{
-               "label":"ON",
-               "cn":"开启",
-               "value":true
-            },{
-               "label":"OFF",
-               "cn":"关闭",
-               "value":false
-            }],
-            "optoinKey":"ENABLE_KEYBOARD"
-         },{
+            "cn":"控制设置",
+            "select": ViewManager.I.goP1JoyStickSet
+         },(ViewManager.I.isMultiplePads() ? {
+            "txt":"P2 Joystick Setting",
+            "cn":"玩家2 手柄设置",
+            "select": ViewManager.I.goP2JoyStickSet
+         } : null),{
             "txt":"AI Level",
             "cn":"AI等级",
             "options":[{
@@ -462,6 +453,7 @@ package net.play5d.game.bvn.mob
                break;
             case "P2":
                _loc2_.push(InputManager.I.key_p2);
+               _loc2_.push(InputManager.I.joy_p2);
                _loc2_.push(InputManager.I.socket_input_p2);
                break;
             default:
@@ -498,6 +490,8 @@ package net.play5d.game.bvn.mob
       
       public function updateInputConfig() : Boolean
       {
+         // 键盘输入默认关闭（ExtendConfig.ENABLE_KEYBOARD=false），用户可在设置菜单「Keyboard Input」开启；
+         // 开启后键盘通道生效（注意：手柄 D-pad/按钮的 KeyboardEvent 会进入键盘通道，属预期行为）
          var keyEnabled:Boolean = Boolean(_extendsConfig.ENABLE_KEYBOARD);
          InputManager.I.key_menu.enabled = keyEnabled;
          InputManager.I.key_p1.enabled = keyEnabled;
@@ -514,6 +508,7 @@ package net.play5d.game.bvn.mob
             InputManager.I.screen_p1.enabled = false;
             InputManager.I.joy_menu.enabled = false;
             InputManager.I.joy_p1.enabled = false;
+            InputManager.I.joy_p2.enabled = false;
             InputManager.I.socket_input_p1.enabled = true;
             InputManager.I.socket_input_p2.enabled = true;
             if(LANServerCtrl.I.active)
@@ -526,15 +521,39 @@ package net.play5d.game.bvn.mob
             }
             return true;
          }
+         // 刷新设备分配（设备连接可能晚于读档，确保 deviceId 已绑定当前手柄）
+         _extendsConfig.updateJoyConfig();
          InputManager.I.joy_menu.setConfig(_extendsConfig.joyMenuConfig);
          InputManager.I.joy_p1.setConfig(_extendsConfig.joy1Config);
+         // 2026-08-26 批次 2：P2 改用独立配置（与 P1 解耦，避免 P2 改键被 P1 覆盖、P2 设备号重连后失效）
+         InputManager.I.joy_p2.setConfig(_extendsConfig.joy2Config);
          InputManager.I.socket_input_p1.enabled = false;
          InputManager.I.socket_input_p2.enabled = false;
          InputManager.I.joy_menu.enabled = true;
-         InputManager.I.joy_p1.enabled = true;
+         refreshJoystickRouting();
          return true;
       }
-      
+
+      /** 手柄路由：单手柄模型（手机端只连一个手柄，Xbox 布局）。
+      手柄输入固定走"P1"通道（joy_p1），控制哪个角色由 GameCtrl.switchControlPlayer/joyTarget 决定。
+      观战→双禁用；其余（vs CPU/闯关/对战）→ 仅 joy_p1 启用（vs CPU 时 switchControlPlayer 不参与，手柄自然只控制 P1）。
+      2026-08-26 批次 3 收尾：决策确认"单手柄永远禁 joy_p2"，本函数只动 enabled 字段，不动 deviceId。
+      joy2Config 设备号由 ExtendConfig.updateJoyConfig 独立管理（批次 2 P2 独立配置存档），与本路由函数解耦。 */
+      public function refreshJoystickRouting() : void
+      {
+         var isWatchMode:Boolean = GameMode.isWatch(false);
+         if(isWatchMode)
+         {
+            InputManager.I.joy_p1.enabled = false;
+            InputManager.I.joy_p2.enabled = false;
+            Debugger.log("JOY_ROUTE: singlePadWatch joy_p1=" + InputManager.I.joy_p1.enabled + " joy_p2=" + InputManager.I.joy_p2.enabled);
+            return;
+         }
+         InputManager.I.joy_p1.enabled = true;
+         InputManager.I.joy_p2.enabled = false;
+         Debugger.log("JOY_ROUTE: singlePadAllModes joy_p1=" + InputManager.I.joy_p1.enabled + " joy_p2=" + InputManager.I.joy_p2.enabled);
+      }
+
       public function applyConfig(param1:ConfigVO) : void
       {
          Debugger.log("=== [DEBUG] applyConfig called ===");

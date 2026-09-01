@@ -4,6 +4,7 @@ package net.play5d.game.bvn.mob.views
    import flash.display.*;
    import flash.events.EventDispatcher;
    import flash.ui.GameInputDevice;
+   import net.play5d.game.bvn.Debugger;
    import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.events.*;
    import net.play5d.game.bvn.interfaces.*;
@@ -115,6 +116,7 @@ package net.play5d.game.bvn.mob.views
       
       public function setConfig(param1:int, param2:JoyStickConfigVO) : void
       {
+         Debugger.log("[JoyStickSetUI]","setConfig player=",param1,"deviceId=",param2 != null ? param2.deviceId : "null");
          this._player = param1;
          this._joyConfig = param2;
          this._tmpJoyConfig.readObj(param2.toObj());
@@ -124,6 +126,7 @@ package net.play5d.game.bvn.mob.views
       
       private function onBtnSelect(param1:SetBtnEvent) : void
       {
+         Debugger.log("[JoyStickSetUI]","onBtnSelect label=",param1.selectedLabel);
          switch(param1.selectedLabel)
          {
             case "SET ALL":
@@ -304,6 +307,7 @@ package net.play5d.game.bvn.mob.views
       
       public function destory() : void
       {
+         Debugger.log("[JoyStickSetUI]","destory()");
          GameRender.remove(this.renderSet);
          if(Boolean(this._btnGroup))
          {

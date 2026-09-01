@@ -4,6 +4,8 @@
    import flash.events.EventDispatcher;
    import flash.events.TouchEvent;
    import flash.geom.*;
+   import flash.text.TextField;
+   import flash.text.TextFormat;
    import net.play5d.game.bvn.ctrl.game_ctrls.*;
    import net.play5d.game.bvn.data.GameMode;
    import net.play5d.game.bvn.fighter.FighterMain;
@@ -52,9 +54,20 @@ import net.play5d.game.bvn.Debugger;
 
       private var _playerSwitchBtn:ScreenPadBtn;
 
+      private static const SWITCH_COOLDOWN:Number = 300;
+
       private var _controllingP1:Boolean = true;
 
-      private var _p1p2WasDown:Boolean = false;
+private static var _controllingP1Static:Boolean = true;
+
+public static function get controllingP1() : Boolean
+{
+   return _controllingP1Static;
+}
+
+private var _p1p2WasDown:Boolean = false;
+
+      private var _p1p2LastSwitchTime:Number = 0;
 
       public function ScreenPadGame(param1:Stage)
       {
@@ -114,10 +127,18 @@ import net.play5d.game.bvn.Debugger;
          }
          var _loc1_:ScreenPadBtn = this.addBtn("back",ScreenPadAsset.pause,0,0,0,0.3,0.5);
          _loc1_.display.x = (this.W - _loc1_.display.width) / 2;
-         // P1/P2 切换按钮（右上角）
-         this._playerSwitchBtn = this.addBtn("p1p2", ScreenPadAsset.p1, 0, 0.05, 0.3, 0, 0.3);
-         this._playerSwitchBtn.display.x = this.W - this._playerSwitchBtn.display.width * 2 - 20;
-         this._playerSwitchBtn.display.y = 10 + this._playerSwitchBtn.display.height;
+          // P1/P2 切换按钮（右上角）—— 使用代码绘制替代 Bitmap 图片
+          var switchBtn:ScreenPadBtn = new ScreenPadBtn();
+          switchBtn.moveAble = true;
+          switchBtn.keyId = "p1p2";
+          switchBtn.areaAdd = ScreenPadUtils.cm2pixel(0.3);
+          switchBtn.display = _createPlayerSwitchDisplay(_controllingP1);
+          switchBtn.display.alpha = GameInterfaceManager.config.screenPadConfig.joyAlpha;
+          switchBtn.init();
+          switchBtn.display.x = this.W - switchBtn.display.width * 2 - 20;
+          switchBtn.display.y = 10 + switchBtn.display.height;
+          this._btns.push(switchBtn);
+          this._playerSwitchBtn = switchBtn;
          // 键盘 P 键切换 — 用 KeyBoarder.listen（与游戏输入系统一致）
          KeyBoarder.listen(function(e:*):void {
             if (e.keyCode == 80 && e.type == "keyDown") { _switchPlayer(); }
@@ -597,19 +618,75 @@ import net.play5d.game.bvn.Debugger;
          }
       }
 
+       private function _createPlayerSwitchDisplay(isP1:Boolean) : Bitmap
+      {
+         var w:Number = 80;
+         var h:Number = 36;
+         var bmd:BitmapData = new BitmapData(w, h, true, 0x00000000);
+         var s:Sprite = new Sprite();
+         
+         // 圆角矩形背景
+         var bgColor:uint = isP1 ? 0x2266CC : 0xCC4422;
+         s.graphics.beginFill(bgColor, 0.6);
+         s.graphics.lineStyle(2, 0xFFFFFF, 0.8);
+         s.graphics.drawRoundRect(0, 0, w, h, 8);
+         s.graphics.endFill();
+         
+         // 文字（居中，统一为"切换控制"）
+         var tf:TextField = new TextField();
+         var fmt:TextFormat = new TextFormat("_sans", 16, 0xFFFFFF, true);
+         fmt.align = "center";
+         tf.defaultTextFormat = fmt;
+         tf.selectable = false;
+         tf.wordWrap = false;
+         tf.text = "切换控制";
+         tf.width = w;
+         tf.height = h;
+         tf.y = (h - tf.textHeight) * 0.5;
+         s.addChild(tf);
+         
+         bmd.draw(s);
+         var bmp:Bitmap = new Bitmap(bmd);
+         bmp.scaleX = bmp.scaleY = ScreenPadUtils.scale;
+         return bmp;
+      }
+      
       private function _switchPlayer() : void
       {
          if (GameMode.currentMode != 40 && !GameMode.isVsPeople()) {
             return;
          }
+         var now:Number = (new Date()).time;
+         if (now - _p1p2LastSwitchTime < SWITCH_COOLDOWN) {
+            return;
+         }
+         _p1p2LastSwitchTime = now;
          _controllingP1 = !_controllingP1;
+         _controllingP1Static = _controllingP1;
          GameCtrl.I.switchControlPlayer(_controllingP1);
+         GameInterfaceManager.I.refreshJoystickRouting();
+         Debugger.log("P1P2_SWITCH: now controllingP1=" + _controllingP1);
          if (_playerSwitchBtn) {
-            if (_controllingP1) {
-               _playerSwitchBtn.display.bitmapData = (new ScreenPadAsset.p1() as Bitmap).bitmapData;
-            } else {
-               _playerSwitchBtn.display.bitmapData = (new ScreenPadAsset.p2() as Bitmap).bitmapData;
+            var oldDisp:Bitmap = _playerSwitchBtn.display;
+            var oldX:Number = oldDisp.x;
+            var oldY:Number = oldDisp.y;
+            var oldAlpha:Number = oldDisp.alpha;
+            if (oldDisp.bitmapData) {
+               oldDisp.bitmapData.dispose();
             }
+            var newBmp:Bitmap = _createPlayerSwitchDisplay(_controllingP1);
+            newBmp.scaleX = newBmp.scaleY = ScreenPadUtils.scale;
+            newBmp.alpha = oldAlpha;
+            newBmp.x = oldX;
+            newBmp.y = oldY;
+            if (isShowing && _stage && oldDisp.parent) {
+               var p:DisplayObjectContainer = oldDisp.parent;
+               var idx:int = p.getChildIndex(oldDisp);
+               p.removeChildAt(idx);
+               p.addChildAt(newBmp, idx);
+            }
+            _playerSwitchBtn.display = newBmp;
+            _playerSwitchBtn.initArea();
          }
       }
    }

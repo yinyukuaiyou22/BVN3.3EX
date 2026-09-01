@@ -22,6 +22,8 @@ package net.play5d.game.bvn.input
       
       private static var _justDownDelayKeys:Object = {};
       
+      private static var _callLogState:Object = {};
+      
       public function GameInputer()
       {
          super();
@@ -293,31 +295,38 @@ package net.play5d.game.bvn.input
       {
          var _loc4_:int = 0;
          var _loc5_:Function = null;
-         if(!enabled)
+         var _result:Boolean = false;
+         if(enabled && _inputMap[param1])
          {
-            return false;
-         }
-         if(!_inputMap[param1])
-         {
-            return false;
-         }
-         var _loc6_:Vector.<IGameInput> = _inputMap[param1];
-         while(_loc4_ < _loc6_.length)
-         {
-            if(_loc6_[_loc4_].enabled)
+            var _loc6_:Vector.<IGameInput> = _inputMap[param1];
+            while(_loc4_ < _loc6_.length)
             {
-               _loc5_ = _loc6_[_loc4_][param2];
-               if(_loc5_ != null)
+               if(_loc6_[_loc4_].enabled)
                {
-                  if(Boolean(_loc5_.apply(null,rest)))
+                  _loc5_ = _loc6_[_loc4_][param2];
+                  if(_loc5_ != null)
                   {
-                     return true;
+                     if(Boolean(_loc5_.apply(null,rest)))
+                     {
+                        _result = true;
+                        break;
+                     }
                   }
                }
+               _loc4_++;
             }
-            _loc4_++;
          }
-         return false;
+         // 输入查询日志：结果从 false→true（按下边沿）时记录，供手柄绑定/通道排查
+         var _key:String = param1 + "_" + param2;
+         if(_callLogState[_key] != _result)
+         {
+            _callLogState[_key] = _result;
+            if(_result)
+            {
+               Debugger.log("INPUT: " + param1 + "." + param2 + " = true");
+            }
+         }
+         return _result;
       }
       
       private static function callVoid(param1:String, ... rest) : void
