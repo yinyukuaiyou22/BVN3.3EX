@@ -22,6 +22,7 @@ sync.py
 
 # FFDec source
 jpexs-decompiler-master/
+FFDEC/
 
 # Claude internal
 .claude/
@@ -33,9 +34,12 @@ BVNscripts/OLD/
 BVNscripts/last/
 BVNscripts/PC/
 launch-fla/
+BVNscripts/scripts_cut/
+BVNscripts/现代参考3.9/
 
 # Flex + AIR SDK (local environment, merged package)
 AIRSDK/
+flex4.16.1-air51.0.1.1/
 
 # Test resources — track config only, exclude binaries
 tools/Test/*
@@ -64,3 +68,6 @@ anetoolkit-master/
 
 # Flash authoring files
 FlaUi/
+
+# Backup directories (local snapshots, never tracked)
+.backup/
