@@ -1,258 +1,177 @@
 ﻿<select_config>
 
 	<stage_setting>
-		<layout x="0" y="0" width="800" height="600" left="62" right="400" top="60" bottom="100"/>
+		<layout x="0" y="0" width="800" height="600" left="415" right="0" top="50" bottom="100"/>
 	</stage_setting>
 
 
 	<char_list>
-	
+
+		<!-- 第一页：6行 × 4个 = 24个角色 -->
 		<row offset="0,0">
 			<item>小恶魔</item>
 			<item offset="35,0">影狼</item>
 			<item offset="70,0">若鹭姬</item>
 			<item offset="105,0">上海人偶</item>
-			<item offset="140,0"></item>
 		</row>
-		
+
 		<row offset="0,30">
 			<item>灵梦</item>
 			<item offset="35,0">魔理沙</item>
 			<item offset="70,0">早苗</item>
 			<item offset="105,0">琪露诺</item>
-			<item offset="140,0">因幡天为</item>
 		</row>
-		
+
 		<row offset="0,60">
-			<item>芙兰朵露</item>
-			<item offset="35,0">帕秋莉</item>
-			<item offset="70,0">咲夜</item>
-			<item offset="105,0">红美铃</item>
-			<item offset="140,0">文</item>
+			<item>因幡天为</item>
+			<item offset="35,0">芙兰朵露</item>
+			<item offset="70,0">帕秋莉</item>
+			<item offset="105,0">咲夜</item>
 		</row>
-		
+
 		<row offset="0,90">
-			<item>幽幽子</item>
-			<item offset="35,0">妖梦</item>
-			<item offset="70,0">天子</item>
-			<item offset="105,0">衣玖</item>
-			<item offset="140,0">阿空</item>
+			<item>红美铃</item>
+			<item offset="35,0">文</item>
+			<item offset="70,0">幽幽子</item>
+			<item offset="105,0">妖梦</item>
 		</row>
 
 		<row offset="0,120">
-			<item>萃香</item>
-			<item offset="35,0">幽香</item>
-			<item offset="70,0">爱丽丝</item>
-			<item offset="105,0">鬼巫女</item>
-			<item offset="140,0">小町</item>
+			<item>天子</item>
+			<item offset="35,0">衣玖</item>
+			<item offset="70,0">阿空</item>
+			<item offset="105,0">萃香</item>
 		</row>
 
 		<row offset="0,150">
+			<item>幽香</item>
+			<item offset="35,0">爱丽丝</item>
+			<item offset="70,0">鬼巫女</item>
+			<item offset="105,0">小町</item>
+		</row>
+
+		<!-- 第二页：6行 × 4个 = 24个角色 -->
+		<row offset="800,-195">
 			<item>八云紫</item>
 			<item offset="35,0">伊斯塔</item>
 			<item offset="70,0">幽幽子樱之轮舞</item>
 			<item offset="105,0">黑魅灵</item>
-			<item offset="140,0">铃仙</item>
 		</row>
 
-		<row offset="0,180">
-			<item>妹红</item>
-			<item offset="35,0">蕾米莉亚</item>
-			<item offset="70,0">溯源拉赫莱蒂</item>
-			<item offset="105,0"></item>
-			<item offset="140,0"></item>
+		<row offset="800,-165">
+			<item>铃仙</item>
+			<item offset="35,0">妹红</item>
+			<item offset="70,0">蕾米莉亚</item>
+			<item offset="105,0">溯源拉赫莱蒂</item>
 		</row>
 
-		
-			
-		
-		<row offset="800,-195">
+		<row offset="800,-135">
 			<item>琪露诺·旧</item>
 			<item offset="35,0">幽香·旧</item>
 			<item offset="70,0">文·旧</item>
 			<item offset="105,0">萃香·旧</item>
-			<item offset="140,0">芙兰朵露·旧</item>
 		</row>
 
-		<row offset="800,-165">
-			<item>八云紫·旧</item>
-			<item offset="35,0">伊斯塔·旧</item>
-			<item offset="70,0">红美铃·旧</item>
-			<item offset="105,0">咲夜·旧</item>
-			<item offset="140,0">妹红·旧</item>
-			
-			
-		</row>
-		
-		<row offset="800,-135">
-			<item>幽幽子·旧</item>
-			<item offset="35,0">阿空·旧</item>
-			<item offset="70,0">拉赫莱蒂</item>
-			<item offset="105,0">蕾米莉亚·旧1</item>
-			<item offset="140,0">蕾米莉亚·旧2</item>
-			
-		</row>
-		
 		<row offset="800,-105">
-			<item></item>
-			<item offset="35,0"></item>
-			<item offset="70,0">random</item>
-			<item offset="105,0"></item>
-			<item offset="140,0"></item>
-			
-		</row>
-		
-		<row offset="800,-130">
-			<item></item>
-			<item offset="35,0"></item>
-			<item offset="70,0"></item>
-			<item offset="105,0"></item>
-			<item offset="140,0"></item>
-			
-		</row>
-		
-		<row offset="800,-130">
-			<item></item>
-			<item offset="35,0"></item>
-			<item offset="70,0"></item>
-			<item offset="105,0"></item>
-			<item offset="140,0"></item>
-			
-		</row>
-		
-		
-
-		<row>
-			<item></item>
-			<item offset="-10,0"></item>
-			<item offset="-20,0"></item>
-			<item offset="-30,0"></item>
-			<item offset="-40,0"></item>
-		
-		</row>
-		<row>
-			<item></item>
-			<item offset="-10,0"></item>
-			<item offset="-20,0"></item>
-			<item offset="-30,0"></item>
-			<item offset="-40,0"></item>
-			<item offset="-50,0"></item>
-			<item offset="-60,0"></item>
-			<item offset="-70,0"></item>
-			<item offset="-80,0"></item>
-			<item offset="-90,0"></item>
-			<item offset="-100,0"></item>
-			<item offset="-110,0"></item>
+			<item>芙兰朵露·旧</item>
+			<item offset="35,0">八云紫·旧</item>
+			<item offset="70,0">伊斯塔·旧</item>
+			<item offset="105,0">红美铃·旧</item>
 		</row>
 
-		
-		
+		<row offset="800,-75">
+			<item>咲夜·旧</item>
+			<item offset="35,0">妹红·旧</item>
+			<item offset="70,0">幽幽子·旧</item>
+			<item offset="105,0">阿空·旧</item>
+		</row>
+
+		<row offset="800,-45">
+			<item>拉赫莱蒂</item>
+			<item offset="35,0">蕾米莉亚·旧1</item>
+			<item offset="70,0">蕾米莉亚·旧2</item>
+			<item offset="105,0">random</item>
+		</row>
+
 	</char_list>
-	
+
+
 	<!-- 辅助选择界面 -->
-	
+
 	<assist_list>
 
-		
-	
+		<!-- 第一页：6行 × 4个 = 24个辅助角色 -->
 		<row offset="0,0">
 			<item>魂</item>
 			<item offset="35,0">大妖精</item>
 			<item offset="70,0">琪露诺</item>
 			<item offset="105,0">犬咲夜</item>
-			<item offset="140,0">鬼啸符</item>
-		
 		</row>
 
 		<row offset="0,15">
-			<item>白牛</item>
-			<item offset="35,0">白哉</item>
-			<item offset="70,0">雨龙</item>
-			<item offset="105,0">乱菊</item>
-			<item offset="140,0">赫丽贝尔</item>
-		
+			<item>鬼啸符</item>
+			<item offset="35,0">白牛</item>
+			<item offset="70,0">白哉</item>
+			<item offset="105,0">雨龙</item>
 		</row>
 
 		<row offset="0,30">
-			<item>夜一</item>
-			<item offset="35,0">平子</item>
-			<item offset="70,0">一护修行</item>
-			<item offset="105,0">我爱罗</item>
-			<item offset="140,0">天天</item>
-		
+			<item>乱菊</item>
+			<item offset="35,0">赫丽贝尔</item>
+			<item offset="70,0">夜一</item>
+			<item offset="105,0">平子</item>
 		</row>
 
 		<row offset="0,45">
-			<item>咲夜</item>
-			<item offset="35,0">八云紫</item>
-			<item offset="70,0">魔理沙</item>
-			<item offset="105,0">幽幽子</item>
-			<item offset="140,0">铃仙</item>
-		
+			<item>一护修行</item>
+			<item offset="35,0">我爱罗</item>
+			<item offset="70,0">天天</item>
+			<item offset="105,0">咲夜</item>
 		</row>
 
 		<row offset="0,60">
+			<item>八云紫</item>
+			<item offset="35,0">魔理沙</item>
+			<item offset="70,0">幽幽子</item>
+			<item offset="105,0">铃仙</item>
+		</row>
+
+		<row offset="0,75">
 			<item>妹红</item>
 			<item offset="35,0">寅丸星</item>
 			<item offset="70,0">天子</item>
 			<item offset="105,0">小町</item>
-			<item offset="140,0">拉赫莱蒂</item>
-		
 		</row>
 
-		<row offset="0,75">
-			<item>辉夜</item>
-			<item offset="35,0">慧音</item>
-			<item offset="70,0">织板雷华</item>
-			<item offset="105,0">斋藤一</item>
-			<item offset="140,0">迪亚波罗</item>
-		
-		</row>
-
-		<row offset="0,90">
-			<item>比鲁斯</item>
-			<item offset="35,0">黑色高级轿车</item>
-			<item offset="70,0"></item>
-			<item offset="105,0"></item>
-			<item offset="140,0"></item>
-		
-		</row>
-
+		<!-- 第二页：4行 × 4个 = 16个辅助角色（最后一行不足4个补空） -->
 		<row offset="800,-303">
+			<item>拉赫莱蒂</item>
+			<item offset="35,0">辉夜</item>
+			<item offset="70,0">慧音</item>
+			<item offset="105,0">织板雷华</item>
+		</row>
+
+		<row offset="800,-288">
+			<item>斋藤一</item>
+			<item offset="35,0">迪亚波罗</item>
+			<item offset="70,0">比鲁斯</item>
+			<item offset="105,0">黑色高级轿车</item>
+		</row>
+
+		<row offset="800,-273">
 			<item>法尼瓦伦泰</item>
 			<item offset="35,0">银色战车镇魂曲</item>
 			<item offset="70,0">random</item>
 			<item offset="105,0">决死领域</item>
-			<item offset="140,0">debug</item>
 		</row>
-		<row offset="800,-290">
-			<item></item>
+
+		<row offset="800,-258">
+			<item>debug</item>
 			<item offset="35,0"></item>
 			<item offset="70,0"></item>
 			<item offset="105,0"></item>
-			<item offset="140,0"></item>
 		</row>
 
-		
-		
-		
-		<row>
-			<item></item>
-			<item offset="-10,0"></item>
-			<item offset="-20,0"></item>
-			<item offset="-30,0"></item>
-			<item offset="-40,0"></item>
-			<item offset="-50,0"></item>
-			<item offset="-60,0"></item>
-			<item offset="-70,0"></item>
-			<item offset="-80,0"></item>
-			<item offset="-90,0"></item>
-			<item offset="-100,0"></item>
-			<item offset="-110,0"></item>
-		</row>
-
-		
-		
 	</assist_list>
 
 </select_config>

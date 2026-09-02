@@ -1,5 +1,5 @@
 ﻿<fighter_config>
-	<fighter id="溯源拉赫莱蒂" name="溯源 拉赫莱蒂" comic_type="0">
+	<fighter id="溯源拉赫莱蒂" name="溯源 拉赫莱蒂" comic_type="0" plugins="灵梦,妹红">
 		<file url="assets/fighter/拉赫莱蒂溯源.swf" startFrame="1" />
 		<face url="assets/face/touhou/拉赫莱蒂溯源.png" big_url="assets/face/touhou/拉赫莱蒂溯源_b.png" bar_url="assets/face/touhou/拉赫莱蒂溯源.png" win_url="assets/face/touhou/拉赫莱蒂_w.png" />
 		<contact>
@@ -44,7 +44,7 @@
 		<bgm url="assets/bgm/charbgm/少女绮想曲.mp3" rate="100" />
 	</fighter>
 
-	<fighter id="鬼巫女" name="鬼巫女" comic_type="0">
+	<fighter id="鬼巫女" name="鬼巫女" comic_type="0" plugins="早苗,妹红">
 		<file url="assets/fighter/鬼巫女.swf" startFrame="1" />
 		<face url="assets/face/touhou/鬼巫女.png" big_url="assets/face/touhou/鬼巫女_b.png" bar_url="assets/face/touhou/鬼巫女.png" win_url="assets/face/touhou/鬼巫女_w.png" />
 		<contact>
@@ -118,7 +118,7 @@
 		</says>
 		<bgm url="assets/bgm/charbgm/活泼的纯情小姑娘.mp3" rate="100" />
 	</fighter>
-	
+
 	<fighter id="琪露诺·旧" name="琪露诺·旧" comic_type="0">
 		<file url="assets/fighter/琪露诺_旧.swf" startFrame="1" />
 		<face url="assets/face/touhou/琪露诺_旧.png" big_url="assets/face/touhou/琪露诺_b.png" bar_url="assets/face/touhou/琪露诺.png" win_url="assets/face/touhou/琪露诺_w.png" />
@@ -174,7 +174,7 @@
 		<says>
 			<say_item>事情好像变得有趣起来了。</say_item>
 			<say_item>永远的十七岁少女</say_item>
-			
+
 		</says>
 		<bgm url="assets/bgm/charbgm/Necro-Fantasia.mp3" rate="100" />
 	</fighter>
@@ -189,7 +189,7 @@
 		<says>
 			<say_item>杂修</say_item>
 			<say_item>愚蠢之人</say_item>
-			
+
 		</says>
 		<bgm url="assets/bgm/charbgm/夜幕降临.mp3" rate="100" />
 	</fighter>
@@ -396,7 +396,7 @@
 			<say_item>妨碍大小姐的人只有一种下场。</say_item>
 		</says>
 		<bgm url="assets/bgm/charbgm/Flowering Night.mp3" rate="100" />
-	</fighter>	
+	</fighter>
 
 	<fighter id="小恶魔" name="小恶魔" comic_type="0">
 		<file url="assets/fighter/小恶魔.swf" startFrame="1" />
@@ -408,7 +408,7 @@
 		<says>
 			<say_item>……</say_item>
 			<say_item>帕秋莉大人要喝茶吗。</say_item>
-			
+
 		</says>
 		<bgm url="assets/bgm/charbgm/华丽的恶魔之舞.mp3" rate="100" />
 	</fighter>
@@ -427,8 +427,8 @@
 		<bgm url="assets/bgm/charbgm/Locked Girl～ 少女密室.mp3" rate="100" />
 	</fighter>
 
-	
-	
+
+
 	<fighter id="铃仙" name="铃仙·优昙华院·因幡" comic_type="0">
 		<file url="assets/fighter/铃仙优昙华院因幡.swf" startFrame="1" />
 		<face url="assets/face/touhou/铃仙.png" big_url="assets/face/touhou/铃仙_b.png" bar_url="assets/face/touhou/铃仙.png" win_url="assets/face/touhou/铃仙_w.png" />
@@ -512,7 +512,7 @@
 		</contact>
 		<says>
 			<say_item>就如同这樱花一样凋落吧。</say_item>
-			
+
 		</says>
 		<bgm url="assets/bgm/charbgm/幽雅地绽放吧，墨染的樱花.mp3" rate="100" />
 	</fighter>
@@ -527,7 +527,7 @@
 		<says>
 			<say_item>是大新闻的感觉！</say_item>
 			<say_item>不要小瞧我的速度！</say_item>
-			
+
 		</says>
 		<bgm url="assets/bgm/charbgm/风神少女.mp3" rate="100" />
 	</fighter>
@@ -722,21 +722,21 @@
 
 
 
-	
+
 
 
 
 	<fighter id="random" name="随机人物" comic_type="-1">
 		<face url="assets/face/fz/random.png" />
 	</fighter>
-	
+
 	<fighter id="random_bleach" name="随机死神人物" comic_type="0">
 		<face url="assets/face/random_bleach.png" />
 	</fighter>
-	
+
 	<fighter id="random_naruto" name="随机炎影人物" comic_type="1">
 		<face url="assets/face/random_naruto.png" />
 	</fighter>
-	
-	
+
+
 </fighter_config>
