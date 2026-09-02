@@ -40,23 +40,25 @@ package net.play5d.game.bvn.ui.select
             if(param1 is ResUtils.I.getItemClass(ResUtils.I.select,"selected_item_p1_mc"))
             {
                UIUtils.formatText(this._text.textfield,{
-                  "color":16777215,
-                  "size":14,
-                  "align":"right"
+                  // 颜色: 0x384838(深灰绿 R=56 G=72 B=56) —— 已选角色名(P1框)文字颜色
+                  "color":3688504,
+                  "size":15,
+                  "align":"center"
                });
                this._text.width = param1.width - 10;
             }
             else
             {
                UIUtils.formatText(this._text.textfield,{
-                  "color":16777215,
-                  "size":14,
-                  "align":"left"
+                  // 颜色: 0x384838(深灰绿 R=56 G=72 B=56) —— 已选角色名(P2框)文字颜色
+                  "color":3688504,
+                  "size":15,
+                  "align":"center"
                });
                this._text.x = 10;
                this._text.width = param1.width - 10;
             }
-            this._text.y = param1.height - 25;
+            this._text.y = param1.height - 35;
             param1.addChild(this._text);
          }
       }
