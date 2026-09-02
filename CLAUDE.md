@@ -1315,3 +1315,124 @@ run-as air.com.bvn.yy798 cat 'com.bvn.yy798/Local Store/bvn_debug.log'
 5. **APK 注入 + md5 一致 ≠ bug 修复** —— 真机运行才是金标准
 6. **应用包名有三层** —— Android 包名 / AIR applicationID / AIR 私有目录内 ID，三个值不同，混用会迷路
 
+---
+
+## 人物子框扩展（plugin sub-frame，批次 6.8 方案 B，2026-09-01）
+
+> 选人界面角色挂载"子框"（plugin 角色），展开后可环绕主角色排列、手柄方向键在子框间导航、直接选中子角色。参考实现：`BVNscripts/人物子框3.3/`。
+
+### 背景：两套方案的来龙去脉
+
+| 方案 | 实现 | 触发机制 | 子框形态 | 状态 |
+|------|------|---------|---------|------|
+| **A（批次 6.2-6.5）** | `SelectFighterItem.showPluginSub/hidePluginSub/isPluginSubVisible` + `_pluginContainer` | Stage `_hideAllPluginExcept` + 肩键 LB/RB | 静态墨绿小方块 + GlowFilter | ❌ **批次 6.12 用 `batch612.base6.0`（无 plugin）回退重建时被整体丢弃**；`SelectFighterStage.as` 备份链（batch6.4/6.7/6.8/6.10/6.11/batch612.start）均有 plugin 代码，当前版为零 |
+| **B（本次选型）** | `SelectFighterItem` badge 角标 + `pluginFighters` + `showPlugins/closePlugins`（TweenLite 动画）+ `gridOffset` 8 方位；Stage `doShow/movePluginSelect/p1ShowingPlugin` | 鼠标右键 / 手柄 special（LB）；方向键子框内导航 | badge 计数 + 动画展开 + 8 方位环绕 | ✅ **2026-09-01 移植合入主源码**（保留分页） |
+
+**选型原因**：方案 B 功能完整（子框可导航、可直接选中子角色），方案 A 仅装饰性展示。参考版基于旧基线（无分页、无 getSelectCount、旧 trace/DataEvent），**不可整体覆盖**，本次为选择性移植。
+
+### 数据契约（仅 fighter.xml 通道）
+
+```
+fighter.xml: <fighter id="溯源拉赫莱蒂" plugins="灵梦,xxx">   ← 逗号分隔角色 id
+  ↓ FighterVO.initByXML 解析 @plugins → FighterVO.pluginIDs（批次 6.8 新增解析，字段批次 6.0 已有）
+  ↓ SelectFighterStage.buildList：读 mainFighterVO.pluginIDs → addFighterItem(isPlugin=true) 构建子框
+  ↓ SelectFighterItem.pluginFighters + gridOffset（8 方位）+ pendingTweenParams/pendingBack
+```
+
+> ⚠️ **select.xml `<plugin>` 子节点通道（批次 6.1 遗留，`SelectStageConfigVO` 行 109-117）保留但当前不启用** —— select.xml 无 plugin 节点。若未来启用，`SelectCharListItemVO.pluginIDs` 与 `FighterVO.pluginIDs` 双通道需注意优先级（buildList 现以 FighterVO 为准）。
+
+### 涉及文件与职责
+
+| 文件 | 关键改动 |
+|------|---------|
+| `data/FighterVO.as` | `initByXML` 解析 `@plugins`（逗号分隔 → `pluginIDs:Array`）；`_cloneKey` 已含 pluginIDs（clone 透传） |
+| `ui/select/SelectFighterItem.as` | **整体替换为方案 B**：`initBadge/updateBadge/hideBadge/showBadge`（角标）、`pluginFighters/gridOffset/pendingTweenParams/pendingBack`（子框状态）、`applyGlow/removeGlow`（高亮）、`showPlugins/closePlugins`（TweenLite 展开/收起）；`destory` 清理 badge + killTweens；**移除方案 A 全部方法**（showPluginSub 系列已无引用） |
+| `state/SelectFighterStage.as` | 新增 `p1/p2ShowingPlugin` + `p1/p2PlugPoint`；`buildList` 构建子框（8 方位偏移，坐标复用分页 `_loc5_/_loc6_`）；`addFighterItem` 签名扩展 `(item, isPlugin, parentItem, pluginIndex)` + `_itemObj` 键 `x,y.N` 后缀；`doShow`（右键/肩键展开，含 null 防御）、`movePluginSelect`（子框网格导航）、`isBelongToPluginGroup`；`doHover/doSelect/clear/render` 联动收起；render 方向键分流 + `GameInputer.special` 展开。**保留分页**（PAGE_HEIGHT/TOTAL_PAGES/initPagination）与批次 6.12 修复（GameEvent/refreshMultiPadCache） |
+| `tools/Test/assets/config/fighter.xml` | 样例数据已存在：`溯源拉赫莱蒂 plugins="灵梦"`（灵梦为有效角色 id） |
+
+### 交互逻辑
+
+```
+鼠标 hover 主角色          → badge 常显（N+）
+鼠标右键 / 手柄 special    → doShow：子框 TweenLite 弹出（Back.easeOut，8 方位环绕主角色）+ 白色 GlowFilter 高亮 + badge 隐藏
+触屏长按主角色 1.3s         → doShow（批次 6.9，触屏替代右键的入口；LONG_PRESS_MS=1300）
+触屏点击其他角色框          → 子框收起 + 光标移动（复用 doHover 的 isBelongToPluginGroup 判断）
+触屏点击展开框自身/子框角色 → 不收起，正常选中
+手柄方向键（子框展开时）    → movePluginSelect：在 8 方位子框 + 主角色间移动（0,0=主角色）；目标方位无子框 → 收起子框并沿方向移出到相邻主网格
+鼠标 hover/select 组外角色 → 收起当前子框
+选中任意角色（select）      → 收起子框
+clear()/destory()          → closePlugins + 引用置空
+```
+
+### 已知问题
+
+| 编号 | 描述 | 缓解 |
+|------|------|------|
+| ~~**L1**~~ | ~~TOUCH_MODE（触屏）无 `rightClick`，触屏只能靠手柄 special 展开子框~~ | ✅ **批次 6.9 已实现触屏长按 1.3s 展开**（`LONG_PRESS_MS=1300`，`SelectFighterItem.touchLongPress*Handler` + `onLongPress` 回调） |
+| **L2** | plugin id 在 fighter.xml 不存在时 `addFighterItem` 返回 null（子框缺失） | 已防御（`if(pItem)` 判空），日志 `addFighterItem :: 未找到角色数据` |
+| **L3** | 子框角色也注册了 rightClick → 右键子框角色触发 `doShow(子角色)`，其无 pluginFighters 时 `showPlugins` 静默返回 | 已防御（`if(!pluginFighters) return`） |
+| **L4** | 参考版 SelecterItemUI 带语音（KyoVoiceSounder，主源码已无此类） | **不移植** SelecterItemUI，保持主源码版 |
+| **L5** | 分页 + 子框共存：子框坐标复用分页 `_loc5_/_loc6_`（含 `pageIdx*PAGE_HEIGHT`），放 `_ui.bg` 容器内 | ✅ **批次 6.10 已修复吸附冲突**：render 分页吸附段在子框展开时跳过（`p1/p2FocusedOnPlugin` 守卫），hover 子框不再被弹回主体；翻页后子框方位仍需真机确认 |
+| **L6** | `REGRESSION_TEST_MATRIX_BATCH6.5.md` 描述的是方案 A（showPluginSub）现状，行号已过时 | 该文档保留作历史参考；方案 B 验证以本节为准 |
+| **L7** | AIR touchPoint 模式长按后松手可能仍派发 `touchTap` → 误选中 | `touchTapGuardHandler` 用 `_longPressed` 标志 + `stopImmediatePropagation()` 拦截本次松手的 tap（注册序 Guard 先于 selfHandler） |
+| **L8** | 长按计时依赖 `touchBegin` 事件目标必须是 ui 自身（子级 TextField/face 会抢事件） | `ui.mouseChildren=false` 已设置 → 触摸命中 ui 自身；badge 也 `mouseEnabled=false` |
+| **L9** | `select.swf` 帧脚本（stg_select 内翻页代码）`clear()` 每帧读 `SelectFighterStage.SELECT_STATE` 静态属性 → 缺失时 `stg_select/frame2()` #1009；**设 1 时每帧 `removeChild(up/down)` 第二次起抛 #2025 刷屏** | ✅ **批次 6.10 修复 #1009**：新增 `public static var SELECT_STATE:int`（默认 0）；✅ **批次 6.11 修复 #2025**：**不再设置 `SELECT_STATE=1`**（保持 0）——帧脚本 `clear()` 无 contains 守卫、编译产物不可改，主程序侧让 `clear()` 跳过移除；辅助界面翻页由主程序 render 分页段支持（批次 6.8 设计，辅助角色列表超一屏本就该可翻页） |
+| **L10** | `SelectFighterItem.as` 构造器用 `GameConfig.TOUCH_MODE` 但 imports 缺 `GameConfig` → `#1065 Variable GameConfig is not defined`（`-strict=false` 静默通过编译，运行时炸，选人场景进不去） | ✅ **批次 6.10 已修复**：补 `import net.play5d.game.bvn.GameConfig;`（教训：新引入跨包符号必须核对 import，同批次 6.11 `getCurMode` 教训） |
+
+### 备份链（2026-09-01）
+
+```
+.backup/FighterVO.as.pluginB.2026-09-01-1829
+.backup/SelectFighterItem.as.pluginB.2026-09-01-1829
+.backup/SelectFighterStage.as.pluginB.2026-09-01-1829
+.backup/CLAUDE.md.pluginB.2026-09-01-1829
+.backup/AGENTS.md.pluginB.2026-09-01-1829
+```
+
+**批次 6.9（触屏长按）备份（2026-09-01）**：
+```
+.backup/SelectFighterItem.as.touchlongpress.2026-09-01-1846
+.backup/SelectFighterStage.as.touchlongpress.2026-09-01-1846
+.backup/CLAUDE.md.touchlongpress.2026-09-01-1846
+.backup/AGENTS.md.touchlongpress.2026-09-01-1846
+```
+
+**批次 6.10（选人崩溃 + 子框选中修复）备份（2026-09-01）**：
+```
+.backup/SelectFighterItem.as.bugfix610.2026-09-01-1905
+.backup/SelectFighterStage.as.bugfix610.2026-09-01-1905
+.backup/CLAUDE.md.bugfix610.2026-09-01-1905
+.backup/AGENTS.md.bugfix610.2026-09-01-1905
+```
+
+**批次 6.11（#2025 刷屏修复）备份（2026-09-01）**：
+```
+.backup/SelectFighterStage.as.bugfix611.2026-09-01-1911
+.backup/CLAUDE.md.bugfix611.2026-09-01-1911
+.backup/AGENTS.md.bugfix611.2026-09-01-1911
+```
+
+> **批次 6.11 修复记录（2026-09-01）**：
+> **#2025 刷屏修复**：批次 6.10 在 `initAssist` 设 `SELECT_STATE=1` 后，select.swf 帧脚本 `clear()` 每帧执行 `removeChild(up/down)`——第一次移除成功，第二次起抛 `ArgumentError #2025: The supplied DisplayObject must be a child of the caller`（帧脚本无 contains 守卫、编译产物不可改）。**修复**：`initAssist` **不再设置 `SELECT_STATE=1`**（恒保持 0）→ `clear()` 跳过移除 → 不刷屏；辅助界面翻页由主程序 render 分页段支持（批次 6.8 设计：辅助角色列表超一屏本就该可翻页）。
+> **教训**：主程序静态变量会被 select.swf 帧脚本每帧读取——赋值非 0 前必须先确认帧脚本对它的消费方式（此处 clear() 无守卫地每帧 removeChild）。
+
+> **批次 6.10 修复记录（2026-09-01）**：
+> 1. **#1065 修复**：`SelectFighterItem.as` 构造器用 `GameConfig.TOUCH_MODE` 但 imports 缺 `GameConfig` → 补 `import net.play5d.game.bvn.GameConfig;`（`-strict=false` 静默通过编译，运行时炸，选人进不去）
+> 2. **子框选中/弹回修复**：`render()` 分页吸附段每帧把选择框弹回主网格（子框 `selectData.x/y` 与主体相同、`_itemObj` 键 `x,y.N`）→ 新增 `p1/p2FocusedOnPlugin` 守卫：`p1ShowingPlugin != null` 且选择框在组内（`isBelongToPluginGroup`）时跳过吸附 → hover 子框可选中、键盘走 `movePluginSelect` 子框导航
+> 3. **#1009 修复**：`select.swf` 帧脚本 `clear()` 每帧读 `SelectFighterStage.SELECT_STATE` 静态属性（缺失 → `stg_select/frame2()` #1009）→ 新增 `public static var SELECT_STATE:int`，`initFighter`=0 / `initAssist`=1 同步
+> **教训**：新引入跨包符号必须核对 import（同批次 6.11 `getCurMode` 教训）；`-strict=false` 下编译通过 ≠ 代码正确，需运行时验证。
+
+### 真机验证清单
+
+- [ ] PC 编译 0 error（`build.bat`）
+- [ ] 选人场景正常进入（无 #1065 / 无 `stg_select/frame2()` #1009）
+- [ ] hover「溯源拉赫莱蒂」→ badge 显示 `1+`
+- [ ] 鼠标右键 / 触屏长按 1.3s → 「灵梦」子框动画弹出（偏移方位正确）
+- [ ] **鼠标移到「灵梦」子框 → 子框保持高亮、选择框跟随 → 点击选中灵梦（非主体）**（批次 6.10 验证点）
+- [ ] **键盘方向键在子框展开时子框组内导航（movePluginSelect），不弹回主体**（批次 6.10 验证点）
+- [ ] 手柄连接 → P1 选中「溯源拉赫莱蒂」→ 按 LB（special）→ 子框展开 → 方向键导航到「灵梦」→ select 选中
+- [ ] hover 其他角色 → 子框收起
+- [ ] 翻页按钮 up/down 工作正常；辅助选人阶段按钮移除（帧脚本 clear 依赖 `SelectFighterStage.SELECT_STATE`）
+- [ ] 翻页后展开子框 → 方位正确（L5）
+- [ ] `bvn_debug.log` 无 `#1006` / 无 `addFighterItem :: 未找到角色数据`
+

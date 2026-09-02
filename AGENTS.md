@@ -561,6 +561,36 @@ run-as air.com.bvn.yy798 cat '/data/user/0/air.com.bvn.yy798/com.bvn.yy798/Local
 
 当前 **ANE 已禁用**（`ANE_ENABLED = false`），源文件保留备用。重新启用需打开三开关：`ANEFileReader.as:ANE_ENABLED` + `application.xml:extensionID` + `debug_mob.bat:-extdir`。详见 CLAUDE.md ANE 开发规范。
 
+### 8.5 人物子框扩展（plugin sub-frame，批次 6.8 方案 B，2026-09-01）
+
+> 选人界面角色挂载"子框"（plugin 角色）功能。完整方案对比/数据契约/已知问题见 **CLAUDE.md「人物子框扩展」专节**。本节为操作速查。
+
+**快速结论**：
+- 当前主源码 = **方案 B（badge + TweenLite 动画）**，参考实现 `BVNscripts/人物子框3.3/`（基于旧基线，不可整体覆盖，本次为选择性移植）
+- 方案 A（showPluginSub 静态小方块，批次 6.2-6.5）**已移除**——批次 6.12 回退时 Stage 触发逻辑已丢失，本次从 SelectFighterItem 中一并清除
+
+**数据契约（仅 fighter.xml 通道）**：
+```xml
+<fighter id="溯源拉赫莱蒂" plugins="灵梦,xxx" ...>  <!-- 逗号分隔 plugin 角色 id -->
+```
+`FighterVO.initByXML` 解析 `@plugins` → `FighterVO.pluginIDs` → `SelectFighterStage.buildList` 构建子框（8 方位 gridOffset）。select.xml `<plugin>` 子节点通道（批次 6.1 遗留，`SelectStageConfigVO`）保留但未启用。
+
+**交互**：右键 / 手柄 special（LB）展开子框（`doShow`）；**触屏长按 1.3s 展开**（批次 6.9，`LONG_PRESS_MS=1300`，`SelectFighterItem.touchLongPress*Handler` + `onLongPress` 回调）；子框展开时方向键走 `movePluginSelect`（8 方位子框 + 主角色间导航）；hover/select 组外角色或选中角色时收起（closePlugins）。TOUCH_MODE 点击其他角色框 → doHover → isBelongToPluginGroup 判断自动收起子框。
+
+**维护要点**：
+1. `SelectFighterItem` 的 badge 角标（`updateBadge`）与 face 占位 TextField（批次 6.7 `_refreshFace`）分属 `ui` 顶层与 `ui.ct` 子容器，无冲突
+2. plugin 子角色 `_itemObj` 键 = `x,y.N` 后缀（避免与主网格 `x,y` 冲突）；`addFighterItem` 判空防御已就位（plugin id 无效 → null 跳过）
+3. 子框坐标复用分页 `_loc5_/_loc6_`（含 `pageIdx*PAGE_HEIGHT`），且子框 ui 挂在 `_ui.bg` 容器内 → 翻页兼容（L5 待真机验证）
+4. `clear()`/`destory()` 已做 `closePlugins()` + 引用置空 + `TweenLite.killTweensOf(_badge)` 防泄漏
+5. **不要**把参考版 `SelecterItemUI.as` 合入——它带 `KyoVoiceSounder` 语音调用，主源码无此类（L4）
+6. **触屏长按监听走 ui 原生路径**（`ui.addEventListener("touchBegin"...`），**不要**改走 override addEventListener（该路径单回调 + 移除 bug）；`onLongPress` 回调由 Stage 在 `addFighterItem` 注入；长按后松手由 `touchTapGuardHandler` 用 `_longPressed` 标志 + `stopImmediatePropagation()` 屏蔽误触（L7/L8）
+7. **批次 6.10 教训**：
+   - `SelectFighterItem` 用 `GameConfig` 必须 import（`#1065`：`-strict=false` 静默通过编译，运行时炸 → 新引入跨包符号先核对 import）
+   - **render 分页吸附段必须跳过子框展开状态**（`p1/p2FocusedOnPlugin` + `isBelongToPluginGroup` 守卫）——否则 hover 子框被每帧吸附弹回主体、键盘 moveSlt 查不到子框（`_itemObj` 键 `x,y.N` 与主体 `x,y` 不同）
+   - **`select.swf` 帧脚本依赖 `SelectFighterStage.SELECT_STATE` 静态变量**——**该变量必须恒为 0**！批次 6.10 曾在 `initAssist` 设 `SELECT_STATE=1`，导致帧脚本 `clear()` 每帧 `removeChild(up/down)` 第二次起抛 `#2025` 刷屏（批次 6.11 已修复：不再赋值，保持 0；辅助界面翻页由主程序 render 分页段支持）。**教训：主程序静态变量会被 select.swf 帧脚本每帧消费，赋非 0 值前必须确认帧脚本消费方式（此处 clear() 无守卫地每帧 removeChild）**
+
+**备份链（2026-09-01）**：`.backup/{FighterVO,SelectFighterItem,SelectFighterStage}.as.pluginB.2026-09-01-1829`、`.backup/{CLAUDE,AGENTS}.md.pluginB.2026-09-01-1829`；**批次 6.9 触屏长按**：`.backup/{SelectFighterItem,SelectFighterStage}.as.touchlongpress.2026-09-01-1846`、`.backup/{CLAUDE,AGENTS}.md.touchlongpress.2026-09-01-1846`；**批次 6.10 选人崩溃+子框修复**：`.backup/{SelectFighterItem,SelectFighterStage}.as.bugfix610.2026-09-01-1905`、`.backup/{CLAUDE,AGENTS}.md.bugfix610.2026-09-01-1905`；**批次 6.11 #2025 刷屏修复**：`.backup/SelectFighterStage.as.bugfix611.2026-09-01-1911`、`.backup/{CLAUDE,AGENTS}.md.bugfix611.2026-09-01-1911`
+
 ### 9. 备份文件查找
 
 本项目无 Git 版本控制，每次修改前自动备份到 `.backup/` 目录，格式为 `文件名.时间戳`。如需回退，从此目录恢复对应文件。本次对话全部备份：
@@ -604,6 +634,8 @@ run-as air.com.bvn.yy798 cat '/data/user/0/air.com.bvn.yy798/com.bvn.yy798/Local
 | `build.bat` | `.backup/build.bat.buildtag.2026-08-27-1604`（PowerShell 自动注入 BUILD_TAG 日期时间，批次号 `batch6.14` 硬编码于脚本） |
 | `tools/Test/launch.swf` | `.backup/launch.swf.batch614.2026-08-27-1606` (34611060B) + `.backup/launch.swf.batch614.2026-08-27-1607` (34611060B) — md5 `52f76b80407023419f7daacecedbb0e4`，比 6.13 增 487B（30+ 行 BUILD_TAG/SESSION 写入），0 error 0 warning，编译 70s（swfdump `-abc` 反汇编验证 `BVN-3.3EX-batch6.14-2026-08-27-1604` 字面量在 SWF 中） |
 | `AGENTS.md` | `.backup/AGENTS.md.batch614.2026-08-27-1623`（本批次文档追加前备份） |
+| `FighterVO.as` / `SelectFighterItem.as` / `SelectFighterStage.as` | `.backup/{FighterVO,SelectFighterItem,SelectFighterStage}.as.pluginB.2026-09-01-1829`（人物子框方案 B 移植起点：FighterVO 解析 @plugins + SelectFighterItem 整体替换 badge 动画版 + SelectFighterStage 移植 doShow/movePluginSelect 保留分页） |
+| `CLAUDE.md` / `AGENTS.md` | `.backup/CLAUDE.md.pluginB.2026-09-01-1829` / `.backup/AGENTS.md.pluginB.2026-09-01-1829`（人物子框专节写入前备份） |
 
 ### 10. 手柄键位映射（Xbox Wireless Controller 实际布局，2026-08-15）
 
