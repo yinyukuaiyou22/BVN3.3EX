@@ -1,90 +1,108 @@
 # BVN 死神vs火影 V3.3 — 银鱼改
 
-> 5dplay 原作 | 支持外部资源扩展 | Android ARM64
+> 基于 [5dplay](http://www.5dplay.net/) 原作的反编译修复与功能扩展版。
+> PC + Android 双端 | 角色 / 地图 / 辅助可外置加载 | 2v2 / 1v2 / 观战等多模式
+
+[![版本](https://img.shields.io/badge/version-V3.3-blue)](tools/Test/application.xml)
+[![构建](https://img.shields.io/badge/build-BVN--3.3EX--batch6.14--2026--09--02--1219-green)](BVNscripts/scripts/net/play5d/game/bvn/Debugger.as)
+[![SDK](https://img.shields.io/badge/SDK-Flex%204.16.1%20%2B%20AIR%2051.0.1.1-orange)](flex4.16.1-air51.0.1.1/)
+[![平台](https://img.shields.io/badge/platform-PC%20%7C%20Android%20ARM64-lightgrey)](tools/Test/application.xml)
+[![许可](https://img.shields.io/badge/license-GPL--3.0-red)](debug_mob.bat)
 
 ---
 
-## 📱 安装
+## 目录
 
-### 方式一：直接安装 APK
+- [玩家](#-玩家)
+  - [安装 APK](#-安装-apk)
+  - [加载外部资源](#-加载外部资源角色地图)
+  - [多模式一览](#-多模式一览)
+- [开发者](#-开发者)
+  - [环境要求](#-环境要求)
+  - [构建脚本](#-构建脚本)
+  - [编译关键参数](#-编译关键参数)
+  - [项目结构](#-项目结构)
+- [变更记录](#-变更记录)
+- [常见问题](#-常见问题)
+- [许可](#-许可)
+
+---
+
+## 玩家
+
+### 安装 APK
+
+#### 方式一：直接安装
 
 1. 下载 `bvn.apk`
 2. 传输到手机，点击安装
 3. 允许"安装未知来源应用"
 
-### 方式二：ADB 安装（开发者）
+#### 方式二：ADB 安装（开发者）
 
 ```bash
 adb install bvn.apk
 ```
 
-安装后桌面出现「死神vs火影银鱼改」图标，点击启动即可。
+安装后桌面出现 **死神vs火影银鱼改** 图标，点击启动。
 
----
+> **应用包名澄清**（无需关心）：AIR 私有目录 ID 为 `com.bvn.yy798`，Android 端包名为 `air.com.bvn.yy798`（因历史 applicationID 派生规则）。游戏运行时优先从 `/Android/data/<app 包名>/files/BVN/assets/` 读取外部资源，详情见下节。
 
-## 🗂️ 添加外部资源（自定义角色/地图）
+### 加载外部资源（角色/地图）
 
-游戏支持从手机存储加载外部资源，无需修改 APK。
+游戏支持从手机存储加载外部资源，**无需修改 APK**。
 
-### 第一步：创建资源目录
-
-在手机存储中创建以下目录结构（路径**区分大小写**）：
+游戏运行时，会按以下顺序在外部存储查找：
 
 ```
-内部存储/
-└── Android/
-    └── data/
-        └── air.com.bvn.yinyu/
-            └── files/
-                └── BVN/
-                    └── assets/
-                        ├── config/     ← 配置文件
-                        ├── fighter/    ← 角色文件 (.swf)
-                        ├── map/        ← 地图文件 (.swf)
-                        ├── face/       ← 头像图片 (.png/.jpg)
-                        └── bgm/        ← 背景音乐 (.mp3)
+/Android/data/<包名>/files/BVN/assets/   ← 优先
+└── config/    配置文件（追加合并到内置配置）
+├── fighter/   角色 .swf
+├── map/       地图 .swf
+├── face/      头像 .png / .jpg
+├── bgm/       背景音乐 .mp3
+├── sounds/    音效
+├── font/      字体
+└── swf/       UI SWF
 ```
 
-### 第二步：放入文件
+> 具体路径中的 `<包名>` 在不同安装版本下不同（由 AIR applicationID 决定），但 MT 管理器可一键定位，无需手动输入路径。
 
-#### 放角色
+#### 操作流程（MT 管理器）
 
-把角色 `.swf` 文件放入 `fighter/` 目录。例如：
+1. 安装 [MT 管理器](https://mt2.cn/download/)
+2. 打开 MT → 侧拉栏 → 右上角"添加本地存储"
+3. 找到"死神vs火影银鱼改" → 点击"选择"
+4. 返回后进入新加的本地存储 → `android_data` → `files` → `BVN` → `assets`
+5. 直接新建目录、粘贴文件
 
-```
-fighter/
-├── ichigo.swf        ← 黑崎一护
-├── naruto.swf        ← 漩涡鸣人
-└── custom_xxx.swf    ← 自定义角色
-```
+> 注意：游戏运行时才能浏览此目录。如果目录为空，先启动一次游戏让应用自动创建。
 
-#### 放头像
+#### 资源清单
 
-头像文件放入 `face/` 目录。游戏会从 `config/fighter.xml` 中读取每个角色对应的头像文件名，所以文件名可以是任意的。
+| 资源类型 | 目录 | 格式 | 命名要求 |
+|---|---|---|---|
+| 角色 | `fighter/` | `.swf` | 文件名任意（用 XML 关联 ID）|
+| 地图 | `map/` | `.swf` | 同上 |
+| 头像 | `face/` | `.png` `.jpg` | 命名见 XML 配置 |
+| BGM | `bgm/` | `.mp3` | 命名见 XML 配置 |
+| 辅助角色定义 | `config/assist.xml` | XML | 追加合并 |
+| 角色定义 | `config/fighter.xml` | XML | **必需**，定义属性/头像路径 |
+| 选人界面 | `config/select.xml` | XML | 追加合并 |
+| 地图列表 | `config/map.xml` | XML | 追加合并 |
+| 闯关关卡 | `config/mission.xml` | XML | 追加合并 |
 
-```
-face/
-├── ichigo.png        ← 一护小头像
-├── ichigo_b.png      ← 一护大头像（选人界面）
-├── ichigo_m.png      ← 一护血条头像
-└── ichigo_w.png      ← 一护胜利头像
-```
-
-#### 放配置
-
-在 `config/` 下放 `fighter.xml` 来**定义**外部角色。这是最关键的一步——没有它，角色 SWF 虽然能被扫描到，但没有头像、名字、BGM 等信息。
-
-`config/fighter.xml` 示例：
+#### 角色定义示例（`config/fighter.xml`）
 
 ```xml
 <config>
   <fighter id="ichigo" name="黑崎一护" comic_type="0">
-    <file url="/storage/emulated/0/Android/data/air.com.bvn.yinyu/files/BVN/assets/fighter/ichigo.swf"
+    <file url="/storage/emulated/0/Android/data/<包名>/files/BVN/assets/fighter/ichigo.swf"
           startFrame="1"/>
-    <face url="/storage/emulated/0/Android/data/air.com.bvn.yinyu/files/BVN/assets/face/ichigo.png"
-          big_url="/storage/emulated/0/Android/data/air.com.bvn.yinyu/files/BVN/assets/face/ichigo_b.png"
-          bar_url="/storage/emulated/0/Android/data/air.com.bvn.yinyu/files/BVN/assets/face/ichigo_m.png"
-          win_url="/storage/emulated/0/Android/data/air.com.bvn.yinyu/files/BVN/assets/face/ichigo_w.png"/>
+    <face url=".../face/ichigo.png"
+          big_url=".../face/ichigo_b.png"
+          bar_url=".../face/ichigo_m.png"
+          win_url=".../face/ichigo_w.png"/>
     <contact>
       <friend></friend>
       <enemy></enemy>
@@ -97,292 +115,239 @@ face/
 </config>
 ```
 
-> **提示**：其他配置文件同理——`assist.xml`（辅助角色）、`map.xml`（地图）、`mission.xml`（闯关模式）、`select.xml`（选人界面布局）。这些文件**追加合并**到内置配置之后，ID 冲突时内置配置优先。
+> **冲突规则**：内置配置优先。如果新角色 ID 与内置角色重复，将忽略外部定义。
 
-### 第三步：启动游戏
+#### 自动添加工具
 
-放好文件后启动游戏，外部资源会自动加载。
+```bash
+# 向导模式（交互）
+python tools/script/add_asset.py --mode wizard
+
+# 快速模式（直接添加一个角色）
+python tools/script/add_asset.py --swf path/to/char.swf --name "角色名" --comic-type 0
+
+# 批量模式
+python tools/script/add_asset.py --mode batch
+```
+
+### 多模式一览
+
+游戏模式在 `BVNscripts/scripts/net/play5d/game/bvn/data/GameMode.as` 定义。当前实现：
+
+| 模式 | 常量 | 值 | 选人数 | 菜单入口 |
+|---|---|---|---|---|
+| 小队闯关 | `TEAM_ACRADE` | 10 | 3v3 | 小队模式 |
+| 小队对战 | `TEAM_VS_PEOPLE` | 11 | 3v3 | 小队模式 |
+| 小队 vs CPU | `TEAM_VS_CPU` | 12 | 3v3 | 小队模式 |
+| 小队观战 | `TEAM_WATCH` | 13 | 3v3 | 小队模式 |
+| **小队 2v2** | `TEAM_DUO` | 14 | 2v2 | 小队模式 |
+| **小队 2v2 观战** | `TEAM_DUO_WATCH` | 15 | 2v2 | 小队模式 |
+| 单人闯关 | `SINGLE_ACRADE` | 20 | 1v1 | 单人模式 |
+| 单人 2P | `SINGLE_VS_PEOPLE` | 21 | 1v1 | 单人模式 |
+| 单人 vs CPU | `SINGLE_VS_CPU` | 22 | 1v1 | 单人模式 |
+| 单人观战 | `SINGLE_WATCH` | 23 | 1v1 | 单人模式 |
+| **单人 1v2** | `SINGLE_VS_DUO` | 24 | 1v2 | 单人模式 |
+| **单人 1v2 观战** | `SINGLE_VS_DUO_WATCH` | 25 | 1v2 | 单人模式 |
+| 生存模式 | `SURVIVOR` | 30 | 1v1 | 其他 |
+| 练习模式 | `TRAINING` | 40 | 1v1 | 主菜单 |
+
+> **2v2 / 1v2 / 观战** 模式已在 [批次 6.x](BVNscripts/scripts/net/play5d/game/bvn/data/GameMode.as) 实现完毕，菜单可见即可用。详细实现在 [`data/GameMode.as`](BVNscripts/scripts/net/play5d/game/bvn/data/GameMode.as) 和 [`ui/MenuBtnGroup.as`](BVNscripts/scripts/net/play5d/game/bvn/ui/MenuBtnGroup.as)。
 
 ---
 
-## 🛠️ 用 MT 管理器操作文件
-
-如果你不想手动创建目录，可以使用 **MT 管理器** 进行可视化操作：
-
-1. 下载安装 [MT 管理器](https://mt2.cn/download/)
-2. 打开 MT 管理器 → 侧拉栏 → 右上角「添加本地存储」
-3. 在列表中找到「死神vs火影银鱼改」→ 点击「选择」
-4. 返回后看到新加的本地存储 → 点击进入
-5. 进入 `android_data` → `files` → `BVN` → `assets`
-6. 在这里可以直接新建目录、粘贴文件
-
-> **注意**：游戏运行时才能浏览此目录。如果目录为空，先启动一次游戏让应用自动创建。
-
----
-
-## 🖥️ 开发者：打包构建
+## 开发者
 
 ### 环境要求
 
-| 工具 | 用途 |
-|------|------|
-| Flex+AIR 合并 SDK | `AIRSDK/flex4.16.1-air51.0.1.1/`（编译 + 打包 + 调试） |
-| JDK 17 | mxmlc 编译器运行时 |
-| JDK 8 | ANE Java 编译（可选，ANE 当前已禁用） |
-| Android SDK (platform-33) | ADT platform SDK |
+| 工具 | 用途 | 备注 |
+|---|---|---|
+| **Flex + AIR 合并 SDK** | `flex4.16.1-air51.0.1.1/` 或 `AIRSDK/` | mxmlc 编译 + ADT 打包 + fdb 调试 |
+| **JDK 17** | mxmlc 编译器运行时 | 必须 |
+| **JDK 8**（可选）| ANE Java 编译 | ANE 当前已禁用，无需 |
+| **Android SDK**（可选）| ADT `-platformsdk` | 仅打包 APK 时需要；phone-33 + build-tools 33.0.2 |
+| **ADB**（可选）| 真机调试 | `tools/platform-tools/adb.exe` 或系统 PATH |
 
-### 构建命令
+### 构建脚本
+
+| 脚本 | 位置 | 用途 |
+|---|---|---|
+| `build.bat` | 项目根 | 编译 SWF → `tools/Test/launch.swf` |
+| `tools/script/debug.bat` | `tools/script/` | 编译 + adl 启动（PC 调试器）|
+| `tools/script/debug_mob.bat` | `tools/script/` | 编译 + ADT 打包 + ADB 安装 + logcat |
+| `tools/script/fdbg.bat` | `tools/script/` | 通用 fdb 连接 SWF 断点调试 |
+| `tools/script/pack_termux.sh` | `tools/script/` | Termux 内直接打包 APK（无需 PC）|
+| `tools/script/add_asset.py` | `tools/script/` | 自动添加角色/辅助/地图到游戏 |
+
+#### 快速开始
 
 ```bash
-# 编译 SWF
-.\build.bat
-
-# PC 调试（启动时询问 SWF 路径，回车使用默认）
+# PC 端：编译 + adl 启动
 .\tools\script\debug.bat
 
-# 编译 + 打包 APK + 安装 + logcat
+# 移动端：编译 + 打包 + 安装 + 日志
 .\tools\script\debug_mob.bat
 
-# 断点调试 SWF（支持命令行参数指定 SWF）
-.\tools\script\fdbg.bat [swf_file]
-
-# 自动添加角色/辅助/地图工具
-python tools\script\add_asset.py --mode wizard
-python tools\script\add_asset.py --swf path\to\char.swf --name "角色名" --comic-type 0
+# 仅编译 SWF
+.\build.bat
 ```
 
-> 完整开发文档见 [CLAUDE.md](CLAUDE.md) 和 [AGENTS.md](AGENTS.md)。
+### 编译关键参数
 
----
+`build.bat` 自动注入构建时间戳到 `Debugger.as` 的 `BUILD_TAG`，然后调用：
 
-## 📂 项目结构
+```bash
+java -jar flex4.16.1-air51.0.1.1/lib/mxmlc.jar \
+  +flexlib=flex4.16.1-air51.0.1.1/frameworks \
+  -debug=true \
+  -swf-version=37 \
+  -strict=false \
+  -source-path+=BVNscripts/scripts \
+  -library-path+=flex4.16.1-air51.0.1.1/frameworks/libs/core.swc \
+  -external-library-path+=flex4.16.1-air51.0.1.1/frameworks/libs/air/airglobal.swc \
+  -output=tools/Test/launch.swf \
+  -- BVNscripts/scripts/launch.as
+```
+
+> **`-strict=false` 必须**：预存的反编译类型不匹配错误（`ScreenRotater`、`GameInputer`、`JsonUtils`、`ANEFileReader` 等）会阻止 SWF 产出。漏掉此参数时 mxmlc 仍返回 exitCode=0 但**无 SWF 生成**，极难排查。
+>
+> **`-external-library-path+=airglobal.swc` 必须**：提供 AIR 运行时类（ANEFileReader、FileUtils 等）。
+>
+> **`-swf-version=37`**：对应 AIR 51.0。
+
+### 项目结构
 
 ```
 BVNY/
-├── BVNscripts/scripts/          ← AS3 游戏源码
-├── extensions/BVNFileReader/    ← ANE 原生扩展 (Java + AS3)
+├── BVNscripts/scripts/                # AS3 游戏源码（可编译）
+│   ├── _assets/                       # 嵌入 PNG/MP3/SWF
+│   ├── mx/                            # Flex 框架桩
+│   ├── com/                           # 第三方库（TweenLite）
+│   ├── fl/                            # Flash 运动辅助
+│   ├── net/play5d/
+│   │   ├── game/bvn/                  # === 主游戏代码 ===
+│   │   │   ├── MainGame.as            # 游戏状态机
+│   │   │   ├── GameConfig.as          # 常量（FPS/物理/气力等）
+│   │   │   ├── ctrl/                  # 控制器层
+│   │   │   ├── data/                  # 数据模型
+│   │   │   ├── fighter/               # 角色系统
+│   │   │   ├── state/                 # 游戏状态
+│   │   │   ├── ui/                    # UI 组件
+│   │   │   ├── mob/                   # 移动端支持
+│   │   │   ├── utils/                 # 工具
+│   │   │   └── views/                 # 视觉效果
+│   │   └── kyo/                       # KYO 框架
+│   └── launch.as                      # 入口
+│
+├── extensions/BVNFileReader/          # ANE 原生扩展（Java + AS3，已禁用）
 ├── tools/
-│   ├── Test/                    ← 编译产物 + 运行时资源 + 配置文件
-│   ├── script/                  ← 构建/调试脚本
-│   └── platform-tools/          ← ADB 工具
-├── reference/                   ← 参考代码（只读）
-├── doc/                         ← 架构与规划文档
-├── build.bat                    ← 编译入口
-├── CLAUDE.md                    ← 开发者完整手册
-├── AGENTS.md                    ← AI 助手工作流规则
-└── README.md                    ← 用户文档（本文件）
+│   ├── Test/                          # 编译产物 + 运行时资源
+│   │   ├── launch.swf                 # 编译产出
+│   │   ├── application.xml            # AIR 应用描述
+│   │   └── assets/                    # 运行时加载
+│   │       ├── config/                # 配置 XML
+│   │       ├── fighter/ map/ face/    # 角色/地图/头像
+│   │       ├── bgm/ sounds/ font/     # 音频/字体
+│   │       └── swf/                   # UI SWF
+│   ├── script/                        # 构建/调试脚本
+│   └── platform-tools/                # ADB
+├── reference/BVN3.9/                  # BVN 3.9 参考源码（只读）
+├── doc/                               # 架构与规划文档
+│   ├── architecture.md
+│   ├── ane-dev-guide.md
+│   └── AI-SYSTEM-DOC.md
+├── flex4.16.1-air51.0.1.1/            # 合并 SDK
+├── android-platform-33/               # Android SDK 平台库（被 ANE 依赖）
+├── build.bat                          # 编译入口
+├── CLAUDE.md                          # 开发者完整手册（必读）
+├── AGENTS.md                          # AI 助手工作流规则
+└── README.md                          # 本文件
+```
+
+### ANE（BVNFileReader）状态：**已禁用**
+
+| 开关 | 状态 | 文件 |
+|---|---|---|
+| `application.xml` 取消 `<extensionID>` 注释 | (x) 已注释 | `tools/Test/application.xml` |
+| `ANE_ENABLED = true` | (x) `false` | `BVNscripts/scripts/net/play5d/game/bvn/mob/utils/ANEFileReader.as` |
+| `debug_mob.bat` 加 `-extdir "."` | (x) 已移除 | `tools/script/debug_mob.bat` |
+
+**禁用原因**：统一从 APK 内置资源加载，简化部署、避免 ANE 兼容性问题。源码完整保留，未来重新启用只需打开以上三开关。详细迁移记录见 [`doc/ane-dev-guide.md`](doc/ane-dev-guide.md)。
+
+---
+
+## 变更记录
+
+> 完整提交历史：[GitHub Commits](https://github.com/yinyukuaiyou22/BVN3.3EX/commits/master) · 当前本地领先 `origin/master` **13 个提交**。
+
+### 重大重构（最近完成）
+
+| 批次 | 内容 | 关键文件 |
+|---|---|---|
+| **批次 1-5**（2026-08） | **多手柄配置重构（单手柄模型）** | `GameJoystickInput.as`、`InputManager.as`、`ExtendConfig.as`、`GameInterfaceManager.as`、`ViewManager.as` |
+| | • 手机端只连一个手柄，固定走 `joy_p1` 通道 | |
+| | • `joy_p2` 恒禁用，由 `switchControlPlayer` 按 `joyTarget` 切换控制方 | |
+| | • P2 独立配置 `joy2Config`，双手柄时支持 P2 独立改键 UI | |
+| **批次 6.x**（2026-08~09）| **2v2 / 1v2 / 观战模式** | `GameMode.as`、`MenuBtnGroup.as`、`GameInterfaceManager.as`、`SelectFighterStage.as`、`GameCtrl.as` |
+| | • 4 个观战模式常量（13/15/23/25）| |
+| | • 4 个 2v2 / 1v2 常量（14/15/24/25）| |
+| | • 选人 step 流程适配 | |
+| **批次 6.5**（2026-09）| **选人分页布局 + 子框 plugin sub-frame** | `SelectFighterStage.as`、`SelectFighterItem.as` |
+| **批次 6.14**（2026-09）| **BUILD_TAG 自动注入 + 文件日志** | `build.bat`、`Debugger.as`、`launch.as` |
+
+### 当前活跃构建
+
+```
+BUILD_TAG = BVN-3.3EX-batch6.14-2026-09-02-1219
+VERSION   = V3.3
+VERSION_DATE = 2019.3.32
 ```
 
 ---
 
-## ❓ 常见问题
+## 常见问题
 
 **Q: 放好文件后游戏里看不到新角色？**
 A: 检查三点：
 1. `fighter/` 目录下有 `.swf` 文件
-2. `config/` 下有对应的 `fighter.xml`（定义角色属性、头像路径）
-3. 角色 ID 不能与内置角色重复（内置优先）
+2. `config/` 下有对应的 `fighter.xml`（定义属性/头像）
+3. 角色 ID 不与内置冲突（内置优先）
 
 **Q: 头像不显示？**
-A: `config/fighter.xml` 中 `face` 的四个 `url` 属性必须写**完整绝对路径**（如示例中的 `/storage/emulated/0/...`）。
+A: `config/fighter.xml` 中 `face` 的四个 `url` 属性必须写**完整绝对路径**。
 
 **Q: 游戏启动后黑屏/闪退？**
-A: 检查 `config/fighter.xml` 是否有 XML 语法错误（缺少闭合标签、特殊字符未转义等）。
+A: 检查 `config/*.xml` 是否有语法错误（缺少闭合标签、特殊字符未转义）。
 
 **Q: MT 管理器看不到应用目录？**
-A: 确保游戏正在运行（切换到游戏后再切回 MT 管理器），或者调用游戏内的"注册文件提供器"功能（如果可用）。
+A: 确保游戏正在运行，或调用游戏内的"注册文件提供器"功能。
 
----
+**Q: 编译后没有 SWF 输出？**
+A: 99% 是漏了 `-strict=false`。检查 `build.bat` 第 13 行附近。
 
-## 🎮 新增游戏模式：2v2 和 1v2（白板方案）
+**Q: 调试面板如何打开？**
+A: 游戏中按 **`~`**（波浪键）调出调试面板（FPS / 内存 / 角色信息）。`Debugger.as` 中的 `DEBUG_PANEL_ENABLED` 控制开关。
 
-> 通过魔改现有小队模式（3v3）实现。以下列出所有需要增加/修改的文件、方法名和具体改动点。
-
-### 模式定义
-
-| 模式 | 常量名 | 值 | 说明 |
-|------|--------|----|------|
-| 小队 2v2 | `TEAM_2V2` | 14 | 每队选 2 人，按小队规则对战 |
-| 小队 1v2 | `TEAM_1V2` | 15 | P1 选 1 人，P2 选 2 人（不对称） |
-
-### 菜单显示
-
-```
-TEAM PLAY
-  ├── TEAM ACRADE (3v3)  ← 原有
-  ├── TEAM VS CPU  (3v3)  ← 原有
-  ├── TEAM 2V2 VS CPU      ← 新增
-  └── TEAM 1V2 VS CPU      ← 新增
+**Q: 日志在哪？**
+A: 文件日志：`/data/user/0/<包名>/<内部包名>/Local Store/bvn_debug.log`（每次会话自动追加）。手机端读取：
+```bash
+adb shell run-as <包名> cat '.../Local Store/bvn_debug.log'
 ```
 
 ---
 
-### 需要修改的文件清单
+## 完整文档
 
-#### 1. `data/GameMode.as` — 模式常量 + 检测方法
-
-| 方法/字段 | 改动 |
-|-----------|------|
-| `TEAM_2V2:int = 14` | **新增**常量 |
-| `TEAM_1V2:int = 15` | **新增**常量 |
-| `isTeamMode()` | 改为 `return currentMode >= 10 && currentMode <= 15` |
-| `is2v2Mode()` | **新增**：`return currentMode == 14` |
-| `is1v2Mode()` | **新增**：`return currentMode == 15` |
-| `getSelectCount()` | **新增**：根据模式返回选人数（3/2/1） |
-
-#### 2. `interfaces/GameInterface.as` — 默认菜单配置
-
-| 方法/字段 | 改动 |
-|-----------|------|
-| `getDefaultMenu()` | TEAM PLAY 的 children 追加 `TEAM 2V2 VS CPU` 和 `TEAM 1V2 VS CPU` |
-
-#### 3. `mob/GameInterfaceManager.as` — 移动端菜单
-
-| 方法/字段 | 改动 |
-|-----------|------|
-| `getGameMenu()` | TEAM MODE children 追加两个新模式按钮，`func` 内联设置 `currentMode = 14/15` |
-
-#### 4. `ui/MenuBtnGroup.as` — 菜单按钮回调
-
-| 方法/字段 | 改动 |
-|-----------|------|
-| `getFucByLabel()` | 新增两个 case：`"TEAM 2V2 VS CPU"` 设 `currentMode = 14`、`"TEAM 1V2 VS CPU"` 设 `currentMode = 15` |
-
-#### 5. `state/SelectFighterStage.as` — 选人逻辑
-
-| 方法/字段 | 改动 |
-|-----------|------|
-| `initSelecterP1()` | `selectTimesCount` 改为调用 `GameMode.getSelectCount()` 而非硬编码 `isTeamMode() ? 3 : 1` |
-| `initSelecterP2()` | 同上 |
-| `nextStep()` | 新模式（14/15）的对战流程同 TEAM_VS_CPU（step1→step2→step3→...） |
-| `initFighter()` | `p2Select` 创建条件追加新模式判断 |
-
-#### 6. `ctrl/game_ctrls/GameCtrl.as` — 对战逻辑
-
-| 方法/字段 | 改动 |
-|-----------|------|
-| `addFighter()` | P2 控制逻辑：新模式同 VS_CPU（P2 用 AI） |
-| `startNextTeamFight()` | 换人逻辑复用现有 `isTeamMode()`（新模式已纳入） |
-| `runNext()` | 复用 `isTeamMode()` 分支，不需额外改动 |
-
-#### 7. `data/GameRunFighterGroup.as` — 队伍数据结构
-
-| 方法/字段 | 改动 |
-|-----------|------|
-| `getNextFighter()` | 2v2 模式：fighter2 后返回 null（只有 2 人）；现有 3v3 不变 |
-| `getFighterCount()` | **新增**：返回当前队伍实际 fighter 数 |
-
-#### 8. `state/LoadingState.as` — 加载与分配
-
-| 方法/字段 | 改动 |
-|-----------|------|
-| `gotoGame()` | 2v2 模式只加载 fighter1/fighter2，fighter3 设为 null |
-
-#### 9. `ui/select/SelectIndexUI.as` — 出场顺序选择
-
-| 方法/字段 | 改动 |
-|-----------|------|
-| `initSelect()` | `currentMode - 10` switch 追加 case 4(14)、case 5(15) |
-
-#### 10. `ctrl/game_ctrls/GameEndCtrl.as` — 回合结束
-
-| 方法/字段 | 改动 |
-|-----------|------|
-| `renderEND()` | HP 恢复逻辑：`isTeamMode()` 已覆盖新模式，不需改动 |
+| 文档 | 内容 |
+|---|---|
+| [`CLAUDE.md`](CLAUDE.md) | 开发者完整手册（环境/构建/调试/项目结构/重构批次）|
+| [`AGENTS.md`](AGENTS.md) | AI 助手工作流规则 + Vibe Coding 流程 |
+| [`doc/architecture.md`](doc/architecture.md) | 架构总览 |
+| [`doc/ane-dev-guide.md`](doc/ane-dev-guide.md) | ANE 重新启用指南（已禁用）|
+| [`AI-SYSTEM-DOC.md`](AI-SYSTEM-DOC.md) | AI 系统文档（双层决策架构）|
 
 ---
 
-### 核心改动逻辑：`getSelectCount()`
+## 许可
 
-```as
-// GameMode.as 新增
-public static function getSelectCount() : int {
-    switch(currentMode) {
-        case TEAM_1V2: return 1;   // P1 选 1 人
-        case TEAM_2V2: return 2;   // 每队选 2 人
-        default:
-            return isTeamMode() ? 3 : 1;
-    }
-}
-```
-
-1v2 模式需要区分 P1/P2 的选人数：P1 选 1 人，P2 选 2 人。可通过在 `SelectVO` 或调用处传入 `playerType` 参数实现。
-
-### 现有代码已实现的基础设施（无需重新发明）
-
-以下机制**已在现有小队模式中完整实现**，2v2/1v2 直接复用：
-
-**① 全部 fighter 一次性加载**
-
-`LoadingState.gotoGame()` 在游戏开始前一次性加载选择的所有 fighter：
-```as
-// 现有代码（LoadingState.as L309-323）
-p1Group.fighter1 = getCacheFighter("p1", selectVO.fighter1);
-p1Group.fighter2 = getCacheFighter("p1", selectVO.fighter2);
-p1Group.fighter3 = getCacheFighter("p1", selectVO.fighter3);
-p1Group.currentFighter = p1Group.fighter1;  // 默认第一个上场
-// P2 同理
-```
-→ 2v2 时只需把多余的 slot 设为 null（如 `fighter3 = null`）。
-
-**② 第一个上场由玩家/CPU 控制，其余默认 CPU**
-
-`GameCtrl.addFighter()` 按 `playerId` 分配控制器：
-```as
-// 现有代码（GameCtrl.as L300-330）
-// playerId=1(P1) → FighterKeyCtrl（玩家键盘）
-// playerId=2(P2) → isVsCPU 时为 FighterAICtrl（AI），否则为 FighterKeyCtrl
-```
-→ 当前 fighter 用玩家/AI，换人时 `setFighterActionCtrl()` 给新上场 fighter 重新分配控制器。
-
-**③ 战败自动换人**
-
-`GameCtrl.startNextTeamFight()` → `nextFighter()` 调用 `GameRunFighterGroup.getNextFighter()`：
-```as
-// 现有代码（GameRunFighterGroup.as L33-44）
-switch(currentFighter) {
-    case fighter1: return fighter2;
-    case fighter2: return fighter3;
-    default: return null;  // 无下一人 → 队伍全灭
-}
-```
-→ 2v2 时需确保 fighter3 为 null 时正确返回 null。
-
-**④ 回合间 HP 恢复**
-
-`GameEndCtrl.renderEND()` 中 `isTeamMode()` 已覆盖新模式，赢家恢复 5%~20% HP。
-
-**⑤ 出场顺序选择**
-
-`SelectIndexUI.initSelect()` 的 `currentMode - 10` switch 中追加新模式 case，玩家可拖拽调整 fighter 出场顺序。
-
----
-
-**总结**：实现 2v2/1v2 的核心改动仅 3 处：
-| 改动 | 文件 |
-|------|------|
-| 选人数参数化（3→2 或 1） | `GameMode.getSelectCount()` |
-| 多余 slot 置 null（2v2: fighter3=null） | `LoadingState.gotoGame()` |
-| getNextFighter 正确处理 null | `GameRunFighterGroup.getNextFighter()` |
-| **其余全部复用现有小队模式逻辑** | |
-
-### 不需要修改的文件
-
-- `GameStartCtrl.as` — 开场动画逻辑不依赖模式
-- `FighterMain.as` / `FighterMcCtrler.as` — 角色行为不依赖模式
-- `GameMainLogicCtrler.as` — 物理/碰撞不依赖模式
-- `GameState.as` / `GameCamera.as` — 渲染不依赖模式
-- `MessionModel.as` — 闯关模式暂不需要 2v2/1v2 关卡
-
----
-
-## 📋 版本
-
-| 项目 | 内容 |
-|------|------|
-| 游戏版本 | V3.3（2019.3.32） |
-| 原作 | 5dplay |
-| 修改 | 银鱼改（2v2/1v2 模式 + 翻页优化 + 训练无开场） |
-| SDK | Flex 4.16.1 + AIR 51.0.1.1（合并包） |
-| 目标 | PC (adl) + Android ARM64 |
-| 许可 | GPL-3.0 |
+基于 [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html) 发布。
+原作版权 © 5dplay。本修改版版权所有 © 2021-2026 YinYu。
