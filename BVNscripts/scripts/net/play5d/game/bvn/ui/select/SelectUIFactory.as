@@ -21,8 +21,8 @@ package net.play5d.game.bvn.ui.select
          var _loc4_:Class = ResUtils.I.getItemClass(ResUtils.I.select,_loc3_);
          var _loc5_:SelectedFighterGroup = new SelectedFighterGroup(_loc4_);
          // P1 左下角；P2 移到 P1 正上方且不互相遮挡（框高约65px + 间距20px）
-         _loc5_.x = param1 == 1 ? 10 : 10;
-         _loc5_.y = param1 == 1 ? GameConfig.GAME_SIZE.y - 80 : GameConfig.GAME_SIZE.y - 80 - 85;
+         _loc5_.x = param1 == 1 ? 100 : 100;
+         _loc5_.y = param1 == 1 ? GameConfig.GAME_SIZE.y - 265 : GameConfig.GAME_SIZE.y - 265 - 260;
          _loc5_.addFighter(null);
          _loc2_.group = _loc5_;
          return _loc2_;

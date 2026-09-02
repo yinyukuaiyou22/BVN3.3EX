@@ -60,6 +60,11 @@ import net.play5d.game.bvn.Debugger;
          this.contactEnemys = param1.contact.enemy.toString().split(",");
          this.bgm = param1.bgm.@url;
          this.bgmRate = param1.bgm.@rate / 100;
+         // 批次6.8：人物子框 plugin ID 列表 — 解析 fighter.xml 的 plugins 属性（逗号分隔）
+         if(param1.@plugins != undefined && String(param1.@plugins) != "")
+         {
+            this.pluginIDs = String(param1.@plugins).split(",");
+         }
          this.says = [];
          for each(_loc2_ in param1.says.say_item)
          {

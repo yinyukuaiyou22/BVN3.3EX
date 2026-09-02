@@ -652,43 +652,49 @@ private var _p1p2WasDown:Boolean = false;
       }
       
       private function _switchPlayer() : void
-      {
-         if (GameMode.currentMode != 40 && !GameMode.isVsPeople()) {
-            return;
-         }
-         var now:Number = (new Date()).time;
-         if (now - _p1p2LastSwitchTime < SWITCH_COOLDOWN) {
-            return;
-         }
-         _p1p2LastSwitchTime = now;
-         _controllingP1 = !_controllingP1;
-         _controllingP1Static = _controllingP1;
-         GameCtrl.I.switchControlPlayer(_controllingP1);
-         GameInterfaceManager.I.refreshJoystickRouting();
-         Debugger.log("P1P2_SWITCH: now controllingP1=" + _controllingP1);
-         if (_playerSwitchBtn) {
-            var oldDisp:Bitmap = _playerSwitchBtn.display;
+{
+    if (GameMode.currentMode != 40 && !GameMode.isVsPeople()) {
+        return;
+    }
+    var now:Number = (new Date()).time;
+    if (now - _p1p2LastSwitchTime < SWITCH_COOLDOWN) {
+        return;
+    }
+    _p1p2LastSwitchTime = now;
+    _controllingP1 = !_controllingP1;
+    _controllingP1Static = _controllingP1;
+    GameCtrl.I.switchControlPlayer(_controllingP1);
+    GameInterfaceManager.I.refreshJoystickRouting();
+    Debugger.log("P1P2_SWITCH: now controllingP1=" + _controllingP1);
+    
+    if (_playerSwitchBtn) {
+        var oldDisp:Bitmap = _playerSwitchBtn.display;
+        // ---------- 新增保护 ----------
+        if (oldDisp && oldDisp.bitmapData) {
             var oldX:Number = oldDisp.x;
             var oldY:Number = oldDisp.y;
             var oldAlpha:Number = oldDisp.alpha;
-            if (oldDisp.bitmapData) {
-               oldDisp.bitmapData.dispose();
-            }
+            
+            oldDisp.bitmapData.dispose();
+            
             var newBmp:Bitmap = _createPlayerSwitchDisplay(_controllingP1);
             newBmp.scaleX = newBmp.scaleY = ScreenPadUtils.scale;
             newBmp.alpha = oldAlpha;
             newBmp.x = oldX;
             newBmp.y = oldY;
+            
             if (isShowing && _stage && oldDisp.parent) {
-               var p:DisplayObjectContainer = oldDisp.parent;
-               var idx:int = p.getChildIndex(oldDisp);
-               p.removeChildAt(idx);
-               p.addChildAt(newBmp, idx);
+                var p:DisplayObjectContainer = oldDisp.parent;
+                var idx:int = p.getChildIndex(oldDisp);
+                p.removeChildAt(idx);
+                p.addChildAt(newBmp, idx);
             }
             _playerSwitchBtn.display = newBmp;
             _playerSwitchBtn.initArea();
-         }
-      }
+        }
+        // ---------- 保护结束 ----------
+    }
+}
    }
 }
 
