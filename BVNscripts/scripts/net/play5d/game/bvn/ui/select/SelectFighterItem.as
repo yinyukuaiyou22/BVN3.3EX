@@ -1,17 +1,25 @@
 package net.play5d.game.bvn.ui.select
 {
+   import com.greensock.TweenLite;
+   import com.greensock.easing.Back;
    import flash.display.DisplayObject;
    import flash.display.Sprite;
    import flash.events.Event;
    import flash.events.EventDispatcher;
+   import flash.events.TimerEvent;
+   import flash.events.TouchEvent;
    import flash.filters.GlowFilter;
    import flash.geom.*;
    import flash.text.TextField;
+   import flash.text.TextFormat;
    import flash.text.TextFieldAutoSize;
+   import flash.utils.Timer;
+   import flash.utils.getTimer;
    import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.data.FighterVO;
    import net.play5d.game.bvn.data.SelectCharListItemVO;
    import net.play5d.game.bvn.utils.*;
+   import net.play5d.game.bvn.GameConfig;
    import net.play5d.game.bvn.Debugger;
 
    public class SelectFighterItem extends EventDispatcher
@@ -30,13 +38,28 @@ package net.play5d.game.bvn.ui.select
 
       private var faceSize:Point = new Point(50,50);
 
-      // 批次6.2：人物子框容器（plugin 子 Sprite 集合）+ 墨绿色光常量
-      private var _pluginContainer:Sprite;
-      private static const _PLUGIN_GLOW_COLOR:uint = 0x1B5E20;
-      private static const _PLUGIN_SUB_SIZE:int = 18;
-      private static const _PLUGIN_SUB_GAP:int = 2;
+      // 批次6.8（方案B）：人物子框 — 子框角色集合 + 8 方位网格偏移 + 展开/收起动画参数
+      public var pluginFighters:Vector.<SelectFighterItem> = null;
+      public var gridOffset:Point = new Point();
+      public var pendingTweenParams:Object = null;
+      public var pendingBack:Object = null;
+
+      private var _badge:TextField;
+      private var _badgeVisible:Boolean = false;
+      private var _isBadgeAnimating:Boolean = false;
 
       private var _listeners:Object = {};
+
+      // 批次6.9：触屏长按展开子框（毫秒）
+      private static const LONG_PRESS_MS:int = 1200;
+      private var _longPressTimer:Timer = null;
+      private var _longPressed:Boolean = false;      // 长按已触发（松手时屏蔽 touchTap）
+      private var _pressStartTime:int = 0;
+      private var _pressStartX:Number = 0;
+      private var _pressStartY:Number = 0;
+      private var _touching:Boolean = false;
+      /** 批次6.9：长按展开回调（由 SelectFighterStage 注入，参数=本 item） */
+      public var onLongPress:Function = null;
 
       public function SelectFighterItem(param1:FighterVO, param2:SelectCharListItemVO)
       {
@@ -69,8 +92,16 @@ package net.play5d.game.bvn.ui.select
          }
          this.ui.mouseChildren = false;
          this.ui.buttonMode = true;
-         // 批次6.2：构造 plugin 子框 UI（仅在 pluginIDs 非空时）
-         this._initPluginSubUI();
+         // 批次6.8（方案B）：构造 badge 角标（plugin 数量徽标）
+         this.initBadge();
+         // 批次6.9：触屏长按展开子框 — 原生监听 touch（不走 override addEventListener）
+         if(GameConfig.TOUCH_MODE)
+         {
+            this.ui.addEventListener("touchBegin",this.touchLongPressBeginHandler);
+            this.ui.addEventListener("touchMove",this.touchLongPressMoveHandler);
+            this.ui.addEventListener("touchEnd",this.touchLongPressEndHandler);
+            this.ui.addEventListener("touchTap",this.touchTapGuardHandler);
+         }
       }
 
       // 批次6.7治本：ENTER_FRAME 轮询，命中 _cacheObj 后移除占位 + addChild 真实 face
@@ -97,100 +128,273 @@ package net.play5d.game.bvn.ui.select
          }
       }
 
-      // 批次6.2/6.3：构建 plugin 子框 UI 资源（仅准备，默认隐藏；6.3 起由 show/hide 控制）
-      private function _initPluginSubUI() : void
-      {
-         if(!this.pluginIDs || this.pluginIDs.length < 1)
-         {
-            return;
-         }
-         // 1. 构造 plugin 子 Sprite 容器（沿主 ui 右侧排列，y 偏移 3px 形成"子框"错位感）
-         this._pluginContainer = new Sprite();
-         this._pluginContainer.x = 3;
-         this._pluginContainer.y = 3;
-         this._pluginContainer.mouseEnabled = false;
-         this._pluginContainer.mouseChildren = false;
-         var _loc3_:int = 0;
-         while(_loc3_ < this.pluginIDs.length)
-         {
-            var _loc4_:Sprite = new Sprite();
-            _loc4_.x = _loc3_ * (_PLUGIN_SUB_SIZE + _PLUGIN_SUB_GAP);
-            _loc4_.y = 0;
-            // 子框背景（深墨绿半透 0x1B5E20 alpha 0.35）
-            _loc4_.graphics.beginFill(_PLUGIN_GLOW_COLOR,0.35);
-            _loc4_.graphics.drawRect(0,0,_PLUGIN_SUB_SIZE,_PLUGIN_SUB_SIZE);
-            _loc4_.graphics.endFill();
-            // 子框边框（墨绿实线 1px）
-            _loc4_.graphics.lineStyle(1,_PLUGIN_GLOW_COLOR,1);
-            _loc4_.graphics.drawRect(0,0,_PLUGIN_SUB_SIZE,_PLUGIN_SUB_SIZE);
-            this._pluginContainer.addChild(_loc4_);
-            _loc3_++;
-         }
-         // 6.3：默认隐藏，等 SelectFighterStage.doHover/doSelect 触发
-      }
+      // ============ 批次6.8（方案B）：badge 角标 + 子框展开/收起 ============
 
-      // 批次6.3：展开 plugin 子框（墨绿光 + 容器可见）
-      public function showPluginSub() : void
+      private function initBadge() : void
       {
-         if(!this._pluginContainer || !this.pluginIDs || this.pluginIDs.length < 1)
+         _badge = new TextField();
+         _badge.autoSize = TextFieldAutoSize.CENTER;
+         // 2026-09-01: 数字显示样式统一调整为冷色调 #b8e6e6
+         // 字色: 纯白(0xFFFFFF) → 冷浅青(0xB8E6E6)
+         // 描边色: 纯黑(0x000000) → 深青绿(0x1A4040), 保持黑底高对比
+         _badge.textColor = 0xB8E6E6;
+         _badge.selectable = false;
+         _badge.mouseEnabled = false;
+         var fmt:TextFormat = new TextFormat();
+         fmt.size = 14;
+         fmt.bold = true;
+         fmt.font = "Arial";
+         _badge.defaultTextFormat = fmt;
+         _badge.setTextFormat(fmt);
+         var stroke:GlowFilter = new GlowFilter(0x1A4040,1,1.5,1.5,3,1,false);
+         _badge.filters = [stroke];
+         _badge.alpha = 0;
+         _badge.visible = true;
+         _badgeVisible = false;
+         if(this.ui)
          {
-            return;
-         }
-         if(this.ui.filters == null || this.ui.filters.length < 1)
-         {
-            this.ui.filters = [new GlowFilter(_PLUGIN_GLOW_COLOR,0.85,5,5,2,1,false,false)];
-         }
-         if(!this.ui.contains(this._pluginContainer))
-         {
-            this.ui.addChild(this._pluginContainer);
-            Debugger.log("[Plugin]", this.fighterData ? this.fighterData.id : "?", "plugin show, count=" + this.pluginIDs.length);
+            var uiWidth:Number = this.ui.width ? Number(this.ui.width) : 60;
+            _badge.x = uiWidth - _badge.width - 8;
+            _badge.y = -2;
+            this.ui.addChild(_badge);
          }
       }
 
-      // 批次6.3：收起 plugin 子框（清光 + 容器从 ui 移除）
-      public function hidePluginSub() : void
+      public function updateBadge(count:int) : void
       {
-         if(!this.pluginIDs || this.pluginIDs.length < 1)
+         var uiWidth:Number;
+         if(!_badge) return;
+         if(_isBadgeAnimating)
          {
-            return;
+            TweenLite.killTweensOf(_badge);
+            _isBadgeAnimating = false;
          }
-         Debugger.log("[Plugin]", this.fighterData ? this.fighterData.id : "?", "plugin hide");
-         // 批次6.5：精细清空 - 只移除我们加的 GlowFilter（color=_PLUGIN_GLOW_COLOR），保留其他 filter（避免误伤主 ui 的高亮/变色 filter）
-         if(this.ui.filters != null && this.ui.filters.length > 0)
+         if(count > 0)
          {
-            var _loc5_:Array = [];
-            var _loc6_:int = 0;
-            while(_loc6_ < this.ui.filters.length)
+            _badge.text = count + "+";
+            _badgeVisible = true;
+            if(this.ui)
             {
-               var _loc7_:* = this.ui.filters[_loc6_];
-               if(_loc7_ is GlowFilter && (_loc7_ as GlowFilter).color == _PLUGIN_GLOW_COLOR)
-               {
-                  // 跳过 plugin 自己的 GlowFilter
-               }
-               else
-               {
-                  _loc5_.push(_loc7_);
-               }
-               _loc6_++;
+               uiWidth = this.ui.width ? Number(this.ui.width) : 60;
+               _badge.x = uiWidth - _badge.width - 10;
+               _badge.y = -5;
             }
-            this.ui.filters = _loc5_;
+            _badge.alpha = 0;
+            _badge.visible = true;
+            _isBadgeAnimating = true;
+            TweenLite.to(_badge,0.3,{
+               "alpha":1,
+               "onComplete":function():void { _isBadgeAnimating = false; }
+            });
          }
-         if(Boolean(this._pluginContainer) && this.ui.contains(this._pluginContainer))
+         else
          {
-            this.ui.removeChild(this._pluginContainer);
+            _badgeVisible = false;
+            if(_badge.visible && _badge.alpha > 0)
+            {
+               _isBadgeAnimating = true;
+               TweenLite.to(_badge,0.2,{
+                  "alpha":0,
+                  "onComplete":function():void
+                  {
+                     _badge.visible = false;
+                     _isBadgeAnimating = false;
+                  }
+               });
+            }
+            else
+            {
+               _badge.visible = false;
+               _badge.alpha = 0;
+            }
          }
       }
 
-      // 批次6.4：判断 plugin 子框是否已展开（用于肩键 toggle）
-      public function isPluginSubVisible() : Boolean
+      public function hideBadge() : void
       {
-         if(!this._pluginContainer)
+         if(!_badge || !_badgeVisible) return;
+         if(_isBadgeAnimating)
          {
-            return false;
+            TweenLite.killTweensOf(_badge);
+            _isBadgeAnimating = false;
          }
-         return this.ui.contains(this._pluginContainer);
+         if(_badge.visible && _badge.alpha > 0)
+         {
+            _isBadgeAnimating = true;
+            TweenLite.to(_badge,0.2,{
+               "alpha":0,
+               "onComplete":function():void
+               {
+                  _badge.visible = false;
+                  _isBadgeAnimating = false;
+               }
+            });
+         }
+         else
+         {
+            _badge.visible = false;
+            _badge.alpha = 0;
+         }
       }
-      
+
+      public function showBadge() : void
+      {
+         if(!_badge || !_badgeVisible) return;
+         if(_isBadgeAnimating)
+         {
+            TweenLite.killTweensOf(_badge);
+            _isBadgeAnimating = false;
+         }
+         _badge.alpha = 0;
+         _badge.visible = true;
+         _isBadgeAnimating = true;
+         TweenLite.to(_badge,0.3,{
+            "alpha":1,
+            "onComplete":function():void { _isBadgeAnimating = false; }
+         });
+      }
+
+      private function applyGlow(target:DisplayObject) : void
+      {
+         if(!target) return;
+         // 2026-09-01: 子框角色整体高亮白光 → 冷浅青 #b8e6e6, 与 badge 角标色系统一
+         var glow:GlowFilter = new GlowFilter(0xB8E6E6,0.8,8,8,3);
+         target.filters = [glow];
+      }
+
+      private function removeGlow(target:DisplayObject) : void
+      {
+         if(!target) return;
+         target.filters = [];
+      }
+
+      // 展开子框：子框角色显示 + 白色高亮 + TweenLite 弹到目标网格位
+      public function showPlugins() : void
+      {
+         if(!pluginFighters) return;
+         hideBadge();
+         var i:int = 0;
+         while(i < pluginFighters.length)
+         {
+            var plugin:SelectFighterItem = pluginFighters[i];
+            plugin.ui.visible = true;
+            applyGlow(plugin.ui);
+            if(plugin.ui.parent)
+            {
+               plugin.ui.parent.setChildIndex(plugin.ui,plugin.ui.parent.numChildren - 1);
+            }
+            if(plugin.pendingTweenParams)
+            {
+               var p:Object = plugin.pendingTweenParams;
+               TweenLite.to(plugin.ui,0.3,{
+                  "x":p.x,
+                  "y":p.y,
+                  "delay":p.delay,
+                  "alpha":1,
+                  "scaleX":1,
+                  "scaleY":1,
+                  "ease":Back.easeOut
+               });
+            }
+            i++;
+         }
+      }
+
+      // 收起子框：子框角色收回原位 + 清光 + 恢复 badge
+      public function closePlugins() : void
+      {
+         if(!pluginFighters) return;
+         var i:int = 0;
+         while(i < pluginFighters.length)
+         {
+            var plugin:SelectFighterItem = pluginFighters[i];
+            removeGlow(plugin.ui);
+            if(plugin.pendingBack)
+            {
+               var p:Object = plugin.pendingBack;
+               TweenLite.to(plugin.ui,0.3,{
+                  "x":p.x,
+                  "y":p.y,
+                  "delay":p.delay,
+                  "alpha":0,
+                  "scaleX":0,
+                  "scaleY":0,
+                  "ease":Back.easeOut
+               });
+            }
+            i++;
+         }
+         showBadge();
+      }
+
+      // ============ 批次6.9：触屏长按展开子框 ============
+
+      // 按下启动 1.3s 计时
+      private function touchLongPressBeginHandler(param1:TouchEvent) : void
+      {
+         if(!GameConfig.TOUCH_MODE || _longPressed) return;
+         _touching = true;
+         _pressStartTime = getTimer();
+         _pressStartX = param1.stageX;
+         _pressStartY = param1.stageY;
+         if(!_longPressTimer)
+         {
+            _longPressTimer = new Timer(LONG_PRESS_MS,1);
+            _longPressTimer.addEventListener(TimerEvent.TIMER,longPressTimerHandler);
+         }
+         _longPressTimer.reset();
+         _longPressTimer.start();
+      }
+
+      // 长按中手指滑出阈值 → 取消计时（防误触）
+      private function touchLongPressMoveHandler(param1:TouchEvent) : void
+      {
+         if(!_touching || !_longPressTimer || !_longPressTimer.running) return;
+         var dx:Number = param1.stageX - _pressStartX;
+         var dy:Number = param1.stageY - _pressStartY;
+         if(dx * dx + dy * dy > 400)   // 20px 阈值
+         {
+            _longPressTimer.stop();
+            _touching = false;
+         }
+      }
+
+      // 松手 — 若未到点则取消计时；长按已展开由 touchTapGuardHandler 屏蔽本次 touchTap
+      private function touchLongPressEndHandler(param1:TouchEvent) : void
+      {
+         _touching = false;
+         if(_longPressTimer && _longPressTimer.running)
+         {
+            _longPressTimer.stop();
+         }
+      }
+
+      // 计时到点 → 展开子框 + 通知 Stage 记录归属
+      private function longPressTimerHandler(param1:TimerEvent) : void
+      {
+         _longPressed = true;
+         _touching = false;
+         if(this.onLongPress != null)
+         {
+            try { this.onLongPress(this); } catch(e:Error) {}
+         }
+         else
+         {
+            // 兜底：无回调时直接自展开
+            this.showPlugins();
+         }
+      }
+
+      // 长按展开后，屏蔽本次松手的 touchTap（防误选中）
+      private function touchTapGuardHandler(param1:TouchEvent) : void
+      {
+         if(_longPressed)
+         {
+            _longPressed = false;
+            param1.stopImmediatePropagation();
+         }
+      }
+
       override public function addEventListener(param1:String, param2:Function, param3:Boolean = false, param4:int = 0, param5:Boolean = false) : void
       {
          if(Boolean(this.ui.hasEventListener(param1)))
@@ -218,9 +422,35 @@ package net.play5d.game.bvn.ui.select
       
       public function destory() : void
       {
+         // 批次6.9：清理触屏长按计时器与监听
+         if(_longPressTimer)
+         {
+            _longPressTimer.stop();
+            _longPressTimer.removeEventListener(TimerEvent.TIMER,longPressTimerHandler);
+            _longPressTimer = null;
+         }
+         _touching = false;
+         _longPressed = false;
+         onLongPress = null;
          if(Boolean(this.ui))
          {
+            this.ui.removeEventListener("touchBegin",this.touchLongPressBeginHandler);
+            this.ui.removeEventListener("touchMove",this.touchLongPressMoveHandler);
+            this.ui.removeEventListener("touchEnd",this.touchLongPressEndHandler);
+            this.ui.removeEventListener("touchTap",this.touchTapGuardHandler);
             this.removeAllEventListener();
+         }
+         // 批次6.8（方案B）：清理 badge 角标（含未完成动画）
+         if(Boolean(_badge))
+         {
+            TweenLite.killTweensOf(_badge);
+            if(Boolean(this.ui) && Boolean(this.ui.contains(_badge)))
+            {
+               this.ui.removeChild(_badge);
+            }
+            _badge = null;
+            _badgeVisible = false;
+            _isBadgeAnimating = false;
          }
          if(Boolean(this.ui) && Boolean(this.ui.parent))
          {
@@ -233,18 +463,12 @@ package net.play5d.game.bvn.ui.select
             }
             this.ui = null;
          }
-         // 批次6.2：清理 plugin 子框容器
-         if(Boolean(this._pluginContainer))
-         {
-            while(this._pluginContainer.numChildren > 0)
-            {
-               this._pluginContainer.removeChildAt(0);
-            }
-            this._pluginContainer = null;
-         }
+         // 批次6.8（方案B）：清理子框角色引用
+         this.pluginFighters = null;
+         this.pendingTweenParams = null;
+         this.pendingBack = null;
          // 批次6.7治本：清理 ENTER_FRAME 监听，避免 _refreshFace 在 destory 后还在轮询（内存泄漏）
          this.removeEventListener(Event.ENTER_FRAME, this._refreshFace);
       }
    }
 }
-

@@ -1,9 +1,10 @@
-﻿package net.play5d.game.bvn.state
+package net.play5d.game.bvn.state
 {
    import com.greensock.*;
    import com.greensock.easing.*;
    import flash.display.DisplayObject;
    import flash.events.*;
+   import flash.geom.Point;
    import flash.system.Capabilities;
    import flash.utils.*;
    import net.play5d.game.bvn.*;
@@ -23,6 +24,9 @@ import net.play5d.game.bvn.mob.views.ViewManager;
    {
       
       public static var AUTO_FINISH:Boolean = true;
+
+      /** 当前选人阶段（0=角色选人, 1=辅助选人）— 供 select.swf 帧脚本 clear() 判断（辅助阶段移除翻页按钮） */
+      public static var SELECT_STATE:int = 0;
 
       /** 当前每页高度（buildList 时动态计算） */
       public static var PAGE_HEIGHT:Number = 600;
@@ -63,6 +67,12 @@ import net.play5d.game.bvn.mob.views.ViewManager;
       
       private var _twoPlayerSelectFin:Boolean;
 
+      // 批次6.8（方案B）：人物子框 — 当前展开子框的角色 + 手柄在子框网格中的焦点
+      public var p1ShowingPlugin:SelectFighterItem;
+      public var p2ShowingPlugin:SelectFighterItem;
+      public var p1PlugPoint:Point;
+      public var p2PlugPoint:Point;
+
       // 分页控制
       private var _pagEnabled:Boolean = true;
       private var _pagSelect:int = 0;
@@ -73,6 +83,8 @@ import net.play5d.game.bvn.mob.views.ViewManager;
       public function SelectFighterStage()
       {
          super();
+         this.p1PlugPoint = new Point(0,0);
+         this.p2PlugPoint = new Point(0,0);
       }
       
       public function get display() : DisplayObject
@@ -104,6 +116,7 @@ import net.play5d.game.bvn.mob.views.ViewManager;
          Debugger.log("初始化选人");
          this.clear();
          this._selectState = 0;
+         SELECT_STATE = 0;   // 批次6.10/6.11：静态状态恒为 0（select.swf 帧脚本 clear() 读取；设 1 会触发每帧 removeChild → #2025 刷屏，见 initAssist 注释）
          // 重置分页状态
          CURRENT_PAGE = 0;
          if(this._ui && this._ui.hasOwnProperty("bg") && this._ui.bg)
@@ -125,6 +138,9 @@ import net.play5d.game.bvn.mob.views.ViewManager;
          Debugger.log("初始化辅助");
          this.clear();
          this._selectState = 1;
+         // 批次6.11：不再设置 SELECT_STATE=1 —— select.swf 帧脚本 clear() 每帧 removeChild(up/down)，
+         // 第二次起抛 ArgumentError #2025 刷屏（帧脚本无 contains 守卫，编译产物不可改）。
+         // 保持 SELECT_STATE=0 → clear() 跳过移除；辅助界面翻页由主程序 render 分页段支持（批次 6.8 设计）。
          // 重置分页状态
          CURRENT_PAGE = 0;
          if(this._ui && this._ui.hasOwnProperty("bg") && this._ui.bg)
@@ -163,6 +179,19 @@ import net.play5d.game.bvn.mob.views.ViewManager;
       private function clear() : void
       {
          var _loc1_:* = undefined;
+         // 批次6.8（方案B）：收起并清空当前展开的人物子框
+         if(this.p1ShowingPlugin)
+         {
+            try { this.p1ShowingPlugin.closePlugins(); } catch(e:Error) {}
+            this.p1ShowingPlugin = null;
+         }
+         if(this.p2ShowingPlugin)
+         {
+            try { this.p2ShowingPlugin.closePlugins(); } catch(e:Error) {}
+            this.p2ShowingPlugin = null;
+         }
+         this.p1PlugPoint = new Point(0,0);
+         this.p2PlugPoint = new Point(0,0);
          if(Boolean(this._itemObj))
          {
             for each(_loc1_ in this._itemObj)
@@ -211,7 +240,8 @@ import net.play5d.game.bvn.mob.views.ViewManager;
          var _loc7_:Number = NaN;
          var _loc8_:Number = this._config.x + this._config.left;
          var _loc9_:Number = this._config.y + this._config.top;
-         var _loc10_:Number = param1.HCount > 1 ? (this._config.width - this._config.unitSize.x - this._config.left - this._config.right) / (param1.HCount - 1) : 0;
+         //单个格子的宽度为45px
+         var _loc10_:Number = 45;
          var _loc11_:Number = param1.VCount > 1 ? (this._config.height - this._config.unitSize.y - this._config.top - this._config.bottom) / (param1.VCount - 1) : 0;
          var _loc12_:Array = param1.list;
          this._curListConfig = param1;
@@ -267,6 +297,51 @@ import net.play5d.game.bvn.mob.views.ViewManager;
                   "scaleY":1,
                   "ease":Back.easeOut
                });
+               // 批次6.8（方案B）：构建人物子框（plugin 角色）— 8 方位 gridOffset 环绕主角色
+               var mainFighterVO:FighterVO = this._selectState == 1 ? AssisterModel.I.getAssister(_loc3_.fighterID) : FighterModel.I.getFighter(_loc3_.fighterID);
+               if(mainFighterVO && mainFighterVO.pluginIDs && mainFighterVO.pluginIDs.length > 0)
+               {
+                  _loc4_.pluginFighters = new Vector.<SelectFighterItem>();
+                  var i:int = 0;
+                  while(i < mainFighterVO.pluginIDs.length)
+                  {
+                     var pluginId:String = mainFighterVO.pluginIDs[i];
+                     if(pluginId && pluginId != "")
+                     {
+                        var pListItemVO:SelectCharListItemVO = new SelectCharListItemVO(_loc3_.x,_loc3_.y,pluginId,_loc3_.offset);
+                        var pItem:SelectFighterItem = this.addFighterItem(pListItemVO,true,_loc4_,i);
+                        if(pItem)
+                        {
+                           var offsets:Array = [new Point(0,-1),new Point(0,1),new Point(1,0),new Point(-1,0),new Point(1,1),new Point(-1,1),new Point(-1,-1),new Point(1,-1)];
+                           var offsetRatio:Point = offsets[i % offsets.length];
+                           pItem.gridOffset = offsetRatio.clone();
+                           var pX:Number = _loc5_ + offsetRatio.x * _loc10_;
+                           var pY:Number = _loc6_ + offsetRatio.y * _loc11_;
+                           pItem.ui.x = _loc5_;
+                           pItem.ui.y = _loc6_;
+                           pItem.ui.scaleX = 0;
+                           pItem.ui.scaleY = 0;
+                           pItem.ui.alpha = 0;
+                           pItem.pendingTweenParams = {
+                              "x":pX,
+                              "y":pY,
+                              "delay":_loc7_ + 0.05
+                           };
+                           pItem.pendingBack = {
+                              "x":_loc5_,
+                              "y":_loc6_,
+                              "delay":_loc7_ + 0.05
+                           };
+                        }
+                     }
+                     i++;
+                  }
+                  _loc4_.updateBadge(mainFighterVO.pluginIDs.length);
+               }
+               else
+               {
+                  _loc4_.updateBadge(0);
+               }
             }
             _loc2_++;
          }
@@ -282,7 +357,8 @@ import net.play5d.game.bvn.mob.views.ViewManager;
          Debugger.log("[SelectFighterStage] pagination pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "positions:", _pagArr);
       }
 
-      private function addFighterItem(param1:SelectCharListItemVO) : SelectFighterItem
+      // 批次6.8（方案B）：addFighterItem 扩展 — isPlugin/parentItem/pluginIndex 用于构建人物子框
+      private function addFighterItem(param1:SelectCharListItemVO, isPlugin:Boolean = false, parentItem:SelectFighterItem = null, pluginIndex:int = 0) : SelectFighterItem
       {
          if(!param1.fighterID)
          {
@@ -300,11 +376,14 @@ import net.play5d.game.bvn.mob.views.ViewManager;
          if(GameConfig.TOUCH_MODE)
          {
             _loc5_.addEventListener("touchTap",this.selectFighterTouchHandler);
+            // 批次6.9：触屏长按展开子框回调注入（plugin 子角色同样适用）
+            _loc5_.onLongPress = this.touchLongPressHandler;
          }
          else
          {
             _loc5_.addEventListener("mouseOver",this.selectFighterMouseHandler);
             _loc5_.addEventListener("click",this.selectFighterMouseHandler);
+            _loc5_.addEventListener("rightClick",this.selectFighterMouseHandler);
          }
          if(this._ui && this._ui.bg)
          {
@@ -314,7 +393,17 @@ import net.play5d.game.bvn.mob.views.ViewManager;
          {
             this._ui.addChild(_loc5_.ui);
          }
-         this._itemObj[param1.x + "," + param1.y] = _loc5_;
+         var baseKey:String = param1.x + "," + param1.y;
+         if(isPlugin && parentItem != null)
+         {
+            var pKey:String = baseKey + "." + (pluginIndex + 1);
+            this._itemObj[pKey] = _loc5_;
+            parentItem.pluginFighters.push(_loc5_);
+         }
+         else
+         {
+            this._itemObj[baseKey] = _loc5_;
+         }
          return _loc5_;
       }
       
@@ -331,6 +420,10 @@ import net.play5d.game.bvn.mob.views.ViewManager;
                break;
             case "click":
                this.doSelect(param2);
+               break;
+            case "rightClick":
+               this.doShow(param2);
+               break;
          }
       }
       
@@ -363,10 +456,31 @@ import net.play5d.game.bvn.mob.views.ViewManager;
          }
       }
       
+      // 批次6.8（方案B）：判断目标角色是否属于当前展开的 plugin 组（含主角色本身）
+      private function isBelongToPluginGroup(showingPlugin:SelectFighterItem, targetItem:SelectFighterItem) : Boolean
+      {
+         if(!showingPlugin) return false;
+         if(showingPlugin == targetItem) return true;
+         if(showingPlugin.pluginFighters)
+         {
+            for(var i:int = 0; i < showingPlugin.pluginFighters.length; i++)
+            {
+               if(showingPlugin.pluginFighters[i] == targetItem) return true;
+            }
+         }
+         return false;
+      }
+
       private function doHover(param1:SelectFighterItem) : void
       {
          if(Boolean(this._p1Slt) && Boolean(this._p1Slt.enabled))
          {
+            // 批次6.8（方案B）：hover 到 plugin 组外角色时收起子框
+            if(this.p1ShowingPlugin != null && !this.isBelongToPluginGroup(this.p1ShowingPlugin,param1))
+            {
+               this.p1ShowingPlugin.closePlugins();
+               this.p1ShowingPlugin = null;
+            }
             if(this._p1Slt.isSelected(param1.selectData.fighterID))
             {
                return;
@@ -377,6 +491,11 @@ import net.play5d.game.bvn.mob.views.ViewManager;
          }
          if(Boolean(this._p2Slt) && Boolean(this._p2Slt.enabled))
          {
+            if(this.p2ShowingPlugin != null && !this.isBelongToPluginGroup(this.p2ShowingPlugin,param1))
+            {
+               this.p2ShowingPlugin.closePlugins();
+               this.p2ShowingPlugin = null;
+            }
             if(this._p2Slt.isSelected(param1.selectData.fighterID))
             {
                return;
@@ -386,7 +505,115 @@ import net.play5d.game.bvn.mob.views.ViewManager;
             return;
          }
       }
-      
+
+      // 批次6.8（方案B）：展开人物子框（右键或手柄 special 触发）
+      private function doShow(param2:SelectFighterItem, pW:String = "") : void
+      {
+         if(!param2)
+         {
+            return;
+         }
+         if(pW == "") this.doHover(param2);
+         param2.showPlugins();
+         if(pW == "")
+         {
+            if(Boolean(this._p1Slt) && Boolean(this._p1Slt.enabled))
+            {
+               this.p1ShowingPlugin = param2;
+               this.p1PlugPoint.x = 0;
+               this.p1PlugPoint.y = 0;
+            }
+            else if(Boolean(this._p2Slt) && Boolean(this._p2Slt.enabled))
+            {
+               this.p2ShowingPlugin = param2;
+               this.p2PlugPoint.x = 0;
+               this.p2PlugPoint.y = 0;
+            }
+         }
+         else if(pW == "P1")
+         {
+            this.p1ShowingPlugin = param2;
+            this.p1PlugPoint.x = 0;
+            this.p1PlugPoint.y = 0;
+         }
+         else if(pW == "P2")
+         {
+            this.p2ShowingPlugin = param2;
+            this.p2PlugPoint.x = 0;
+            this.p2PlugPoint.y = 0;
+         }
+      }
+
+      // 批次6.9：触屏长按 → 展开子框（归属当前启用玩家）
+      private function touchLongPressHandler(param1:SelectFighterItem) : void
+      {
+         if(!param1 || !param1.pluginFighters || param1.pluginFighters.length < 1)
+         {
+            return;   // 无子框的角色长按无效果
+         }
+         Debugger.log("[Plugin]", param1.fighterData ? param1.fighterData.id : "?", "long press expand");
+         this.doShow(param1);
+         SoundCtrl.I.sndConfrim();
+      }
+
+      // 批次6.8（方案B）：手柄方向键在子框网格间移动（0,0=主角色，其余=8 方位子角色）
+      private function movePluginSelect(params1:SelecterItemUI, plug:String, direction:String) : void
+      {
+         var showingPlugin:SelectFighterItem = plug == "P1" ? this.p1ShowingPlugin : this.p2ShowingPlugin;
+         if(!showingPlugin) return;
+         var plugPoint:Point = plug == "P1" ? this.p1PlugPoint : this.p2PlugPoint;
+         var targetOffX:int = plugPoint.x;
+         var targetOffY:int = plugPoint.y;
+         switch(direction)
+         {
+            case "up": targetOffY -= 1; break;
+            case "down": targetOffY += 1; break;
+            case "left": targetOffX -= 1; break;
+            case "right": targetOffX += 1; break;
+         }
+         if(targetOffX == 0 && targetOffY == 0)
+         {
+            if(!params1.isSelected(showingPlugin.selectData.fighterID))
+            {
+               this.moveToSelectFighter(params1,showingPlugin);
+               plugPoint.x = 0; plugPoint.y = 0;
+               return;
+            }
+         }
+         else if(showingPlugin.pluginFighters)
+         {
+            for(var j:int = 0; j < showingPlugin.pluginFighters.length; j++)
+            {
+               var childOff:Point = showingPlugin.pluginFighters[j].gridOffset;
+               if(childOff.x == targetOffX && childOff.y == targetOffY)
+               {
+                  var targetChild:SelectFighterItem = showingPlugin.pluginFighters[j];
+                  if(!params1.isSelected(targetChild.selectData.fighterID))
+                  {
+                     this.moveToSelectFighter(params1,targetChild);
+                     plugPoint.x = targetOffX; plugPoint.y = targetOffY;
+                     return;
+                  }
+                  break;
+               }
+            }
+         }
+         // 目标方位无子角色：收起子框并沿方向移动到相邻主网格
+         showingPlugin.closePlugins();
+         plugPoint.x = 0; plugPoint.y = 0;
+         if(plug == "P1") this.p1ShowingPlugin = null;
+         else this.p2ShowingPlugin = null;
+         var px:int = showingPlugin.selectData.x;
+         var py:int = showingPlugin.selectData.y;
+         switch(direction)
+         {
+            case "up": this.moveSlt(params1,px,py - 1); break;
+            case "down": this.moveSlt(params1,px,py + 1); break;
+            case "left": this.moveSlt(params1,px - 1,py); break;
+            case "right": this.moveSlt(params1,px + 1,py); break;
+         }
+      }
+
       private function doSelect(param1:SelectFighterItem) : void
       {
          if(Boolean(this._p1Slt) && Boolean(this._p1Slt.enabled))
@@ -394,6 +621,12 @@ import net.play5d.game.bvn.mob.views.ViewManager;
             if(this._p1Slt.isSelected(param1.selectData.fighterID))
             {
                return;
+            }
+            // 批次6.8（方案B）：选中角色时收起其子框
+            if(this.p1ShowingPlugin)
+            {
+               this.p1ShowingPlugin.closePlugins();
+               this.p1ShowingPlugin = null;
             }
             this._p1Slt.select(this.playerSeltBack);
             SoundCtrl.I.sndConfrim();
@@ -404,6 +637,11 @@ import net.play5d.game.bvn.mob.views.ViewManager;
             if(this._p2Slt.isSelected(param1.selectData.fighterID))
             {
                return;
+            }
+            if(this.p2ShowingPlugin)
+            {
+               this.p2ShowingPlugin.closePlugins();
+               this.p2ShowingPlugin = null;
             }
             this._p2Slt.select(this.playerSeltBack);
             SoundCtrl.I.sndConfrim();
@@ -697,18 +935,44 @@ import net.play5d.game.bvn.mob.views.ViewManager;
             {
                if(Boolean(this._p1Slt) && this._p1Slt.enabled)
                {
-                  var p1Item:SelectFighterItem = this.getFighterItem(this._p1Slt.x,this._p1Slt.y);
-                  if(p1Item)
+                  // 批次6.10：子框展开期间不吸附回主网格（否则 hover 子框会被弹回主体）
+                  var p1FocusedOnPlugin:Boolean = false;
+                  if(this.p1ShowingPlugin != null)
                   {
-                     this.moveToSelectFighter(this._p1Slt,p1Item);
+                     var p1Cur:SelectFighterItem = this.getFighterItem(this._p1Slt.x,this._p1Slt.y);
+                     if(p1Cur != null && this.isBelongToPluginGroup(this.p1ShowingPlugin,p1Cur))
+                     {
+                        p1FocusedOnPlugin = true;
+                     }
+                  }
+                  if(!p1FocusedOnPlugin)
+                  {
+                     var p1Item:SelectFighterItem = this.getFighterItem(this._p1Slt.x,this._p1Slt.y);
+                     if(p1Item)
+                     {
+                        this.moveToSelectFighter(this._p1Slt,p1Item);
+                     }
                   }
                }
                if(Boolean(this._p2Slt) && this._p2Slt.enabled)
                {
-                  var p2Item:SelectFighterItem = this.getFighterItem(this._p2Slt.x,this._p2Slt.y);
-                  if(p2Item)
+                  // 批次6.10：子框展开期间不吸附回主网格
+                  var p2FocusedOnPlugin:Boolean = false;
+                  if(this.p2ShowingPlugin != null)
                   {
-                     this.moveToSelectFighter(this._p2Slt,p2Item);
+                     var p2Cur:SelectFighterItem = this.getFighterItem(this._p2Slt.x,this._p2Slt.y);
+                     if(p2Cur != null && this.isBelongToPluginGroup(this.p2ShowingPlugin,p2Cur))
+                     {
+                        p2FocusedOnPlugin = true;
+                     }
+                  }
+                  if(!p2FocusedOnPlugin)
+                  {
+                     var p2Item:SelectFighterItem = this.getFighterItem(this._p2Slt.x,this._p2Slt.y);
+                     if(p2Item)
+                     {
+                        this.moveToSelectFighter(this._p2Slt,p2Item);
+                     }
                   }
                }
             }
@@ -732,61 +996,97 @@ import net.play5d.game.bvn.mob.views.ViewManager;
          }
          if(Boolean(this._p1Slt) && Boolean(this._p1Slt.enabled))
          {
+            // 批次6.8（方案B）：子框展开时方向键走 movePluginSelect 子框导航
+            var plugP1:String = this.p1ShowingPlugin != null ? "P1" : "";
             this.renderRandom(this._p1Slt);
             _loc1_ = this._p1Slt.inputType;
             if(GameInputer.up(_loc1_,1))
             {
-               this.moveSlt(this._p1Slt,this._p1Slt.x,this._p1Slt.y - 1);
+               if(plugP1 == "") this.moveSlt(this._p1Slt,this._p1Slt.x,this._p1Slt.y - 1);
+               else this.movePluginSelect(this._p1Slt,plugP1,"up");
                SoundCtrl.I.sndSelect();
             }
             if(GameInputer.down(_loc1_,1))
             {
-               this.moveSlt(this._p1Slt,this._p1Slt.x,this._p1Slt.y + 1);
+               if(plugP1 == "") this.moveSlt(this._p1Slt,this._p1Slt.x,this._p1Slt.y + 1);
+               else this.movePluginSelect(this._p1Slt,plugP1,"down");
                SoundCtrl.I.sndSelect();
             }
             if(GameInputer.left(_loc1_,1))
             {
-               this.moveSlt(this._p1Slt,this._p1Slt.x - 1,this._p1Slt.y);
+               if(plugP1 == "") this.moveSlt(this._p1Slt,this._p1Slt.x - 1,this._p1Slt.y);
+               else this.movePluginSelect(this._p1Slt,plugP1,"left");
                SoundCtrl.I.sndSelect();
             }
             if(GameInputer.right(_loc1_,1))
             {
-               this.moveSlt(this._p1Slt,this._p1Slt.x + 1,this._p1Slt.y);
+               if(plugP1 == "") this.moveSlt(this._p1Slt,this._p1Slt.x + 1,this._p1Slt.y);
+               else this.movePluginSelect(this._p1Slt,plugP1,"right");
                SoundCtrl.I.sndSelect();
             }
             if(GameInputer.select(_loc1_,1))
             {
                this._p1Slt.select(this.playerSeltBack);
+               // 批次6.8（方案B）：选中后收起子框
+               if(this.p1ShowingPlugin)
+               {
+                  this.p1ShowingPlugin.closePlugins();
+                  this.p1ShowingPlugin = null;
+               }
+               SoundCtrl.I.sndConfrim();
+            }
+            // 批次6.8（方案B）：手柄 special（LB）展开当前选中角色的子框
+            if(plugP1 == "" && GameInputer.special(_loc1_,1))
+            {
+               var tarP1:String = this._p1Slt.x + "," + this._p1Slt.y;
+               this.doShow(this._itemObj[tarP1],_loc1_);
                SoundCtrl.I.sndConfrim();
             }
          }
          if(Boolean(this._p2Slt) && Boolean(this._p2Slt.enabled))
          {
             _loc1_ = this._p2Slt.inputType;
+            var plugP2:String = this.p2ShowingPlugin != null ? "P2" : "";
             this.renderRandom(this._p2Slt);
             if(GameInputer.up(_loc1_,1))
             {
-               this.moveSlt(this._p2Slt,this._p2Slt.x,this._p2Slt.y - 1);
+               if(plugP2 == "") this.moveSlt(this._p2Slt,this._p2Slt.x,this._p2Slt.y - 1);
+               else this.movePluginSelect(this._p2Slt,plugP2,"up");
                SoundCtrl.I.sndSelect();
             }
             if(GameInputer.down(_loc1_,1))
             {
-               this.moveSlt(this._p2Slt,this._p2Slt.x,this._p2Slt.y + 1);
+               if(plugP2 == "") this.moveSlt(this._p2Slt,this._p2Slt.x,this._p2Slt.y + 1);
+               else this.movePluginSelect(this._p2Slt,plugP2,"down");
                SoundCtrl.I.sndSelect();
             }
             if(GameInputer.left(_loc1_,1))
             {
-               this.moveSlt(this._p2Slt,this._p2Slt.x - 1,this._p2Slt.y);
+               if(plugP2 == "") this.moveSlt(this._p2Slt,this._p2Slt.x - 1,this._p2Slt.y);
+               else this.movePluginSelect(this._p2Slt,plugP2,"left");
                SoundCtrl.I.sndSelect();
             }
             if(GameInputer.right(_loc1_,1))
             {
-               this.moveSlt(this._p2Slt,this._p2Slt.x + 1,this._p2Slt.y);
+               if(plugP2 == "") this.moveSlt(this._p2Slt,this._p2Slt.x + 1,this._p2Slt.y);
+               else this.movePluginSelect(this._p2Slt,plugP2,"right");
                SoundCtrl.I.sndSelect();
             }
             if(GameInputer.select(_loc1_,1))
             {
                this._p2Slt.select(this.playerSeltBack);
+               if(this.p2ShowingPlugin)
+               {
+                  this.p2ShowingPlugin.closePlugins();
+                  this.p2ShowingPlugin = null;
+               }
+               SoundCtrl.I.sndConfrim();
+            }
+            // 批次6.8（方案B）：手柄 special（LB）展开当前选中角色的子框
+            if(plugP2 == "" && GameInputer.special(_loc1_,1))
+            {
+               var tarP2:String = this._p2Slt.x + "," + this._p2Slt.y;
+               this.doShow(this._itemObj[tarP2],_loc1_);
                SoundCtrl.I.sndConfrim();
             }
          }
