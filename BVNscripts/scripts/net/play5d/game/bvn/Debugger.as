@@ -103,7 +103,7 @@
       // - 时间：HHMM 格式（每次编译手动或脚本更新）
       // 调用方：build.bat 可在编译前用 sed 替换 @BUILD_TAG@ 占位符。
       // 读取方：bvn_debug.log 第一行（=== BVN Debug Log ===）之后第二行即为 BUILD 行。
-      public static const BUILD_TAG:String = "BVN-3.3EX-batch6.14-2026-09-02-1219";
+      public static const BUILD_TAG:String = "BVN-3.3EX-batch6.14-2026-09-03-0943";
 
       private static var _scale:Number = 1.0;
 
@@ -720,6 +720,13 @@
                   info += "P1: " + (f1.data ? f1.data.id : "??") + " HP:" + f1.hp.toFixed(0) + "/" + f1.hpMax.toFixed(0);
                   info += " QI:" + f1.qi.toFixed(0) + " ST:" + f1.actionState + "\n";
                   info += "    x:" + f1.x.toFixed(0) + " y:" + f1.y.toFixed(0) + " dir:" + f1.direct + "\n";
+                  // 卡死诊断：暴露 _hurtHoldFrame / _hurtStuckFrame / isHurting（仅读取）
+                  try {
+                     var _mc1:* = f1.getCtrler() ? f1.getCtrler().getMcCtrl() : null;
+                     if(_mc1) {
+                        info += "    [受击诊断] holdFrame=" + _mc1.getHurtHoldFrame() + " stuckFrame=" + _mc1.getHurtStuckFrame() + " isHurting=" + _mc1.getIsHurting() + "\n";
+                     }
+                  } catch(_e1:Error) {}
                }
                if(fighter2 && fighter2.currentFighter)
                {
@@ -727,6 +734,12 @@
                   info += "P2: " + (f2.data ? f2.data.id : "??") + " HP:" + f2.hp.toFixed(0) + "/" + f2.hpMax.toFixed(0);
                   info += " QI:" + f2.qi.toFixed(0) + " ST:" + f2.actionState + "\n";
                   info += "    x:" + f2.x.toFixed(0) + " y:" + f2.y.toFixed(0) + " dir:" + f2.direct + "\n";
+                  try {
+                     var _mc2:* = f2.getCtrler() ? f2.getCtrler().getMcCtrl() : null;
+                     if(_mc2) {
+                        info += "    [受击诊断] holdFrame=" + _mc2.getHurtHoldFrame() + " stuckFrame=" + _mc2.getHurtStuckFrame() + " isHurting=" + _mc2.getIsHurting() + "\n";
+                     }
+                  } catch(_e2:Error) {}
                }
             }
          }

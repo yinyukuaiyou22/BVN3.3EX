@@ -321,6 +321,7 @@ import net.play5d.game.bvn.Debugger;
          }
          if(this._explodeHitFrame > 0)
          {
+            try { Debugger.log("【灵压爆发】id=" + this.id + " _explodeHitFrame(递减前)=" + (this._explodeHitFrame + 1) + " _explodeSteelFrame=" + this._explodeSteelFrame + " isAllowBeHit=" + isAllowBeHit + " actionState=" + this.actionState); } catch (e:Error) {}
             --this._explodeHitFrame;
             if(this._explodeHitFrame == 8)
             {

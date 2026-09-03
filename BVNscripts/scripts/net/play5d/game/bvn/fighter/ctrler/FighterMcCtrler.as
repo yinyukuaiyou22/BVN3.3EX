@@ -35,7 +35,10 @@ package net.play5d.game.bvn.fighter.ctrler
       private var _jumpDelayFrame:int = 0;
       
       private var _hurtHoldFrame:int = 0;
-      
+
+      // 卡死诊断：持续受伤态累计帧数(超出阈值 force resume); 诊断用日志加 safety net
+      private var _hurtStuckFrame:int = 0;
+
       private var _defenseHoldFrame:int = 0;
       
       private var _beHitGap:int;
@@ -106,6 +109,11 @@ package net.play5d.game.bvn.fighter.ctrler
          }
          return this._doingAction;
       }
+
+      // 卡死诊断：暴露给 Debugger 面板的 3 个状态字段（仅读取，不修改逻辑）
+      public function getHurtHoldFrame() : int { return this._hurtHoldFrame; }
+      public function getHurtStuckFrame() : int { return this._hurtStuckFrame; }
+      public function getIsHurting() : Boolean { return Boolean(this._action) && this._action.isHurting; }
       
       public function setActionCtrler(param1:IFighterActionCtrl) : void
       {
@@ -1730,6 +1738,7 @@ package net.play5d.game.bvn.fighter.ctrler
       
       private function doHurt(param1:HitVO, param2:Rectangle) : void
       {
+         try { Debugger.log("【受击进入】id=" + this._fighter.id + " hurtType=" + param1.hurtType + " hurtTime=" + param1.hurtTime + " actionState=" + this._fighter.actionState + " _hurtHoldFrame=" + this._hurtHoldFrame); } catch (e:Error) {}
          this.effectCtrler.endShadow();
          this.effectCtrler.endShake();
          this._fighter.hurtHit = param1;
@@ -1817,7 +1826,15 @@ package net.play5d.game.bvn.fighter.ctrler
          {
             return;
          }
+         try { Debugger.log("【渲染层受击】id=" + this._fighter.id + " _hurtHoldFrame=" + this._hurtHoldFrame + " explodeSteelFrame=" + this._fighter.explodeSteelFrame + " isHurting=" + this._action.isHurting + " _hurtStuckFrame=" + this._hurtStuckFrame); } catch (e:Error) {}
          this.renderHurtBreak();
+         // 【安全网1】_hurtHoldFrame 异常（NaN/极值）—— 立即强制恢复
+         if(isNaN(this._hurtHoldFrame) || this._hurtHoldFrame < -100 || this._hurtHoldFrame > 9999)
+         {
+            try { Debugger.log("【安全网1】_hurtHoldFrame 异常值=" + this._hurtHoldFrame); } catch (e:Error) {}
+            this.hurtResume();
+            return;
+         }
          // 兜底：若僵直帧已归零但 renderAnimate 的恢复分支因渲染链路中断未执行（如 _ghostStepIng 短路、空指针异常），强制恢复，避免永卡
          // 灵压爆发窗口内（explodeSteelFrame>0）跳过强制恢复，交给 FighterMain.renderAnimate 正常递减链路（_explodeHitFrame==8 → idle）处理，避免钢体与受击状态互相干扰
          if(this._hurtHoldFrame <= 0 && this._fighter.explodeSteelFrame <= 0)
@@ -1840,10 +1857,29 @@ package net.play5d.game.bvn.fighter.ctrler
                }
             }
          }
+         else
+         {
+            // 【安全网2】isHurting 卡住超过 150 帧（5 秒@30fps）且灵压窗口已关闭 → 强制恢复
+            // 正常递减时 _hurtStuckFrame 会被 hurtResume 清零或自然累积到下一帧——这里只在异常时累加
+            if(this._action.isHurting && this._fighter.explodeSteelFrame <= 0)
+            {
+               this._hurtStuckFrame++;
+               if(this._hurtStuckFrame > 150)
+               {
+                  try { Debugger.log("【安全网2】isHurting 卡住 150 帧, 强制恢复 _hurtHoldFrame=" + this._hurtHoldFrame); } catch (e:Error) {}
+                  this.hurtResume();
+               }
+            }
+            else
+            {
+               this._hurtStuckFrame = 0;
+            }
+         }
       }
       
       private function renderHurtBreak() : void
       {
+         try { Debugger.log("【灵压爆发检查】id=" + this._fighter.id + " specailSkill=" + this._actionCtrler.specailSkill() + " energy=" + this._fighter.energy + " qi=" + this._fighter.qi); } catch (e:Error) {}
          if(!this._actionCtrler.specailSkill())
          {
             return;
@@ -1888,8 +1924,10 @@ package net.play5d.game.bvn.fighter.ctrler
       private function renderHurtAnimate() : void
       {
          var _loc1_:Point = null;
+         try { Debugger.log("【僵直递减】id=" + this._fighter.id + " _hurtHoldFrame(递减前)=" + (this._hurtHoldFrame + 1)); } catch (e:Error) {}
          if(this._hurtHoldFrame-- <= 0)
          {
+            try { Debugger.log("【僵直归零】id=" + this._fighter.id + " isAlive=" + this._fighter.isAlive); } catch (e:Error) {}
             if(!this._fighter.isAlive)
             {
                this._action.clearState();
@@ -1913,6 +1951,8 @@ package net.play5d.game.bvn.fighter.ctrler
       
       private function hurtResume() : void
       {
+         try { Debugger.log("【僵直恢复】id=" + this._fighter.id + " isInAir=" + this._fighter.isInAir + " _isTouchFloor=" + this._isTouchFloor + " _hurtStuckFrame=" + this._hurtStuckFrame); } catch (e:Error) {}
+         this._hurtStuckFrame = 0;
          if(!this._fighter.isInAir && !this._isTouchFloor)
          {
             this._isTouchFloor = true;

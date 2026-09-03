@@ -324,6 +324,7 @@ package net.play5d.game.bvn.ctrl.game_ctrls
          {
             return;
          }
+         try { Debugger.log("【判定时序】param1.allowBeHit=" + (param1 is BaseGameSprite ? (param1 as BaseGameSprite).isAllowBeHit : "N/A") + " param2.allowBeHit=" + (param2 is BaseGameSprite ? (param2 as BaseGameSprite).isAllowBeHit : "N/A") + " _renderAnimate=" + this._renderAnimate); } catch (e:Error) {}
          var _loc5_:Array = param1.getCurrentHits();
          var _loc6_:Array = param2.getCurrentHits();
          if(param1 is BaseGameSprite && !(param1 as BaseGameSprite).isAllowBeHit)
