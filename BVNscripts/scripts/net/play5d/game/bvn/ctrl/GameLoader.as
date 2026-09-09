@@ -314,7 +314,8 @@ var loadComplete:* = function(param1:DisplayObject):void
        *  Used when APK configs are missing — blocks startup until external data is ready. */
       public static function loadExternalConfigsNow(onComplete:Function) : void
       {
-         trace("[GameLoader] External config loading NOW (APK configs missing)...");
+         trace("[GameLoader] External config loading NOW (merge before select)...");
+         Debugger.log("[GameLoader] loadExternalConfigsNow start, ANE=", ANEFileReader.I.hasANE, "base=", ANEFileReader.EXTERNAL_BASE);
          try {
             // Ensure model backing stores are initialized so scans don't crash
             FighterModel.I.ensureInit();
@@ -401,6 +402,7 @@ var loadComplete:* = function(param1:DisplayObject):void
          var fullPath:String = basePath + fileName;
          if(!ANEFileReader.I.exists(fullPath))
          {
+            Debugger.log("[GameLoader] External config missing:", fullPath);
             return;
          }
          try

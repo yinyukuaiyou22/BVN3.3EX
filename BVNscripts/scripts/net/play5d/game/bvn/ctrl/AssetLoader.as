@@ -105,10 +105,14 @@ package net.play5d.game.bvn.ctrl
       {
          if(!ANEFileReader.ANE_ENABLED || !url || url.indexOf("://") >= 0) return null;
          var clean:String = url.replace(/\\/g,"/");
+         var queryIndex:int = clean.indexOf("?");
+         if(queryIndex >= 0) clean = clean.substr(0,queryIndex);
          if(clean.charAt(0) == "/") return ANEFileReader.I.exists(clean) ? clean : null;
          if(clean.indexOf("assets/") == 0) clean = clean.substr(7);
          var path:String = ANEFileReader.resolveExternalPath(clean);
-         return ANEFileReader.I.exists(path) ? path : null;
+         var hit:Boolean = ANEFileReader.I.exists(path);
+         Debugger.log("[EXT-RESOLVE]", url, "=>", path, hit ? "external" : "apk-fallback");
+         return hit ? path : null;
       }
    }
 }
