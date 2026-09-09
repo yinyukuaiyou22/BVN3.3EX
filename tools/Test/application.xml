@@ -9,8 +9,9 @@
 	<initialWindow>
 		<content>launch.swf</content>
 		<autoOrients>true</autoOrients>
-		<fullScreen>true</fullScreen>
-		<systemChrome>none</systemChrome>
+		<!-- PC: fullScreen=false 允许 adl 窗口被鼠标拖拽边框缩放(launch.as 的 updateSize 会按 800x600 等比缩放 + side_bg 侧边栏填充); Android: 此项无效, 移动端仍通过 stage.displayState='fullScreenInteractive' 强制全屏 -->
+		<fullScreen>false</fullScreen>
+		<systemChrome>standard</systemChrome>
 		<aspectRatio>landscape</aspectRatio>
 		<renderMode>gpu</renderMode>
 		<visible>true</visible>
@@ -37,9 +38,7 @@
 		]]>		</manifestAdditions>
 	</android>
 
-	<!-- ANE disabled: extensions not needed
 	<extensions>
 		<extensionID>com.bvn.filereader</extensionID>
 	</extensions>
-	-->
 </application>

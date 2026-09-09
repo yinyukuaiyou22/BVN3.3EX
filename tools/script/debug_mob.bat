@@ -78,7 +78,7 @@ set "APP_XML=%TEST_DIR%\application.xml"
 set "APK_FILE=%TEST_DIR%\bvn.apk"
 
 :: ---- App info ----
-set DBG_ID=com.bvn.yinyu
+set DBG_ID=com.bvn.yy798
 set DBG_PACKAGE=air.%DBG_ID%
 set DBG_PORT=7936
 
@@ -98,7 +98,7 @@ call :EXIST "%ADT%"
 cd /d "%TEST_DIR%"
 
 		:: ---- Whitelist: effect.swf + movelist.jpg + sounds/ + font/ + config/ (UI SWF embedded) ----
-		call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "%ANDROID_SDK%" "launch.swf" -C . assets\effect.swf -C . assets\movelist.jpg -C . assets\sounds -C . assets\font -C . assets\config -C . assets\swf
+		call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass yinyu7798 "bvn.apk" "application.xml" -platformsdk "%ANDROID_SDK%" -extdir "%TEST_DIR%" "launch.swf" -C . assets\effect.swf -C . assets\movelist.jpg -C . assets\sounds -C . assets\font -C . assets\config -C . assets\face\ExternalSample.png -C . assets\swf
 		set ADT_RESULT=%errorlevel%
 
 		if %ADT_RESULT% neq 0 (

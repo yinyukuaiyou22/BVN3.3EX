@@ -89,10 +89,13 @@ import net.play5d.game.bvn.mob.utils.ANEFileReader;
          };
          loadMessionBack = function(param1:String):void
          {
-            trace("[GameData] mission.xml loaded" + (ANEFileReader.ANE_ENABLED ? ", loading external configs..." : ""));
+            trace("[GameData] mission.xml loaded" + (ANEFileReader.ANE_ENABLED ? ", loading external assets before startup completes..." : ""));
             MessionModel.I.initByXML(new XML(param1));
             if (ANEFileReader.ANE_ENABLED) {
-               GameLoader.loadExternalConfigs();
+               // External fighter.xml and select.xml must be merged before the
+               // select stage builds its list. A delayed merge is too late.
+               GameLoader.loadExternalConfigsNow(back);
+               return;
             }
             trace("[GameData] config loading complete");
             back();
@@ -126,7 +129,8 @@ import net.play5d.game.bvn.mob.utils.ANEFileReader;
          {
             Debugger.log("[GameData] mission.xml not in APK" + (ANEFileReader.ANE_ENABLED ? ", will load from external" : ""));
             if (ANEFileReader.ANE_ENABLED) {
-               GameLoader.loadExternalConfigs();
+               GameLoader.loadExternalConfigsNow(back);
+               return;
             }
             back();
          };
@@ -169,4 +173,3 @@ import net.play5d.game.bvn.mob.utils.ANEFileReader;
       }
    }
 }
-
