@@ -314,7 +314,8 @@ var loadComplete:* = function(param1:DisplayObject):void
        *  Used when APK configs are missing — blocks startup until external data is ready. */
       public static function loadExternalConfigsNow(onComplete:Function) : void
       {
-         trace("[GameLoader] External config loading NOW (APK configs missing)...");
+         trace("[GameLoader] External config loading NOW (merge before select)...");
+         Debugger.log("[GameLoader] loadExternalConfigsNow start, ANE=", ANEFileReader.I.hasANE, "base=", ANEFileReader.EXTERNAL_BASE);
          try {
             // Ensure model backing stores are initialized so scans don't crash
             FighterModel.I.ensureInit();
@@ -351,9 +352,12 @@ var loadComplete:* = function(param1:DisplayObject):void
             AssisterModel.I.mergeByXML(xml);
             Debugger.log("[GameLoader] External assist.xml merged.");
          });
+         // select.xml is the authoritative character index. It must be merged
+         // before SelectFighterStage builds its list, together with fighter.xml.
          tryLoadExternalXML(basePath, "select.xml", function(xml:XML):void {
             GameData.I.config.select_config.setByXML(xml);
-            Debugger.log("[GameLoader] External select.xml merged.");
+            appendMissingExternalFightersToSelect();
+            Debugger.log("[GameLoader] External select.xml merged (selection index ready).");
          });
          tryLoadExternalXML(basePath, "map.xml", function(xml:XML):void {
             MapModel.I.mergeByXML(xml);
@@ -365,12 +369,40 @@ var loadComplete:* = function(param1:DisplayObject):void
          });
       }
 
+      /** Ensure scanned/XML-only fighters are selectable even when external select.xml omits them. */
+      private static function appendMissingExternalFightersToSelect() : void
+      {
+         var list:SelectCharListConfigVO = GameData.I.config.select_config.charList;
+         if(!list) return;
+         var seen:Object = {};
+         for each(var item:SelectCharListItemVO in list.list)
+         {
+            if(item && item.fighterID) seen[item.fighterID] = true;
+         }
+         var appendY:int = 0;
+         for each(item in list.list) if(item && item.y >= appendY) appendY = item.y + 1;
+         var added:int = 0;
+         for each(var fighter:FighterVO in FighterModel.I.getAllFighters())
+         {
+            if(!fighter || !fighter.id || seen[fighter.id]) continue;
+            // Put the first missing fighter into the first-page area. Further
+            // fighters continue below it and remain reachable by pagination.
+            var y:int = added < 2 ? 6 + added : appendY++;
+            list.list.push(new SelectCharListItemVO(0,y,fighter.id));
+            seen[fighter.id] = true;
+            added++;
+            Debugger.log("[GameLoader] External fighter appended to select index:", fighter.id, "row", y);
+         }
+         if(added > 0 && list.VCount < 8) list.VCount = 8;
+      }
+
       /** Helper: load a single external XML and call back, silently skip if missing */
       private static function tryLoadExternalXML(basePath:String, fileName:String, back:Function) : void
       {
          var fullPath:String = basePath + fileName;
          if(!ANEFileReader.I.exists(fullPath))
          {
+            Debugger.log("[GameLoader] External config missing:", fullPath);
             return;
          }
          try
@@ -378,6 +410,7 @@ var loadComplete:* = function(param1:DisplayObject):void
             var ba:ByteArray = ANEFileReader.I.readBytes(fullPath);
             if(ba && ba.length > 0)
             {
+               ba.position = 0;
                var xmlStr:String = ba.readUTFBytes(ba.length);
                var xml:XML = new XML(xmlStr);
                back(xml);
@@ -401,6 +434,7 @@ var loadComplete:* = function(param1:DisplayObject):void
             if(fail != null) fail("File not found: " + path);
             return;
          }
+         ba.position = 0;
          Debugger.log("[GameLoader.loadFighterFromPath] loaded", ba.length, "bytes");
          var loader:Loader = new Loader();
           loader.contentLoaderInfo.addEventListener("complete", function(e:*):void
@@ -425,4 +459,3 @@ var loadComplete:* = function(param1:DisplayObject):void
       }
    }
 }
-

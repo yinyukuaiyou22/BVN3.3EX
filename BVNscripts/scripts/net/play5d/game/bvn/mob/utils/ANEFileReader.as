@@ -19,7 +19,7 @@
        *   1. application.xml: uncomment <extensions><extensionID>com.bvn.filereader</extensionID></extensions>
        *   2. debug_mob.bat: ensure BVNFileReader.ane is in tools/Test/ before packaging
        *   When ANE is not bundled, AIR File API fallback handles all file operations. */
-      public static var ANE_ENABLED:Boolean = false;
+      public static var ANE_ENABLED:Boolean = true;
 
       public function ANEFileReader()
       {
@@ -83,7 +83,7 @@
        *  Users can push custom content via:
        *    adb push <local_dir>/ /storage/emulated/0/Android/data/air.com.bvn.yinyu/BVN/assets/
        *  Subdirs: fighter/ map/ face/ bgm/ config/  (auto-created on first launch) */
-      public static var EXTERNAL_BASE:String = "/storage/emulated/0/Android/data/air.com.bvn.yinyu/BVN/assets/";
+      public static var EXTERNAL_BASE:String = "/storage/emulated/0/Android/data/air.com.bvn.yy798/BVN/assets/";
 
       /** DocumentsProvider authority string. File managers (e.g. MT Manager) use this to browse app data.
        *  Call registerProvider() to wake the process before opening in a file manager. */
@@ -114,7 +114,10 @@
       /** Map assets/ relative path to external base dir */
       public static function resolveExternalPath(assetPath:String) : String
       {
-         return EXTERNAL_BASE + assetPath;
+         var clean:String = assetPath ? assetPath.replace(/\\/g,"/") : "";
+         while(clean.indexOf("../") == 0) clean = clean.substr(3);
+         while(clean.indexOf("/") == 0) clean = clean.substr(1);
+         return EXTERNAL_BASE + clean;
       }
 
       /** Create a directory (including parents) via ANE java.io.File.mkdirs().
@@ -232,7 +235,8 @@
          var result:Boolean;
          if(_hasANE)
          {
-            result = _ctx.call("exists", path) as Boolean;
+            try { result = _ctx.call("exists", path) as Boolean; }
+            catch(e:Error) { Debugger.log(TAG, "exists ANE ERROR:", path, e.message); result = existsFallback(path); }
          }
          else
          {
