@@ -15,6 +15,9 @@ package net.play5d.game.bvn.utils
       
       public static var SETTING:String = "stg_set_ui";
       
+      /** 规则设置界面 UI（与 SETTING 同在 setting.swf 内，独立元件） */
+      public static var RULE:String = "rule_ui";
+      
       public static var CONGRATULATIONS:String = "mc_congratulations";
       
       public static var WINNER:String = "winner_stg_mc";

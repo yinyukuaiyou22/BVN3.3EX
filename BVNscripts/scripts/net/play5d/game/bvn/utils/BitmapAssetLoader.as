@@ -1,4 +1,4 @@
-﻿package net.play5d.game.bvn.utils
+package net.play5d.game.bvn.utils
 {
    import flash.display.*;
    import net.play5d.game.bvn.ctrl.*;
@@ -7,15 +7,10 @@ import net.play5d.game.bvn.Debugger;
    public class BitmapAssetLoader
    {
       
-      private var _queueLength:int;
-      
-      private var _urls:Array;
+      /** AS3 批量加载并发度：头像/地图缩略图数量多（约 250 张）但单张很小，6 路并发 */
+      private static const BITMAP_BATCH_CONCURRENCY:int = 6;
       
       private var _cacheObj:Object = {};
-      
-      private var _successBack:Function;
-      
-      private var _processBack:Function;
       
       public function BitmapAssetLoader()
       {
@@ -34,11 +29,23 @@ import net.play5d.game.bvn.Debugger;
       
       public function loadQueue(param1:Array, param2:Function, param3:Function = null) : void
       {
-         this._successBack = param2;
-         this._processBack = param3;
-         this._urls = param1.concat();
-         this._queueLength = param1.length;
-         this.loadNext();
+         var urls:Array = param1.concat();
+         var back:Function = param2;
+         var process:Function = param3;
+         if(urls.length < 1)
+         {
+            if(back != null) back();
+            return;
+         }
+         // AS3 批量加载：头像/地图图一次按并发度挂起多路，替代原先的逐个 loadNext 串行链
+         var batch:AssetBatchLoader = new AssetBatchLoader();
+         batch.load(urls,function(url:String, onDone:Function, onFail:Function, onProgress:Function):void
+         {
+            load(url,function():void { onDone(); },onProgress);
+         },function():void
+         {
+            if(back != null) back();
+         },process,BITMAP_BATCH_CONCURRENCY);
       }
       
       private function load(param1:String, param2:Function = null, param3:Function = null) : void
@@ -93,33 +100,7 @@ import net.play5d.game.bvn.Debugger;
          }
          AssetManager.I.disposeAsset(param1);
       }
-      
-      private function loadNext() : void
-      {
-         var url:String = null;
-         var loadProcess:* = function(param1:Number):void
-         {
-            var _loc2_:Number = NaN;
-            var _loc3_:Number = NaN;
-            if(_processBack != null)
-            {
-               _loc2_ = _queueLength - _urls.length - 1 + param1;
-               _loc3_ = _loc2_ / _queueLength;
-               _processBack(_loc3_);
-            }
-         };
-         if(this._urls.length < 1)
-         {
-            if(this._successBack != null)
-            {
-               this._successBack();
-               this._successBack = null;
-            }
-            return;
-         }
-         url = this._urls.shift();
-         this.load(url,this.loadNext,loadProcess);
-      }
+
    }
 }
 

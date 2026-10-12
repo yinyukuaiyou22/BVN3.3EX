@@ -1,4 +1,4 @@
-﻿package net.play5d.game.bvn.ctrl.game_ctrls
+package net.play5d.game.bvn.ctrl.game_ctrls
 {
    import flash.events.*;
    import flash.geom.*;
@@ -57,6 +57,8 @@ import net.play5d.game.bvn.utils.*;
       private var _renderAnimateFrame:int = 0;
       
       public var fightFinished:Boolean;
+        // 局内重开：重置过程中的全局输入防护标志（移植自3.7重开流程）
+        public var isResetting:Boolean = false;
       
       private var _gameStartAndPause:Boolean;
       
@@ -344,7 +346,7 @@ import net.play5d.game.bvn.utils.*;
          if(param1.initFailed)
          {
 			Debugger.log("[GameCtrl] addFighter FAILED — 此角色不可用: " + param1.data.id);
-			GameUI.confrim("此角色暂时不可用","该角色文件不完整，请选择其他角色。",MainGame.I.goMenu);
+         GameUI.confrim("此角色暂时不可用","该角色文件异常，无法作为人物加载，请选择其他角色。",MainGame.I.goMenu);
 			return false;
          }
 			param1.setActionCtrl(_loc3_);
@@ -486,6 +488,145 @@ import net.play5d.game.bvn.utils.*;
          KeyBoarder.focus();
          this._isRenderGame = true;
       }
+
+        public function isPauseGame() : Boolean
+        {
+           return this._isPauseGame;
+        }
+
+        /**
+         * 局内重开（移植自3.7扩展 RESTART BATTLE 交互，但重置逻辑按当前工程3.3架构重写）。
+         * 保留 p1Wins / p2Wins，重置当前回合的角色、计时、动态对象、特效、AI 与摄像机。
+         * 执行期间保持 _isPauseGame=true，完成后通过 resume(true) 恢复游戏循环。
+         */
+        public function restartBattle() : void
+        {
+           if(this.isResetting || !this._gameRunning || !this.gameState)
+           {
+              return;
+           }
+           this.isResetting = true;
+           this._isPauseGame = true;
+           this._isRenderGame = false;
+
+           var p1Wins:int = this.gameRunData.p1Wins;
+           var p2Wins:int = this.gameRunData.p2Wins;
+
+           // 1. 清除子弹、飞行道具、特效滤镜等动态对象（保留 FighterMain / Assister 组对象）
+           this.clearDynamicSprites();
+           // 2. 清空 EffectCtrl 中所有活动特效与震屏/慢放/黑幕状态
+           EffectCtrl.I.clearAll();
+           // 3. 清空连击统计与地面接触缓存
+           GameLogic.clearAllHits();
+
+           // 4. 重置回合计时（保留当前 round，不改变双方胜场）
+           this.gameRunData.gameTime = this.gameRunData.gameTimeMax;
+             this._renderTimeFrame = 0;
+           this.gameRunData.isTimerOver = false;
+           this.gameRunData.isDrawGame = false;
+           this.gameRunData.lastWinner = null;
+           this.gameRunData.lastWinnerTeam = null;
+           this.gameRunData.lastLoserData = null;
+           this.gameRunData.lastLoserQi = 0;
+             this.gameRunData.continueLoser = null;
+           this.fightFinished = false;
+
+           // 5. 角色位置/朝向/速度/HP/动画/UI 复位（复用 GameState.resetFight 的跨回合逻辑）
+           this.gameState.resetFight(this.gameRunData.p1FighterGroup,this.gameRunData.p2FighterGroup);
+             if(Boolean(GameUI.I) && Boolean(GameUI.I.getUI()))
+             {
+                GameUI.I.getUI().hideHits(1);
+                GameUI.I.getUI().hideHits(2);
+                  GameUI.I.getUI().clearStartAndEnd();
+             }
+
+           // 6. AI/操作控制器与 Buff 复位
+           this.resetAllFighterCtrls();
+
+           // 7. 恢复胜场快照
+           this.gameRunData.p1Wins = p1Wins;
+           this.gameRunData.p2Wins = p2Wins;
+
+           // 8. 重新播放回合开始（训练模式直接开打，与 buildNextRound 逻辑一致）
+           if(GameMode.currentMode == 40 && !TrainingCtrler.SAY_INTRO)
+           {
+              this.actionEnable = true;
+           }
+           else
+           {
+              this._startCtrl = new GameStartCtrl(this.gameState);
+              this._startCtrl.startNextRound();
+              this.actionEnable = false;
+           }
+           GameEvent.dispatchEvent("ROUND_START");
+             GameInputer.clearInput();
+
+           this.isResetting = false;
+           // 恢复游戏循环；resume 会隐藏暂停菜单并派发 RESUME_GAME。
+           this.resume(true);
+        }
+
+        /**
+         * 遍历 gameState 中所有 IGameSprite，只保留 FighterMain 与 Assister，
+         * 其余（子弹/飞行道具/BitmapFilterView 等）从显示层、TeamMap、GameState 移除。
+         */
+        private function clearDynamicSprites() : void
+        {
+           var list:Vector.<IGameSprite> = this.gameState.getGameSprites();
+           var i:int = list.length - 1;
+           while(i >= 0)
+           {
+              var s:IGameSprite = list[i];
+              if(!(s is FighterMain) && !(s is Assister))
+              {
+                 this.removeGameSprite(s,true);
+              }
+              i--;
+           }
+        }
+
+        private function resetAllFighterCtrls() : void
+        {
+           this.resetGroupFighterCtrls(this.gameRunData.p1FighterGroup,1);
+           this.resetGroupFighterCtrls(this.gameRunData.p2FighterGroup,2);
+        }
+
+        private function resetGroupFighterCtrls(param1:GameRunFighterGroup, param2:int) : void
+        {
+           if(!param1)
+           {
+              return;
+           }
+           this.resetOneFighterCtrl(param1.fighter1,param2);
+           this.resetOneFighterCtrl(param1.fighter2,param2);
+           this.resetOneFighterCtrl(param1.fighter3,param2);
+        }
+
+        private function resetOneFighterCtrl(param1:FighterMain, param2:int) : void
+        {
+           if(!param1 || !param1.isAlive)
+           {
+              return;
+           }
+             // 回合格斗数据复位：气/能量/辅助槽/受击状态全部回到开局值。
+             param1.qi = 0;
+             param1.energy = param1.energyMax;
+             param1.energyOverLoad = false;
+             param1.fzqi = param1.fzqiMax;
+             param1.isSteelBody = false;
+             param1.isSuperSteelBody = false;
+             param1.hurtHit = null;
+             param1.defenseHit = null;
+             param1.lastHitVO = null;
+             param1.clearHurtHits();
+             param1.setVelocity(0,0);
+             param1.setVec2(0,0);
+           this.setFighterActionCtrl(param1,param2);
+           if(Boolean(param1.getBuffCtrl()))
+           {
+              param1.getBuffCtrl().reset();
+           }
+        }
       
       public function gameEnd(param1:FighterMain, param2:FighterMain) : void
       {
@@ -801,7 +942,10 @@ import net.play5d.game.bvn.utils.*;
          {
             return;
          }
-         if(param3 || Boolean(GameMode.isWatch()) || param2 == 2 && (Boolean(GameMode.isVsCPU(false)) || Boolean(GameMode.isAcrade())))
+         // 注：原条件 GameMode.isWatch() 默认 param1=true，会把 TRAINING(40) 也判为观战，
+         // 导致重开时双方都被替换为 AI。改为 isWatch(false) 与 addFighter 保持一致：
+         // 训练模式（TRAINING）属于玩家 vs 玩家，不是观战，重开时不应重置控制权。
+         if(param3 || Boolean(GameMode.isWatch(false)) || param2 == 2 && (Boolean(GameMode.isVsCPU(false)) || Boolean(GameMode.isAcrade())))
          {
             _loc4_ = new FighterAICtrl();
             (_loc4_ as FighterAICtrl).AILevel = MessionModel.I.AI_LEVEL;

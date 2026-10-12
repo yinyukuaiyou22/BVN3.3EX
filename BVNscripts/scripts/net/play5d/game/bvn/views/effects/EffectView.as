@@ -67,6 +67,10 @@ package net.play5d.game.bvn.views.effects
       
       public function start(param1:Number = 0, param2:Number = 0, param3:int = 1) : void
       {
+         // 修复：clearAll() 会 destory() 池中实例（置 _isDestoryed=true），但实例仍留在
+         // EffectManager._viewCache。start() 不复位则 renderAnimate() 首行即 return，
+         // 动画停在最后一帧且永不 removeSelf()，打击火花持续叠加。
+         this._isDestoryed = false;
          this._orgX = param1;
          this._orgY = param2;
          this._direct = this._rotation != 0 ? 1 : param3;
@@ -91,7 +95,6 @@ package net.play5d.game.bvn.views.effects
          {
             this.removeSelf();
          }
-         this.display = null;
       }
       
       public function gotoAndPlay(param1:Object) : void

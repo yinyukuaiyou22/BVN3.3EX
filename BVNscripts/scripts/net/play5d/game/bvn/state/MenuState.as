@@ -47,18 +47,27 @@ package net.play5d.game.bvn.state
          this._ui.gotoAndPlay(2);
          setTimeout(function():void
          {
-            _ui.buttonMode = true;
-            _ui.useHandCursor = true;
-            if(GameConfig.TOUCH_MODE)
+            try
             {
-               _ui.addEventListener("touchTap",showBtns);
+               _ui.buttonMode = true;
+               _ui.useHandCursor = true;
+               if(GameConfig.TOUCH_MODE)
+               {
+                  _ui.addEventListener("touchTap",showBtns);
+               }
+               else
+               {
+                  _ui.addEventListener("click",showBtns);
+               }
+               GameRender.add(render);
+               GameInputer.focus();
             }
-            else
+            catch(e:Error)
             {
-               _ui.addEventListener("click",showBtns);
+               Debugger.log("[MenuState] afterBuild init FAILED:",e.message);
             }
-            GameRender.add(render);
-            GameInputer.focus();
+            // 兜底：build() 里把总闸关了，这里无论初始化是否异常都必须恢复，
+            // 否则一旦上面抛异常，GameInputer.enabled 会永久停在 false（表现为键盘/触屏全部失效、卡在菜单）
             GameInputer.enabled = true;
          },500);
          this._versionTxt = new TextField();

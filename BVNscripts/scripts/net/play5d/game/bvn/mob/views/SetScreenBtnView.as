@@ -117,7 +117,8 @@ import net.play5d.game.bvn.Debugger;
             "label":"APPLY",
             "cn":"确定"
          }]);
-         this._btnGroup.initScroll(launch.FULL_SCREEN_SIZE.x,launch.FULL_SCREEN_SIZE.y);
+         // 量纲修正：initScroll 传的是游戏单位（原为 launch.FULL_SCREEN_SIZE，那是设备像素）
+         this._btnGroup.initScroll(GameConfig.GAME_SIZE.x,GameConfig.GAME_SIZE.y);
          this._btnGroup.addEventListener("SELECT",this.onBtnSelect);
          this._btnGroup.addEventListener("OPTION_CHANGE",this.onOptionChange);
          this.addChild(this._btnGroup);
@@ -159,7 +160,8 @@ import net.play5d.game.bvn.Debugger;
          config.setValueByKey(e.optionKey,e.optionValue);
       }
       
-      private function closeSelf() : void
+      /** 关闭自身（APPLY 与 launch.clearGameSpriteOverlays 共用；后者保证切场景时不残留） */
+      public function closeSelf() : void
       {
          if(Boolean(this._btnGroup))
          {

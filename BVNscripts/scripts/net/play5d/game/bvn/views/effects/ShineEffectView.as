@@ -43,6 +43,11 @@ package net.play5d.game.bvn.views.effects
       
       public function init(param1:uint = 16777215, param2:Number = 0.2) : void
       {
+         // 修复：对象池复用时必须重置销毁标志。
+         // clearAll() 会 destory() 当前所有闪光并置 _isDestoryed=true，但这些实例仍留在
+         // EffectManager._shineCache 中。若 init() 不复位，render() 首行即 return，
+         // 该闪光将永不淡出、永不 removeSelf()，每次命中都在舞台上叠加一层。
+         this._isDestoryed = false;
          if(Boolean(this.bitmapData))
          {
             this.bitmapData.dispose();

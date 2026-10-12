@@ -18,6 +18,7 @@ package
    import net.play5d.game.bvn.ui.*;
    import net.play5d.game.bvn.ui.fight.*;
    import net.play5d.game.bvn.utils.*;
+   import net.play5d.kyo.stage.events.KyoStageEvent;
    
    public class launch extends Sprite
    {
@@ -34,6 +35,12 @@ package
       
       private var _gameSprite:Sprite;
       
+      /**
+       * 直接挂在 _gameSprite 上、不在场景栈里的覆盖层（如 SetScreenBtnView）。
+       * 它们不随场景切换销毁，若不登记清理就会在切场景后继续吃掉按键（表现为键盘失效、卡在某菜单）。
+       */
+      private var _gameSpriteOverlays:Vector.<DisplayObject> = new Vector.<DisplayObject>();
+      
       private var _gameSideBg:GameSideBg;
       
       private var startupBitmap:Class = startup_png$5ab29dc3fdc04fbdd16afce6653b4bc0756872080;
@@ -45,7 +52,7 @@ package
          super();
          trace("=== BVN TRACE-01 launch() ===");
          I = this;
-         GameConfig.TOUCH_MODE = false;
+         GameConfig.TOUCH_MODE = true;
          addEventListener("addedToStage",this.initlize);
       }
       
@@ -95,7 +102,8 @@ package
          ScreenRotater.I.init(stage);
          stage.addEventListener("deactivate",this.activeHandler);
          stage.addEventListener("activate",this.activeHandler);
-         stage.addEventListener("resize",this.updateFullScreenSize);
+         // resize: 调用 updateSize() 而非 updateFullScreenSize(), 让 _gameSprite 按 GameConfig.GAME_SIZE(800x600) 等比缩放 + GameSideBg 侧边栏填充
+         stage.addEventListener("resize",this.updateSize);
          if(Boolean(this._startBitmap))
          {
             try
@@ -154,6 +162,9 @@ package
          addChild(this._gameSprite);
          this._mainGame = new MainGame();
          this._mainGame.initlize(this._gameSprite,stage,this.initBackHandler,this.initFailHandler);
+         // buildGame 后立即缩放一次: PC 端启动时窗口是 800x600(未最大化), 必须主动触发等比缩放
+         // 否则在用户进入『设置』面板之前, _gameSprite 一直保持 scaleX=1 原始大小
+         this.updateSize();
       }
       
       private function updateFullScreenSize(param1:Event = null) : void
@@ -175,7 +186,7 @@ package
          }
       }
       
-      public function updateSize() : void
+      public function updateSize(param1:Event = null) : void
       {
          var _loc1_:Number = NaN;
          var _loc2_:Number = NaN;
@@ -229,6 +240,53 @@ package
       public function addChildToGameSprite(param1:DisplayObject) : void
       {
          this._gameSprite && this._gameSprite.addChild(param1);
+         if(Boolean(param1) && Boolean(this._gameSprite) && this._gameSpriteOverlays.indexOf(param1) == -1)
+         {
+            this._gameSpriteOverlays.push(param1);
+         }
+      }
+      
+      /**
+       * 场景切换时清掉所有遗留的 _gameSprite 覆盖层。
+       * SetScreenBtnView 走 closeSelf()，以注销它的 SetBtnGroup（输入仲裁栈 / GameRender 注册）；
+       * 其余对象直接摘除。
+       */
+      public function clearGameSpriteOverlays() : void
+      {
+         var _loc1_:int = int(this._gameSpriteOverlays.length);
+         if(_loc1_ > 0)
+         {
+            Debugger.log("[launch] clearGameSpriteOverlays n=",_loc1_);
+         }
+         var _loc2_:int = 0;
+         while(_loc2_ < _loc1_)
+         {
+            var _loc3_:DisplayObject = this._gameSpriteOverlays[_loc2_];
+            try
+            {
+               if(_loc3_ is SetScreenBtnView)
+               {
+                  (_loc3_ as SetScreenBtnView).closeSelf();
+               }
+               else if(Boolean(_loc3_.parent))
+               {
+                  _loc3_.parent.removeChild(_loc3_);
+               }
+            }
+            catch(e:Error)
+            {
+               Debugger.log("[launch] clearGameSpriteOverlays:",e);
+            }
+            _loc2_++;
+         }
+         this._gameSpriteOverlays.length = 0;
+      }
+      
+      private function onStageChange(param1:KyoStageEvent) : void
+      {
+         this.clearGameSpriteOverlays();
+         // 把本场景累积的折叠日志（资源探测/选中态/按键边沿…）汇总输出，每组一行
+         Debugger.flushFold();
       }
       
       private function initBackHandler() : void
@@ -236,6 +294,10 @@ package
          trace("=== BVN TRACE-05 initBackHandler(LOAD COMPLETE) ===");
          ScreenPadManager.listen();
          FightUI.QI_BAR_MODE = 1;
+         // 覆盖层随场景切换清理：KyoStageCtrl.goStage 是唯一的场景切换必经点，会在新场景 build 后派发该事件
+         MainGame.stageCtrl.addEventListener(KyoStageEvent.CHANGE_STATE,this.onStageChange);
+         // 启动装载阶段（外部资源探测刷屏最密集）刚结束，先把折叠日志汇总输出一次
+         Debugger.flushFold();
          if(DEBUG_PANEL_ENABLED)
          {
             Debugger.initDebug(stage);

@@ -1,10 +1,11 @@
-﻿package net.play5d.game.bvn.data
+package net.play5d.game.bvn.data
 {
    import net.play5d.game.bvn.*;
    import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.interfaces.*;
 import net.play5d.game.bvn.Debugger;
 import net.play5d.game.bvn.mob.utils.ANEFileReader;
+import net.play5d.game.bvn.utils.*;
 
    public class GameData
    {
@@ -43,98 +44,112 @@ import net.play5d.game.bvn.mob.utils.ANEFileReader;
       
       public function loadConfig(param1:Function, param2:Function = null) : void
       {
-         var fail:Function = null;
-         var loadAssetsBack:* = undefined;
-         var loadSelectBack:* = undefined;
-         var loadMapBack:* = undefined;
-         var loadMessionBack:* = undefined;
-         var loadAssisterFail:* = undefined;
-         var loadSelectFail:* = undefined;
-         var loadMapFail:* = undefined;
-         var loadMessionFail:* = undefined;
          var back:Function = param1;
-         fail = param2;
-
+         var fail:Function = param2;
          // All platforms (PC + Mobile) use APK-internal-first loading.
-         // External asset scanning is guarded by ANEFileReader.ANE_ENABLED.
-         trace("[GameData] loadConfig start, loading fighter.xml...");
-         var loadFighterBack:* = function(param1:XML):void
+         // External asset scanning is guarded by ANEFileReader.EXTERNAL_ENABLED.
+         // AS3 批量加载：5 个配置 XML 一次并行发起，全部 settle 后按固定顺序应用，
+         // 使原先的"一条回调链等一条链"改为单次往返（应用顺序与合并时机保持不变）。
+         trace("[GameData] loadConfig start (batch XML)");
+         var xmls:Object = {};
+         var batch:AssetBatchLoader = new AssetBatchLoader();
+         batch.load(["fighter","assist","select","map","mission"],function(key:String, onDone:Function, onFail:Function, onProgress:Function):void
+         {
+            AssetManager.I.loadXML("assets/config/" + key + ".xml",function(param1:XML):void
+            {
+               xmls[key] = param1;
+               onDone();
+            },function():void
+            {
+               Debugger.log("[GameData] " + key + ".xml 未从内置加载");
+               onFail();
+            });
+         },function():void
+         {
+            applyConfigXMLs(xmls,back);
+         });
+      }
+      
+      /** 按原串行链的固定顺序应用已加载的配置 XML：fighter → assist → select → map → mission，
+       *  最后合并外置配置。fighter.xml 缺失时保持原语义：直接转为从外置加载全部配置。 */
+      private function applyConfigXMLs(param1:Object, param2:Function) : void
+      {
+         var xmls:Object = param1;
+         var back:Function = param2;
+         var fighterXML:XML = xmls["fighter"];
+         var assistXML:XML = xmls["assist"];
+         var selectXML:XML = xmls["select"];
+         var mapXML:XML = xmls["map"];
+         var missionXML:XML = xmls["mission"];
+         if(fighterXML)
          {
             trace("[GameData] fighter.xml loaded");
-            FighterModel.I.initByXML(param1);
-            if (ANEFileReader.ANE_ENABLED) {
+            FighterModel.I.initByXML(fighterXML);
+            if(ANEFileReader.EXTERNAL_ENABLED)
+            {
                trace("[GameData] scanning external assets...");
                GameLoader.scanExternalAssets();
             }
-            trace("[GameData] loading assist.xml...");
-            AssetManager.I.loadXML("assets/config/assist.xml",loadAssetsBack,loadAssisterFail);
-         };
-         loadAssetsBack = function(param1:XML):void
+         }
+         else
          {
-            trace("[GameData] assist.xml loaded, loading select.xml...");
-            AssisterModel.I.initByXML(param1);
-            AssetManager.I.loadXML("assets/config/select.xml",loadSelectBack,loadSelectFail);
-         };
-         loadSelectBack = function(param1:XML):void
-         {
-            trace("[GameData] select.xml loaded, loading map.xml...");
-            config.select_config.setByXML(param1);
-            AssetManager.I.loadXML("assets/config/map.xml",loadMapBack,loadMapFail);
-         };
-         loadMapBack = function(param1:XML):void
-         {
-            trace("[GameData] map.xml loaded, loading mission.xml...");
-            MapModel.I.initByXML(param1);
-            AssetManager.I.loadXML("assets/config/mission.xml",loadMessionBack,loadMessionFail);
-         };
-         loadMessionBack = function(param1:String):void
-         {
-            trace("[GameData] mission.xml loaded" + (ANEFileReader.ANE_ENABLED ? ", loading external assets before startup completes..." : ""));
-            MessionModel.I.initByXML(new XML(param1));
-            if (ANEFileReader.ANE_ENABLED) {
-               // External fighter.xml and select.xml must be merged before the
-               // select stage builds its list. A delayed merge is too late.
+            // 原 loadFighterFail 语义：内置 fighter.xml 缺失 → 全部配置改由外置提供
+            Debugger.log("[GameData] fighter.xml not in APK, loading ALL configs from external...");
+            if(ANEFileReader.EXTERNAL_ENABLED)
+            {
                GameLoader.loadExternalConfigsNow(back);
                return;
             }
-            trace("[GameData] config loading complete");
-            back();
-         };
-         var loadFighterFail:* = function():void
+            Debugger.log("[GameData] fighter.xml not in APK, ANE disabled — proceeding without configs");
+            if(back != null) back();
+            return;
+         }
+         if(assistXML)
          {
-            if (ANEFileReader.ANE_ENABLED) {
-               Debugger.log("[GameData] fighter.xml not in APK, loading ALL configs from external...");
-               GameLoader.loadExternalConfigsNow(back);
-            } else {
-               Debugger.log("[GameData] fighter.xml not in APK, ANE disabled — proceeding without configs");
-               back();
-            }
-         };
-         loadAssisterFail = function():void
+            trace("[GameData] assist.xml loaded");
+            AssisterModel.I.initByXML(assistXML);
+         }
+         else
          {
             Debugger.log("[GameData] assist.xml not in APK, will load from external");
-            AssetManager.I.loadXML("assets/config/select.xml",loadSelectBack,loadSelectFail);
-         };
-         loadSelectFail = function():void
+         }
+         if(selectXML)
+         {
+            trace("[GameData] select.xml loaded");
+            config.select_config.setByXML(selectXML);
+         }
+         else
          {
             Debugger.log("[GameData] select.xml not in APK, will load from external");
-            AssetManager.I.loadXML("assets/config/map.xml",loadMapBack,loadMapFail);
-         };
-         loadMapFail = function():void
+         }
+         if(mapXML)
+         {
+            trace("[GameData] map.xml loaded");
+            MapModel.I.initByXML(mapXML);
+         }
+         else
          {
             Debugger.log("[GameData] map.xml not in APK, will load from external");
-            AssetManager.I.loadXML("assets/config/mission.xml",loadMessionBack,loadMessionFail);
-         };
-         loadMessionFail = function():void
+         }
+         if(missionXML)
          {
-            Debugger.log("[GameData] mission.xml not in APK" + (ANEFileReader.ANE_ENABLED ? ", will load from external" : ""));
-            if (ANEFileReader.ANE_ENABLED) {
-               GameLoader.loadExternalConfigsNow(back);
-               return;
-            }
-            back();
-         };
-         AssetManager.I.loadXML("assets/config/fighter.xml",loadFighterBack,loadFighterFail);
+            trace("[GameData] mission.xml loaded");
+            MessionModel.I.initByXML(new XML(missionXML));
+         }
+         else
+         {
+            Debugger.log("[GameData] mission.xml not in APK" + (ANEFileReader.EXTERNAL_ENABLED ? ", will load from external" : ""));
+         }
+         if(ANEFileReader.EXTERNAL_ENABLED)
+         {
+            // External fighter.xml and select.xml must be merged before the
+            // select stage builds its list. A delayed merge is too late.
+            trace("[GameData] loading external assets before startup completes...");
+            GameLoader.loadExternalConfigsNow(back);
+            return;
+         }
+         trace("[GameData] config loading complete");
+         if(back != null) back();
       }
       
       public function saveData() : void

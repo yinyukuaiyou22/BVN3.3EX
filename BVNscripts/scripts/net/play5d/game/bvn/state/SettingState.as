@@ -44,6 +44,11 @@ package net.play5d.game.bvn.state
          this._btnGroup.gap = 70;
          this._btnGroup.initMainSet();
          this._btnGroup.initScroll(GameConfig.GAME_SIZE.x,600);
+         // 批次6.15：启用触屏拖拽滚动 + 滚轮。
+         // 手机端设置界面没有虚拟方向键（ScreenPadManager 对设置页走 menuMode → 触屏盘隐藏），
+         // 原先只能靠"点击已可见的行"移动箭头，16~17 行的列表永远滚不到末尾的 APPLY（唯一保存+退出入口）。
+         // 注意：必须在 initScroll 之后调用（热区尺寸取自视口）。
+         this._btnGroup.enableScrollDrag();
          this._btnGroup.addEventListener("SELECT",this.onBtnSelect);
          this._btnGroup.addEventListener("OPTION_CHANGE",this.onOptionChange);
          this._ui.addChild(this._btnGroup);

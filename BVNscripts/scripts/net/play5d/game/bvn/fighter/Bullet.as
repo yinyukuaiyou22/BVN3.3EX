@@ -65,9 +65,12 @@ import net.play5d.game.bvn.Debugger;
       
       private var _direct:int;
       
-      private var _currentRect:Rectangle = new Rectangle();
-      
-      public function Bullet(param1:MovieClip, param2:Object = null)
+       private var _currentRect:Rectangle = new Rectangle();
+       
+       // 2026-09-09 竞技规则移植：防重复连依赖——记录弹幕生成时主人的动作快照
+       private var _ownerDoingAction:Object;
+       
+       public function Bullet(param1:MovieClip, param2:Object = null)
       {
          super();
          this.mc = param1;
@@ -251,10 +254,16 @@ import net.play5d.game.bvn.Debugger;
             this.mc.y += _loc2_.y;
             this._bulletArea.x -= _loc2_.x;
             this._bulletArea.y -= _loc2_.y;
+            this._ownerDoingAction = (this.owner as FighterMain).getDoingAction();
          }
       }
       
-      public function destory(param1:Boolean = true) : void
+      public function getDoingAction() : Object
+      {
+         return this._ownerDoingAction;
+      }
+       
+       public function destory(param1:Boolean = true) : void
       {
          this._destoryed = true;
          if(Boolean(this.mc))
@@ -270,10 +279,11 @@ import net.play5d.game.bvn.Debugger;
          this.owner = null;
          this._area = null;
          this._orgScale = null;
-         this._team = null;
-         this._bulletArea = null;
-         this._hitVO = null;
-      }
+          this._team = null;
+          this._bulletArea = null;
+          this._hitVO = null;
+          this._ownerDoingAction = null;
+       }
       
       public function isDestoryed() : Boolean
       {
@@ -544,4 +554,3 @@ import net.play5d.game.bvn.Debugger;
       }
    }
 }
-

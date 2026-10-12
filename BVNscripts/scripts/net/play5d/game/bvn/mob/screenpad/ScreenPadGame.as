@@ -13,7 +13,8 @@
    import net.play5d.game.bvn.mob.events.*;
    import net.play5d.game.bvn.mob.input.ScreenPadInput;
    import net.play5d.game.bvn.utils.KeyBoarder;
-import net.play5d.game.bvn.Debugger;
+   import net.play5d.game.bvn.Debugger;
+   import net.play5d.game.bvn.interfaces.GameInterface;
    
    public class ScreenPadGame extends EventDispatcher
    {
@@ -68,6 +69,26 @@ public static function get controllingP1() : Boolean
 private var _p1p2WasDown:Boolean = false;
 
       private var _p1p2LastSwitchTime:Number = 0;
+
+      /** P 键（切换控制角色）全局只注册一次 */
+      private static var _pKeyListened:Boolean = false;
+
+      /** 当前正在显示的战斗摇杆实例；菜单/选人/自定义按键界面下为 null，P 键不生效 */
+      private static var _activePad:ScreenPadGame = null;
+
+      /** KeyBoarder 转发入口：只有战斗内正在显示的摇杆才响应 P 键 */
+      private static function onSwitchKeyHandler(e:*) : void
+      {
+         if(!e || e.keyCode != 80 || e.type != "keyDown")
+         {
+            return;
+         }
+         if(!_activePad)
+         {
+            return;
+         }
+         _activePad._switchPlayer();
+      }
 
       public function ScreenPadGame(param1:Stage)
       {
@@ -139,10 +160,15 @@ private var _p1p2WasDown:Boolean = false;
           switchBtn.display.y = 10 + switchBtn.display.height;
           this._btns.push(switchBtn);
           this._playerSwitchBtn = switchBtn;
-         // 键盘 P 键切换 — 用 KeyBoarder.listen（与游戏输入系统一致）
-         KeyBoarder.listen(function(e:*):void {
-            if (e.keyCode == 80 && e.type == "keyDown") { _switchPlayer(); }
-         });
+         // 键盘 P 键切换控制角色（P1/P2）。
+         // 注意：KeyBoarder.listen 是全局的，ScreenPadGame 会被多次构建（ScreenPadManager +
+         // CustomScreenBtnView 自定义按键界面），用匿名函数注册会重复入栈 → 一次按键切换两次（等于没切）。
+         // 改为「全局只注册一次 + 只转发给当前正在显示的战斗摇杆实例」。
+         if(!_pKeyListened)
+         {
+            _pKeyListened = true;
+            KeyBoarder.listen(onSwitchKeyHandler);
+         }
          var _loc2_:Object = GameInterfaceManager.config.screenPadConfig.joySet;
          if(Boolean(_loc2_))
          {
@@ -274,6 +300,8 @@ private var _p1p2WasDown:Boolean = false;
       {
          var _loc1_:int = 0;
          this.isShowing = true;
+         // 只有战斗摇杆（show）时 P 键切换才生效；showEditMode 自定义界面不接管
+         _activePad = this;
          while(_loc1_ < this._btns.length)
          {
             this._stage.addChild(this._btns[_loc1_].display);
@@ -287,6 +315,10 @@ private var _p1p2WasDown:Boolean = false;
          var _loc2_:* = undefined;
          var _loc1_:int = 0;
          this.isShowing = false;
+         if(_activePad == this)
+         {
+            _activePad = null;
+         }
          try
          {
             while(_loc1_ < this._btns.length)
@@ -529,6 +561,10 @@ private var _p1p2WasDown:Boolean = false;
       {
          var _loc1_:* = undefined;
          this.isShowing = false;
+         if(_activePad == this)
+         {
+            _activePad = null;
+         }
          launch.STAGE.removeEventListener("touchBegin",this.btnTouchEditHandler);
          launch.STAGE.removeEventListener("touchMove",this.btnTouchEditHandler);
          launch.STAGE.removeEventListener("touchEnd",this.btnTouchEditHandler);
@@ -651,9 +687,58 @@ private var _p1p2WasDown:Boolean = false;
          return bmp;
       }
       
+      /** 新对局：只有练习模式(40)沿用上一局的控制方，其余模式一律回到 P1 */
+      public function resetControlPlayer() : void
+      {
+         _controllingP1 = GameMode.currentMode == 40 ? _controllingP1Static : true;
+         _controllingP1Static = _controllingP1;
+         this.updateSwitchBtn();
+      }
+
+      /** 按当前 _controllingP1 重画「切换控制」按钮 */
+      private function updateSwitchBtn() : void
+      {
+         if(!_playerSwitchBtn)
+         {
+            return;
+         }
+         var oldDisp:Bitmap = _playerSwitchBtn.display;
+         if(oldDisp && oldDisp.bitmapData)
+         {
+            var oldX:Number = oldDisp.x;
+            var oldY:Number = oldDisp.y;
+            var oldAlpha:Number = oldDisp.alpha;
+            oldDisp.bitmapData.dispose();
+            var newBmp:Bitmap = _createPlayerSwitchDisplay(_controllingP1);
+            newBmp.scaleX = newBmp.scaleY = ScreenPadUtils.scale;
+            newBmp.alpha = oldAlpha;
+            newBmp.x = oldX;
+            newBmp.y = oldY;
+            if(isShowing && _stage && oldDisp.parent)
+            {
+               var p:DisplayObjectContainer = oldDisp.parent;
+               var idx:int = p.getChildIndex(oldDisp);
+               p.removeChildAt(idx);
+               p.addChildAt(newBmp,idx);
+            }
+            _playerSwitchBtn.display = newBmp;
+            _playerSwitchBtn.initArea();
+         }
+      }
+
       private function _switchPlayer() : void
-{
+      {
+    // 只在战斗内（摇杆正在显示）生效：菜单/选人/自定义按键界面按 P 一律不响应
+    if (!isShowing) {
+        return;
+    }
     if (GameMode.currentMode != 40 && !GameMode.isVsPeople()) {
+        return;
+    }
+    // 必须双方角色都在场（未开战/回合结束/未装载完时 currentFighter 为 null，切换无意义）
+    var _runData:* = GameCtrl.I ? GameCtrl.I.gameRunData : null;
+    if (!_runData || !_runData.p1FighterGroup || !_runData.p2FighterGroup ||
+        !_runData.p1FighterGroup.currentFighter || !_runData.p2FighterGroup.currentFighter) {
         return;
     }
     var now:Number = (new Date()).time;
@@ -664,37 +749,15 @@ private var _p1p2WasDown:Boolean = false;
     _controllingP1 = !_controllingP1;
     _controllingP1Static = _controllingP1;
     GameCtrl.I.switchControlPlayer(_controllingP1);
-    GameInterfaceManager.I.refreshJoystickRouting();
-    Debugger.log("P1P2_SWITCH: now controllingP1=" + _controllingP1);
-    
-    if (_playerSwitchBtn) {
-        var oldDisp:Bitmap = _playerSwitchBtn.display;
-        // ---------- 新增保护 ----------
-        if (oldDisp && oldDisp.bitmapData) {
-            var oldX:Number = oldDisp.x;
-            var oldY:Number = oldDisp.y;
-            var oldAlpha:Number = oldDisp.alpha;
-            
-            oldDisp.bitmapData.dispose();
-            
-            var newBmp:Bitmap = _createPlayerSwitchDisplay(_controllingP1);
-            newBmp.scaleX = newBmp.scaleY = ScreenPadUtils.scale;
-            newBmp.alpha = oldAlpha;
-            newBmp.x = oldX;
-            newBmp.y = oldY;
-            
-            if (isShowing && _stage && oldDisp.parent) {
-                var p:DisplayObjectContainer = oldDisp.parent;
-                var idx:int = p.getChildIndex(oldDisp);
-                p.removeChildAt(idx);
-                p.addChildAt(newBmp, idx);
-            }
-            _playerSwitchBtn.display = newBmp;
-            _playerSwitchBtn.initArea();
-        }
-        // ---------- 保护结束 ----------
+    // 注意：GameInterfaceManager 没有静态单例 I（实例在 GameInterface.instance），
+    // 原写法 GameInterfaceManager.I 为 undefined → TypeError #1010。改为取接口实例后调用。
+    var _gim:GameInterfaceManager = GameInterface.instance as GameInterfaceManager;
+    if (_gim != null) {
+        _gim.refreshJoystickRouting();
     }
-}
+    Debugger.log("P1P2_SWITCH: now controllingP1=" + _controllingP1);
+    this.updateSwitchBtn();
+      }
    }
 }
 

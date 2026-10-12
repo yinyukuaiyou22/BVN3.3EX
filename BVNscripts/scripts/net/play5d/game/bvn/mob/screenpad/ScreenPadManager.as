@@ -94,6 +94,8 @@ package net.play5d.game.bvn.mob.screenpad
       {
          if(param1.stage is GameState)
          {
+            // 进入战斗即新对局：控制方按模式重置（只有练习模式沿用上一局）
+            _game.resetControlPlayer();
             gameMode();
          }
          else if(param1.stage is SelectFighterStage)

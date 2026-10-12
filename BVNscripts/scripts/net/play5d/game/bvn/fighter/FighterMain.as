@@ -4,6 +4,7 @@ package net.play5d.game.bvn.fighter
    import flash.geom.*;
    import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.data.FighterVO;
+   import net.play5d.game.bvn.data.GameData;
    import net.play5d.game.bvn.data.TeamVO;
    import net.play5d.game.bvn.fighter.ctrler.*;
    import net.play5d.game.bvn.fighter.models.*;
@@ -13,7 +14,8 @@ import net.play5d.game.bvn.Debugger;
    public class FighterMain extends BaseGameSprite
    {
       
-      public var qi:Number = 0;
+       // 2026-09-09 竞技规则移植：初始气量由设置 initialQi 决定（fork 默认 100）
+       public var qi:Number = GameData.I.config.initialQi;
       
       public const qiMax:Number = 300;
       
@@ -303,7 +305,14 @@ import net.play5d.game.bvn.Debugger;
             return;
          }
          this.initFailed = true;
-         Debugger.log("[FighterMain] 此角色不可用 — SWF缺少setFighterCtrler/initFighter: " + (this.data ? this.data.id : "unknown"));
+         if(Boolean(_mainMc.setAssistCtrler))
+         {
+            Debugger.log("[FighterMain] 配置错误：该角色SWF是辅助(含setAssistCtrler)，不应作为人物加载: " + (this.data ? this.data.id : "unknown"));
+         }
+         else
+         {
+            Debugger.log("[FighterMain] 此角色不可用 — SWF缺少setFighterCtrler/initFighter: " + (this.data ? this.data.id : "unknown"));
+         }
       }
       
       override public function renderAnimate() : void
@@ -622,7 +631,12 @@ import net.play5d.game.bvn.Debugger;
       
       public function hasWankai() : Boolean
       {
-         return this._fighterCtrl.getMcCtrl().getFighterMc().checkFrame("万解");
+         var mc:FighterMC = this.getMC();
+         if(!mc)
+         {
+            return false;
+         }
+         return mc.checkFrame("万解");
       }
       
       public function die() : void
@@ -631,7 +645,11 @@ import net.play5d.game.bvn.Debugger;
          isAlive = false;
          if(!FighterActionState.isHurting(this.actionState) && this.actionState != 30)
          {
-            this._fighterCtrl.getMcCtrl().getFighterMc().playHurtDown();
+            var mc:FighterMC = this.getMC();
+            if(mc)
+            {
+               mc.playHurtDown();
+            }
          }
       }
       
@@ -640,6 +658,18 @@ import net.play5d.game.bvn.Debugger;
          isAlive = true;
          this.idle();
       }
+      
+      // 2026-09-09 竞技规则移植：防重复连依赖——暴露当前动作快照（fork 3.3竞技项 同名方法）
+      public function getDoingAction() : Object
+      {
+         if(!this._fighterCtrl || !this._fighterCtrl.getMcCtrl() || !this.getMC() || !this.data)
+         {
+            return null;
+         }
+         return {
+            "action":this.getMC().currentFrameName + "_" + this.getMC().getCurrentFrame().toString() + "_" + this.data.id,
+            "times":this._fighterCtrl.getMcCtrl().doActionTimes
+         };
+      }
    }
 }
-

@@ -163,6 +163,12 @@ package net.play5d.game.bvn
          this.setFPS(30);
       }
       
+      public function goRule() : void
+      {
+         try { stageCtrl.goStage(new RuleState()); } catch(e:Error) { var _st:String = ""; try { _st = e.getStackTrace(); } catch(_e:Error) {} Debugger.log("[MainGame] goRule FAILED:",e.message,_st); }
+         this.setFPS(30);
+      }
+      
       public function goContinue() : void
       {
          var _loc1_:GameOverState = new GameOverState();

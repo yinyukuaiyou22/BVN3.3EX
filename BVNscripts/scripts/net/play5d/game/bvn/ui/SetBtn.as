@@ -13,6 +13,14 @@ package net.play5d.game.bvn.ui
       
       public var onSelect:Function;
       
+      /**
+       * 选项区右边界（由 SetBtnGroup 下发；<=0 表示沿用旧的"按标签宽度顺排"，兼容独立使用）
+       */
+      public var rightX:Number = 0;
+      
+      /** 选项值/箭头之间的间距 */
+      private static const OPTION_GAP:Number = 10;
+      
       private var _label:BitmapFontText;
       
       private var _options:Array;
@@ -41,6 +49,12 @@ package net.play5d.game.bvn.ui
          this._line.hide();
          addChild(this._line);
          addChild(this._label);
+           // 3.7 重开迁移：保证触控热区最小 48x44（透明图形，不影响视觉）。
+           // 注：SetBtn 继承 Sprite（sealed），运行时 touchEnabled 报 #1056；AIR 的触控命中
+           // 已由 mouseEnabled（默认 true）+ graphics 透明矩形承担，无需额外打开 touchEnabled。
+           this.graphics.beginFill(0,0);
+           this.graphics.drawRect(0,0,Math.max(this._label.width,48),Math.max(this._label.height,44));
+           this.graphics.endFill();
       }
       
       public function get label() : String
@@ -186,13 +200,36 @@ package net.play5d.game.bvn.ui
          }
       }
       
+      public function setRightX(param1:Number) : void
+      {
+         this.rightX = param1;
+      }
+      
       private function updateOption() : void
       {
          var _loc1_:String = this.getOption().label;
          this._optionTxt.text = _loc1_;
-         this._prevArrow.x = this._label.x + this._label.width + 50;
-         this._optionTxt.x = this._prevArrow.x + 10;
-         this._nextArrow.x = this._optionTxt.x + this._optionTxt.width + 10;
+         if(this.rightX > 0)
+         {
+            // 右对齐：右箭头贴右边界，选项值与左箭头依次往左排。
+            // 旧实现按 label 宽度顺排且没有右边界，长标签行会越过 800×600 画布被裁掉。
+            this._nextArrow.x = this.rightX - this._nextArrow.width;
+            this._optionTxt.x = this._nextArrow.x - OPTION_GAP - this._optionTxt.width;
+            this._prevArrow.x = this._optionTxt.x - OPTION_GAP - this._prevArrow.width;
+            // 极端长标签兜底：右排后若与标签重叠，退回顺排（宁可溢出也不叠字）
+            if(this._prevArrow.x < this._label.x + this._label.width + 10)
+            {
+               this._prevArrow.x = this._label.x + this._label.width + 50;
+               this._optionTxt.x = this._prevArrow.x + OPTION_GAP;
+               this._nextArrow.x = this._optionTxt.x + this._optionTxt.width + OPTION_GAP;
+            }
+         }
+         else
+         {
+            this._prevArrow.x = this._label.x + this._label.width + 50;
+            this._optionTxt.x = this._prevArrow.x + OPTION_GAP;
+            this._nextArrow.x = this._optionTxt.x + this._optionTxt.width + OPTION_GAP;
+         }
       }
    }
 }

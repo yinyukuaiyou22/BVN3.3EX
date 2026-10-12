@@ -46,9 +46,12 @@ package net.play5d.game.bvn.fighter
       
       private var _mcOrgPoint:Point;
       
-      private var _isRenderMainAnimate:Boolean = true;
-      
-      public function FighterAttacker(param1:MovieClip, param2:Object = null)
+       private var _isRenderMainAnimate:Boolean = true;
+       
+       // 2026-09-09 竞技规则移植：防重复连依赖——记录攻击体生成时主人的动作快照
+       private var _ownerDoingAction:Object;
+       
+       public function FighterAttacker(param1:MovieClip, param2:Object = null)
       {
          super(param1);
          this._mcOrgPoint = new Point(param1.x,param1.y);
@@ -143,26 +146,33 @@ package net.play5d.game.bvn.fighter
             this._ctrler = null;
          }
          this._rectCache = null;
-         this._owner = null;
-         this._mcOrgPoint = null;
-         super.destory(true);
-      }
+          this._owner = null;
+          this._mcOrgPoint = null;
+          this._ownerDoingAction = null;
+          super.destory(true);
+       }
       
       public function setOwner(param1:IGameSprite) : void
       {
          this._owner = param1;
          direct = param1.direct;
-         if(this._owner is FighterMain)
-         {
-            this._ctrler.effect = (this._owner as FighterMain).getCtrler().getEffectCtrl();
-         }
+          if(this._owner is FighterMain)
+          {
+             this._ctrler.effect = (this._owner as FighterMain).getCtrler().getEffectCtrl();
+             this._ownerDoingAction = (this._owner as FighterMain).getDoingAction();
+          }
          if(this._owner is Assister)
          {
-            this._ctrler.effect = (this._owner as Assister).getCtrler().effect;
-         }
-      }
-      
-      public function init() : void
+             this._ctrler.effect = (this._owner as Assister).getCtrler().effect;
+          }
+       }
+       
+       public function getDoingAction() : Object
+       {
+          return this._ownerDoingAction;
+       }
+       
+       public function init() : void
       {
          var _loc1_:FighterMC = null;
          var _loc2_:Number = NaN;
@@ -546,4 +556,3 @@ package net.play5d.game.bvn.fighter
       }
    }
 }
-

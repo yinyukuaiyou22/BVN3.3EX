@@ -164,6 +164,15 @@ package net.play5d.game.bvn.ctrl
             }
          }
       }
+
+        /**
+         * 局内重开专用：清空连击统计与地面接触缓存（移植自3.7重开流程）。
+         */
+        public static function clearAllHits() : void
+        {
+           _hitsObj = {};
+           _floorContact = new Dictionary();
+        }
       
       public static function checkFighterDie(param1:FighterMain) : Boolean
       {

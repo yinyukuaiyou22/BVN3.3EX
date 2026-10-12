@@ -36,7 +36,8 @@ package net.play5d.game.bvn.ui
          super();
          if(GameConfig.TOUCH_MODE)
          {
-            this.scaleX = this.scaleY = 1.1;
+            // 与 SetBtnGroup 共用同一缩放常量，避免两处硬编码漂移
+            this.scaleX = this.scaleY = SetBtnGroup.TOUCH_SCALE;
          }
       }
       
@@ -408,6 +409,19 @@ package net.play5d.game.bvn.ui
                func = function():void
                {
                   MainGame.I.goOption();
+               };
+               break;
+            // OPTION 加了 children 后走子项分发，这里保留兜底
+            case "GAME CFG":
+               func = function():void
+               {
+                  MainGame.I.goOption();
+               };
+               break;
+            case "RULE CFG":
+               func = function():void
+               {
+                  MainGame.I.goRule();
                };
                break;
             case "TRAINING":

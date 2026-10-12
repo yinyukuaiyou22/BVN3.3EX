@@ -7,8 +7,11 @@ import net.play5d.game.bvn.Debugger;
    public class ExtendConfig implements IExtendConfig
    {
       
-      // 键盘输入默认关闭（手机端无物理键盘，且手柄 D-pad/按钮会产生 KeyboardEvent 污染键盘通道）；可在设置菜单「Keyboard Input」开启
-      public var ENABLE_KEYBOARD:Boolean = false;
+      // 键盘输入默认开启（原为 false）。原因：input/GameKeyInput 的 enabled 默认就是 true，
+      // 键盘在"点 APPLY 之前"一直可用，而 APPLY 时 updateInputConfig() 会按本值把它同步关掉，
+      // 表现为「设置里按 APPLY 退出后键盘突然失效、卡在菜单」。两者统一为"默认开"消除这个不一致。
+      // 已知取舍：手柄 D-pad/按钮产生的 KeyboardEvent 同样会进入键盘通道；可在设置菜单「Keyboard Input」关闭。
+      public var ENABLE_KEYBOARD:Boolean = true;
       
       public var INFINITE_ENERGY:Boolean = false;
       
@@ -96,7 +99,7 @@ this.updateJoyConfig();
          // 2026-08-26 批次 2 + 批次 3 收尾：P2 独立设备分配（player=1 = 第 2 个设备的 index 1）。
          // 批次 3 决策：单手柄永远禁 joy_p2（refreshJoystickRouting 内部只动 enabled，不动 deviceId）。
          // joy2Config.deviceId 仍需保持有效——为存档独立性（玩家 P2 改键独立保存）+ 未来批次 4 P2 改键 UI 读取即时可用。
-         Debugger.log("initDefaultDevices");
+         Debugger.logFold("initDefaultDevices");
          this.setDefaultDevice(this.joy1Config,0);
          this.setDefaultDevice(this.joy2Config,1);
       }

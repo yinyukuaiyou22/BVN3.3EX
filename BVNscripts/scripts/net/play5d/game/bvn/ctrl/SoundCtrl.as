@@ -4,6 +4,7 @@ package net.play5d.game.bvn.ctrl
    import net.play5d.kyo.loader.*;
    import net.play5d.kyo.sound.*;
    import net.play5d.kyo.utils.*;
+   import net.play5d.game.bvn.utils.*;
    import net.play5d.game.bvn.Debugger;
    
    public class SoundCtrl
@@ -158,67 +159,50 @@ package net.play5d.game.bvn.ctrl
          }
       }
       
+      /** AS3 批量加载并发度：战斗 BGM 常为多首数 MB 的 MP3，3 路并发控制内存峰值 */
+      private static const BGM_BATCH_CONCURRENCY:int = 3;
+      
       public function loadFightBGM(param1:Array, param2:Function, param3:Function = null, param4:Function = null) : void
       {
          var o:Object = null;
-         var curUrl:String = null;
-         var sndLen:int = 0;
-         var success:Function = null;
-         var process:Function = null;
-         var loadBack:* = undefined;
-         var loadFail:* = undefined;
-         var loadProcess:* = undefined;
-         var urls:Array = null;
+         var urls:Array = [];
          var arr:Array = param1;
-         success = param2;
+         var success:Function = param2;
          var fail:Function = param3;
-         process = param4;
-         var loadNext:* = function():void
-         {
-            if(urls.length < 1)
-            {
-               if(success != null)
-               {
-                  success();
-               }
-               return;
-            }
-            curUrl = urls.shift();
-            AssetManager.I.loadSound(curUrl,loadBack,loadFail,loadProcess);
-         };
-         loadBack = function(param1:Sound):void
-         {
-            _soundLoader.addSound(curUrl,param1);
-            loadNext();
-         };
-         loadFail = function():void
-         {
-            Debugger.log("SoundCtrl.loadFightBGM fail!",curUrl);
-            loadNext();
-         };
-         loadProcess = function(param1:Number):void
-         {
-            var _loc2_:Number = NaN;
-            var _loc3_:Number = NaN;
-            if(process != null)
-            {
-               _loc2_ = sndLen - urls.length - 1 + param1;
-               _loc3_ = _loc2_ / sndLen;
-               process(param1);
-            }
-         };
+         var process:Function = param4;
+         var self:SoundCtrl = this;
          this._bgmObj = {};
-         urls = [];
          for each(o in arr)
          {
             this._bgmObj[o.id] = o;
             urls.push(o.url);
          }
          this._soundLoader = new KyoSoundLoader();
-         sndLen = int(urls.length);
-         loadNext();
-      }
-      
+         if(urls.length < 1)
+         {
+            if(success != null) success();
+            return;
+         }
+         // AS3 批量加载：BGM 由逐个串行改为按并发度同时挂起（原实现每完成一首才发下一首）
+         Debugger.log("[SoundCtrl] loadFightBGM n=" + urls.length + " urls=" + urls.join(","));
+         var batch:AssetBatchLoader = new AssetBatchLoader();
+         batch.load(urls,function(url:String, onDone:Function, onFail:Function, onProgress:Function):void
+         {
+            AssetManager.I.loadSound(url,function(param1:Sound):void
+            {
+               self._soundLoader.addSound(url,param1);
+               onDone();
+            },function():void
+            {
+               Debugger.log("SoundCtrl.loadFightBGM fail!",url);
+               onFail();
+            },onProgress);
+          },function():void
+          {
+             Debugger.log("[SoundCtrl] loadFightBGM batch done");
+             if(success != null) success();
+          },process,BGM_BATCH_CONCURRENCY);
+       }
       public function playFightBGM(param1:String) : void
       {
          var _loc2_:Object = this._bgmObj[param1];

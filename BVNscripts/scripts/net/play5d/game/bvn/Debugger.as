@@ -103,7 +103,7 @@
       // - 时间：HHMM 格式（每次编译手动或脚本更新）
       // 调用方：build.bat 可在编译前用 sed 替换 @BUILD_TAG@ 占位符。
       // 读取方：bvn_debug.log 第一行（=== BVN Debug Log ===）之后第二行即为 BUILD 行。
-      public static const BUILD_TAG:String = "BVN-3.3EX-batch6.14-2026-09-03-0943";
+      public static const BUILD_TAG:String = "BVN-3.3EX-batch6.14-2026-10-11-2027";
 
       private static var _scale:Number = 1.0;
 
@@ -158,6 +158,38 @@
           return _enabledTags[tag] === true;
        }
 
+       // 批次6.16：Error 对象自动展开堆栈。Debugger.log/error/warn 传 Error 对象时，
+       // 自动附加 getStackTrace()（-debug=true 编译下有效），便于定位运行时异常来源。
+       // 原写法只传 err.message 拿不到异常栈。
+       private static function _flattenArgs(rest:Array) : String
+       {
+          var parts:Array = [];
+          var i:int = 0;
+          var arg:* = null;
+          var e:Error = null;
+          var st:String = null;
+          while(i < rest.length)
+          {
+             arg = rest[i];
+             if(arg == null)
+             {
+                parts.push("");
+             }
+             else if(arg is Error)
+             {
+                e = arg as Error;
+                st = e.getStackTrace();
+                parts.push(e.toString() + (st != null && st.length > 0 ? "\n" + st : ""));
+             }
+             else
+             {
+                parts.push(String(arg));
+             }
+             i++;
+          }
+          return parts.join(" ");
+       }
+
        // 批次6.8：设置/清除标签过滤。传 null 清除（全部通过），传 "*" 等同 null。
        public static function setTagFilter(... tags) : void
        {
@@ -187,7 +219,7 @@
 
        public static function log(... rest) : void
        {
-          var msg:String = rest.join(" ");
+          var msg:String = _flattenArgs(rest);
           if(!msg || msg.length == 0)
           {
              return;
@@ -201,19 +233,22 @@
              {
                 tag = t.substr(1, t.length - 2);
                 var tail:Array = rest.slice(1);
-                msg = tag + " " + tail.join(" ");
+                msg = tag + " " + _flattenArgs(tail);
              }
           }
           if(!_isTagEnabled(tag))
           {
              return;
           }
-          trace(msg);
-          // 文件日志：不依赖面板开关（_debugEnabled），只要文件流已初始化就缓冲落盘
-          if(_logStream)
-          {
-             _fileLogBuffer += _getTimeStamp() + " " + msg + "\n";
-          }
+                   trace(msg);
+         // 文件日志：立即写入并 flush，避免主线程挂死时 ENTER_FRAME 不再触发而丢失缓冲日志
+         if(_logStream)
+         {
+            try {
+               _logStream.writeUTFBytes(_getTimeStamp() + " " + msg + "\n");
+               _logStream.flush();
+            } catch(e:Error) { }
+         }
           if(!_debugEnabled)
           {
              return;
@@ -221,10 +256,50 @@
           _queueLog(msg,false);
        }
 
+       // 批次6.16：折叠日志。高频"正常路径"日志只累加计数，flushFold() 时按组输出一行汇总。
+       // 背景：外部资源探测（ANEFileReader.exists / [EXT-RESOLVE]）、选中态刷新（[SelectedUI] setFighter）、
+       // 按键边沿（INPUT/KEY_DOWN）会按文件、按帧逐条刷屏，把真正的问题淹没。
+       // **失败与错误请继续用 error()/warn()**（或保留原样），它们每条单独输出、不参与折叠。
+       private static var _foldCount:Object = {};
+       private static var _foldLast:Object = {};
+
+       public static function logFold(param1:String, param2:* = null) : void
+       {
+          var key:String = param1 == null || param1 == "" ? "?" : param1;
+          _foldCount[key] = int(_foldCount[key]) + 1;
+          if(param2 != null && param2 != "")
+          {
+             _foldLast[key] = param2;
+          }
+       }
+
+       /** 输出所有折叠组的汇总（每组一行）并清零。在加载完成 / 场景切换等自然边界调用。 */
+       public static function flushFold() : void
+       {
+          var key:String = null;
+          var line:String = null;
+          var any:Boolean = false;
+          for(key in _foldCount)
+          {
+             any = true;
+             line = "[FOLD] " + key + " x" + _foldCount[key] + (_foldLast[key] == null ? "" : " last=" + _foldLast[key]);
+             trace(line);
+             if(_logStream)
+             {
+                _fileLogBuffer += _getTimeStamp() + " " + line + "\n";
+             }
+          }
+          if(any)
+          {
+             _foldCount = {};
+             _foldLast = {};
+          }
+       }
+
        // 批次6.8：WARN 级别日志。带 [WARN] 前缀 + 黄色显示
        public static function warn(... rest) : void
        {
-          var msg:String = "[WARN] " + rest.join(" ");
+          var msg:String = "[WARN] " + _flattenArgs(rest);
           if(!_isTagEnabled(defaultTag))
           {
              return;
@@ -244,7 +319,7 @@
        // 批次6.8：ERROR 级别日志。带 [ERROR] 前缀 + 红色显示 + 触发 onErrorMsgCall
        public static function error(... rest) : void
        {
-          var msg:String = "[ERROR] " + rest.join(" ");
+          var msg:String = "[ERROR] " + _flattenArgs(rest);
           trace(msg);
           if(_logStream)
           {
@@ -394,7 +469,7 @@
       {
          if(_logStream && _fileLogBuffer.length > 0)
          {
-            try { _logStream.writeUTFBytes(_fileLogBuffer); _fileLogBuffer = ""; }
+            try { _logStream.writeUTFBytes(_fileLogBuffer); _fileLogBuffer = ""; _logStream.flush(); }
             catch(e:Error) {}
          }
       }
@@ -963,6 +1038,7 @@
             try {
                _logStream.writeUTFBytes(_fileLogBuffer);
                _fileLogBuffer = "";
+               _logStream.flush();
             } catch(e:Error) {}
          }
          if(_perfPanel)

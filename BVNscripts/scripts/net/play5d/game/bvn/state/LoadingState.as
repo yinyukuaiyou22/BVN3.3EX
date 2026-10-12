@@ -26,11 +26,20 @@ package net.play5d.game.bvn.state
       
       private var _sltUI:*;
       
-      private var _loadQueue:Array;
+      /** AS3 批量加载并发度：角色/辅助 SWF 体积大（外置可达数 MB），3 路并发控制内存峰值 */
+      private static const SWF_BATCH_CONCURRENCY:int = 3;
+      
+      private var _loadItems:Array;
+      
+      private var _fightBGMs:Array;
+      
+      private var _mapBgm:Object;
       
       private var _curMsg:String;
       
       private var _loadCount:int;
+      
+      private var _loadDone:int;
       
       private var _destoryed:Boolean;
       
@@ -39,8 +48,6 @@ package net.play5d.game.bvn.state
       private var _selectIndexUI:SelectIndexUI;
       
       private var _loadedFighterCache:Object = {};
-      
-      private var _currentLoadBack:Function;
       
       private var _gameFinished:Boolean;
       
@@ -111,7 +118,9 @@ package net.play5d.game.bvn.state
          this._sltUI.addChild(this._selectIndexUI);
          p1selt = GameData.I.p1Select;
          p2selt = GameData.I.p2Select;
-         this._loadQueue = [];
+         this._loadItems = [];
+         this._fightBGMs = [];
+         this._mapBgm = null;
          fighters = [{
             "id":p1selt.fighter1,
             "runobj":{"id":"p1"}
@@ -144,7 +153,6 @@ package net.play5d.game.bvn.state
                "id":"fuzhu"
             }
          }];
-         fightBGMs = [];
          while(i < fighters.length)
          {
             o = fighters[i];
@@ -156,22 +164,19 @@ package net.play5d.game.bvn.state
                {
                   if(Boolean(fighter.bgm))
                   {
-                     fightBGMs.push({
-                        "id":fighter.id,
-                        "url":fighter.bgm,
-                        "rate":fighter.bgmRate
+                     this._fightBGMs.push({
+                     "id":fighter.id,
+                     "url":fighter.bgm,
+                     "rate":fighter.bgmRate
                      });
                   }
                   fighterName = fighter.name;
                }
-               this._loadQueue.push({
-                  "msg":"正在加载角色：" + fighterName,
-                  "func":GameLoader.loadFighter,
-                  "params":[o.id,function(param1:FighterMain, param2:Object):void
-                  {
-                     cacheFighter(param1,param2.id,param1.data.id);
-                     loadNext();
-                  },this.loadFail,this.loadProcess,o.runobj]
+               this._loadItems.push({
+               "type":"fighter",
+               "id":o.id,
+               "runobj":o.runobj,
+               "msg":"正在加载角色：" + fighterName
                });
             }
             i++;
@@ -184,47 +189,27 @@ package net.play5d.game.bvn.state
             {
                fighter = FighterModel.I.getFighter(o.id);
                fighterName = fighter ? fighter.name : o.id;
-               this._loadQueue.push({
-                  "msg":"正在加载辅助角色：" + fighterName,
-                  "func":GameLoader.loadAssister,
-                  "params":[o.id,function(param1:Assister, param2:Object):void
-                  {
-                     GameCtrl.I.gameRunData[param2.group][param2.id] = param1;
-                     loadNext();
-                  },this.loadFail,this.loadProcess,o.runobj]
+               this._loadItems.push({
+               "type":"assister",
+               "id":o.id,
+               "runobj":o.runobj,
+               "msg":"正在加载辅助角色：" + fighterName
                });
             }
             i++;
          }
          map = MapModel.I.getMap(GameData.I.selectMap);
          mapName = map ? map.name : GameData.I.selectMap;
-         this._loadQueue.push({
-            "msg":"正在加载场景：" + mapName,
-            "func":GameLoader.loadMap,
-            "params":[GameData.I.selectMap,function(param1:MapMain):void
-            {
-               if(Boolean(param1.data) && Boolean(param1.data.bgm))
-               {
-                  fightBGMs.push({
-                     "id":"map",
-                     "url":param1.data.bgm,
-                     "rate":1
-                  });
-               }
-               GameCtrl.I.gameRunData.map = param1;
-               loadNext();
-            },this.loadFail]
+         this._loadItems.push({
+         "type":"map",
+         "id":GameData.I.selectMap,
+         "runobj":null,
+         "msg":"正在加载场景：" + mapName
          });
-         if(fightBGMs.length > 0)
-         {
-            this._loadQueue.push({
-               "msg":"正在加载BGM",
-               "func":SoundCtrl.I.loadFightBGM,
-               "params":[fightBGMs,this.loadNext,this.loadFail,this.loadProcess]
-            });
-         }
-         this._loadCount = this._loadQueue.length;
-         setTimeout(this.loadNext,1000);
+         this._loadCount = this._loadItems.length;
+         this._loadDone = 0;
+         // AS3 批量加载：角色/辅助/场景互不依赖，一次按并发度同时挂起多路，替代原先的逐个串行队列
+         setTimeout(this.startLoad,1000);
       }
       
       private function render() : void
@@ -242,31 +227,99 @@ package net.play5d.game.bvn.state
          }
       }
       
-      private function loadNext() : void
+      private function startLoad() : void
       {
-         if(this._loadQueue.length < 1)
-         {
-            this.loadFin();
-            return;
-         }
-         var _loc1_:Object = this._loadQueue.shift();
-         this.updateMsg(_loc1_.msg);
-         this._currentLoadBack = _loc1_.back;
-         _loc1_.func.apply(null,_loc1_.params);
+         if(this._destoryed) return;
+         var batch:AssetBatchLoader = new AssetBatchLoader();
+         batch.load(this._loadItems,this.loadOneItem,this.onLoadItemsDone,this.loadProcess,SWF_BATCH_CONCURRENCY);
       }
       
-      private function loadFighterComplete(param1:FighterMain) : void
+      private function loadOneItem(param1:Object, param2:Function, param3:Function, param4:Function) : void
       {
-         if(Boolean(this._currentLoadBack))
+         var item:Object = param1;
+         var onDone:Function = param2;
+         var onFail:Function = param3;
+         var onProgress:Function = param4;
+         this.updateMsg(item.msg);
+         // 结算包装：计数 + 文案；单项失败同样计数，避免失败项卡死整批（原实现会停在队列里）
+         var itemDone:Function = function() : void
          {
-            this._currentLoadBack(param1);
-            this._currentLoadBack = null;
+            _loadDone++;
+            updateMsg();
+            onDone();
+         };
+         var itemFail:Function = function(msg:String = null) : void
+         {
+            _loadDone++;
+            updateMsg();
+            if(msg != null) loadFail(msg);
+            onFail();
+         };
+         if(item.type == "fighter")
+         {
+            GameLoader.loadFighter(item.id,function(param1:FighterMain, param2:Object):void
+            {
+               cacheFighter(param1,param2.id,param1.data.id);
+               itemDone();
+            },itemFail,onProgress,item.runobj);
          }
-         this.loadNext();
+         else if(item.type == "assister")
+         {
+            GameLoader.loadAssister(item.id,function(param1:Assister, param2:Object):void
+            {
+               GameCtrl.I.gameRunData[param2.group][param2.id] = param1;
+               itemDone();
+            },itemFail,onProgress,item.runobj);
+         }
+         else
+         {
+            GameLoader.loadMap(item.id,function(param1:MapMain):void
+            {
+               if(Boolean(param1.data) && Boolean(param1.data.bgm))
+               {
+                  _mapBgm = {
+                  "id":"map",
+                  "url":param1.data.bgm,
+                  "rate":1
+                  };
+               }
+               GameCtrl.I.gameRunData.map = param1;
+               itemDone();
+            },itemFail,onProgress,item.runobj);
+         }
+      }
+      
+      private function onLoadItemsDone() : void
+      {
+         if(this._destoryed) return;
+         if(this._mapBgm != null)
+         {
+            this._fightBGMs.push(this._mapBgm);
+         }
+         Debugger.log("[LoadingState] onLoadItemsDone fightBGMs=" + this._fightBGMs.length + " mapBgm=" + (this._mapBgm != null ? this._mapBgm.url : "null"));
+         if(this._fightBGMs.length > 0)
+         {
+            this._loadCount = this._loadCount + 1;
+            this.updateMsg("正在加载BGM");
+            SoundCtrl.I.loadFightBGM(this._fightBGMs,this.onBgmDone,this.loadFail,this.loadProcess);
+            return;
+         }
+         Debugger.log("[LoadingState] no fightBGM, loadFin directly");
+         this.loadFin();
+      }
+      
+      private function onBgmDone() : void
+      {
+         if(this._destoryed) return;
+         Debugger.log("[LoadingState] onBgmDone");
+         this._loadDone++;
+         this.updateMsg();
+         this.loadFin();
       }
       
       private function loadFin() : void
       {
+         Debugger.log("[LoadingState] loadFin");
          var delayCall:* = undefined;
          delayCall = function():void
          {
@@ -290,6 +343,7 @@ package net.play5d.game.bvn.state
          }
          if(!this._selectIndexUI.isFinish() || !this._loadFin)
          {
+            Debugger.log("[LoadingState] finish NOT ready: isFinish=" + this._selectIndexUI.isFinish() + " loadFin=" + this._loadFin);
             return;
          }
          if(!AUTO_START_GAME)
@@ -308,6 +362,7 @@ package net.play5d.game.bvn.state
       
       public function gotoGame(param1:Array, param2:Array) : void
       {
+         Debugger.log("[LoadingState] gotoGame enter");
          var _loc3_:GameRunFighterGroup = GameCtrl.I.gameRunData.p1FighterGroup;
          var _loc4_:GameRunFighterGroup = GameCtrl.I.gameRunData.p2FighterGroup;
          _loc3_.fighter1 = this.getCacheFighter("p1",param1[0]);
@@ -350,7 +405,13 @@ package net.play5d.game.bvn.state
       
       private function loadProcess(param1:Number) : void
       {
-         this._sltUI.bar.bar.scaleX = param1;
+         // 防御：进战 BGM 批次中 _sltUI.bar.bar 可能为 undefined，
+         // 直接访问 scaleX 会抛 Error #1010，使 AssetBatchLoader.onDone 在
+         // settle 之后、checkFinish 之前中断，整批永远不完成，卡加载。
+         if(Boolean(this._sltUI) && Boolean(this._sltUI.bar) && Boolean(this._sltUI.bar.bar))
+         {
+            this._sltUI.bar.bar.scaleX = param1;
+         }
       }
       
       private function updateMsg(param1:String = null) : void
@@ -359,8 +420,7 @@ package net.play5d.game.bvn.state
          {
             this._curMsg = param1;
          }
-         var _loc2_:int = this._loadCount - this._loadQueue.length;
-         this._sltUI.bar.txt.text = this._curMsg + "(" + _loc2_ + "/" + this._loadCount + ")";
+         this._sltUI.bar.txt.text = this._curMsg + "(" + this._loadDone + "/" + this._loadCount + ")";
       }
       
       public function afterBuild() : void
@@ -378,7 +438,8 @@ package net.play5d.game.bvn.state
          }
          SoundCtrl.I.BGM(null);
          this._loadedFighterCache = null;
-         this._loadQueue = null;
+         this._loadItems = null;
+      this._fightBGMs = null;
          GameInputer.clearInput();
          GameRender.remove(this.render);
          GameUI.closeConfrim();

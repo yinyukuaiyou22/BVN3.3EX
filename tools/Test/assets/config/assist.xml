@@ -1,189 +1,39 @@
 <!-- ====================   辅助角色定义          ================================================================================= -->
 <assist_config>
 
-	<fighter id="魂" name="魂" comic_type="0">
-		<file url="assets/fighter/fz/魂.swf" />
-		<face url="assets/face/fz/魂.png" big_url="assets/face/fz/魂_b.png" />
-	</fighter>
-	
-	<fighter id="debug" name="debug" comic_type="0">
-		<file url="assets/fighter/fz/debug.swf" />
-		<face url="assets/face/fz/debug.png" big_url="assets/face/fz/debug_b.png" />
-	</fighter>
-	
-	<fighter id="夜一" name="四枫院·夜一" comic_type="0">
-		<file url="assets/fighter/fz/四枫院夜一.swf" />
-		<face url="assets/face/fz/夜一.png" big_url="assets/face/fz/夜一_b.png" />
-	</fighter>
-	
-	<fighter id="雨龙" name="石田·雨龙" comic_type="0">
-		<file url="assets/fighter/fz/石田雨龙.swf" />
-		<face url="assets/face/fz/雨龙.png" big_url="assets/face/fz/雨龙_b.png" />
-	</fighter>
-	
-	<fighter id="白牛" name="虚白·牛头" comic_type="0">
-		<file url="assets/fighter/fz/虚白牛头.swf" />
-		<face url="assets/face/fz/白牛.png" big_url="assets/face/fz/白牛_b.png" />
+	<fighter id="kon" name="魂" comic_type="0">
+		<file url="assets/fighter/fz/kon.swf" />
+		<face url="assets/face/其他/kon.png" big_url="assets/face/其他/kon_b.png" />
 	</fighter>
 
-	<fighter id="赫丽贝尔" name="蒂雅·赫丽贝尔" comic_type="0">
-		<file url="assets/fighter/fz/蒂雅赫丽贝尔.swf" />
-		<face url="assets/face/fz/赫丽贝尔.png" big_url="assets/face/fz/赫丽贝尔_b.png" />
-	</fighter>	
-
-	<fighter id="银" name="市丸·银" comic_type="0">
-		<file url="assets/fighter/fz/市丸银.swf" />
-		<face url="assets/face/fz/银.png" big_url="assets/face/fz/银_b.png" />
-	</fighter>
-	
-	<fighter id="乱菊" name="松本·乱菊" comic_type="0">
-		<file url="assets/fighter/fz/松本乱菊.swf" />
-		<face url="assets/face/fz/乱菊.png" big_url="assets/face/fz/乱菊_b.png" />
-	</fighter>
-	
-	<fighter id="白哉" name="朽木·白哉" comic_type="0">
-		<file url="assets/fighter/fz/朽木白哉.swf" />
-		<face url="assets/face/fz/白哉.png" big_url="assets/face/fz/白哉_b.png" />
+	<fighter id="卜部美琴" name="卜部美琴" comic_type="0">
+		<file url="assets/fighter/fz/卜部美琴(黑校服).swf" />
+		<face url="assets/face/其他/卜部美琴.png" big_url="assets/face/其他/卜部美琴_b.png" />
 	</fighter>
 
-	<fighter id="一护修行" name="黑崎·一护·修行" comic_type="0">
-		<file url="assets/fighter/fz/黑崎一护修行.swf" />
-		<face url="assets/face/fz/一护修行.png" big_url="assets/face/fz/一护修行_b.png" />
+	<fighter id="最终之作" name="最终之作" comic_type="0">
+		<file url="assets/fighter/fz/最终之作.swf" />
+		<face url="assets/face/其他/最终之作.png" big_url="assets/face/其他/最终之作_b.png" />
 	</fighter>
 
-	<fighter id="平子" name="平子·真子" comic_type="0">
-		<file url="assets/fighter/fz/平子真子.swf" />
-		<face url="assets/face/fz/平子.png" big_url="assets/face/fz/平子_b.png" />
+	<fighter id="嘲讽" name="嘲讽" comic_type="0">
+		<file url="assets/fighter/fz/嘲讽.swf" />
+		<face url="assets/face/其他/嘲讽.png" big_url="assets/face/其他/嘲讽.png" />
 	</fighter>
-	
-	<!-- ====================   上死神            分界线             下火影          ================================================================================= -->
-	
-	<fighter id="我爱罗" name="我爱罗" comic_type="1">
-		<file url="assets/fighter/fz/我爱罗.swf" />
-		<face url="assets/face/fz/我爱罗.png" big_url="assets/face/fz/我爱罗_b.png" />
+
+	<fighter id="四尾鸣人" name="四尾鸣人" comic_type="0">
+		<file url="assets/fighter/fz/4尾鸣人辅助.swf" />
+		<face url="assets/face/火影/四尾鸣人.png" big_url="assets/face/火影/四尾鸣人_b.png" />
 	</fighter>
-	
-	<fighter id="天天" name="天天" comic_type="1">
-		<file url="assets/fighter/fz/天天.swf" />
-		<face url="assets/face/fz/天天.png" big_url="assets/face/fz/天天_b.png" />
-	</fighter>
-	
-	<fighter id="佐井" name="佐井" comic_type="1">
-		<file url="assets/fighter/fz/佐井.swf" />
-		<face url="assets/face/fz/佐井.png" big_url="assets/face/fz/佐井_b.png" />
-	</fighter>
-	
-	
-	<!-- ====================   东方角色          ================================================================================= -->
-	
-	<fighter id="八云紫" name="八云紫" comic_type="0">
-		<file url="assets/fighter/fz/八云紫.swf" />
-		<face url="assets/face/fz/八云紫.png" big_url="assets/face/fz/八云紫_b.png" />
+
+	<fighter id="shino" name="诗乃辅助" comic_type="0">
+		<file url="assets/fighter/fz/shino.swf" />
+		<face url="assets/face/火影/shino.png" big_url="assets/face/火影/shino.png" />
 	</fighter>
 
 	<fighter id="大妖精" name="大妖精" comic_type="0">
 		<file url="assets/fighter/fz/大妖精.swf" />
-		<face url="assets/face/fz/大妖精.png" big_url="assets/face/fz/大妖精_b.png" />
-	</fighter>
-
-	<fighter id="琪露诺" name="琪露诺" comic_type="0">
-		<file url="assets/fighter/fz/琪露诺.swf" />
-		<face url="assets/face/fz/琪露诺.png" big_url="assets/face/fz/琪露诺_b.png" />
-	</fighter>
-
-	<fighter id="咲夜" name="十六夜·咲夜" comic_type="0">
-		<file url="assets/fighter/fz/十六夜咲夜.swf" />
-		<face url="assets/face/fz/咲夜.png" big_url="assets/face/fz/咲夜_b.png" />
-	</fighter>
-
-	<fighter id="魔理沙" name="雾雨·魔理沙" comic_type="0">
-		<file url="assets/fighter/fz/雾雨魔理沙.swf" />
-		<face url="assets/face/fz/魔理沙.png" big_url="assets/face/fz/魔理沙_b.png" />
-	</fighter>
-
-	<fighter id="幽幽子" name="西行寺·幽幽子" comic_type="0">
-		<file url="assets/fighter/fz/西行寺幽幽子.swf" />
-		<face url="assets/face/fz/幽幽子.png" big_url="assets/face/fz/幽幽子_b.png" />
-	</fighter>
-
-	<fighter id="铃仙" name="铃仙·优昙华院·因幡" comic_type="0">
-		<file url="assets/fighter/fz/铃仙优昙华院因幡.swf" />
-		<face url="assets/face/fz/铃仙.png" big_url="assets/face/fz/铃仙_b.png" />
-	</fighter>
-
-	<fighter id="妹红" name="藤原·妹红" comic_type="0">
-		<file url="assets/fighter/fz/藤原妹红.swf" />
-		<face url="assets/face/fz/妹红.png" big_url="assets/face/fz/妹红_b.png" />
-	</fighter>
-
-	<fighter id="犬咲夜" name="十六夜咲夜·犬" comic_type="0">
-		<file url="assets/fighter/fz/十六夜咲夜犬.swf" />
-		<face url="assets/face/fz/犬咲夜.png" big_url="assets/face/fz/犬咲夜_b.png" />
-	</fighter>
-
-	<fighter id="鬼啸符" name="鬼啸符" comic_type="0">
-		<file url="assets/fighter/fz/鬼啸符.swf" />
-		<face url="assets/face/fz/鬼啸符.png" big_url="assets/face/fz/鬼啸符_b.png" />
-	</fighter>
-
-	<fighter id="寅丸星" name="寅丸·星" comic_type="0">
-		<file url="assets/fighter/fz/寅丸星.swf" />
-		<face url="assets/face/fz/寅丸星.png" big_url="assets/face/fz/寅丸星_b.png" />
-	</fighter>
-
-	<fighter id="天子" name="比那名居天子" comic_type="0">
-		<file url="assets/fighter/fz/比那名居天子.swf" />
-		<face url="assets/face/fz/天子.png" big_url="assets/face/fz/天子_b.png" />
-	</fighter>
-
-	<fighter id="织板雷华" name="织板·雷华" comic_type="0">
-		<file url="assets/fighter/fz/织板雷华.swf" />
-		<face url="assets/face/fz/织板雷华.png" big_url="assets/face/fz/织板雷华_b.png" />
-	</fighter>
-
-	<fighter id="拉赫莱蒂" name="拉赫莱蒂" comic_type="0">
-		<file url="assets/fighter/fz/拉赫莱蒂.swf" />
-		<face url="assets/face/fz/拉赫莱蒂.png" big_url="assets/face/fz/拉赫莱蒂_b.png" />
-	</fighter>
-
-	<fighter id="慧音" name="上白泽·慧音" comic_type="0">
-		<file url="assets/fighter/fz/上白泽慧音.swf" />
-		<face url="assets/face/fz/慧音.png" big_url="assets/face/fz/慧音_b.png" />
-	</fighter>
-
-	<fighter id="辉夜" name="蓬莱山·辉夜" comic_type="0">
-		<file url="assets/fighter/fz/蓬莱山辉夜.swf" />
-		<face url="assets/face/fz/辉夜.png" big_url="assets/face/fz/辉夜_b.png" />
-	</fighter>
-
-	<fighter id="小町" name="小野塚·小町" comic_type="0">
-		<file url="assets/fighter/fz/小野塚小町.swf" />
-		<face url="assets/face/fz/小町.png" big_url="assets/face/fz/小町_b.png" />
-	</fighter>
-
-	<fighter id="法尼瓦伦泰" name="法尼·瓦伦泰" comic_type="0">
-		<file url="assets/fighter/fz/法尼瓦伦泰.swf" />
-		<face url="assets/face/fz/法尼瓦伦泰.png" big_url="assets/face/fz/法尼瓦伦泰_b.png" />
-	</fighter>
-
-	<fighter id="银色战车镇魂曲" name="银色战车·镇魂曲" comic_type="0">
-		<file url="assets/fighter/fz/银色战车镇魂曲.swf" />
-		<face url="assets/face/fz/银色战车镇魂曲.png" big_url="assets/face/fz/银色战车镇魂曲_b.png" />
-	</fighter>
-
-	<fighter id="决死领域" name="决死领域" comic_type="0">
-		<file url="assets/fighter/fz/决死领域.swf" />
-		<face url="assets/face/fz/台风天.png" big_url="assets/face/fz/决死领域_b.png" />
-	</fighter>
-
-	<fighter id="迪亚波罗" name="迪亚波罗" comic_type="0">
-		<file url="assets/fighter/fz/迪亚波罗.swf" />
-		<face url="assets/face/fz/迪亚波罗.png" big_url="assets/face/fz/迪亚波罗_b.png" />
-	</fighter>
-	
-	<fighter id="斋藤一" name="斋藤一" comic_type="0">
-		<file url="assets/fighter/fz/斋藤一.swf" />
-		<face url="assets/face/fz/斋藤一.png" big_url="assets/face/fz/斋藤一_b.png" />
+		<face url="assets/face/东方/大妖精.png" big_url="assets/face/东方/大妖精_b.png" />
 	</fighter>
 
 	<fighter id="比鲁斯" name="比鲁斯" comic_type="0">
@@ -191,52 +41,286 @@
 		<face url="assets/face/fz/比鲁斯.png" big_url="assets/face/fz/比鲁斯_b.png" />
 	</fighter>
 
-	<fighter id="黑色高级轿车" name="黑色高级轿车" comic_type="0">
-		<file url="assets/fighter/fz/黑色高级轿车.swf" />
-		<face url="assets/face/fz/黑色高级轿车.png" big_url="assets/face/fz/黑色高级轿车_b.png" />
+	<fighter id="黄镇" name="黄金体验镇魂曲辅助" comic_type="0">
+		<file url="assets/fighter/fz/黄金体验镇魂曲辅助.swf" />
+		<face url="assets/face/其他/黄镇辅助.png" big_url="assets/face/其他/黄镇辅助_b.png" />
 	</fighter>
 
-	
+	<fighter id="debug" name="反暗改(查看纽带)" comic_type="0">
+		<file url="assets/fighter/fz/debug.swf" />
+		<face url="assets/face/其他/debug.png" big_url="assets/face/其他/debug_b.png" />
+	</fighter>
+
+	<fighter id="orihime" name="井上·织姬" comic_type="0">
+		<file url="assets/fighter/fz/orihime.swf" />
+		<face url="assets/face/fz/orihime.png" big_url="assets/face/fz/orihime_b.png" />
+	</fighter>
+
+	<fighter id="itachi2" name="宇智波鼬·须佐能乎" comic_type="0">
+		<file url="assets/fighter/fz/itachi_xz.swf" />
+		<face url="assets/face/火影/itachifz.png" big_url="assets/face/火影/itachifz_b.png" />
+	</fighter>
+
+	<fighter id="itachi3" name="宇智波·鼬" comic_type="0">
+		<file url="assets/fighter/fz/itachi_fz月读.swf" />
+		<face url="assets/face/fz/itachi.png" big_url="assets/face/fz/itachi_b.png" />
+	</fighter>
+
+	<fighter id="yoruichi" name="四枫院·夜一" comic_type="0">
+		<file url="assets/fighter/fz/yoruichi.swf" />
+		<face url="assets/face/死神/yoruichi.png" big_url="assets/face/死神/yoruichi_b.png" />
+	</fighter>
+
+	<fighter id="puccizl" name="普奇神父-重力翻转" comic_type="0">
+		<file url="assets/fighter/fz/神父-重力翻转.swf" />
+		<face url="assets/face/其他/mih.jpg" big_url="assets/face/JOJO/普奇_b.png" />
+	</fighter>
 
 
+	<fighter id="uryuu" name="石田·雨龙" comic_type="0">
+		<file url="assets/fighter/fz/uryuu.swf" />
+		<face url="assets/face/fz/uryuu.png" big_url="assets/face/fz/uryuu_b.png" />
+	</fighter>
 
+	<fighter id="renji_fz" name="阿散井·恋次" comic_type="0">
+		<file url="assets/fighter/fz/renji_fz.swf" />
+		<face url="assets/face/死神/renji.png" big_url="assets/face/死神/renji_b.png" />
+	</fighter>
 
+	<fighter id="kenpachi" name="更木·剑八" comic_type="0">
+		<file url="assets/fighter/fz/kenpachi.swf" />
+		<face url="assets/face/fz/kenpachi.png" big_url="assets/face/fz/kenpachi_b.png" />
+	</fighter>
 
+	<fighter id="yachiru_fz" name="草鹿·八千流" comic_type="0">
+		<file url="assets/fighter/fz/yachiru_fz.swf" />
+		<face url="assets/face/fz/yachiru.png" big_url="assets/face/fz/yachiru_b.png" />
+	</fighter>
 
+	<fighter id="ulquiorra_gr_fz" name="乌尔奇奥拉·归刃" comic_type="0">
+		<file url="assets/fighter/fz/ulquiorra_gr_fz.swf" />
+		<face url="assets/face/死神/ulquiorra.png" big_url="assets/face/死神/ulquiorra_b.png" />
+	</fighter>
 
+	<fighter id="ulquiorra_fz" name="乌尔奇奥拉" comic_type="0">
+		<file url="assets/fighter/fz/ulquiorra_fz.swf" />
+		<face url="assets/face/死神/ulquiorra.png" big_url="assets/face/死神/ulquiorra_b.png" />
+	</fighter>
 
+	<fighter id="stake" name="托尼·斯塔克" comic_type="0">
+		<file url="assets/fighter/fz/stake.swf" />
+		<face url="assets/face/其他/stake.png" big_url="assets/face/其他/stake_b.png" />
+	</fighter>
 
+	<fighter id="halibel" name="蒂雅.赫丽贝尔" comic_type="0">
+		<file url="assets/fighter/fz/harribel.swf" />
+		<face url="assets/face/死神/halibel.png" big_url="assets/face/其他/harribel.png" />
+	</fighter>
 
+	<fighter id="grimmjow" name="葛力姆乔·贾卡杰克" comic_type="0">
+		<file url="assets/fighter/fz/grimmjow.swf" />
+		<face url="assets/face/fz/grimmjow.png" big_url="assets/face/fz/grimmjow_b.png" />
+	</fighter>
 
+	<fighter id="soifon" name="碎蜂" comic_type="0">
+		<file url="assets/fighter/fz/soifon.swf" />
+		<face url="assets/face/fz/soifon.png" big_url="assets/face/fz/soifon_b.png" />
+	</fighter>
 
+	<fighter id="nemu" name="涅音梦" comic_type="0">
+		<file url="assets/fighter/fz/nemu.swf" />
+		<face url="assets/face/其他/nemu.png" big_url="assets/face/其他/nemu_b.png" />
+	</fighter>
 
+	<fighter id="ichigo_fz" name="黑崎·一护" comic_type="0">
+		<file url="assets/fighter/fz/ichigo_fz.swf" />
+		<face url="assets/face/死神/ichigo.png" big_url="assets/face/死神/ichigo_b.png" />
+	</fighter>
 
+	<fighter id="ichigo_bn_xh_fz" name="黑崎·一护 半卍" comic_type="0">
+		<file url="assets/fighter/fz/ichigo_bn_xh_fz.swf" />
+		<face url="assets/face/死神/ichigo_bn_xh.png" big_url="assets/face/死神/ichigo_bn_xh_b.png" />
+	</fighter>
 
+	<fighter id="ichigo_neixu_nt_fz" name="一护·内虚·牛头" comic_type="0">
+		<file url="assets/fighter/fz/ichigo_neixu_nt_fz.swf" />
+		<face url="assets/face/死神/ichigo_neixu_nt.png" big_url="assets/face/死神/ichigo_neixu_nt_b.png" />
+	</fighter>
 
+	<fighter id="ichigo_xy_fz" name="黑崎·一护·修行" comic_type="0">
+		<file url="assets/fighter/fz/ichigo_xy_fz.swf" />
+		<face url="assets/face/死神/ichigo_xy.png" big_url="assets/face/死神/ichigo_xy_b.png" />
+	</fighter>
 
+	<fighter id="ichigo_xz_fz" name="黑崎·一护·血战前篇 卍解" comic_type="0">
+		<file url="assets/fighter/fz/ichigo_xz_qq_wj_fz.swf" />
+		<face url="assets/face/死神/ichigo_xz.png" big_url="assets/face/死神/ichigo_xz_b.png" />
+	</fighter>
 
+	<fighter id="yamamoto" name="山本元柳斎重国" comic_type="0">
+		<file url="assets/fighter/fz/yamamoto.swf" />
+		<face url="assets/face/死神/yamamoto.png" big_url="assets/face/死神/yamamoto_b.png" />
+	</fighter>
 
+	<fighter id="yin_fz" name="市丸·银" comic_type="0">
+		<file url="assets/fighter/fz/yin_fz.swf" />
+		<face url="assets/face/其他/yin_wj.png" big_url="assets/face/其他/yin_wj_b.png" />
+	</fighter>
 
+	<fighter id="rangiku" name="松本·乱菊" comic_type="0">
+		<file url="assets/fighter/fz/rangiku.swf" />
+		<face url="assets/face/其他/rangiku.png" big_url="assets/face/其他/rangiku_b.png" />
+	</fighter>
 
+	<fighter id="byakuya_fz" name="朽木·白哉" comic_type="0">
+		<file url="assets/fighter/fz/byakuya_fz.swf" />
+		<face url="assets/face/死神/byakuya.png" big_url="assets/face/死神/byakuya_b.png" />
+	</fighter>
 
+	<!-- ====================   上死神            分界线             下火影          ================================================================================= -->
 
+	<fighter id="gaara_fz" name="我爱罗" comic_type="1">
+		<file url="assets/fighter/fz/gaara_fz.swf" />
+		<face url="assets/face/fz/gaara.png" big_url="assets/face/fz/gaara_b.png" />
+	</fighter>
 
+	<fighter id="temari" name="手鞠" comic_type="1">
+		<file url="assets/fighter/fz/temari.swf" />
+		<face url="assets/face/fz/temari.png" big_url="assets/face/fz/temari_b.png" />
+	</fighter>
 
+	<fighter id="ino" name="山中·井野" comic_type="1">
+		<file url="assets/fighter/fz/ino.swf" />
+		<face url="assets/face/火影/ino.png" big_url="assets/face/火影/ino_b.png" />
+	</fighter>
 
+	<fighter id="tenten" name="天天" comic_type="1">
+		<file url="assets/fighter/fz/tenten.swf" />
+		<face url="assets/face/火影/tenten.png" big_url="assets/face/火影/tenten_b.png" />
+	</fighter>
 
+	<fighter id="itachi" name="宇智波·鼬" comic_type="1">
+		<file url="assets/fighter/fz/itachi.swf" />
+		<face url="assets/face/fz/itachi.png" big_url="assets/face/fz/itachi_b.png" />
+	</fighter>
 
-	
-	
+	<fighter id="hinata" name="日向·雏田" comic_type="1">
+		<file url="assets/fighter/fz/hinata.swf" />
+		<face url="assets/face/火影/hinata.png" big_url="assets/face/火影/hinata_b.png" />
+	</fighter>
+
+	<fighter id="tsunate" name="纲手" comic_type="1">
+		<file url="assets/fighter/fz/tsunate.swf" />
+		<face url="assets/face/其他/tsunate.png" big_url="assets/face/其他/tsunate_b.png" />
+	</fighter>
+
+	<fighter id="tsuchikage" name="土影" comic_type="1">
+		<file url="assets/fighter/fz/tsuchikage.swf" />
+		<face url="assets/face/其他/tsuchikage.png" big_url="assets/face/其他/tsuchikage_b.png" />
+	</fighter>
+
+	<fighter id="minato" name="四代火影" comic_type="1">
+		<file url="assets/fighter/fz/minato.swf" />
+		<face url="assets/face/火影/minato.png" big_url="assets/face/火影/minato_b.png" />
+	</fighter>
+
+	<fighter id="jiraiya" name="自来也" comic_type="1">
+		<file url="assets/fighter/fz/jiraiya.swf" />
+		<face url="assets/face/fz/jiraiya.png" big_url="assets/face/fz/jiraiya_b.png" />
+	</fighter>
+
+	<fighter id="suigetsu" name="鬼灯·水月" comic_type="1">
+		<file url="assets/fighter/fz/suigetsu.swf" />
+		<face url="assets/face/其他/suigetsu.png" big_url="assets/face/其他/suigetsu_b.png" />
+	</fighter>
+
+	<fighter id="sai" name="佐井" comic_type="1">
+		<file url="assets/fighter/fz/sai.swf" />
+		<face url="assets/face/其他/zuojing.png" big_url="assets/face/其他/zuojing_b.png" />
+	</fighter>
+
+	<fighter id="madara" name="宇智波·斑" comic_type="1">
+		<file url="assets/fighter/fz/madara.swf" />
+		<face url="assets/face/fz/madara.png" big_url="assets/face/fz/madara_b.png" />
+	</fighter>
+
+	<fighter id="kimimaro" name="君麻吕" comic_type="1">
+		<file url="assets/fighter/fz/kimimaro.swf" />
+		<face url="assets/face/火影/kimimaro.png" big_url="assets/face/火影/kimimaro_b.png" />
+	</fighter>
+
+	<fighter id="shikamaru" name="奈良·鹿丸" comic_type="1">
+		<file url="assets/fighter/fz/shikamaru.swf" />
+		<face url="assets/face/火影/shikamaru.png" big_url="assets/face/火影/shikamaru_b.png" />
+	</fighter>
+
+	<fighter id="obito" name="宇智波·带土" comic_type="1">
+		<file url="assets/fighter/fz/obito.swf" />
+		<face url="assets/face/fz/obito.png" big_url="assets/face/fz/obito_b.png" />
+	</fighter>
+
+	<!-- ====================   其他角色          ================================================================================= -->
+
+	<fighter id="shishio" name="志志雄·真实" comic_type="0">
+		<file url="assets/fighter/fz/shishio.swf" />
+		<face url="assets/face/其他/shishio.png" big_url="assets/face/其他/shishio_b.png" />
+	</fighter>
+
+	<fighter id="wuduwawa" name="巫毒娃娃" comic_type="0">
+		<file url="assets/fighter/fz/wuduwawa.swf" />
+		<face url="assets/face/其他/巫毒娃娃.png" big_url="assets/face/其他/巫毒娃娃.png" />
+	</fighter>
+
+	<fighter id="LHLD" name="拉赫莱蒂" comic_type="0">
+		<file url="assets/fighter/fz/拉赫莱蒂_fz.swf" />
+		<face url="assets/face/其他/Rahility.png" big_url="assets/face/其他/Rahility_b.png" />
+	</fighter>
+
+	<fighter id="onimiko_ghosthit" name="鬼啸符（鬼巫女专属）" comic_type="0">
+		<file url="assets/fighter/fz/onimiko_ghosthit.swf" />
+		<face url="assets/face/其他/onimiko.png" big_url="assets/face/其他/onimiko_b.png" />
+	</fighter>
+
+	<fighter id="华莱士" name="华莱士" comic_type="0">
+		<file url="assets/fighter/fz/华菜士.swf" />
+		<face url="assets/face/其他/华莱士.png" big_url="assets/face/其他/华莱士.png" />
+	</fighter>
+
+	<fighter id="米纳遨游" name="米纳遨游" comic_type="0">
+		<file url="assets/fighter/fz/米纳遨游.swf" />
+		<face url="assets/face/其他/蕾忍.png" big_url="assets/face/其他/蕾忍.png" />
+	</fighter>
+
+	<fighter id="纳米手握离子心" name="纳米手握离子心" comic_type="0">
+		<file url="assets/fighter/fz/纳米手握离子心.swf" />
+		<face url="assets/face/其他/蕾忍.png" big_url="assets/face/其他/蕾忍.png" />
+	</fighter>
+
+	<fighter id="吓我一跳我释放忍术" name="吓我一跳我释放忍术" comic_type="0">
+		<file url="assets/fighter/fz/吓我一跳我释放忍术.swf" />
+		<face url="assets/face/其他/蕾忍.png" big_url="assets/face/其他/蕾忍.png" />
+	</fighter>
+
+	<fighter id="平子真子" name="平子真子(颠倒屏幕)" comic_type="0">
+		<file url="assets/fighter/fz/平子真子.swf" />
+		<face url="assets/face/死神/平子真子.png" big_url="assets/face/死神/平子真子.png" />
+	</fighter>
+
+	<fighter id="嘉然" name="嘉然(人物蹦迪)" comic_type="0">
+		<file url="assets/fighter/fz/嘉然.swf" />
+		<face url="assets/face/其他/嘉然.png" big_url="assets/face/其他/嘉然.png" />
+	</fighter>
+
 	<fighter id="random" name="随机人物" comic_type="-1">
-		<face url="assets/face/fz/random.png" />
+		<face url="assets/face/其他/random.png" />
 	</fighter>
-	
+
 	<fighter id="random_bleach" name="随机死神人物" comic_type="0">
-		<face url="assets/face/random_bleach.png" />
+		<face url="assets/face/死神/random_bleach.png" />
 	</fighter>
-	
+
 	<fighter id="random_naruto" name="随机火影人物" comic_type="1">
-		<face url="assets/face/random_naruto.png" />
+		<face url="assets/face/火影/random_naruto.png" />
 	</fighter>
-	
+
 </assist_config>

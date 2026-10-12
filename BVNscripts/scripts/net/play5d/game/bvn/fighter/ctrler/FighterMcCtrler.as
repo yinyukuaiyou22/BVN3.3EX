@@ -65,9 +65,18 @@ package net.play5d.game.bvn.fighter.ctrler
       
       private var _ghostType:int = 0;
       
-      private var _justHurtResume:Boolean;
-      
-      public function FighterMcCtrler(param1:FighterMain)
+       private var _justHurtResume:Boolean;
+       
+       // 2026-09-09 竞技规则移植：防重复连状态（fork 3.3竞技项 同名字段）
+       public var doActionTimes:uint = 1;
+       
+       public var beHitActions:Object = null;
+       
+       private var _hasBadAction:Boolean = false;
+       
+       private var _lastHurtActionTimes:uint = 0;
+       
+       public function FighterMcCtrler(param1:FighterMain)
       {
          super();
          this._fighter = param1;
@@ -188,6 +197,7 @@ package net.play5d.game.bvn.fighter.ctrler
             }
             this._mc.goFrame(param1,_loc2_);
          }
+         this.hurtActionClear();
       }
       
       public function loop(param1:String) : void
@@ -1219,9 +1229,10 @@ package net.play5d.game.bvn.fighter.ctrler
          this._fighter.isAllowBeHit = true;
          this._fighter.isCross = false;
          this._fighter.isApplyG = true;
-         this._doActionFrame = 0;
-         this._mc.goFrame(param1,true,0,param3);
-         this._fighter.dispatchEvent(new FighterEvent("DO_ACTION"));
+          this._doActionFrame = 0;
+          ++this.doActionTimes;
+          this._mc.goFrame(param1,true,0,param3);
+          this._fighter.dispatchEvent(new FighterEvent("DO_ACTION"));
       }
       
       private function setMoveAction() : void
@@ -1537,6 +1548,11 @@ package net.play5d.game.bvn.fighter.ctrler
       
       private function doWaiKaiAction(param1:String) : void
       {
+         // 2026-09-09 竞技规则移植：允许变身关闭时拦截变身动作
+         if(!GameData.I.config.allowWankai)
+         {
+            return;
+         }
          if(!this._mc.checkFrame(param1))
          {
             return;
@@ -1739,10 +1755,15 @@ package net.play5d.game.bvn.fighter.ctrler
       private function doHurt(param1:HitVO, param2:Rectangle) : void
       {
          try { Debugger.log("【受击进入】id=" + this._fighter.id + " hurtType=" + param1.hurtType + " hurtTime=" + param1.hurtTime + " actionState=" + this._fighter.actionState + " _hurtHoldFrame=" + this._hurtHoldFrame); } catch (e:Error) {}
+         // 2026-09-09 竞技规则移植：防重复连判定（重复命中无伤害、走受击飞行）
+         this._hasBadAction = this.hurtActionCheck(param1);
          this.effectCtrler.endShadow();
          this.effectCtrler.endShake();
          this._fighter.hurtHit = param1;
-         this._fighter.loseHp(param1.getDamage());
+         if(!this._hasBadAction)
+         {
+            this._fighter.loseHp(param1.getDamage());
+         }
          if(Boolean(this._fighter.isAlive) && Boolean(GameLogic.checkFighterDie(this._fighter)))
          {
             FighterEventDispatcher.dispatchEvent(this._fighter,"DIE");
@@ -1774,7 +1795,7 @@ package net.play5d.game.bvn.fighter.ctrler
          this._doingAirAction = null;
          this._doingAction = null;
          this.setSteelBody(false);
-         if(param1.hurtType == 0)
+         if(param1.hurtType == 0 && !this._hasBadAction)
          {
             this._action.isHurting = true;
             this._hurtHoldFrame = Math.round(param1.hurtTime / 1000 * 30) + GameConfig.HURT_FRAME_OFFSET;
@@ -1798,12 +1819,19 @@ package net.play5d.game.bvn.fighter.ctrler
                this._fighter.getCtrler().getVoiceCtrl().playVoice(0,0.5);
             }
          }
-         if(param1.hurtType == 1)
+         if(param1.hurtType == 1 || this._hasBadAction)
          {
             this._action.isHurtFlying = true;
             this._fighter.actionState = 22;
             this._hurtDownFrame = 0;
-            this._mc.playHurtFly(_loc3_,_loc4_);
+            if(this._hasBadAction)
+            {
+               this._mc.playHurtFly(_loc3_,_loc4_ > 0 ? 0 : _loc4_);
+            }
+            else
+            {
+               this._mc.playHurtFly(_loc3_,_loc4_);
+            }
             if(this._fighter.isAlive)
             {
                this._fighter.getCtrler().getVoiceCtrl().playVoice(1,1);
@@ -1812,6 +1840,7 @@ package net.play5d.game.bvn.fighter.ctrler
             {
                this._fighter.getCtrler().getVoiceCtrl().playVoice(2,1);
             }
+            this.hurtActionClear();
          }
          if(Boolean(param1) && Boolean(param2))
          {
@@ -1820,7 +1849,60 @@ package net.play5d.game.bvn.fighter.ctrler
          this._isFalling = false;
       }
       
-      private function renderHurt() : void
+      // 2026-09-09 竞技规则移植：以下三方法照 fork 3.3竞技项 移植（重复连判定链）
+      private function hurtActionCheck(param1:HitVO) : Boolean
+      {
+         var target:* = param1.owner;
+         if(!target)
+         {
+            return false;
+         }
+         if(!this.beHitActions)
+         {
+            this.beHitActions = new Object();
+         }
+         if(target is FighterMain || target is Bullet || target is FighterAttacker)
+         {
+            var targetAction:* = target.getDoingAction();
+            if(!targetAction || !targetAction.action)
+            {
+               return false;
+            }
+            if(this.hurtActionRepeatCheck(targetAction))
+            {
+               return true;
+            }
+            this._lastHurtActionTimes = targetAction.times;
+         }
+         return false;
+      }
+      
+      private function hurtActionRepeatCheck(param1:Object) : Boolean
+      {
+         if(GameData.I.config.isAllowRepeatAttack)
+         {
+            return false;
+         }
+         if(!this.beHitActions[param1.action])
+         {
+            this.beHitActions[param1.action] = param1.times;
+            return false;
+         }
+         if(this.beHitActions[param1.action] != param1.times)
+         {
+            return true;
+         }
+         return false;
+      }
+      
+      private function hurtActionClear() : void
+      {
+         this._hasBadAction = false;
+         this.beHitActions = null;
+         this._lastHurtActionTimes = 0;
+      }
+       
+       private function renderHurt() : void
       {
          if(!this._fighter.isAlive)
          {
@@ -2318,4 +2400,3 @@ package net.play5d.game.bvn.fighter.ctrler
       }
    }
 }
-

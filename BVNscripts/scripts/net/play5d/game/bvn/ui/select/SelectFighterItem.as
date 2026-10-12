@@ -53,11 +53,23 @@ package net.play5d.game.bvn.ui.select
       // 批次6.9：触屏长按展开子框（毫秒）
       private static const LONG_PRESS_MS:int = 1200;
       private var _longPressTimer:Timer = null;
-      private var _longPressed:Boolean = false;      // 长按已触发（松手时屏蔽 touchTap）
+      private var _longPressed:Boolean = false;      // 长按已触发（本次手势内有效，松手即清）
       private var _pressStartTime:int = 0;
       private var _pressStartX:Number = 0;
       private var _pressStartY:Number = 0;
       private var _touching:Boolean = false;
+      
+      /**
+       * 2026-09-29 触屏点按修复：长按后屏蔽 touchTap 的一次性标志 + 生效时间窗。
+       * 原实现把屏蔽寄托在 _longPressed 上、且只在 touchTap 派发时才消费它：
+       * 真机长按手指常有漂移，一旦超过 AIR 的 tap slop，touchTap 根本不派发，
+       * _longPressed 就会残留到下一次手势，把之后第一次正常点按吃掉（表现为"点一下没反应"）。
+       * 改为：touchEnd 时结算成一次性标志并立刻清 _longPressed，
+       * guard 消费时再用 800ms 时间窗兜底（touchTap 不派发时标志最多存活 0.8s）。
+       */
+      private var _suppressTapOnce:Boolean = false;
+      private var _suppressTapTime:Number = 0;
+      private static const SUPPRESS_TAP_WINDOW_MS:int = 800;
       /** 批次6.9：长按展开回调（由 SelectFighterStage 注入，参数=本 item） */
       public var onLongPress:Function = null;
 
@@ -88,7 +100,13 @@ package net.play5d.game.bvn.ui.select
             _loc3a_.autoSize = TextFieldAutoSize.CENTER;
             this.ui.ct.addChild(_loc3a_);
             // 批次6.7治本：face 资源未缓存时挂 ENTER_FRAME 监听，缓存就绪后自动刷新
-            this.addEventListener(Event.ENTER_FRAME, this._refreshFace);
+            // 2026-10-10 修复 #1063：改挂 this.ui —— 本类的 addEventListener/removeEventListener 重写
+            // 都把 selfHandler 挂在 ui 上，只有注册与注销目标一致才能删得掉；挂在 this（EventDispatcher）上
+            // 会让 destory() 的注销成为空操作，监听永久残留。
+            if(this.ui)
+            {
+               this.addEventListener(Event.ENTER_FRAME, this._refreshFace);
+            }
          }
          this.ui.mouseChildren = false;
          this.ui.buttonMode = true;
@@ -105,27 +123,39 @@ package net.play5d.game.bvn.ui.select
       }
 
       // 批次6.7治本：ENTER_FRAME 轮询，命中 _cacheObj 后移除占位 + addChild 真实 face
-      private function _refreshFace(param1:Event) : void
+      // ===== 2026-10-10 修复 #1063 → #1034（本函数的签名必须与「派发契约」逐参对齐）=====
+      // 派发契约：本类重写的 addEventListener 把外部回调转挂到 selfHandler，
+      //           selfHandler 按 selfHandler(param1.type, this) 调用，
+      //           即第一个实参恒为 **String 事件类型**（ENTER_FRAME → "enterFrame"），第二个为 this。
+      //           既有正确范例：SelectFighterStage.selectFighterMouseHandler(param1:String, param2:SelectFighterItem)
+      // 历史错误①：#1063 —— 原签名只声明 1 个参数，派发传 2 个 → ArgumentError（参数个数不匹配）。
+      // 历史错误②：#1034 —— 补成 2 参时把首参类型写成 Event，而实际传入的是 String
+      //           → TypeError: cannot convert "enterFrame" to flash.events.Event。
+      //           ⚠️ AS3 在进入函数体**之前**就完成形参类型转换，因此异常会打断整个回调：
+      //              face 替换逻辑永不执行（占位文字一直留着），且方法开头的解绑也执行不到，
+      //              ENTER_FRAME 监听永久残留 → 每帧抛错 + 每帧无谓轮询。
+      // 正确写法：首参类型必须是 String（本函数不使用该参数，仅作签名占位）。
+      //           其它任何注册进本类 addEventListener 的回调，首参也必须是 String。
+      private function _refreshFace(param1:String, param2:Object = null) : void
       {
          if(!this.ui || !this.fighterData)
          {
             return;
          }
          var _loc2_:DisplayObject = AssetManager.I.getFighterFace(this.fighterData);
-         if(Boolean(_loc2_))
+         if(!_loc2_)
          {
-            // 移除占位 TextField（ui.ct 可能含 1 个 TextField）
-            if(this.ui.ct.numChildren > 0)
-            {
-               while(this.ui.ct.numChildren > 0)
-               {
-                  this.ui.ct.removeChildAt(0);
-               }
-            }
-            this.ui.ct.addChild(_loc2_);
-            this.removeEventListener(Event.ENTER_FRAME, this._refreshFace);
-            Debugger.log("[SelectFighterItem]", this.fighterData.id, "face REFRESHED (治本)");
+            return;   // 面图尚未就绪：保留 ENTER_FRAME 监听，下一帧继续轮询
          }
+         // face 已就绪：先解绑（成功只执行一次），再替换占位
+         this.removeEventListener(Event.ENTER_FRAME, this._refreshFace);
+         // 移除占位 TextField（ui.ct 只含 1 个占位 TextField）
+         while(this.ui.ct.numChildren > 0)
+         {
+            this.ui.ct.removeChildAt(0);
+         }
+         this.ui.ct.addChild(_loc2_);
+         Debugger.log("[SelectFighterItem]", this.fighterData.id, "face REFRESHED (治本)");
       }
 
       // ============ 批次6.8（方案B）：badge 角标 + 子框展开/收起 ============
@@ -332,7 +362,9 @@ package net.play5d.game.bvn.ui.select
       // 按下启动 1.3s 计时
       private function touchLongPressBeginHandler(param1:TouchEvent) : void
       {
-         if(!GameConfig.TOUCH_MODE || _longPressed) return;
+         // 2026-09-29：早退条件去掉 _longPressed（残留会阻塞后续长按计时），
+         // 长按是否已成立改由 touchEnd 结算的一次性标志 _suppressTapOnce 承载
+         if(!GameConfig.TOUCH_MODE) return;
          _touching = true;
          _pressStartTime = getTimer();
          _pressStartX = param1.stageX;
@@ -359,13 +391,20 @@ package net.play5d.game.bvn.ui.select
          }
       }
 
-      // 松手 — 若未到点则取消计时；长按已展开由 touchTapGuardHandler 屏蔽本次 touchTap
+      // 松手 — 取消计时；本次手势若已长按展开，结算成一次性标志交给 touchTapGuardHandler
       private function touchLongPressEndHandler(param1:TouchEvent) : void
       {
          _touching = false;
          if(_longPressTimer && _longPressTimer.running)
          {
             _longPressTimer.stop();
+         }
+         // 2026-09-29：手势结束即结算 —— 不再让 _longPressed 跨手势残留
+         if(_longPressed)
+         {
+            _suppressTapOnce = true;
+            _suppressTapTime = getTimer();
+            _longPressed = false;
          }
       }
 
@@ -388,29 +427,64 @@ package net.play5d.game.bvn.ui.select
       // 长按展开后，屏蔽本次松手的 touchTap（防误选中）
       private function touchTapGuardHandler(param1:TouchEvent) : void
       {
-         if(_longPressed)
+         // 2026-09-29：消费一次性标志；加 800ms 时间窗兜底 —— 若长按后手指漂移导致 touchTap
+         // 延迟很久才来（或根本不来），标志不会一路吃掉之后久远的正常点击
+         if(_suppressTapOnce)
          {
-            _longPressed = false;
-            param1.stopImmediatePropagation();
+            _suppressTapOnce = false;
+            if(getTimer() - _suppressTapTime < SUPPRESS_TAP_WINDOW_MS)
+            {
+               param1.stopImmediatePropagation();
+            }
          }
       }
 
+      // 批次6.15 修复：原判据 ui.hasEventListener(type) 会被构造器直挂的长按监听
+      // （touchBegin/touchMove/touchEnd/touchTap）误判为"已注册"而静默 return，
+      // 导致 SelectFighterStage 的 touchTap 回调（角色格唯一触摸入口）从未挂上，单击格子无反应。
+      // 改为以本类登记表 _listeners 为判据：selfHandler 每类型只挂一次，外部回调每次覆盖记录。
       override public function addEventListener(param1:String, param2:Function, param3:Boolean = false, param4:int = 0, param5:Boolean = false) : void
       {
-         if(Boolean(this.ui.hasEventListener(param1)))
+         if(this._listeners[param1] == null)
+         {
+            this.ui.addEventListener(param1,this.selfHandler,param3,param4,param5);
+         }
+         this._listeners[param1] = param2;
+      }
+      
+      // 批次6.15 修复：补对称注销。原实现缺本重写，挂在 ui 上的是 selfHandler 而非外部回调，
+      // 导致 _refreshFace 的 removeEventListener(ENTER_FRAME) 落到 EventDispatcher 自身成为空操作，
+      // 于是 face 就绪后仍每帧清空 ui.ct 重加 face + 每帧写一条日志（选人界面卡顿/日志刷屏根因）。
+      // 2026-10-10：加 ui 空值守卫 —— destory() 会先置 this.ui = null，而本方法随后仍可能被调用
+      // （见 destory 末尾的 ENTER_FRAME 清理），不加守卫会抛 #1009 空对象引用。
+      override public function removeEventListener(param1:String, param2:Function, param3:Boolean = false) : void
+      {
+         if(this._listeners[param1] == null)
          {
             return;
          }
-         this.ui.addEventListener(param1,this.selfHandler,param3,param4,param5);
-         this._listeners[param1] = param2;
+         delete this._listeners[param1];
+         if(this.ui == null)
+         {
+            return;
+         }
+         this.ui.removeEventListener(param1,this.selfHandler,param3);
       }
       
       public function removeAllEventListener() : void
       {
-         var _loc1_:* = undefined;
-         for(_loc1_ in this._listeners)
+         // 先快照 key 再逐个注销：避免边遍历 _listeners 边 delete 造成漏项
+         var _loc1_:Array = [];
+         var _loc2_:* = undefined;
+         for(_loc2_ in this._listeners)
          {
-            this.ui.removeEventListener(_loc1_,this._listeners[_loc1_]);
+            _loc1_.push(_loc2_);
+         }
+         var _loc3_:int = 0;
+         while(_loc3_ < _loc1_.length)
+         {
+            this.removeEventListener(_loc1_[_loc3_] as String,null);
+            _loc3_++;
          }
          this._listeners = {};
       }
@@ -431,6 +505,7 @@ package net.play5d.game.bvn.ui.select
          }
          _touching = false;
          _longPressed = false;
+         _suppressTapOnce = false;
          onLongPress = null;
          if(Boolean(this.ui))
          {
@@ -438,6 +513,10 @@ package net.play5d.game.bvn.ui.select
             this.ui.removeEventListener("touchMove",this.touchLongPressMoveHandler);
             this.ui.removeEventListener("touchEnd",this.touchLongPressEndHandler);
             this.ui.removeEventListener("touchTap",this.touchTapGuardHandler);
+            // 2026-10-10：ENTER_FRAME 清理必须在 this.ui = null 之前 —— 本方法下面会先置 ui = null，
+            // 而重写后的 removeEventListener 需要 ui 才能删掉挂在 ui 上的 selfHandler；
+            // 放在末尾（原位置）会因 ui 已为 null 而删不掉，_refreshFace 在 destory 后仍会每帧轮询。
+            this.removeEventListener(Event.ENTER_FRAME, this._refreshFace);
             this.removeAllEventListener();
          }
          // 批次6.8（方案B）：清理 badge 角标（含未完成动画）
@@ -467,8 +546,7 @@ package net.play5d.game.bvn.ui.select
          this.pluginFighters = null;
          this.pendingTweenParams = null;
          this.pendingBack = null;
-         // 批次6.7治本：清理 ENTER_FRAME 监听，避免 _refreshFace 在 destory 后还在轮询（内存泄漏）
-         this.removeEventListener(Event.ENTER_FRAME, this._refreshFace);
+         // 批次6.7治本：ENTER_FRAME 清理已上移到 this.ui = null 之前（见上），此处不再重复注销
       }
    }
 }

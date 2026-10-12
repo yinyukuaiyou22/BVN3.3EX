@@ -38,7 +38,12 @@
 		]]>		</manifestAdditions>
 	</android>
 
+	<!-- ANE disabled by design: com.bvn.filereader cannot load on this toolchain
+	     (Error #2113 in AIR's LoaderContext.SecurityDomain check, before any Java runs).
+	     Re-enable together with ANEFileReader.ANE_ENABLED=true only after a toolchain
+	     is verified to load the extension.
 	<extensions>
 		<extensionID>com.bvn.filereader</extensionID>
 	</extensions>
+	-->
 </application>

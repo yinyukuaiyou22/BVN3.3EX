@@ -26,6 +26,8 @@ package net.play5d.game.bvn.interfaces
       
       function getSettingMenu() : Array;
       
+      function getRuleMenu() : Array;
+      
       function updateInputConfig() : Boolean;
       
       function getConfigExtend() : IExtendConfig;

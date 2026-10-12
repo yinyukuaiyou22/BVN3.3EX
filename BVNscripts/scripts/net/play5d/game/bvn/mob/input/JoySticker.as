@@ -119,7 +119,8 @@ package net.play5d.game.bvn.mob.input
       private static function onPreventDefaultKeys(param1:KeyboardEvent) : void
       {
          // 记录手柄产生的键盘事件（低频，按键才触发），用于排查系统默认行为（如 B 键返回桌面）
-         Debugger.log("KEY_DOWN: code=" + param1.keyCode + " char=" + param1.charCode);
+         // 手柄按键事件，改为折叠计数（排查系统默认行为时看 flushFold 的汇总行即可）
+         Debugger.logFold("KEY_DOWN", "code=" + param1.keyCode);
          switch(param1.keyCode)
          {
             // 167 = Xbox Back (MENU) → 阻止 Android BACK 行为
@@ -150,7 +151,7 @@ package net.play5d.game.bvn.mob.input
       
       public static function getDeviceId(param1:int) : String
       {
-         if(param1 >= _gameDeivces.length)
+         if(!_gameDeivces || param1 >= _gameDeivces.length)
          {
             return null;
          }
@@ -233,7 +234,11 @@ package net.play5d.game.bvn.mob.input
       
       private static function getDeive(param1:String) : GameInputDevice
       {
-         return _deivceMap[param1];
+         if(!_deivceMap)
+           {
+              return null;
+           }
+           return _deivceMap[param1];
       }
       
       public static function isActive(param1:String) : Boolean

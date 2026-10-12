@@ -1,6 +1,7 @@
 package net.play5d.game.bvn.fighter.ctrler
 {
    import net.play5d.game.bvn.ctrl.game_ctrls.*;
+   import net.play5d.game.bvn.data.GameData;
    import net.play5d.game.bvn.input.*;
    import net.play5d.game.bvn.interfaces.*;
    
@@ -157,12 +158,22 @@ package net.play5d.game.bvn.fighter.ctrler
       
       public function assist() : Boolean
       {
-         return GameInputer.special(this.inputType,0);
+         // 2026-09-09 竞技规则移植：isChangeSpecialKey=true 时灵替 = special 且不按上
+         if(!GameData.I.config.isChangeSpecialKey)
+         {
+            return GameInputer.special(this.inputType,0);
+         }
+         return Boolean(GameInputer.special(this.inputType,0)) && !Boolean(GameInputer.up(this.inputType,0));
       }
       
       public function specailSkill() : Boolean
       {
-         return GameInputer.special(this.inputType,0);
+         // 2026-09-09 竞技规则移植：isChangeSpecialKey=true 时灵技 = special + 上/下
+         if(!GameData.I.config.isChangeSpecialKey)
+         {
+            return GameInputer.special(this.inputType,0);
+         }
+         return Boolean(GameInputer.special(this.inputType,0)) && (Boolean(GameInputer.up(this.inputType,0)) || Boolean(GameInputer.down(this.inputType,0)));
       }
       
       public function attackAIR() : Boolean
@@ -211,4 +222,3 @@ package net.play5d.game.bvn.fighter.ctrler
       }
    }
 }
-

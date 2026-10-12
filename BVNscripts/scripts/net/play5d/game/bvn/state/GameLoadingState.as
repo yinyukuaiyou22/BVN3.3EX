@@ -1,4 +1,4 @@
-﻿package net.play5d.game.bvn.state
+package net.play5d.game.bvn.state
 {
    import flash.display.DisplayObject;
    import net.play5d.game.bvn.*;
@@ -84,8 +84,11 @@ import net.play5d.game.bvn.Debugger;
       
       private function loadConfigBack() : void
       {
+         GameLoader.perf("loadConfigBack enter");
          AssetManager.I.loadBasic(this.loadAssetBack,this.loadAssetProcess);
+         GameLoader.perf("loadBasic returned");
          this.msg("游戏初始化：正在加载游戏资源");
+         GameLoader.perf("msg done");
       }
       
       private function loadAssetProcess(param1:Number, param2:String, param3:int, param4:int) : void

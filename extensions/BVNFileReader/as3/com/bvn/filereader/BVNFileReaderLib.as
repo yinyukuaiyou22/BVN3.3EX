@@ -13,7 +13,7 @@ package com.bvn.filereader
          {
             try
             {
-               _ctx = ExtensionContext.createExtensionContext("com.bvn.filereader", "");
+               _ctx = ExtensionContext.createExtensionContext("com.bvn.filereader", null);
             }
             catch(e:Error)
             {

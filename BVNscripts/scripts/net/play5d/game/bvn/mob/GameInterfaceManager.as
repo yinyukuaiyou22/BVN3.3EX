@@ -82,52 +82,7 @@ package net.play5d.game.bvn.mob
       public function getGameMenu() : Array
       {
          return [{
-            "txt":"SINGLE MODE",
-            "cn":"单人模式",
-            "children":[{
-               "txt":"SINGLE ACRADE",
-               "cn":"闯关",
-               "func":function():void
-               {
-                  GameMode.currentMode = 20;
-                  MessionModel.I.reset();
-                  MainGame.I.goSelect();
-               }
-            },{
-               "txt":"SINGLE VS CPU",
-               "cn":"VS人机",
-               "func":function():void
-               {
-                  GameMode.currentMode = 22;
-                  MainGame.I.goSelect();
-               }
-            },{
-               "txt":"1 VS 2",
-               "cn":"1v2",
-               "func":function():void
-               {
-                  GameMode.currentMode = 24;
-                  MainGame.I.goSelect();
-               }
-            },{
-               "txt":"SINGLE WATCH",
-               "cn":"观战单人",
-               "func":function():void
-               {
-                  GameMode.currentMode = 23;
-                  MainGame.I.goSelect();
-               }
-            },{
-               "txt":"1VS2 WATCH",
-               "cn":"观战(1v2)",
-               "func":function():void
-               {
-                  GameMode.currentMode = 25;
-                  MainGame.I.goSelect();
-               }
-            }]
-         },{
-            "txt":"TEAM MODE",
+            "txt":"TEAM PLAY",
             "cn":"小队模式",
             "children":[{
                "txt":"TEAM ACRADE",
@@ -139,6 +94,14 @@ package net.play5d.game.bvn.mob
                   MainGame.I.goSelect();
                }
             },{
+               "txt":"TEAM VS PEOPLE",
+               "cn":"小队对战",
+               "func":function():void
+               {
+                  GameMode.currentMode = 11;
+                  MainGame.I.goSelect();
+               }
+            },{
                "txt":"TEAM VS CPU",
                "cn":"VS人机",
                "func":function():void
@@ -147,19 +110,19 @@ package net.play5d.game.bvn.mob
                   MainGame.I.goSelect();
                }
             },{
-               "txt":"TEAM DUO",
-               "cn":"2v2",
-               "func":function():void
-               {
-                  GameMode.currentMode = 14;
-                  MainGame.I.goSelect();
-               }
-            },{
                "txt":"TEAM WATCH",
                "cn":"观战小队",
                "func":function():void
                {
                   GameMode.currentMode = 13;
+                  MainGame.I.goSelect();
+               }
+            },{
+               "txt":"TEAM DUO",
+               "cn":"2v2",
+               "func":function():void
+               {
+                  GameMode.currentMode = 14;
                   MainGame.I.goSelect();
                }
             },{
@@ -172,9 +135,18 @@ package net.play5d.game.bvn.mob
                }
             }]
          },{
-            "txt":"MISC",
-            "cn":"杂项",
+            "txt":"SINGLE PLAY",
+            "cn":"单人模式",
             "children":[{
+               "txt":"SINGLE ACRADE",
+               "cn":"闯关",
+               "func":function():void
+               {
+                  GameMode.currentMode = 20;
+                  MessionModel.I.reset();
+                  MainGame.I.goSelect();
+               }
+            },{
                "txt":"SINGLE VS PEOPLE",
                "cn":"单人对战",
                "func":function():void
@@ -183,27 +155,58 @@ package net.play5d.game.bvn.mob
                   MainGame.I.goSelect();
                }
             },{
-               "txt":"TEAM VS PEOPLE",
-               "cn":"小队对战",
+               "txt":"SINGLE VS CPU",
+               "cn":"VS人机",
                "func":function():void
                {
-                  GameMode.currentMode = 11;
+                  GameMode.currentMode = 22;
                   MainGame.I.goSelect();
                }
             },{
-               "txt":"CREDITS",
-               "cn":"制作组",
+               "txt":"SINGLE WATCH",
+               "cn":"观战单人",
                "func":function():void
                {
-                  MainGame.I.goCredits();
+                  GameMode.currentMode = 23;
+                  MainGame.I.goSelect();
                }
+            },{
+               "txt":"1 VS 2",
+               "cn":"1v2",
+               "func":function():void
+               {
+                  GameMode.currentMode = 24;
+                  MainGame.I.goSelect();
+               }
+            },{
+               "txt":"1VS2 WATCH",
+               "cn":"观战(1v2)",
+               "func":function():void
+               {
+                  GameMode.currentMode = 25;
+                  MainGame.I.goSelect();
+               }
+            }]
+         },{
+            "txt":"OPTION",
+            "cn":"设置",
+            "children":[{
+               "txt":"GAME CFG",
+               "cn":"常规设置"
+            },{
+               "txt":"RULE CFG",
+               "cn":"规则设置"
             }]
          },{
             "txt":"TRAINING",
             "cn":"练习"
          },{
-            "txt":"OPTION",
-            "cn":"设置"
+            "txt":"CREDITS",
+            "cn":"制作组",
+            "func":function():void
+            {
+               MainGame.I.goCredits();
+            }
          },{
             "txt":"EXIT GAME",
             "cn":"退出",
@@ -217,9 +220,13 @@ package net.play5d.game.bvn.mob
       public function getSettingMenu() : Array
       {
          return [{
+            // 注意：这里不能再挂 "select": ViewManager.I.goP1JoyStickSet。
+            // SetBtn.onSelect 会先调 select() 再派发 SELECT，SettingState.onBtnSelect 的
+            // case "Joystick Setting" 又会开 ControlSetUI —— 同一次选择会连开两个子页
+            // （JoyStickSetUI 被随后的 goInnerSetPage → destoryInnerSetUI 立刻销毁）。
+            // 控制设置页（ControlSetUI）承载「Screen Button / Keyboard Input」，必须保留。
             "txt":"Joystick Setting",
-            "cn":"控制设置",
-            "select": ViewManager.I.goP1JoyStickSet
+            "cn":"控制设置"
          },(ViewManager.I.isMultiplePads() ? {
             "txt":"P2 Joystick Setting",
             "cn":"玩家2 手柄设置",
@@ -419,7 +426,55 @@ package net.play5d.game.bvn.mob
                "value":"best"
             }],
             "optoinKey":"quality"
+         }];
+      }
+      
+      /**
+       * 规则设置界面（RULE CFG）的选项数据：竞技规则项不再混在常规设置里。
+       * 第 1 项无 options，是「一键切换竞技/娱乐规则」开关，由 RuleState 按 selectedLabel 处理。
+       */
+      public function getRuleMenu() : Array
+      {
+         return [{
+            "txt":"RULE SWITCH",
+            "cn":"一键切换竞技/娱乐规则"
          },{
+            "txt":"STEEL FREEZE",
+            "cn":"刚身停顿",
+            "options":[{
+               "label":"TRUE",
+               "cn":"是",
+               "value":true
+            },{
+               "label":"FALSE",
+               "cn":"否",
+               "value":false
+            }],
+            "optoinKey":"isSteelBodyFreeze"
+         },{
+            "txt":"INITIAL QI",
+            "cn":"初始气量",
+            "options":[{
+               "label":"0",
+               "cn":"0",
+               "value":0
+            },{
+               "label":"100",
+               "cn":"100",
+               "value":100
+            },{
+               "label":"200",
+               "cn":"200",
+               "value":200
+            },{
+               "label":"300",
+               "cn":"300",
+               "value":300
+            }],
+            "optoinKey":"initialQi"
+         },{
+            // 由常规设置页迁入（原 getSettingMenu 末项）。
+            // 注意：它不参与「一键切换竞技/娱乐」（ConfigVO.switchAllRuleConfig 不含此键）。
             "txt":"Infinite Energy",
             "cn":"无限气",
             "options":[{
@@ -432,6 +487,74 @@ package net.play5d.game.bvn.mob
                "value":true
             }],
             "optoinKey":"INFINITE_ENERGY"
+         },{
+            "txt":"ALLOW WANKAI",
+            "cn":"允许变身",
+            "options":[{
+               "label":"FALSE",
+               "cn":"否",
+               "value":false
+            },{
+               "label":"TRUE",
+               "cn":"是",
+               "value":true
+            }],
+            "optoinKey":"allowWankai"
+         },{
+            "txt":"ALLOW REATTACK",
+            "cn":"允许重复连",
+            "options":[{
+               "label":"FALSE",
+               "cn":"不允许",
+               "value":false
+            },{
+               "label":"TRUE",
+               "cn":"允许",
+               "value":true
+            }],
+            "optoinKey":"isAllowRepeatAttack"
+         },{
+            "txt":"CHANGE SPECIAL KEY",
+            "cn":"修改灵替按键",
+            "options":[{
+               "label":"OFF",
+               "cn":"关闭",
+               "value":false
+            },{
+               "label":"ON",
+               "cn":"开启",
+               "value":true
+            }],
+            "optoinKey":"isChangeSpecialKey"
+         },{
+            "txt":"CAMERA MAX SIZE",
+            "cn":"镜头最大大小",
+            "options":[{
+               "label":"50%",
+               "cn":"50%",
+               "value":0.5
+            },{
+               "label":"60%",
+               "cn":"60%",
+               "value":0.6
+            },{
+               "label":"70%",
+               "cn":"70%",
+               "value":0.7
+            },{
+               "label":"80%",
+               "cn":"80%",
+               "value":0.8
+            },{
+               "label":"90%",
+               "cn":"90%",
+               "value":0.9
+            },{
+               "label":"100%",
+               "cn":"100%",
+               "value":1
+            }],
+            "optoinKey":"cameraMaxSize"
          }];
       }
       
@@ -490,7 +613,7 @@ package net.play5d.game.bvn.mob
       
       public function updateInputConfig() : Boolean
       {
-         // 键盘输入默认关闭（ExtendConfig.ENABLE_KEYBOARD=false），用户可在设置菜单「Keyboard Input」开启；
+         // 键盘输入由 ExtendConfig.ENABLE_KEYBOARD 控制（默认 true），用户可在设置菜单「Keyboard Input」关闭；
          // 开启后键盘通道生效（注意：手柄 D-pad/按钮的 KeyboardEvent 会进入键盘通道，属预期行为）
          var keyEnabled:Boolean = Boolean(_extendsConfig.ENABLE_KEYBOARD);
          InputManager.I.key_menu.enabled = keyEnabled;
@@ -546,17 +669,17 @@ package net.play5d.game.bvn.mob
          {
             InputManager.I.joy_p1.enabled = false;
             InputManager.I.joy_p2.enabled = false;
-            Debugger.log("JOY_ROUTE: singlePadWatch joy_p1=" + InputManager.I.joy_p1.enabled + " joy_p2=" + InputManager.I.joy_p2.enabled);
+             Debugger.logFold("JOY_ROUTE.singlePadWatch", "joy_p1=" + InputManager.I.joy_p1.enabled + " joy_p2=" + InputManager.I.joy_p2.enabled);
             return;
          }
          InputManager.I.joy_p1.enabled = true;
          InputManager.I.joy_p2.enabled = false;
-         Debugger.log("JOY_ROUTE: singlePadAllModes joy_p1=" + InputManager.I.joy_p1.enabled + " joy_p2=" + InputManager.I.joy_p2.enabled);
+         Debugger.logFold("JOY_ROUTE.singlePadAllModes", "joy_p1=" + InputManager.I.joy_p1.enabled + " joy_p2=" + InputManager.I.joy_p2.enabled);
       }
 
       public function applyConfig(param1:ConfigVO) : void
       {
-         Debugger.log("=== [DEBUG] applyConfig called ===");
+         Debugger.logFold("applyConfig");
          switch(param1.quality)
          {
             case "best":
@@ -587,25 +710,20 @@ package net.play5d.game.bvn.mob
                EffectCtrl.SHADOW_ENABLED = false;
                EffectCtrl.SHAKE_ENABLED = false;
          }
-         Debugger.log("[DEBUG] param1.INFINITE_ENERGY = " + param1.INFINITE_ENERGY);
-         Debugger.log("[DEBUG] param1.hasOwnProperty(\'INFINITE_ENERGY\') = " + param1.hasOwnProperty("INFINITE_ENERGY"));
          if(param1.hasOwnProperty("INFINITE_ENERGY"))
          {
             _extendsConfig.INFINITE_ENERGY = param1.INFINITE_ENERGY;
             GameConfig.INFINITE_ENERGY = param1.INFINITE_ENERGY;
             GameData.I.config.INFINITE_ENERGY = param1.INFINITE_ENERGY;
-            Debugger.log("[DEBUG] Set _extendsConfig.INFINITE_ENERGY = " + _extendsConfig.INFINITE_ENERGY);
-            Debugger.log("[DEBUG] Set GameConfig.INFINITE_ENERGY = " + GameConfig.INFINITE_ENERGY);
          }
          else
          {
             _extendsConfig.INFINITE_ENERGY = false;
             GameConfig.INFINITE_ENERGY = false;
             GameData.I.config.INFINITE_ENERGY = false;
-            Debugger.log("[DEBUG] INFINITE_ENERGY property missing, set both to false");
          }
-         Debugger.log("[DEBUG] After assignment: _extendsConfig.INFINITE_ENERGY = " + _extendsConfig.INFINITE_ENERGY);
-         Debugger.log("[DEBUG] After assignment: GameConfig.INFINITE_ENERGY = " + GameConfig.INFINITE_ENERGY);
+         // 原来这里有 8 行 [DEBUG] 逐字段打印（每次 applyConfig 刷一屏），折叠成一行
+         Debugger.logFold("INFINITE_ENERGY", GameConfig.INFINITE_ENERGY ? "ON" : "OFF");
          var screenPadConfig:ScreenPadConfigVO = _extendsConfig.screenPadConfig;
          if(!screenPadConfig)
          {
@@ -619,17 +737,17 @@ package net.play5d.game.bvn.mob
          if(_extendsConfig.INFINITE_ENERGY)
          {
             screenPadConfig.superSkillAutoHide = false;
-            Debugger.log("[DEBUG] INFINITE_ENERGY is ON, set superSkillAutoHide = false (button always visible)");
+            Debugger.logFold("INFINITE_ENERGY.superSkillAutoHide", "OFF(常显)");
          }
          else
          {
             screenPadConfig.superSkillAutoHide = true;
-            Debugger.log("[DEBUG] INFINITE_ENERGY is OFF, set superSkillAutoHide = true (auto hide)");
+            Debugger.logFold("INFINITE_ENERGY.superSkillAutoHide", "ON(自动隐藏)");
          }
          ScreenPadManager.reBuild();
          launch.I.updateSize();
          this.updateInputConfig();
-         Debugger.log("=== [DEBUG] applyConfig finished ===\n");
+
       }
       
       public function getCreadits(param1:String) : Sprite
@@ -662,4 +780,3 @@ package net.play5d.game.bvn.mob
       }
    }
 }
-

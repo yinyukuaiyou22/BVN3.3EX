@@ -6,6 +6,8 @@ package net.play5d.game.bvn.input
    import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.interfaces.*;
+   import net.play5d.game.bvn.ctrl.game_ctrls.GameCtrl;
+   import net.play5d.game.bvn.mob.input.GameJoystickInput;
    
    public class GameInputer
    {
@@ -296,10 +298,22 @@ package net.play5d.game.bvn.input
          var _loc4_:int = 0;
          var _loc5_:Function = null;
          var _result:Boolean = false;
+           if(GameCtrl.I.isResetting)
+           {
+              return false;
+           }
          if(enabled && _inputMap[param1])
          {
             var _loc6_:Vector.<IGameInput> = _inputMap[param1];
             while(_loc4_ < _loc6_.length)
+              {
+                 // 1P手柄暂停阻塞：游戏暂停时跳过所有 GameJoystickInput 实例，
+                 // 确保“手柄仅在游戏未暂停时可用”。键盘与屏幕按钮不受影响。
+                 if(_loc6_[_loc4_] is GameJoystickInput && GameCtrl.I.isPauseGame())
+                 {
+                    _loc4_++;
+                    continue;
+                 }
             {
                if(_loc6_[_loc4_].enabled)
                {
@@ -315,6 +329,7 @@ package net.play5d.game.bvn.input
                }
                _loc4_++;
             }
+              }
          }
          // 输入查询日志：结果从 false→true（按下边沿）时记录，供手柄绑定/通道排查
          var _key:String = param1 + "_" + param2;
@@ -323,7 +338,7 @@ package net.play5d.game.bvn.input
             _callLogState[_key] = _result;
             if(_result)
             {
-               Debugger.log("INPUT: " + param1 + "." + param2 + " = true");
+               Debugger.logFold("INPUT", param1 + "." + param2);
             }
          }
          return _result;

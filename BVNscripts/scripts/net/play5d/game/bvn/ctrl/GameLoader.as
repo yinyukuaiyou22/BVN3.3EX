@@ -1,4 +1,4 @@
-﻿package net.play5d.game.bvn.ctrl
+package net.play5d.game.bvn.ctrl
 {
    import flash.display.*;
    import flash.utils.ByteArray;
@@ -8,6 +8,8 @@
    import net.play5d.game.bvn.fighter.*;
    import net.play5d.game.bvn.map.*;
    import flash.filesystem.File;
+   import flash.filesystem.FileMode;
+   import flash.filesystem.FileStream;
 import net.play5d.game.bvn.mob.utils.ANEFileReader;
 import net.play5d.game.bvn.Debugger;
    
@@ -266,17 +268,31 @@ var loadComplete:* = function(param1:DisplayObject):void
       }
 
       /** Ensure external asset directory structure exists (create if missing).
-       *  Uses ANE java.io.File.mkdirs() to bypass AIR sandbox on Android 11+. */
+       *  AIR File API only (ANE disabled): EXTERNAL_BASE must point at a directory the
+       *  app is allowed to create — Android/media/<pkg>/... , not Android/data/<pkg>/... */
       public static function ensureExternalDirs() : void
       {
          var basePath:String = ANEFileReader.EXTERNAL_BASE;
          var dirs:Array = ["fighter", "map", "face", "bgm", "config"];
+         var failed:Array = [];
          for each(var d:String in dirs)
          {
             var fullPath:String = basePath + d;
-            ANEFileReader.I.createDirectory(fullPath);
+            if(!ANEFileReader.I.createDirectory(fullPath))
+            {
+               failed.push(d);
+            }
          }
-         Debugger.log("[GameLoader] External dirs ensured at:", basePath);
+         if(failed.length == 0)
+         {
+            Debugger.log("[GameLoader] External dirs ensured at:", basePath);
+         }
+         else
+         {
+            Debugger.warn("[GameLoader] External dirs FAILED at:", basePath,
+                          "missing:", failed.join(","),
+                          "— EXTERNAL_BASE must be an app-creatable dir (Android/media/<pkg>/)");
+         }
       }
 
       /** Unified entry: scan external assets (deferred to avoid blocking startup) */
@@ -312,8 +328,23 @@ var loadComplete:* = function(param1:DisplayObject):void
 
       /** Synchronous fallback: load ALL external configs immediately and call back.
        *  Used when APK configs are missing — blocks startup until external data is ready. */
+      /** [PERF 临时探针 2026-10-10] 立即落盘，绕过 Debugger 缓冲；定位完删除 */
+      public static function perf(msg:String) : void
+      {
+         try
+         {
+            var pf:File = File.applicationStorageDirectory.resolvePath("perf2.txt");
+            var pfs:FileStream = new FileStream();
+            pfs.open(pf, FileMode.APPEND);
+            pfs.writeUTFBytes("+" + flash.utils.getTimer() + "  " + msg + "\n");
+            pfs.close();
+         }
+         catch(e:Error) {}
+      }
+
       public static function loadExternalConfigsNow(onComplete:Function) : void
       {
+         perf("loadExtConfigsNow begin");
          trace("[GameLoader] External config loading NOW (merge before select)...");
          Debugger.log("[GameLoader] loadExternalConfigsNow start, ANE=", ANEFileReader.I.hasANE, "base=", ANEFileReader.EXTERNAL_BASE);
          try {
@@ -322,16 +353,23 @@ var loadComplete:* = function(param1:DisplayObject):void
             AssisterModel.I.ensureInit();
             MapModel.I.ensureInit();
             MessionModel.I.ensureInit();
+            perf("models ok");
             // Run scan + config load synchronously
             ensureExternalDirs();
+            perf("dirs ok");
             scanExternalFighters();
+            perf("fighters ok");
             scanExternalMaps();
+            perf("maps ok");
             _loadExternalConfigsImpl();
+            perf("configsImpl ok");
             trace("[GameLoader] External config loading complete");
          } catch(e:Error) {
             trace("[GameLoader] External config error:", e.message);
          }
+         perf("before onComplete");
          if(onComplete != null) onComplete();
+         perf("after onComplete");
       }
 
       private static function _loadExternalConfigsImpl() : void
@@ -400,6 +438,7 @@ var loadComplete:* = function(param1:DisplayObject):void
       private static function tryLoadExternalXML(basePath:String, fileName:String, back:Function) : void
       {
          var fullPath:String = basePath + fileName;
+         perf("xml " + fileName + " exists?");
          if(!ANEFileReader.I.exists(fullPath))
          {
             Debugger.log("[GameLoader] External config missing:", fullPath);
@@ -411,9 +450,12 @@ var loadComplete:* = function(param1:DisplayObject):void
             if(ba && ba.length > 0)
             {
                ba.position = 0;
+               perf("xml " + fileName + " read " + ba.length);
                var xmlStr:String = ba.readUTFBytes(ba.length);
                var xml:XML = new XML(xmlStr);
+               perf("xml " + fileName + " parsed, merging");
                back(xml);
+               perf("xml " + fileName + " merged");
                Debugger.log("[GameLoader] External config loaded:", fileName);
             }
          }

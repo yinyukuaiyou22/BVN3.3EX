@@ -280,7 +280,8 @@ package net.play5d.game.bvn.state
          this.camera.offsetY = this._map.getMapBottomDistance();
          this.camera.setStageBounds(new Rectangle(0,-1000,_loc1_.x,_loc1_.y));
          this.camera.autoZoom = true;
-         this.camera.autoZoomMin = 1;
+         // 2026-09-09 竞技规则移植：镜头最大大小由 cameraMaxSize 设置（默认 1，等价于原写死值）
+         this.camera.autoZoomMin = Number(Math.floor(100 * (1 / GameData.I.config.cameraMaxSize)) / 100);
          this.camera.autoZoomMax = 2.5;
          this.camera.tweenSpd = 2.5 / GameConfig.SPEED_PLUS_DEFAULT;
          var _loc2_:Number = 2;
@@ -370,4 +371,3 @@ package net.play5d.game.bvn.state
       }
    }
 }
-

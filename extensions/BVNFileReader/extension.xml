@@ -9,5 +9,11 @@
                 <initializer>com.bvn.filereader.BVNFileReaderExtension</initializer>
             </applicationDeployment>
         </platform>
+        <!-- C1 试验：声明 AS3-only 的 default 平台（参照可用 ANE ANEToolkit 的结构）。
+             目的：验证 AIR 运行时加载扩展 AS3 library.swf 时的 LoaderContext.SecurityDomain
+             校验（Error #2113）是否与缺少 default 平台有关。 -->
+        <platform name="default">
+            <applicationDeployment/>
+        </platform>
     </platforms>
 </extension>

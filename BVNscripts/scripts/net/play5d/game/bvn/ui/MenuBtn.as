@@ -64,22 +64,49 @@ package net.play5d.game.bvn.ui
          }
       }
       
+      // 批次6.15 修复：与 SelectFighterItem 同形缺陷——原判据 ui.hasEventListener(type) 会被
+      // 任何"直挂在 ui 上"的同类监听误判为已注册而静默 return，吞掉外部回调。
+      // 本类构造器当前未直挂 ui，属潜伏隐患，一并改为以 _listeners 登记表为判据。
       override public function addEventListener(param1:String, param2:Function, param3:Boolean = false, param4:int = 0, param5:Boolean = false) : void
       {
-         if(Boolean(this.ui.hasEventListener(param1)))
+         if(this._listeners[param1] == null)
+         {
+            this.ui.addEventListener(param1,this.selfHandler,param3,param4,param5);
+         }
+         this._listeners[param1] = param2;
+      }
+      
+      // 批次6.15 修复：补对称注销（挂在 ui 上的是 selfHandler，原实现删的是外部回调 → 空操作、清理失效）
+      // 2026-10-10：加 ui 空值守卫，与 SelectFighterItem 同形防御 —— 对象销毁后 ui 可能已为 null，
+      // 此时若仍有回调触发注销会抛 #1009 空对象引用。
+      override public function removeEventListener(param1:String, param2:Function, param3:Boolean = false) : void
+      {
+         if(this._listeners[param1] == null)
          {
             return;
          }
-         this.ui.addEventListener(param1,this.selfHandler,param3,param4,param5);
-         this._listeners[param1] = param2;
+         delete this._listeners[param1];
+         if(this.ui == null)
+         {
+            return;
+         }
+         this.ui.removeEventListener(param1,this.selfHandler,param3);
       }
       
       public function removeAllEventListener() : void
       {
-         var _loc1_:* = undefined;
-         for(_loc1_ in this._listeners)
+         // 先快照 key 再逐个注销：避免边遍历 _listeners 边 delete 造成漏项
+         var _loc1_:Array = [];
+         var _loc2_:* = undefined;
+         for(_loc2_ in this._listeners)
          {
-            this.ui.removeEventListener(_loc1_,this._listeners[_loc1_]);
+            _loc1_.push(_loc2_);
+         }
+         var _loc3_:int = 0;
+         while(_loc3_ < _loc1_.length)
+         {
+            this.removeEventListener(_loc1_[_loc3_] as String,null);
+            _loc3_++;
          }
          this._listeners = {};
       }

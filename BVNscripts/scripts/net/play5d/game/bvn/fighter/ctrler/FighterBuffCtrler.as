@@ -1,4 +1,4 @@
-﻿package net.play5d.game.bvn.fighter.ctrler
+package net.play5d.game.bvn.fighter.ctrler
 {
    import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.fighter.FighterMain;
@@ -26,6 +26,23 @@ import net.play5d.game.bvn.Debugger;
       {
          this._fighter = null;
       }
+
+        /**
+         * 局内重开专用：立即结束所有 Buff 并把被修改的属性恢复为原始值。
+         * 移植自3.7重开流程。
+         */
+        public function reset() : void
+        {
+           var _loc1_:FighterBuffVO = null;
+           for each(_loc1_ in this._buffObj)
+           {
+              if(Boolean(this._fighter) && this._fighter.hasOwnProperty(_loc1_.param))
+              {
+                 this._fighter[_loc1_.param] = _loc1_.resumeValue;
+              }
+           }
+           this._buffObj = {};
+        }
       
       public function speedUp(param1:Number = 0, param2:Number = 5) : void
       {

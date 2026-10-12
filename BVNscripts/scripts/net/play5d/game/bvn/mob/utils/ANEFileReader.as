@@ -1,10 +1,12 @@
-﻿package net.play5d.game.bvn.mob.utils
+package net.play5d.game.bvn.mob.utils
 {
+   import flash.events.*;
    import flash.external.ExtensionContext;
    import flash.filesystem.File;
    import flash.filesystem.FileMode;
    import flash.filesystem.FileStream;
    import flash.utils.ByteArray;
+   import flash.utils.Timer;
    import net.play5d.game.bvn.Debugger;
 
    public class ANEFileReader
@@ -15,21 +17,48 @@
 
       private static const TAG:String = "[ANEFileReader]";
 
-      /** Set to false when ANE (.ane file) is bundled in APK. Requires:
-       *   1. application.xml: uncomment <extensions><extensionID>com.bvn.filereader</extensionID></extensions>
-       *   2. debug_mob.bat: ensure BVNFileReader.ane is in tools/Test/ before packaging
-       *   When ANE is not bundled, AIR File API fallback handles all file operations. */
-      public static var ANE_ENABLED:Boolean = true;
+      /** 外置异步读取看门狗超时（毫秒），见 readBytesAsync 内说明。
+       *  取 8000ms：远大于正常读盘耗时（含 5MB 的 effect.swf），又远小于用户可感知的“卡死”。 */
+      private static const READ_ASYNC_TIMEOUT_MS:int = 8000;
+
+      /** Master switch for the WHOLE external-resource subsystem (scanning fighters/maps,
+       *  merging external config XML, per-asset external override). Consumed by GameData and
+       *  AssetLoader. It is deliberately separate from ANE_ENABLED: external resources work
+       *  through the AIR File API alone, they do not need the native extension. */
+      public static var EXTERNAL_ENABLED:Boolean = true;
+
+      /** Attempt to create the native extension context — DISABLED by design (2026-10-09).
+       *  com.bvn.filereader cannot be loaded on this toolchain (AIR 51 captive runtime):
+       *  ExtensionContext.createExtensionContext() always throws Error #2113 in the
+       *  runtime's LoaderContext.SecurityDomain check, BEFORE any Java code runs.
+       *  Verified against 8 variable families incl. a third-party ANE control group and
+       *  Adobe's own AIR 33.1.1 — see tools/Test/_report/2026-10-09_ANE-诊断报告.md.
+       *  Only set to true if a future toolchain is proven to load the ANE. */
+      public static var ANE_ENABLED:Boolean = false;
 
       public function ANEFileReader()
       {
          super();
+         tryInitContext();
+      }
+
+      /** Attempt to create the extension context (only when ANE_ENABLED is true).
+       *  Kept so a future, verified toolchain can simply flip the flag back. */
+      private function tryInitContext() : void
+      {
+         if(!ANE_ENABLED)
+         {
+            _ctx = null;
+            _hasANE = false;
+            Debugger.log(TAG, "ANE disabled (by design) — AIR File API path active");
+            return;
+         }
          try
          {
-            if(ANE_ENABLED) { _ctx = ExtensionContext.createExtensionContext("com.bvn.filereader", "");
-            _hasANE = (_ctx != null); } else { _ctx = null; _hasANE = false; }
+            _ctx = ExtensionContext.createExtensionContext("com.bvn.filereader", null);
+            _hasANE = (_ctx != null);
             Debugger.log(TAG, "ANE init:", _hasANE ? "OK" : "FAILED (ctx=null)");
-            // Dynamic EXTERNAL_BASE — get Android path via ANE, fall back to hardcoded
+            // Dynamic EXTERNAL_BASE — get the Android path via ANE, else keep hardcoded
             if(_hasANE)
             {
                tryInitExternalBase();
@@ -39,7 +68,7 @@
          {
             _ctx = null;
             _hasANE = false;
-            Debugger.log(TAG, "ANE init ERROR:", e.message);
+            Debugger.warn(TAG, "ANE init ERROR:", e.message);
          }
       }
 
@@ -78,12 +107,18 @@
          return _hasANE;
       }
 
-      /** External resource base path — app-private external storage on Android.
-       *  Path: /storage/emulated/0/Android/data/air.com.bvn.yinyu/BVN/assets/
-       *  Users can push custom content via:
-       *    adb push <local_dir>/ /storage/emulated/0/Android/data/air.com.bvn.yinyu/BVN/assets/
+      /** External resource base path — app-writable external storage on Android 11+.
+       *
+       *  Why Android/media and NOT Android/data:
+       *    - An app may not *create* Android/data/<pkg>/ with a raw path; the framework
+       *      creates it only via getExternalFilesDir(), which needs native code (the ANE
+       *      is unusable, see ANE_ENABLED). Measured: Error #3001.
+       *    - Android/media/<pkg>/ can be created and written with NO permission.
+       *  On-device probe (vivo V2073A / Android 13): create + write + read-back all OK.
+       *  Users can push custom content via adb (tar, to avoid CJK filename truncation):
+       *    adb push x.tar /sdcard/ && adb shell tar xf /sdcard/x.tar -C <this dir>
        *  Subdirs: fighter/ map/ face/ bgm/ config/  (auto-created on first launch) */
-      public static var EXTERNAL_BASE:String = "/storage/emulated/0/Android/data/air.com.bvn.yy798/BVN/assets/";
+      public static var EXTERNAL_BASE:String = "/storage/emulated/0/Android/media/air.com.bvn.yy798/BVN/assets/";
 
       /** DocumentsProvider authority string. File managers (e.g. MT Manager) use this to browse app data.
        *  Call registerProvider() to wake the process before opening in a file manager. */
@@ -215,6 +250,136 @@
          return readBytesFallback(path);
       }
 
+      /** 异步读取文件字节（AIR File API 的 FileStream.openAsync）。
+       *
+       *  批量并发加载依赖它：openAsync 把读盘交给运行时线程，主线程不再像同步 FileStream
+       *  那样被整个文件的读取阻塞（满量外置资源时这是启动与进战斗卡顿的主因）。
+       *  读取失败（文件不存在/不可读）时回调 fail()，由调用方回退内置 URL。
+       *  @param path 绝对路径
+       *  @param back 成功回调 back(bytes:ByteArray)
+       *  @param fail 失败回调 fail() */
+      public function readBytesAsync(path:String, back:Function, fail:Function = null) : void
+      {
+         if(_hasANE)
+         {
+            var aneBytes:ByteArray = null;
+            try
+            {
+               aneBytes = _ctx.call("readBytes", path) as ByteArray;
+            }
+            catch(e:Error)
+            {
+               Debugger.log(TAG, "readBytesAsync ANE ERROR:", e.message);
+            }
+            if(aneBytes && aneBytes.length > 0)
+            {
+               if(back != null) back(aneBytes);
+            }
+            else if(fail != null)
+            {
+               fail();
+            }
+            return;
+         }
+         var f:File = new File(path);
+         if(!f.exists || f.isDirectory)
+         {
+            if(fail != null) fail();
+            return;
+         }
+         var fs:FileStream = new FileStream();
+         var ba:ByteArray = new ByteArray();
+         var finished:Boolean = false;
+         var watchdog:Timer = null;
+         var closeStream:Function = function() : void
+         {
+            if(watchdog != null)
+            {
+               try { watchdog.stop(); } catch(e:Error) {}
+               watchdog = null;
+            }
+            try { fs.removeEventListener(Event.COMPLETE,onComplete); } catch(e:Error) {}
+            try { fs.removeEventListener(IOErrorEvent.IO_ERROR,onError); } catch(e:Error) {}
+            try { fs.removeEventListener(Event.CLOSE,onError); } catch(e:Error) {}
+            try { fs.close(); } catch(e:Error) {}
+         };
+         var onComplete:Function = function(e:Event) : void
+         {
+            if(finished) return;
+            finished = true;
+            try
+            {
+               fs.readBytes(ba,0,fs.bytesAvailable);
+            }
+            catch(err:Error)
+            {
+               Debugger.log(TAG, "readBytesAsync read ERROR:", path, err.message);
+            }
+            closeStream();
+            if(ba.length > 0)
+            {
+               Debugger.log(TAG, "readBytesAsync OK:", path, ba.length, "bytes");
+               if(back != null) back(ba);
+            }
+            else if(fail != null)
+            {
+               fail();
+            }
+         };
+         var onError:Function = function(e:Event) : void
+         {
+            if(finished) return;
+            finished = true;
+            closeStream();
+            Debugger.log(TAG, "readBytesAsync ERROR:", path);
+            if(fail != null) fail();
+         };
+         fs.addEventListener(Event.COMPLETE,onComplete);
+         fs.addEventListener(IOErrorEvent.IO_ERROR,onError);
+         fs.addEventListener(Event.CLOSE,onError);
+         // ===== 2026-10-11 看门狗：保证 back / fail 二者必被调用一次 =====
+         // 背景：真机上 openAsync 存在「既不派发 COMPLETE、也不派发 IO_ERROR / CLOSE」的情况
+         // （实测：外置 bgm/ 或 sounds/ 存在时启动必现永久卡死，外置读取越多越容易命中）。
+         // 一旦发生，本函数既不 back 也不 fail，而整条调用链都靠回调推进：
+         //   AssetBatchLoader 的 _active 只在 onDone / onFail 中 settle → 永不归零
+         //   → checkFinish() 永不成立 → loadBasic 某一步永不返回 → 永久卡在加载界面。
+         // 这里给出兜底出口：超时即按失败处理，调用方的 fail() 会回退内置加载，
+         // 于是「永不结算」在架构上不再可能发生。
+         watchdog = new Timer(READ_ASYNC_TIMEOUT_MS,1);
+         watchdog.addEventListener(TimerEvent.TIMER,function(e:TimerEvent) : void
+         {
+            if(finished) return;
+            finished = true;
+            Debugger.log(TAG, "readBytesAsync TIMEOUT, treat as fail:", path, "timeoutMs=", READ_ASYNC_TIMEOUT_MS);
+            closeStream();
+            if(fail != null) fail();
+         });
+         try
+         {
+            fs.openAsync(f,FileMode.READ);
+            watchdog.start();
+         }
+         catch(e:Error)
+         {
+            finished = true;
+            if(watchdog != null)
+            {
+               try { watchdog.stop(); } catch(e2:Error) {}
+               watchdog = null;
+            }
+            Debugger.log(TAG, "readBytesAsync openAsync failed, fallback to sync:", path, e.message);
+            var syncBytes:ByteArray = readBytesFallback(path);
+            if(syncBytes && syncBytes.length > 0)
+            {
+               if(back != null) back(syncBytes);
+            }
+            else if(fail != null)
+            {
+               fail();
+            }
+         }
+      }
+
       /** List filenames in directory */
       public function listDir(path:String) : Array
       {
@@ -242,7 +407,8 @@
          {
             result = existsFallback(path);
          }
-         Debugger.log(TAG, "exists:", path, "=" + result);
+         // 每个资源都要探测一次，正常路径改为折叠计数（错误分支见上面的 catch，仍单条输出）
+         Debugger.logFold("ANEFileReader.exists", path + "=" + result);
          return result;
       }
 

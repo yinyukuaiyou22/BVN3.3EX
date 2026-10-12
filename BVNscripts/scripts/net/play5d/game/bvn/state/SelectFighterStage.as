@@ -34,6 +34,15 @@ import net.play5d.game.bvn.mob.views.ViewManager;
       public static var TOTAL_PAGES:int = 5;
       /** 当前页号（0-based，用于翻页动画） */
       public static var CURRENT_PAGE:int = 0;
+
+      /**
+       * 选人角色格的物理占位尺寸（单个格子多大，**不是**「一行几个」）。
+       * 2026-10-10：新增。用于把「每页几行」从硬编码改为按视口推导：
+       *   rowsPerPage = floor((可用视口高 - CELL_SIZE.y) / CELL_SIZE.y) + 1
+       * 取值 60 与 SelectStageConfigVO.unitSize 的兜底值、SelectFighterItem 内多处 60 兜底一致
+       * （slt_item_mc ≈60，face 渲染 50×50）。
+       */
+      private static const CELL_SIZE:Point = new Point(60, 60);
       
       private static const SELECT_STATE_FIGHTER:int = 0;
       
@@ -240,34 +249,66 @@ import net.play5d.game.bvn.mob.views.ViewManager;
          var _loc7_:Number = NaN;
          var _loc8_:Number = this._config.x + this._config.left;
          var _loc9_:Number = this._config.y + this._config.top;
-         //单个格子的宽度为45px
+         // 网格步距（自由网格模式，取自 3.9 的自适应公式；实际赋值见下方 displayedVCount 之后）
          var _loc10_:Number = 45;
-         var _loc11_:Number = param1.VCount > 1 ? (this._config.height - this._config.unitSize.y - this._config.top - this._config.bottom) / (param1.VCount - 1) : 0;
+         var _loc11_:Number = 60;
          var _loc12_:Array = param1.list;
          this._curListConfig = param1;
          this._itemObj = {};
          var _loc13_:Number = GameConfig.GAME_SIZE.x / 2 - 30;
          var _loc14_:Number = GameConfig.GAME_SIZE.y / 2 - 30;
 
-         // 分页: 每页最多 ROWS_PER_PAGE 行，页高 = 实际行数 * 行间距
-         var rowsPerPage:int = 8;
+         // ===== 页高 / 每页行数：全部由 select.xml 的 layout 推导，代码里没有固定值 =====
+         // 2026-10-10 修复「行间距相当大」：原实现把 rowsPerPage 写死为 6，行距却用整幅画布高 layout.height 计算：
+         //   gapY = (layout.height - unitSize.y - top - bottom) / (rowsPerPage - 1)
+         // 当外部 select.xml 把 layout.height 写成 1380（整幅画布高）时，
+         // gapY = (1380 - 60 - 50 - 110) / 5 = 232，而视口只有 600 高 → 一屏最多看到 2 行、行间大片空白。
+         //
+         // 现行模型（把「页」的尺寸交给 XML 决定，程序自己识别）：
+         //   页高 PAGE_HEIGHT = min(layout.height, GameConfig.GAME_SIZE.y)
+         //     —— 上限取视口高：翻页滑动步长 bg.y 只有落在视口高以内，每页内容才完整可见且翻页能对齐
+         //        （步长 > 视口时，第 2 页起的内容会滚出屏幕，末行永久看不到）。
+         //   每页行数 = 可用页高 / 单个格子高
+         //   ✅ 想让每页多/少几行、或想调行距：只改 select.xml 的 layout height/top/bottom，本函数自动跟随。
+         var viewportH:Number = Math.min(this._config.height, GameConfig.GAME_SIZE.y);
+         var usableH:Number = viewportH - this._config.top - this._config.bottom;
+         if(usableH < CELL_SIZE.y) { usableH = CELL_SIZE.y; }
+         var rowsPerPage:int = Math.floor(usableH / CELL_SIZE.y);
          if(rowsPerPage < 1) { rowsPerPage = 1; }
+
          var maxY:int = 0;
          for each(var _itemVO:SelectCharListItemVO in _loc12_)
          {
             if(_itemVO.y > maxY) { maxY = _itemVO.y; }
          }
-         // 重算 VCount 为实际每页行数，用于垂直间距计算
-         var displayedVCount:int = param1.VCount;
-         if(displayedVCount > rowsPerPage) { displayedVCount = rowsPerPage; }
-         if(displayedVCount > 1)
-         {
-            _loc11_ = (this._config.height - this._config.unitSize.y - this._config.top - this._config.bottom) / (displayedVCount - 1);
-         }
-         PAGE_HEIGHT = 600;  // 与 select.xml layout height 一致，整除 timeline speed=100（6帧到位）
-         TOTAL_PAGES = Math.max(1, Math.ceil((maxY * _loc11_) / PAGE_HEIGHT) + 1);
+         // 实际参与垂直布局的行数：取「列表声明行数、每页行数、实际最大行号 + 1」三者最小
+         var displayedVCount:int = Math.min(param1.VCount, rowsPerPage, maxY + 1);
+         if(displayedVCount < 1) { displayedVCount = 1; }
+         
+         // ===== 自由网格：列距/行距按「页」尺寸与行列数自适应 =====
+         // 列距：HCount 列在 layout 可用宽内均匀铺开（item.x 是列号）
+         _loc10_ = param1.HCount > 1 ? (this._config.width - this._config.unitSize.x - this._config.left - this._config.right) / (param1.HCount - 1) : 0;
+         // 行距：只由「可见行数 + 页高」推导。
+         // ⚠️ 不要改回 3.9 的整幅 layout.height 公式：3.9 是整列直排（layout.height = 全部行铺满所需高度），
+         //    本项目是分页（每页只显示 rowsPerPage 行），两者不是同一个量。
+         // 不变量：间距*行数 + 末行格高 = 页高 - 顶边距 - 底边距（末行完整落在视口内，底边距得以保留）
+         _loc11_ = displayedVCount > 1 ? (viewportH - this._config.unitSize.y - this._config.top - this._config.bottom) / (displayedVCount - 1) : CELL_SIZE.y;
+         if(_loc10_ < 0) { _loc10_ = 0; }
+         if(_loc11_ < CELL_SIZE.y) { _loc11_ = CELL_SIZE.y; }
+         
+         // 2026-10-10：PAGE_HEIGHT 改为由 layout 推导（不再是硬编码 600），并与容器定位共用同一个量，
+         // 避免「行距用一个高、页号偏移用另一个高」的错位。
+         // ⚠️ select.swf 内嵌帧脚本（DoABC）在加载时**各读一次** PAGE_HEIGHT / TOTAL_PAGES 并缓存到局部
+         //    （见 tools/script/patch_pagination.as），因此本值在选人界面构建时必须已稳定；
+         //    改这里只影响同一套 select.xml 配置下的一致性，跨配置切换需重启应用。
+         PAGE_HEIGHT = viewportH;
+         // 页数按"行数 / 每页行数"算——原来用 maxY * 行距 / PAGE_HEIGHT，行距一改页数就跟着变
+         // （自适应行距把 assist_list 多算出一个空页），与本函数的网格步距解耦。
+         TOTAL_PAGES = Math.max(1, Math.ceil((maxY + 1) / rowsPerPage));
          CURRENT_PAGE = 0;
-         Debugger.log("[SelectFighterStage] pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "rowsPerPage:", rowsPerPage);
+         Debugger.log("[SelectFighterStage] pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "rowsPerPage:", rowsPerPage,
+                      "layoutH:", this._config.height, "usableH:", usableH,
+                      "HCount:", param1.HCount, "VCount:", param1.VCount, "gapX:", _loc10_, "gapY:", _loc11_);
 
          while(_loc2_ < _loc12_.length)
          {
@@ -352,8 +393,8 @@ import net.play5d.game.bvn.mob.views.ViewManager;
          }
          CURRENT_PAGE = 0;
          // 不覆盖 goNext/goPrev（stg_select 类方法是 final 的不可运行时替换）
-         // 帧脚本用 SelectFighterStage.PAGE_HEIGHT（静态默认值500已对齐 buildList）
-         // speed=100, pageHeight=500 → 500÷100=5 帧正好到位，无震荡
+         // 2026-10-10 更正：帧脚本实际读的是 SelectFighterStage.PAGE_HEIGHT（构建期已由 layout 推导覆盖），
+         // 旧注释里的「静态默认值 500」是历史遗留，当前静态默认值与推导口径见文件头 PAGE_HEIGHT 声明。
          Debugger.log("[SelectFighterStage] pagination pages:", TOTAL_PAGES, "pageHeight:", PAGE_HEIGHT, "positions:", _pagArr);
       }
 
@@ -815,7 +856,19 @@ import net.play5d.game.bvn.mob.views.ViewManager;
       
       private function isHoverFighter(param1:SelecterItemUI, param2:SelectFighterItem) : Boolean
       {
-         return param1.x == param2.selectData.x && param1.y == param2.selectData.y;
+         if(param1.x != param2.selectData.x || param1.y != param2.selectData.y)
+         {
+            return false;
+         }
+         // 2026-09-29 扩展格触屏修复：扩展格创建时复用主角色网格坐标（批次6.8），
+         // 坐标相同时若 param2 不是自己坐标格的格子主（_itemObj["x,y"] 里存的是主角色），
+         // 说明它是扩展格 → 必须再校验 fighterVO 身份，否则点扩展格会误判"已悬停"，
+         // 直接 doSelect 选中光标上的主角色。普通格子（含随机角色）不受影响。
+         if(this._itemObj && this._itemObj[param2.selectData.x + "," + param2.selectData.y] != param2)
+         {
+            return param1.currentFighter == param2.fighterData;
+         }
+         return true;
       }
       
       private function moveToSelectFighter(param1:SelecterItemUI, param2:SelectFighterItem) : void
@@ -1300,8 +1353,12 @@ import net.play5d.game.bvn.mob.views.ViewManager;
       }
 
       // ================================================================
-      // 分页 — 帧脚本读取 SelectFighterStage.PAGE_HEIGHT(默认500) 初始化 arr
-      // buildList 对齐 PAGE_HEIGHT=500，speed=100 → 500÷100=5帧 无震荡
+      // 分页 — select.swf 内嵌帧脚本（DoABC）在加载时各读一次 PAGE_HEIGHT / TOTAL_PAGES
+      // 并缓存到局部变量（源码留档见 tools/script/patch_pagination.as），随后：
+      //   pageHeight 作为 bg.y 的每页滑动步长（speed=100 逐帧逼近，步长÷100 = 到位帧数）
+      //   arr 作为各页目标位置
+      // 因此 buildList 里 PAGE_HEIGHT 由 select.xml 的 layout 推导（= min(layout.height, 视口高)），
+      // 与帧脚本共用同一个量，避免「行距用一个高、页号偏移用另一个高」造成翻页错位。
       // render() 处理辅助界面归位（隐藏按钮 + bg.y=0）
       // ================================================================
 

@@ -25,7 +25,16 @@ package net.play5d.game.bvn.data
       
       public var assistList:SelectCharListConfigVO;
       
-      public var unitSize:Point = new Point(50,50);
+      /**
+       * 单个格子的占位尺寸（xml 未解析，代码常量）。
+       * 用于 buildList 的自适应步距：gapX = (width - unitSize.x - left - right) / (HCount - 1)。
+       * 2026-09-30：50 → 60，与角色格实际宽度（slt_item_mc ≈60，SelectFighterItem 内多处以 60 兜底）对齐；
+       * 取 50 时公式会以为最后一格只占 50，导致最后一列被挤出屏幕右边 10px。
+       * 2026-10-10 语义澄清：本字段只描述「一个格子占多大」，**不表示一行有几个/一页有几行**。
+       * 「每页几行」由 SelectFighterStage.buildList 按可用视口高与格子高推导（视口高取
+       * min(layout.height, GameConfig.GAME_SIZE.y)），不在此配置，避免行距随 layout.height 被撑大。
+       */
+      public var unitSize:Point = new Point(60,60);
       
       public function SelectStageConfigVO()
       {

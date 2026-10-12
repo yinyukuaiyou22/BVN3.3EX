@@ -127,6 +127,106 @@ package net.play5d.game.bvn.ctrl
          this._gameStage = null;
          this._effectLayer = null;
       }
+
+        /**
+         * 局内重开专用：单帧清空所有活动特效与临时表现状态，不销毁管理器本身。
+         * 移植自3.7重开流程，按3.3 EffectCtrl 结构实现。
+         */
+        public function clearAll() : void
+        {
+           var _loc1_:int = 0;
+           var _loc2_:EffectView = null;
+           var _loc3_:ShineEffectView = null;
+           var _loc4_:ShadowEffectView = null;
+
+           if(Boolean(this._effects))
+           {
+              while(this._effects.length > 0)
+              {
+                 _loc2_ = this._effects.pop();
+                 if(Boolean(_loc2_))
+                 {
+                    try
+                    {
+                       _loc2_.destory();
+                    }
+                    catch(e:Error)
+                    {
+                    }
+                 }
+              }
+           }
+           if(Boolean(this._shineEffects))
+           {
+              while(this._shineEffects.length > 0)
+              {
+                 _loc3_ = this._shineEffects.pop();
+                 if(Boolean(_loc3_))
+                 {
+                    try
+                    {
+                       _loc3_.destory();
+                    }
+                    catch(e:Error)
+                    {
+                    }
+                 }
+              }
+           }
+           if(Boolean(this._shadowEffects))
+           {
+              for each(_loc4_ in this._shadowEffects)
+              {
+                 try
+                 {
+                    _loc4_.destory();
+                 }
+                 catch(e:Error)
+                 {
+                 }
+              }
+              this._shadowEffects = new Dictionary();
+           }
+           if(Boolean(this._filterEffects))
+           {
+              this._filterEffects.length = 0;
+           }
+           if(Boolean(this._justRenderAnimateTargets))
+           {
+              this._justRenderAnimateTargets.length = 0;
+           }
+           if(Boolean(this._justRenderTargets))
+           {
+              this._justRenderTargets.length = 0;
+           }
+           if(Boolean(this._blackBack))
+           {
+              try
+              {
+                 if(Boolean(this._blackBack.parent))
+                 {
+                    this._blackBack.parent.removeChild(this._blackBack);
+                 }
+              }
+              catch(e:Error)
+              {
+              }
+              this._blackBack.destory();
+              this._blackBack = new BlackBackView();
+           }
+           this._freezeFrame = 0;
+           this._onFreezeOver = null;
+           this._slowDownFrame = 0;
+           this._replaceSkillFrame = 0;
+           this._replaceSkillFrameHold = 0;
+           this._explodeSkillFrame = 0;
+           this.freezeEnabled = true;
+           if(Boolean(this._gameStage))
+           {
+              this.endShake();
+           }
+           this.slowDownResume();
+        }
       
       public function initlize(param1:GameState, param2:Sprite) : void
       {
@@ -319,12 +419,12 @@ package net.play5d.game.bvn.ctrl
          var _loc5_:Number = param2.x + param2.width / 2;
          var _loc6_:Number = param2.y + param2.height / 2;
          var _loc7_:int = 1;
-         if(Boolean(_loc4_.followDirect) && Boolean(param1.owner) && param1.owner is IGameSprite)
-         {
-            _loc7_ = int((param1.owner as IGameSprite).direct);
-         }
+          if(Boolean(_loc4_.followDirect) && Boolean(param1.owner) && param1.owner is IGameSprite)
+          {
+             _loc7_ = int((param1.owner as IGameSprite).direct);
+          }
          this.doEffectVO(_loc4_,_loc5_,_loc6_,_loc7_,param3);
-      }
+       }
       
       public function doDefenseEffect(param1:HitVO, param2:Rectangle, param3:int, param4:IGameSprite = null) : void
       {
@@ -391,12 +491,19 @@ package net.play5d.game.bvn.ctrl
          var _loc5_:Number = param2.x + param2.width / 2;
          var _loc6_:Number = param2.y + param2.height / 2;
          var _loc7_:int = 1;
-         if(Boolean(_loc4_.followDirect) && Boolean(param1.owner) && param1.owner is IGameSprite)
-         {
-            _loc7_ = int((param1.owner as IGameSprite).direct);
-         }
+          if(Boolean(_loc4_.followDirect) && Boolean(param1.owner) && param1.owner is IGameSprite)
+          {
+             _loc7_ = int((param1.owner as IGameSprite).direct);
+          }
+          // 2026-09-09 竞技规则移植：刚身停顿关闭时，钢体命中特效不冻结、不闪光
+          if(!GameData.I.config.isSteelBodyFreeze)
+          {
+             _loc4_ = _loc4_.clone();
+             _loc4_.freeze = 0;
+             _loc4_.shine = {};
+          }
          this.doEffectVO(_loc4_,_loc5_,_loc6_,_loc7_,param3);
-      }
+       }
       
       public function doEffectById(param1:String, param2:Number, param3:Number, param4:int = 1, param5:IGameSprite = null) : void
       {
@@ -1011,4 +1118,3 @@ package net.play5d.game.bvn.ctrl
       }
    }
 }
-

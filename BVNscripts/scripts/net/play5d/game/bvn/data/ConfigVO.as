@@ -31,9 +31,22 @@
       
       public var keyInputMode:int = 1;
       
-      public var INFINITE_ENERGY:Boolean = false;
-      
-      public var extendConfig:IExtendConfig;
+       public var INFINITE_ENERGY:Boolean = false;
+       
+       // 2026-09-09 竞技规则移植（fork=3.3竞技项 win 版，默认值照搬 fork）
+       public var isSteelBodyFreeze:Boolean = false;
+       
+       public var initialQi:Number = 100;
+       
+       public var allowWankai:Boolean = true;
+       
+       public var isAllowRepeatAttack:Boolean = false;
+       
+       public var isChangeSpecialKey:Boolean = true;
+       
+       public var cameraMaxSize:Number = 1;
+       
+       public var extendConfig:IExtendConfig;
       
       public function ConfigVO()
       {
@@ -72,8 +85,14 @@
          o.keyInputMode = this.keyInputMode;
          o.soundVolume = this.soundVolume;
          o.bgmVolume = this.bgmVolume;
-         o.INFINITE_ENERGY = this.INFINITE_ENERGY;
-         if(Boolean(this.extendConfig))
+          o.INFINITE_ENERGY = this.INFINITE_ENERGY;
+          o.isSteelBodyFreeze = this.isSteelBodyFreeze;
+          o.initialQi = this.initialQi;
+          o.allowWankai = this.allowWankai;
+          o.isAllowRepeatAttack = this.isAllowRepeatAttack;
+          o.isChangeSpecialKey = this.isChangeSpecialKey;
+          o.cameraMaxSize = this.cameraMaxSize;
+          if(Boolean(this.extendConfig))
          {
             o.extend_config = this.extendConfig.toSaveObj();
          }
@@ -181,6 +200,40 @@
          SoundCtrl.I.setBgmVolumn(this.bgmVolume);
          SoundCtrl.I.setSoundVolumn(this.soundVolume);
       }
+      
+      /** 当前是否已符合竞技标准（一键切换的判定依据） */
+      public function isSportRuleEnabled() : Boolean
+      {
+         return this.isSteelBodyFreeze && this.initialQi == 100 && !this.allowWankai && !this.isAllowRepeatAttack && !this.isChangeSpecialKey && this.cameraMaxSize == 1;
+      }
+      
+      /**
+       * 一键切换规则：已是竞技标准则切回娱乐，否则切到竞技标准。
+       * 只改内存中的 6 个竞技项，保存由 RuleState 的 APPLY / 返回确认触发。
+       */
+      public function switchAllRuleConfig() : void
+      {
+         this.setAllRuleConfig(!this.isSportRuleEnabled());
+      }
+      
+      public function setAllRuleConfig(param1:Boolean) : void
+      {
+         this.initialQi = 100;
+         this.cameraMaxSize = 1;
+         if(param1)
+         {
+            this.isSteelBodyFreeze = true;
+            this.allowWankai = false;
+            this.isAllowRepeatAttack = false;
+            this.isChangeSpecialKey = false;
+         }
+         else
+         {
+            this.isSteelBodyFreeze = false;
+            this.allowWankai = true;
+            this.isAllowRepeatAttack = true;
+            this.isChangeSpecialKey = true;
+         }
+      }
    }
 }
-

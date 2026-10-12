@@ -41,7 +41,7 @@ package net.play5d.game.bvn.ui.select
             {
                UIUtils.formatText(this._text.textfield,{
                   // 颜色: 0x384838(深灰绿 R=56 G=72 B=56) —— 已选角色名(P1框)文字颜色
-                  "color":3688504,
+                  "color":6845572,
                   "size":15,
                   "align":"center"
                });
@@ -51,14 +51,14 @@ package net.play5d.game.bvn.ui.select
             {
                UIUtils.formatText(this._text.textfield,{
                   // 颜色: 0x384838(深灰绿 R=56 G=72 B=56) —— 已选角色名(P2框)文字颜色
-                  "color":3688504,
+                  "color":6845572,
                   "size":15,
                   "align":"center"
                });
                this._text.x = 10;
                this._text.width = param1.width - 10;
             }
-            this._text.y = param1.height - 35;
+            this._text.y = param1.height - 50;
             param1.addChild(this._text);
          }
       }
@@ -116,7 +116,8 @@ package net.play5d.game.bvn.ui.select
             return;
          }
          this._fighter = param1;
-         Debugger.log("[SelectedUI]", "setFighter id=" + param1.id);
+         // 每帧刷新选中态都会走到这里，改为折叠计数（避免刷屏）
+         Debugger.logFold("SelectedUI.setFighter", param1.id);
          if(Boolean(this._text))
          {
             this._text.text = param1.name;

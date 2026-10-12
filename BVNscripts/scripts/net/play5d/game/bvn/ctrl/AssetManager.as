@@ -1,6 +1,9 @@
 package net.play5d.game.bvn.ctrl
 {
    import flash.display.*;
+   import flash.filesystem.File;
+   import flash.filesystem.FileMode;
+   import flash.filesystem.FileStream;
    import flash.geom.*;
    import flash.media.Sound;
    import net.play5d.game.bvn.data.*;
@@ -29,6 +32,28 @@ package net.play5d.game.bvn.ctrl
       private const _effectSwfPath:String = "assets/effect.swf";
       
       private var _fighterFaceCache:Object = {};
+
+      /** AS3 批量加载并发度：声音文件较大（BGM 常达数 MB），3 路并发以控制内存峰值与 I/O 争抢 */
+      private static const SOUND_BATCH_CONCURRENCY:int = 3;
+
+      /** [PERF 临时探针 2026-10-10] 立即落盘的计时日志。
+       *  Debugger 是缓冲写、且主线程阻塞时不刷新，导致排查期完全看不到日志；
+       *  这里每次 append 后立即 close，保证阻塞也能留下证据。定位完删除。 */
+      private var _perfStart:int = 0;
+      private var _perfStepNames:Array = ["声音","特效","字体","图片","完成"];
+      private function perf(msg:String) : void
+      {
+         try
+         {
+            if(_perfStart == 0) _perfStart = flash.utils.getTimer();
+            var pf:File = File.applicationStorageDirectory.resolvePath("perf.txt");
+            var pfs:FileStream = new FileStream();
+            pfs.open(pf, FileMode.APPEND);
+            pfs.writeUTFBytes("+" + (flash.utils.getTimer() - _perfStart) + "ms  " + msg + "\n");
+            pfs.close();
+         }
+         catch(e:Error) {}
+      }
       
       public function AssetManager()
       {
@@ -75,6 +100,7 @@ package net.play5d.game.bvn.ctrl
          };
          loadNext = function():void
          {
+            perf("step " + loadStep + "(" + _perfStepNames[loadStep] + ") begin");
             switch(loadStep)
             {
                case 0:
@@ -113,6 +139,7 @@ package net.play5d.game.bvn.ctrl
          };
          loadStep = 0;
          loadCount = 4;
+         perf("loadBasic begin");
          loadNext();
       }
       
@@ -122,6 +149,7 @@ package net.play5d.game.bvn.ctrl
          var process:Function = null;
          back = param1;
          process = param2;
+         perf("loadPreLoadSounds begin");
          this._assetLoader.loadXML("assets/config/preload.xml",function(param1:XML):void
          {
             var _loc5_:* = undefined;
@@ -143,55 +171,35 @@ package net.play5d.game.bvn.ctrl
       
       private function loadSnds(param1:Array, param2:Function, param3:Function) : void
       {
-         var curUrl:String = null;
-         var back:Function = null;
-         var process:Function = null;
-         var loadCom:* = undefined;
-         var loadErr:* = undefined;
-         var loadProcess:* = undefined;
-         var snds:Array = null;
-         var sndLen:int = 0;
-         var sounds:Array = param1;
-         back = param2;
-         process = param3;
-         var loadNext:* = function():void
+         var sounds:Array = param1.concat();
+         var back:Function = param2;
+         var process:Function = param3;
+         var self:AssetManager = this;
+         perf("loadSnds n=" + sounds.length + " batch");
+         if(sounds.length < 1)
          {
-            if(snds.length < 1)
+            if(back != null) back();
+            return;
+         }
+         // AS3 批量加载：不再逐个等前一个 COMPLETE 才发起下一个，按并发度同时挂起多路加载
+         var batch:AssetBatchLoader = new AssetBatchLoader();
+         batch.load(sounds,function(url:String, onDone:Function, onFail:Function, onProgress:Function):void
+         {
+            self._assetLoader.loadSound(url,function(param1:Sound):void
             {
-               if(back != null)
-               {
-                  back();
-               }
-               return;
-            }
-            curUrl = snds.shift();
-            _assetLoader.loadSound(curUrl,loadCom,loadErr,loadProcess);
-         };
-         loadCom = function(param1:Sound):void
-         {
-            _soundLoader.addSound(curUrl,param1);
-            _assetLoader.dispose(curUrl);
-            loadNext();
-         };
-         loadErr = function():void
-         {
-            Debugger.log("加载声音失败 : " + curUrl);
-            loadNext();
-         };
-         loadProcess = function(param1:Number):void
-         {
-            var _loc2_:Number = NaN;
-            var _loc3_:Number = NaN;
-            if(process != null)
+               self._soundLoader.addSound(url,param1);
+               self._assetLoader.dispose(url);
+               onDone();
+            },function():void
             {
-               _loc2_ = sndLen - snds.length - 1 + param1;
-               _loc3_ = _loc2_ / sndLen;
-               process(_loc3_);
-            }
-         };
-         snds = sounds.concat();
-         sndLen = int(snds.length);
-         loadNext();
+               Debugger.log("加载声音失败 : " + url);
+               onFail();
+            },onProgress);
+         },function():void
+         {
+            perf("loadSnds DONE");
+            if(back != null) back();
+         },process,SOUND_BATCH_CONCURRENCY);
       }
       
       private function initAssets() : void
@@ -241,7 +249,7 @@ package net.play5d.game.bvn.ctrl
          }
          if(!param2)
          {
-            param2 = new Point(245,62);
+            param2 = new Point(265,150);
          }
          _loc3_.width = param2.x;
          _loc3_.height = param2.y;
@@ -373,7 +381,13 @@ package net.play5d.game.bvn.ctrl
          _loc3_ = _loc3_.concat(this.getFighterFaceUrls(AssisterModel.I.getAllAssisters()));
          _loc3_ = _loc3_.concat(this.getMapPicUrls(MapModel.I.getAllMaps()));
          KyoUtils.array_deleteSames(_loc3_);
-         this._bitmapLoader.loadQueue(_loc3_,param1,param2);
+         perf("loadBitmaps queue=" + _loc3_.length);
+         var _perfWrap:Function = null;
+         if(param1 != null)
+         {
+            _perfWrap = function():void { perf("loadBitmaps DONE"); param1(); };
+         }
+         this._bitmapLoader.loadQueue(_loc3_, _perfWrap, param2);
       }
       
       private function loadFonts(param1:Function = null, param2:Function = null) : void

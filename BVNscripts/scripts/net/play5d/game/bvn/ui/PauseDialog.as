@@ -7,6 +7,7 @@ package net.play5d.game.bvn.ui
    import net.play5d.game.bvn.ctrl.game_ctrls.*;
    import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.events.*;
+     import net.play5d.game.bvn.ui.dialog.*;
    import net.play5d.kyo.utils.*;
    
    public class PauseDialog extends Sprite
@@ -21,6 +22,8 @@ package net.play5d.game.bvn.ui
       private var _btnData:Array;
       
       private var _bIsOpenAI:Boolean;
+
+        private var _restartConfirm:RestartConfirmUI;
       
       public function PauseDialog()
       {
@@ -50,6 +53,9 @@ package net.play5d.game.bvn.ui
             "label":"CONTINUE",
             "cn":"继续游戏"
          },{
+             "label":"RESTART BATTLE",
+             "cn":"重开对局"
+          },{
             "label":"BERAK SELECT",
             "cn":"返回选人"
          }];
@@ -59,6 +65,7 @@ package net.play5d.game.bvn.ui
       
       public function destory() : void
       {
+           this.closeRestartConfirm();
          if(Boolean(this._btnGroup))
          {
             this._btnGroup.removeEventListener("SELECT",this.btnGroupSelectHandler);
@@ -87,6 +94,7 @@ package net.play5d.game.bvn.ui
       
       public function hide() : void
       {
+           this.closeRestartConfirm();
          this.visible = false;
          this._btnGroup.keyEnable = false;
          GameUI.closeConfrim();
@@ -124,6 +132,11 @@ package net.play5d.game.bvn.ui
                EffectCtrl.I.endShake();
                MainGame.I.goSelect();
                break;
+             case "RESTART BATTLE":
+                // 3.7 扩展移植：暂停菜单内“重开对局”入口，带 3.3 风格确认弹窗。
+                this.showRestartConfirm();
+                MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["restart_confirm"])));
+                break;
             case "CONTINUE":
                GameCtrl.I.resume(true);
                break;
@@ -136,6 +149,57 @@ package net.play5d.game.bvn.ui
                }
          }
       }
+
+        /**
+         * 3.7 扩展移植：显示“重开对局”确认弹窗（3.3 风格）。
+         * 弹窗期间保持暂停，PauseDialog 自身按钮全部禁用，防止误触。
+         */
+        private function showRestartConfirm() : void
+        {
+           if(Boolean(this._restartConfirm))
+           {
+              return;
+           }
+           this._btnGroup.keyEnable = false;
+             // 确保弹窗期间全局暂停标志为 true（游戏逻辑保持暂停）。
+             GameCtrl.I.pause(true);
+           this._restartConfirm = new RestartConfirmUI();
+           this._restartConfirm.yesBack = this.confirmRestartYes;
+           this._restartConfirm.noBack = this.confirmRestartNo;
+           MainGame.I.root.addChild(this._restartConfirm);
+        }
+
+        private function confirmRestartYes() : void
+        {
+           if(Boolean(this._restartConfirm))
+           {
+              this._restartConfirm.close();
+              this._restartConfirm = null;
+           }
+           MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["restart_yes"])));
+           // 执行局内重开：内部会保持 isPaused=true 直到重置完成，再恢复游戏。
+           GameCtrl.I.restartBattle();
+        }
+
+        private function confirmRestartNo() : void
+        {
+           if(Boolean(this._restartConfirm))
+           {
+              this._restartConfirm.close();
+              this._restartConfirm = null;
+           }
+           this._btnGroup.keyEnable = true;
+           MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["restart_cancel"])));
+        }
+
+        private function closeRestartConfirm() : void
+        {
+           if(Boolean(this._restartConfirm))
+           {
+              this._restartConfirm.close();
+              this._restartConfirm = null;
+           }
+        }
       
       private function showMoveList() : void
       {
