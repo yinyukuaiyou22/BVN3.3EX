@@ -1,6 +1,9 @@
 # BVN AI 系统完整分析文档（PC 版）
 
 > 基于 `BVNscripts/PC/scripts/` 最新代码。仅涵盖核心 AI 系统：`FighterAICtrl` + `FighterAILogic` + `FighterAILogicBase`。
+>
+> ⚠️ **历史文档警告（2026-10-09 核对）**：本文声称的基准路径 `BVNscripts/PC/` **在当前仓库中已不存在**，文中"PC 版"指一条与手机端主项目 `BVNscripts/scripts/` 不同的分支。引用本文结论前**先核对文件路径与实际行数**。
+> 手机端主项目的 AI 难度移植请改看 [`crazy-ai/crazy-ai.md`](crazy-ai/crazy-ai.md)，不要照抄本文的等级表。
 
 ## 1. 架构总览
 

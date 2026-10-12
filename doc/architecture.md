@@ -131,9 +131,12 @@ AS3: ANEFileReader.I.readBytes(path)
 | `sync.py`          | Outscripts → BVNscripts 同步脚本   |
 | `CLAUDE.md`        | AI 开发助手指南（全局）            |
 | `AGENTS.md`        | AI 开发工作流规则 + ANE 规范       |
-| `AI-SYSTEM-DOC.md` | AI 系统详细文档                    |
 | `README.md`        | 项目简介                           |
-| `build_output.txt` | 构建日志（应被 gitignore）         |
+
+> **2026-10-11 文档归档**：根目录不再散落文档，只保留 `CLAUDE.md` / `AGENTS.md` / `README.md` 三个入口。
+> `AI-SYSTEM-DOC.md` 归入 `doc/`；`build_output.txt` / `mob_*.log` 归入 `doc/archive/logs/`；
+> 原 `docs/`（ADR、plans）并入 `doc/adr/`、`doc/plans/`；第三方技能包移出到 `tools/skills-1.2.3/`。
+> **全部文档检索入口见 [`doc/README.md`](README.md)。**
 
 ### 5.3 路径依赖图
 
