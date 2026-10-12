@@ -5,6 +5,11 @@
 localFonts.ser
 flex-config.xml
 build_output.txt
+mob_build.log
+mob_lint.log
+
+# 归档的构建日志（临时产物，2026-10-11 文档归档时移入 doc/archive/logs/）
+doc/archive/logs/
 
 # Temp & debug directories
 debug_export/
@@ -50,6 +55,12 @@ tools/Test/assets/*
 tools/Test/assets/fighter/
 tools/Test/assets/face/
 tools/Test/assets/bgm/
+# 配置目录下的备份与临时文件不进版本库（真实 config XML 仍需跟踪）
+tools/Test/assets/config/backup/
+tools/Test/assets/config/*.bak
+tools/Test/assets/config/*.bak_*
+tools/Test/assets/config/*带注释*
+tools/Test/assets/config/*.tmp
 
 # Flash sources & tools
 swf/*.fla
@@ -71,3 +82,89 @@ FlaUi/
 
 # Backup directories (local snapshots, never tracked)
 .backup/
+
+# 第三方技能包（mattpocock/skills v1.2.3，原样留存但非本项目源码，不推送）
+tools/skills-1.2.3/
+
+# 版本发布用 Release 附件（APK / 模板 ZIP 走 GitHub Release，不进源码提交）
+*.apk
+doc/external-fighter-37/external-fighter-template-package.zip
+
+# 本地构建用 Gradle 缓存（2026-10-09 ANE ns-51 实验；可删）
+.gradle-home/
+
+# ---------------------------------------------------------------
+# 以下为 2026-10-11 补充：清理已误入库的本地工具与临时产物
+# （已 git add 过的文件需 git rm --cached 才会真正移出版本库，见文末说明）
+# ---------------------------------------------------------------
+
+# 日志（散落根目录与临时产物）
+*.log
+_min.log
+build_output.txt
+mob_build.log
+mob_lint.log
+
+# 本地 Android 工具链二进制（约 40MB，可从官方 SDK 重新获取）
+tools/platform-tools/
+android-platform-33/
+tools/cmdline-tools/
+*.jar
+
+# 临时 / 中间产物 / 编辑残留
+*.bak
+*.bak_*
+*.pcode
+*.tmp
+*.swp
+*~
+Thumbs.db
+Desktop.ini
+
+# AI 会话记录与日志（含完整对话历史，属隐私）
+*.jsonl
+**/session*.jsonl
+npm-cache-*/
+.tools/
+*_log.txt
+script_*_log.txt
+script_strict_log.txt
+
+# ---------------------------------------------------------------
+# 2026-10-12 补充：提交前排查出的漏网项（均已验证无已跟踪文件被误伤）
+# ---------------------------------------------------------------
+# _assets/swf 下的 UI SWF 二进制（.bin/.jpg 逃过了 *.swf 规则，约 26MB；
+# 已 git ls-files 验证该目录内 0 个已跟踪文件；已跟踪的 32 个 png 在 _assets/ 根）
+BVNscripts/scripts/_assets/swf/
+# 误建/临时/AI 会话目录与本机工具
+%SystemDrive%/
+_pre_rebase_snapshot/
+.agents/
+.codex/
+.trae/
+.workbuddy/
+.npm-cache-grill/
+tools/daizy/
+# 本机推送脚本与操作手册（含本机路径，属个人工具）
+push-to-github.ps1
+PUSH-操作手册.md
+# 临时测试残留
+BVNscripts/scripts/_wtest_dsh.txt
+# 外置人物模板包目录（ZIP 走 Release 附件，源目录不进源码提交）
+doc/external-fighter-37/template-package/
+
+# ===============================================================
+# 须知：已被 git 跟踪的文件，仅加进 .gitignore 不会从版本库消失
+# ===============================================================
+# git 的优先级：已跟踪文件 > .gitignore。
+# 上面 tools/platform-tools/、android-platform-33/、*.bak、*.pcode 里的
+# 部分文件历史上已被 git add 过，因此当下仍留在版本库中。
+# 要让它们真正移出，需执行（保留本地文件，只从索引移除）：
+#
+#   git rm -r --cached tools/platform-tools android-platform-33
+#   git rm --cached BVNscripts/scripts/launch.as.bak \
+#                   BVNscripts/scripts/net/play5d/game/bvn/ui/SetBtnGroup.pcode
+#   git commit -m "chore: 将误入库的本地工具二进制移出版本库"
+#
+# 历史对象仍在 git history 中；如需彻底瘦身仓库另需
+# git filter-repo / BFG，那会重写历史并影响所有协作者。
