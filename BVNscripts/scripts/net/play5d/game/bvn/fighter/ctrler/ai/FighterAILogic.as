@@ -62,6 +62,29 @@ package net.play5d.game.bvn.fighter.ctrler.ai
       
       private var _crazyDefenseFarRate:Number = 1;
       
+      /**
+       * ===== HELL / CRAZY 共用：随机纽带连招（丙方案）=====
+       *
+       * 取值说明（详见 doc/decisions-ai-link-chain.md）：
+       * _linkOrder 取 999 —— updateContOrder() 用 sortOn("order", 2 | 0x10) 降序仲裁，
+       * order 越大越优先，999 稳定压过本文件既有最大 order（attack 的 300、超必杀的 210），
+       * 保证随机掷中的纽带不会被同帧其它候选顶掉。
+       * 概率门复用 getAIResult 的 6/7 参数分档：HELL 读 param6=6，CRAZY 读 param7=10。
+       */
+      private var _linkOrder:int = 999;
+      
+      private var _linkRateHell:Number = 6;
+      
+      private var _linkRateCrazy:Number = 10;
+      
+      private var _linkFallbackDist:Number = 140;
+      
+      private var _linkCooldown:int = 0;
+      
+      private var _linkFiredTimes:uint = 0;
+      
+      private var _linkActiveSlot:String = null;
+      
       public var attack:Boolean;
       
       public var attackAIR:Boolean;
@@ -155,6 +178,7 @@ package net.play5d.game.bvn.fighter.ctrler.ai
          this.updateJumpDownAI();
          this.updateDefenseAI();
          this.updateSpecialSkill();
+         this.updateLinkAI();
       }
       
       private function updateAImain() : void
@@ -984,6 +1008,170 @@ package net.play5d.game.bvn.fighter.ctrler.ai
                }
             }
          }
+      }
+      
+      /**
+       * ===== HELL(6) / CRAZY(7+) 专属：随机纽带连招（丙方案）=====
+       *
+       * 「纽带」= FighterAction 上的动作槽（attack/skill1/zhao1/bisha...），角色帧脚本用
+       * setXxx() 填入帧标签后即为"可用"，由 FighterMcCtrler.renderFloorAction() /
+       * renderAirAction() 的 if 链消费：槽非空 && _actionCtrler.槽() == true → doXxx()。
+       *
+       * 为什么只在"非出招态"触发：doAction()（FighterMcCtrler :1226）每次起手都先
+       * clearAction() 把 24 个槽全部置 null，出招进行中根本读不到纽带。所以在
+       * IDLE(0) / JUMP_ING(14) 两个状态里，把当前"可用且够得着"的非基础纽带随机挑
+       * 一个置 true，靠 order 999 赢过同帧其它候选。
+       *
+       * 与原概率链是叠加关系：updateAttackAI/updateSkill/updateBisha 的距离判定与
+       * 概率全部不动，本方法只是额外多出一个高优先级候选。
+       * 等级 1~5 直接 return，行为与改造前逐位一致。
+       */
+      private function updateLinkAI() : void
+      {
+         if(this.AILevel < 6)
+         {
+            return;
+         }
+         if(!_fighter || !_target || !_fighterAction)
+         {
+            return;
+         }
+         var _loc1_:* = _fighter.getCtrler().getMcCtrl();
+         if(!_loc1_)
+         {
+            return;
+         }
+         // 安全网：已掷中但 doAction 未被消费（doCatch 不允许 / useQi 不足 / 帧标签缺失）时，
+         // 标志会一直为 true 却什么也不发生；30 帧后清掉它并重新掷，避免这一个槽被永久占住。
+         if(this._linkActiveSlot != null)
+         {
+            if(_loc1_.doActionTimes != this._linkFiredTimes)
+            {
+               this._linkActiveSlot = null;
+               this._linkCooldown = 0;
+            }
+            else
+            {
+               this._linkCooldown -= 1;
+               if(this._linkCooldown > 0)
+               {
+                  return;
+               }
+               this[this._linkActiveSlot] = false;
+               this._linkActiveSlot = null;
+               this._linkCooldown = 0;
+            }
+         }
+         var _loc2_:int = int(_fighter.actionState);
+         if(_loc2_ != FighterActionState.NORNAL && _loc2_ != FighterActionState.JUMP_ING)
+         {
+            return;
+         }
+         if(!this.getAIResult(0,0,0,0,0,this._linkRateHell,this._linkRateCrazy))
+         {
+            return;
+         }
+         var _loc3_:Array = this.getLinkPool(Boolean(_fighter.isInAir));
+         if(_loc3_.length < 1)
+         {
+            return;
+         }
+         var _loc4_:String = _loc3_[int(Math.random() * _loc3_.length)];
+         this[_loc4_] = true;
+         addContOrder(_loc4_,this._linkOrder);
+         this._linkActiveSlot = _loc4_;
+         this._linkFiredTimes = _loc1_.doActionTimes;
+         this._linkCooldown = 30;
+      }
+      
+      /**
+       * 收集"当前可用且够得着"的非基础纽带槽。
+       * 排除项：基础动作（moveLeft/moveRight/jump/jumpQuick/jumpDown/dash/defense）、
+       * 落地与碰撞跳帧（touchFloor/hitTarget）、被动反制（hurtAction）与变身（waiKai 三件套）。
+       * 空中只出 K 系空中技（跳砍/跳招/空中必杀），地面才出 W 系对空技与必杀。
+       */
+      private function getLinkPool(param1:Boolean) : Array
+      {
+         var _loc2_:Array = [];
+         if(param1)
+         {
+            pushLink(_loc2_,"attackAIR","tkanmian");
+            pushLink(_loc2_,"skillAIR","tzmian");
+            pushLink(_loc2_,"bishaAIR",null,this._fighterAction.bishaAIRQi);
+            return _loc2_;
+         }
+         pushLink(_loc2_,"attack","kanmian");
+         pushLink(_loc2_,"skill1","kj1mian");
+         pushLink(_loc2_,"skill2","kj2mian");
+         pushLink(_loc2_,"zhao1","zh1mian");
+         pushLink(_loc2_,"zhao2","zh2mian");
+         pushLink(_loc2_,"zhao3","zh3mian");
+         pushLink(_loc2_,"catch1",null,0,true);
+         pushLink(_loc2_,"catch2",null,0,true);
+         pushLink(_loc2_,"bisha","bsmian",this._fighterAction.bishaQi);
+         pushLink(_loc2_,"bishaUP","sbsmian",this._fighterAction.bishaUPQi);
+         pushLink(_loc2_,"bishaSUPER","cbsmian",this._fighterAction.bishaSUPERQi);
+         return _loc2_;
+      }
+      
+      /**
+       * 单个槽入池判定：槽可用 + 气量够 + 够得着。
+       * param3 传 null（摔技）时改走近身判定；param4 > 0 时要求气量达标
+       * （必杀的执行层有 useQi 兜底，但入池前不筛就会"掷中了却放不出来"，白占一帧）。
+       */
+      private function pushLink(param1:Array, param2:String, param3:String, param4:int = 0, param5:Boolean = false) : void
+      {
+         if(!this._fighterAction[param2])
+         {
+            return;
+         }
+         if(param4 > 0 && _fighter.qi < param4)
+         {
+            return;
+         }
+         if(param5)
+         {
+            if(!this.linkCatchOK())
+            {
+               return;
+            }
+         }
+         else if(!this.linkRangeOK(param3))
+         {
+            return;
+         }
+         param1.push(param2);
+      }
+      
+      /**
+       * 判定面可用性判定。
+       *
+       * 两条回退路径，都退回通用距离判定（_linkFallbackDist）：
+       * 1) 角色没有 AImain —— FighterMC.initHitRange()（FighterMC.as:575-592）是
+       *    从这个子元件里按名字取判定面 MC 的，AImain 缺失时那里会直接取空对象而抛错，
+       *    所以这里必须先判 AImain 再谈判定面（这也是"AImain 的范围对就信它、
+       *    没有 AImain 就正常随机但判距离"的落地方式）。短路求值保证没有 AImain 时
+       *    根本不会调到 getHitRange。
+       * 2) 有 AImain 但这个面没定义（_hitRangeObj 里取到 undefined）—— 直接用
+       *    targetInRange 会恒为 false，缺面的角色就永远掷不出该招，故也退回距离判定。
+       */
+      private function linkRangeOK(param1:String) : Boolean
+      {
+         if(!this.AImain || !_fighter.getHitRange(param1))
+         {
+            return getTargetDistance(_target).x < this._linkFallbackDist;
+         }
+         return targetInRange(param1);
+      }
+      
+      /** 摔技入池：近身 50 内且目标可被命中（判据抄 updateCache :829-834）。 */
+      private function linkCatchOK() : Boolean
+      {
+         if(Boolean(_targetFighter) && (_targetFighter.actionState == 21 || _targetFighter.actionState == 22 || _targetFighter.actionState == 23))
+         {
+            return false;
+         }
+         return getTargetDistance(_target).x < 50 && targetCanBeHit();
       }
    }
 }

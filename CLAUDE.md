@@ -66,6 +66,8 @@ doc/
 
 AI 难度相关约定：`AI_level` 共 7 档（1 VERY EASY … 6 HELL、7 CRAZY），主项目 `FighterAILogicBase.getAIResult()` 新增的第 7 个参数 `param7` 是 CRAZY 专属列，**概率表不补第 7 列即回落 HELL**，所以等级 1~6 不受影响；`updateContOrder()` 用 `sortOn("order", 2 | 0x10)`（`2`=DESCENDING、`0x10`=NUMERIC）⇒ **order 越大优先级越高**，调优先级别写反；改 AI 后必须跑 `./build.bat`。详见 `doc/crazy-ai/crazy-ai.md`。
 
+随机纽带连招约定（2026-10-13 新增）：HELL/CRAZY 下 `FighterAILogic.updateLinkAI()` 在**非出招态**（`NORNAL`/`JUMP_ING`）从可用纽带里随机挑一个非基础动作执行，order 取 999 压过同帧其它候选，概率门 HELL 6/10、CRAZY 10/10；**只能做在非出招态**，因为 `doAction()` 每次起手都 `clearAction()` 清空全部纽带；判定面来自角色 MC 的 `AImain`，**AImain 缺失时必须走距离回退**（`FighterMC.initHitRange()` 会因缺 AImain 抛错）。详见 `doc/crazy-ai/crazy-ai.md` §10 与 `doc/decisions-ai-link-chain.md`。
+
 ## 外部资源契约
 
 Android 包名是 `air.com.bvn.yy798`，外置根目录是 `/storage/emulated/0/Android/media/air.com.bvn.yy798/BVN/assets/`。目录约定为 `config/`、`fighter/`、`face/`、`map/`、`bgm/`、`sounds/`。

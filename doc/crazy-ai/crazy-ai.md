@@ -257,3 +257,69 @@ git checkout backup/crazy-ai-2026-10-09-1935 -- BVNscripts/scripts/net/play5d/ga
 2. **角色 SWF 里的 `AImain` 自定义概率表**是二进制内容，静态无法确认它是否给某些 `actionState` 返回 ≥7 元素的表。若返回 7 元素表，CRAZY 会读它的第 7 列并**覆盖**内联表；元素不是数字时 `Number()` → `NaN` → 回落到 `param6`，安全。要确认只能运行期打日志。
 3. **`ghostJumpDowm` 全链路**（`FighterAICtrl.ghostJumpDown()` → `FighterMcCtrler` 的 `doGhostJumpDown()`）的实际位移与落地表现需真机验证。
 4. **`build.bat` 会覆盖 `Debugger.as` 的批号**：其正则把批号硬编码成 `6.14`，所以每次构建都会把手工写的 `batch6.15-*` 改回 `batch6.14-*`。这是既有行为，本轮未改 `build.bat`。
+
+---
+
+## 10. HELL / CRAZY 随机纽带连招（2026-10-13 新增）
+
+> 决策与工期记录见 [`doc/decisions-ai-link-chain.md`](../decisions-ai-link-chain.md)。本节只记实现事实与调参入口。
+
+### 10.1 需求与落点
+
+需求原文：「只要此招式有纽带可用（即允许某个技能或动作）时，随机选择一个非基础动作（除走跑跳）的纽带执行」。
+
+落点：`FighterAILogic.as` 新增 `updateLinkAI()`，在 `updateActionAI()` 最后调用（`updateSpecialSkill()` 之后）。**只改这一个文件**；`AILevel < 6` 时第一句就 `return`，所以等级 1~5 行为与改造前逐位一致，HELL 与 CRAZY 共用同一套逻辑、只有概率门不同。
+
+### 10.2 为什么只能做在「非出招态」（关键前提）
+
+「纽带」= `FighterAction` 上的动作槽（`attack`/`skill1`/`zhao1`/`bisha`…），帧脚本用 `setXxx()` 填入帧标签即为可用，由 `FighterMcCtrler.renderFloorAction()`/`renderAirAction()` 的 if 链消费。
+
+**`doAction()`（FighterMcCtrler.as:1226）每次起手都会先 `clearAction()` 把 24 个槽全部置 null** ⇒ 出招进行中读不到任何纽带，"某招式的纽带"这个概念在出招期间不存在。因此本功能做在 `NORNAL(0)` / `JUMP_ING(14)` 两个非出招状态：把「当前可用且够得着」的非基础纽带随机挑一个置 true，走引擎原有的 if 链执行。
+
+**与原概率链是叠加关系**：`updateAttackAI`/`updateSkill`/`updateBisha` 的距离判定与概率全部不动，本方法只是额外多出一个高优先级候选。
+
+### 10.3 实现要点
+
+| 项 | 取值 | 说明 |
+|---|---|---|
+| `_linkOrder` | **999** | `updateContOrder()` 用 `sortOn("order",2\|0x10)` 降序仲裁，999 稳定压过既有最大值（attack 的 300、超必杀的 210），保证掷中不被顶掉 |
+| `_linkRateHell` / `_linkRateCrazy` | **6 / 10** | 走 `getAIResult(0,0,0,0,0,6,10)`：HELL 读 param6=6（约 60%/帧），CRAZY 读 param7=10（必中） |
+| `_linkFallbackDist` | **140** | 判定面不可用时的通用距离闸 |
+| `_linkCooldown` | **30 帧** | 掷中但 `doAction` 未被消费（`doCatch` 不允许 / `useQi` 不足）时清标志重掷，避免该槽被永久占住 |
+| 状态闸 | `NORNAL(0)` / `JUMP_ING(14)` | 其余状态（受击/防御/出招中/死亡/变身）一律不触发 |
+
+**候选池**（地面）：`attack, skill1, skill2, zhao1, zhao2, zhao3, catch1, catch2, bisha, bishaUP, bishaSUPER`；**空中**：`attackAIR, skillAIR, bishaAIR`（仅 `isInAir` 时入池）。
+
+**排除项**：基础动作 `moveLeft/moveRight/jump/jumpQuick/jumpDown/dash/defense`、落地与碰撞跳帧 `touchFloor/hitTarget`、被动反制 `hurtAction`、变身 `waiKai/waiKaiW/waiKaiS`。
+
+**入池三重闸**：① 槽非空；② 气量够（`bisha/bishaUP/bishaSUPER/bishaAIR` 前置判 `_fighter.qi >= _fighterAction.xxxQi` —— 执行层 `doBisha` 虽有 `useQi` 兜底，但不前置筛就会"掷中了却放不出来"）；③ 够得着。
+
+### 10.4 AImain 缺失的隐患（本轮修掉的一个真实风险）
+
+判定面（`kanmian`/`kj1mian`/`bsmian`…）来自角色 MC 里的 **`AImain` 子元件**：`FighterMC.initHitRange()`（FighterMC.as:575-592）会对 `getChildByName("AImain")` 取到的对象调 `gotoAndStop(2)`，**AImain 缺失时那里会取到 null 并抛错**。
+
+所以 `linkRangeOK()` 写成 `if(!this.AImain || !_fighter.getHitRange(面)) → 退回通用距离判定`，靠短路求值保证没有 AImain 时**根本不会调到 `getHitRange`**。第二种回退是"有 AImain 但该面没定义"（`_hitRangeObj` 取到 undefined），此时 `targetInRange` 恒为 false，不退回距离判定的话缺面的角色永远掷不出该招。
+
+### 10.5 调参速查
+
+| 想要的效果 | 改哪个 | 方向 |
+|---|---|---|
+| HELL 少接招 / 更自然 | `_linkRateHell`（6） | 调小（0 = 关闭 HELL 侧） |
+| CRAZY 不要每帧必接 | `_linkRateCrazy`（10） | 调小 |
+| 降低抢招优先级（让原概率链赢） | `_linkOrder`（999） | 调到 300 以下 |
+| 拉开/拉近"够得着"的兜底距离 | `_linkFallbackDist`（140） | 调大 = 更远就敢出 |
+| 整体关闭本功能 | `updateLinkAI()` 首句改成无条件 `return`，或把 `AILevel < 6` 改成 `< 99` | —— |
+
+### 10.6 回滚
+
+```powershell
+# 本轮改造前原件（时间戳见 .backup/）
+Copy-Item ".backup/FighterAILogic.as.<YYYY-MM-DD-HHMM>" "BVNscriptsscripts
+etplay5dgamevnighterctrleraiFighterAILogic.as" -Force
+```
+
+### 10.7 未验证项
+
+1. **实战强度未验证**：`./build.bat` 零错误、逻辑静态自查通过，但"AI 是否真的更爱连招""会不会显得抽搐"只能真机体感确认。
+2. **CRAZY 只能手机端验证**：PC 端 `SetBtnGroup.as` 菜单只到 HELL=6，CRAZY=7 的入口在 `mob/GameInterfaceManager.as`。
+3. **`_linkFallbackDist` 是否合适**：缺 `AImain` 的角色实际有多少、140 这个量级是否合理，需真机遇到缺面角色时才能确认。

@@ -1,6 +1,6 @@
 # 决策记录：HELL/CRAZY 随机纽带连招 + 2026-10-12 进度提交
 
-> 日期：2026-10-12 ｜ 强度：细问 ｜ 状态：**提交已执行；AI 功能仅存档计划，暂未实现**
+> 日期：2026-10-12 ｜ 强度：细问 ｜ 状态：**两部分均已执行**（提交推送 2026-10-12/13；随机纽带功能 2026-10-13 实现）
 
 ## 一、背景
 
@@ -39,19 +39,24 @@
 8. **丙与原概率链叠加不替换**：现有按距离出招的智能保留，随机纽带只是多了一个最高 order 候选。
 9. **本期不碰丁、不统计 `setHitTarget` 覆盖率。**
 
-## 四、Part B 实现计划（存档，暂未执行）
+## 四、Part B 实现（2026-10-13 已落地）
 
-唯一改动文件：`BVNscripts/scripts/net/play5d/game/bvn/fighter/ctrler/ai/FighterAILogic.as`
+唯一改动文件：`BVNscripts/scripts/net/play5d/game/bvn/fighter/ctrler/ai/FighterAILogic.as`（改前备份 `.backup/FighterAILogic.as.2026-10-13-1054`）
 
-1. 新增私有字段（放现有 `_crazy*` 参数块旁）：`_linkOrder:int = 999`、`_linkCooldown:int = 0`、`_linkFiredTimes:uint = 0`
-2. 新增 `private function updateLinkAI():void`，在 `updateActionAI()`（:140-158）末尾 `updateSpecialSkill()` 之后调用：
-   - `if(this.AILevel < 6) return;`
-   - 状态闸：仅 `_fighter.actionState == FighterActionState.NORNAL(0) || JUMP_ING(14)`
-   - 冷却安全网：已置标志但 `getMcCtrl().doActionTimes` 30 帧未变（doAction 未消费，如 doCatch/useQi 静默失败）→ 清标志重掷
-   - 概率门：`getAIResult(0,0,0,0,0,6,10)`（HELL 读 param6=6、CRAZY 读 param7=10）
-   - 建候选池（按决策 2 逐槽判定）→ `Math.random()` 均匀挑一个 → `this[槽]=true; addContOrder(槽, 999);` 记录快照与冷却
-3. 施工前 grep 核查 `FighterMain.getDoingAction`（:663）、`FighterMcCtrler.doActionTimes`（:71）、`FighterActionState.NORNAL/JUMP_ING`、`isInAir` 存在（-strict=false 不拦不存在方法）
-4. 验收：`./build.bat` 零错误；HELL/CRAZY 出招多样化；1~5 档不变；CRAZY 需手机端验证
+1. 新增私有字段（现有 `_crazy*` 参数块之后）：`_linkOrder:int = 999`、`_linkRateHell:Number = 6`、`_linkRateCrazy:Number = 10`、`_linkFallbackDist:Number = 140`、`_linkCooldown:int = 0`、`_linkFiredTimes:uint = 0`、`_linkActiveSlot:String = null`
+2. 新增方法（现已落在文件 :1029 起）：`updateLinkAI()`、`getLinkPool()`、`pushLink()`、`linkRangeOK()`、`linkCatchOK()`；调用点 `updateActionAI()` 末尾（:181）
+   - `if(this.AILevel < 6) return;`（1~5 档零影响）
+   - 状态闸：仅 `FighterActionState.NORNAL(0) || JUMP_ING(14)`
+   - 冷却安全网：已置标志但 `getMcCtrl().doActionTimes` 30 帧未变（doAction 未消费）→ 清标志重掷
+   - 概率门：`getAIResult(0,0,0,0,0,6,10)`
+   - 候选池 → `Math.random()` 均匀挑一个 → `this[槽]=true; addContOrder(槽, 999);`
+3. 施工前已 grep 核查：`FighterMcCtrler.doActionTimes`（:71 public）、`FighterActionState.NORNAL/JUMP_ING`（:6/:18）、`_fighter.getHitRange`（FighterMain.as:585）、`_fighter.qi/isInAir/actionState` 均存在
+4. 验收：`./build.bat` 零错误（launch.swf 35481562 字节）；**实战强度未验证**，CRAZY 需手机端验证
+
+### 4.1 施工中发现的额外隐患（已修）
+
+`FighterMC.initHitRange()`（FighterMC.as:575-592）是按名字从角色 MC 的 **`AImain` 子元件**取判定面 MC 的，`AImain` 缺失时 `getChildByName("AImain")` 得到 null、紧接着 `gotoAndStop(2)` **会抛错**。
+原计划里"缺判定面就退回距离判定"的写法仍会先调 `getHitRange`，正中该坑。已改为 `if(!this.AImain || !_fighter.getHitRange(面))` 短路求值 —— 没有 AImain 时**根本不会进入 getHitRange**，直接走 `_linkFallbackDist = 140` 的距离判定，与"没有 AImain 就正常随机但判距离"一致。
 
 ## 五、待定问题
 
