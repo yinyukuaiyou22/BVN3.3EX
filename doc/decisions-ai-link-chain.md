@@ -59,11 +59,20 @@
 - CRAZY 真机验证：PC 菜单无 CRAZY 档，需手机端（`GameInterfaceManager` 菜单）验证。
 - 67 个已跟踪文件中的 6→7 空格缩进漂移：本次照原样提交，属已知遗留。
 
-## 六、本次提交执行情况（回填）
+## 六、本次提交执行情况（已回填 · 2026-10-13）
 
-- [ ] commit 1 chore：staged 删除 + add_asset_log.txt 移出 + .gitignore 补充
-- [ ] commit 2 docs：doc/** + 根 md + 两个根删除
-- [ ] commit 3 feat：源码/配置/新文件白名单
-- [ ] push origin master（fetch + 处理 behind 2）
+| 步骤 | 结果 |
+|---|---|
+| commit 1 chore | `9d51c1b` 移出误入库二进制（platform-tools / android-platform-33 / launch.as.bak / SetBtnGroup.pcode / add_asset_log.txt）+ .gitignore 补规则（21 文件，-22729 行） |
+| commit 2 docs | `22b0ef9` 收拢文档到 doc/ + 新增 13 个专题/索引 + 本决策记录；根 AI-SYSTEM-DOC.md、_api_doc.txt 被 git 识别为重命名进 doc/archive/（34 文件） |
+| commit 3 feat | `e3e2532` 当前开发进度（CRAZY 难度档、选人/设置/资源加载、3 个新源码、config XML）（61 文件，+15054 行） |
+| commit 4 chore | `c70a4ce` BUILD_TAG 构建时间戳 |
+| merge | `55e96e5` 并入 origin/master（cf48010 / e3b6f43 外置资源兼容层）；6 个冲突文件按「本地实现为准」解决：CLAUDE.md / README.md / AssetLoader.as / GameLoader.as / GameData.as / ANEFileReader.as |
+| push | ✅ `e3b6f43..55e96e5 master -> master`；核验 `origin/master = 55e96e5`，本地/远端 0/0 一致 |
+| build | ✅ `./build.bat` 零错误，launch.swf 生成（35480273 字节） |
 
-（执行完毕后回填实际 commit hash）
+### 执行中发现的额外事实
+
+- `git add tools/script/` 会误吞 `tools/script/其他版本/`（含 adl.exe、数十首 mp3、数百张 face png 的完整资源包），已 `git reset` 退出；**勿对 tools/ 用目录级 add**，须逐条白名单。
+- 远端 2 个提交与本地同改外置资源 4 件套，属**同一功能的两条并行实现线**；本地版为当前在用的实现，远端版保留在 merge 历史中可随时取回。
+- 未推送内容：`BVNscripts/3.x参考/`、`PC版工程/`、`神卡3.6源文件.fla`、`选人界面排版工具/`、`tools/script/其他版本/`、`push-to-github.ps1` 等，均为参考/临时/本机资源，符合 gitignore 与提交边界。

@@ -103,7 +103,7 @@
       // - 时间：HHMM 格式（每次编译手动或脚本更新）
       // 调用方：build.bat 可在编译前用 sed 替换 @BUILD_TAG@ 占位符。
       // 读取方：bvn_debug.log 第一行（=== BVN Debug Log ===）之后第二行即为 BUILD 行。
-      public static const BUILD_TAG:String = "BVN-3.3EX-batch6.14-2026-10-12-2040";
+      public static const BUILD_TAG:String = "BVN-3.3EX-batch6.14-2026-10-13-1014";
 
       private static var _scale:Number = 1.0;
 
