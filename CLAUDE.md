@@ -28,8 +28,7 @@ doc/
 ├── AI-SYSTEM-DOC.md           PC 分支 AI 系统说明〔历史文档，基准路径已失效〕
 ├── architecture.md            工程结构 / 模块清单 / 路径依赖图
 ├── ane-dev-guide.md           ANE 开发指南
-├── runtime-pitfalls.md        运行时踩坑速查〔改移动端前必读〕
-├── hurt-and-loading-fixes.md  受击/灵爆/开局加载三条卡死的根因与修复〔改 fighter 前必读〕
+├── runtime-pitfalls.md        运行时踩坑速查〔改移动端 / fighter 前必读〕
 ├── _api_doc.txt               类与方法签名速查 dump
 ├── 38-rule-stage/             3.8 独立规则设置界面（rule-stage.md 详解 / plan.md 移植计划）
 ├── ane/                       ANE 专题（proposal / high-level / detailed / tasks）
@@ -145,6 +144,8 @@ adb logcat -v threadtime | findstr /i "AdobeAIR BVNFileReader ANEFileReader Game
 真机排查触控时可临时加 `[DIAG6.15]` 前缀日志（`touchBegin` / `touchTap` 落到 `ui`、Stage 侧回调是否触发），验证通过后删除并重编。选人界面格子的预期语义是：首次点击 = 预览，再点同一格 = 确认。
 
 ## 受击 / 灵爆状态机（改 fighter 目录前必读）
+
+> 完整因果链、现场判定三问、火/冰/雷放大因素与真机验收断言见 [`doc/runtime-pitfalls.md`](doc/runtime-pitfalls.md) **§7**。
 
 受击僵直、灵爆钢体、灵爆命中是**三个独立计时器**，唯一递减点都在 `FighterMain.renderAnimate()`：
 

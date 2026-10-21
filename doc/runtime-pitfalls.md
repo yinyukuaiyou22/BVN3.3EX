@@ -1,9 +1,9 @@
-# 运行时踩坑速查（手机端 / 触控 / 选人 / 输入）
+# 运行时踩坑速查（手机端 / 触控 / 选人 / 输入 / 受击 / 加载）
 
 > 本文件是 `AGENTS.md` 里「静默失败陷阱」表的**展开版**：常驻层只留判据，这里给完整机理与可抄的代码。
-> **进入条件**：改移动端 UI、触控、选人界面、手柄/输入、Debugger 面板、打 APK 时读；其它时候不必读。
-> 汇总自原 `AGENTS.md` §245–735（2026-10-11 重组）+ 回补自 `CLAUDE.md.rewrite.2026-09-09-142021`（2026-10-11 二次修订）。
-> 已删除过期 Termux 路径、已过时包名、逐批次备份台账；**保留内容均经 2026-10-11 实测核对**（详见 §7「核实记录」）。
+> **进入条件**：改移动端 UI、触控、选人界面、手柄/输入、Debugger 面板、打 APK、**改 `fighter/` 受击/灵爆、排查开局黑屏或「创建游戏失败」**时读；其它时候不必读。
+> 汇总自原 `AGENTS.md` §245–735（2026-10-11 重组）+ 回补自 `CLAUDE.md.rewrite.2026-09-09-142021`（2026-10-11 二次修订）+ 2026-10-21 补入受击/灵爆/加载三条卡死。
+> 已删除过期 Termux 路径、已过时包名、逐批次备份台账；**保留内容均经 2026-10-11 实测核对**（详见 §8「核实记录」）。
 
 ## 0. 这份文件的读法
 
@@ -24,6 +24,9 @@
 | 编译零错误但运行时 `#1006` / `#1065` | §1B |
 | 打包报中文路径错误 / APK 该打哪些资源 | §1.5 |
 | 日志路径拼不对（包名三段辨析） | §1.6 |
+| 受击中按 SPECIAL 后永久僵直 + 永久金身 | §7.1 |
+| 某角色一选就崩 / 开局 `#1009 at cameraResume` | §7.2 |
+| `创建游戏失败` 每帧刷屏 / 开局黑屏 / 切后台回来黑屏 | §7.3 |
 
 ---
 
@@ -502,7 +505,115 @@ tools/script/debug_mob.bat                                          # 打包脚�
 
 ---
 
-## 7. 核实记录（2026-10-11 修订时逐项实测）
+## 7. 受击 / 灵爆 / 开局加载：三条"看起来都是卡死"的坑（2026-10-21）
+
+三条都在真机上出现过，现象都像"卡死"，根因完全不同。**红线清单见 `CLAUDE.md`「受击 / 灵爆状态机」，本节给机理、判据与验收。**
+
+| 编号 | 现象 | 根因落点 |
+|---|---|---|
+| §7.1 | 受击中按 SPECIAL（灵爆）后**永久僵直 + 永久金身**，对手还能动，点暂停继续也救不回 | `render()` 抛异常 → 同帧 `renderAnimate()` 被跳过 → 三个计时器停摆；安全网又被同一计时器门控（自锁） |
+| §7.2 | 某角色**一选就崩 / 开局黑屏**（`#1009 at GameState/cameraResume`） | 人物包 `人物_1/frame1` 无条件调 `endBisha()`；`cancelJustRender*` 把"从没登记过"误判成合法收尾 |
+| §7.3 | `创建游戏失败` 每帧刷屏 + 黑屏；切后台回来永久黑屏 | `TransUI` 转场回调"先调后清"；`GameUI.getUI()` 为 null 时 `pause(true)` 半途崩 |
+
+### 7.1 灵爆后永久金身 + 永久僵直
+
+**机理（一条链，三个受害者）**：
+
+```
+render() 抛异常（最可能：renderHurtBreak 解引用空 _actionCtrler）
+  └─ GameMainLogicCtrler.renderGameSprite 把 render() 与 renderAnimate() 放在同一个 try
+       → 本帧 renderAnimate() 整块跳过
+          ├─ FighterMcCtrler.renderHurtAnimate  _hurtHoldFrame--     ← 停 → 永久受击
+          ├─ FighterMain.renderAnimate          --_explodeSteelFrame  ← 停 → 永久金身
+          └─ FighterMain.renderAnimate          --_explodeHitFrame    ← 停 → 到不了 idle()
+```
+
+**自锁点**：`renderHurt()` 的两道安全网原先都以 `_fighter.explodeSteelFrame <= 0` 门控，而
+`_explodeSteelFrame` 的唯一递减点就是被跳过的那条 `renderAnimate()` —— **计数器一停，保护它的安全网同时失效**，
+这就是上一轮（`ca46d10` 加了两道网）没修好的原因。
+
+**现场判定三问**（比读代码快）：
+
+| 问 | 观察 | 结论 |
+|---|---|---|
+| 卡死时全场定格还是单角色？ | 单角色（对手能动） | 排除全局 `_isRenderGame`，锁定单角色 render 链路 |
+| 暂停→继续能救吗？ | 不能 | `resume(true)` 只重置 `_isRenderGame`，不碰该角色的计数器 |
+| 哪一侧？ | 死神侧（灵爆，黄色辉光） | 走 `energyExplode()`；火影侧走 `replaceSkill()`（替身术，黑幕） |
+
+**为什么「火/冰/雷重击」几乎必现**（放大因素，不是根因）：
+
+| 因素 | 证据 | 作用 |
+|---|---|---|
+| 7/8/9 是唯一 `freeze:400` 的 hitType（轻击只有 50） | `data/EffectModel.as:156-197` | 每次命中多 400ms 全局 `GameCtrl.pause()`，与灵爆 0.7s 窗口大面积交叠 |
+| 7/8/9 唯一带 `specialEffectId`，会改写受害者 `ColorTransform` | `EffectModel.as:307-324`、`views/effects/SpecialEffectView.as:57-66` | 只在 `actionState ∈ {0,23,24}` 才 `resumeColor()`；卡在 21/22 就**永久染色**（火=发黑），叠加辉光就是"变金身" |
+| 受击期每帧 4 条同步写盘日志 | `Debugger.log` 每次 `writeUTFBytes + flush`（`Debugger.as:245-251`） | 手机上直接吃帧时间，放大所有暂停窗口的错位概率 ← **"真机尤其明显"的直接原因** |
+
+**修法要点**：拆两个独立 try；控制器动画链再包一层 try；安全网门控 `explodeSteelFrame` → **`explodeHitFrame`**；
+`== 8` 改幂等 `<= 8 && !_explodeIdled`；`_explodeSteelWatchdog` 150 帧强解金身；`idle()` 重置 `_hurtHoldFrame`；
+`renderHurtBreak`/`renderHurtFlying` 判空；`FighterMC.renderHurtFly` 起身后加 12 帧引擎兜底
+（`_action.isHurtFlying` 全工程只有 `clearState()` 能清，不能只靠角色 SWF 的 `parent.$mc_ctrler.idle()`）。
+
+**日志判据**：正常一次灵爆必有 `【僵直归零】→【僵直恢复】`；出现 `【钢体看门狗】` 说明还有别的链在漏；
+`RENDER_ERR[render]` / `RENDER_ERR[renderAnimate]` / `FIGHTER_ANIM_ERR` 都会带角色 id + 堆栈。
+逐帧细节把 `Debugger.DIAG_HURT` 改 `true` 重编（默认 false，同步 flush 很贵）。
+
+### 7.2 开局 `#1009 at GameState/cameraResume`（人物包脏帧脚本）
+
+```
+人物_1/frame1 → FighterEffectCtrl.endBisha() → EffectCtrl.endBisha()
+              → GameCtrl.I.gameState.cameraResume()   ← this.camera 还是 null
+```
+
+`camera` 在 `initFight → initCamera` 才创建，而角色在更早的 `buildGame` 的 `addFighter` 里就初始化了。
+根因是 `EffectCtrl.cancelJustRender(Animate)` 的误判：
+
+```as
+// 旧实现：indexOf == -1 也返回 length < 1
+if(_loc2_ != -1) this._justRenderAnimateTargets.splice(_loc2_,1);
+return this._justRenderAnimateTargets.length < 1;   // 从没登记过 → 也返回 true
+```
+
+于是人物包里漏出来的 `endBisha()` 被当成"合法收尾"。**对局中**同样会误触发：`GameCtrl.resume()` +
+`setRenderHit(true)` + `_blackBack.fadOut()` + 地图设可见 —— 随时强行打断别人的灵爆/替身术/瞬步黑幕。
+
+**修法**：`cancelJustRender*` 未登记 `return false`（根因，3 个调用点全走这里）；
+`endBisha`/`endWanKai` 把 `setRenderHit(true)` **提到最前**（漏这行＝全场打不动，看起来完全是"永久金身"）；
+`cameraResume`/`cameraFocusOne` 判空 `camera`。
+
+**人物包侧**：删掉 `人物_1` 第 1 帧的 `parent.$effect_ctrler.endBisha()`。引擎现在能兜住，但脏帧脚本还会在别处惹事。
+
+### 7.3 `创建游戏失败` 刷屏 + 黑屏
+
+**三段因果**：
+
+1. `buildGame()` 的 null 保护触发（`p1/p2.currentFighter` 或 `map` 为 null）→ 原实现 `throw`。
+2. `throw` 穿过 `startGame → goGame` 落进 `TransUI.renderAnimate` 的 `_fadOutBack`。原实现**先调回调、后置 null**
+   → 回调抛异常后 `_fadOutBack` 永久保留 → **每帧重试一次** → 黑屏 + 同一个错误刷屏。
+3. `buildGame` 中断 ⇒ `initFight` 从未执行 ⇒ `GameUI.getUI()` 为 null ⇒ 切后台
+   `MobileCtrler.pause → GameCtrl.pause(true) → getUI().pause()` **#1009**（`_isPauseGame` 已置 true、
+   对话框没建出来）⇒ 回前台无人 `resume(true)` ⇒ **永久黑屏，只能杀进程**。
+
+**修法**：`TransUI` 回调**先摘再调**（黑屏+刷屏根因）；`pause/resume` 判空 `getUI()`；
+`MobileCtrler` 加 `_pausedByDeactive`，回前台只撤销自己造成的那次暂停；
+`buildGame(): void → Boolean`，null 保护改点名日志 + `return false`，`doStartGame` 失败则回菜单。
+
+**定位**：下一次失败只看这一行 ——
+`[GameCtrl] buildGame ABORT — p1.currentFighter=? p2.currentFighter=? map=?`。
+`p1=null` ⇒ `getP1Order()[0]` 为空（问题在选人/加载，与角色状态机无关）；`map=null` ⇒ 地图项没加载完。
+
+### 7.4 验收断言
+
+| 场景 | 通过标准 |
+|---|---|
+| 受击中按 SPECIAL ×20（死神侧 + 火/冰/雷 对手） | 每次金身 ≤ 2s 结束，**不出现** `【钢体看门狗】` |
+| 同上，看日志 | 每次灵爆必现 `【僵直归零】→【僵直恢复】` |
+| KO 前 2 秒内灵爆 ×5 | 换人/结算后无黄色辉光残像 |
+| 对局中切后台再回前台 ×10 | 自动回到战斗（不再需要点「继续」）；无 `#1009 at GameCtrl/pause` |
+| 选人进局失败 | 回菜单 + 一行 `[GameCtrl] buildGame ABORT — ...`，**不再**黑屏刷屏 |
+
+---
+
+## 8. 核实记录（2026-10-11 修订时逐项实测）
 
 本文件的内容不靠"文档说"，靠当时核过。下表记录本次修订时的核对结果，供下次维护时判断哪些可能已漂移。
 
