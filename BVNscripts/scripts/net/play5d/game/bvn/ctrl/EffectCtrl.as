@@ -657,20 +657,30 @@ package net.play5d.game.bvn.ctrl
       private function cancelJustRender(param1:BaseGameSprite) : Boolean
       {
          var _loc2_:int = int(this._justRenderTargets.indexOf(param1));
-         if(_loc2_ != -1)
+         if(_loc2_ == -1)
          {
-            this._justRenderTargets.splice(_loc2_,1);
+            // 2026-10-21：没登记过就说明该角色本来就不在瞬步/必杀里。
+            // 原实现会返回「列表已空 === true」，于是人物包里漏出来的帧脚本一调
+            // endBisha()/endGhostStep() 就会被当成合法收尾，去 resume 全局暂停、fadOut 黑幕。
+            return false;
          }
+         this._justRenderTargets.splice(_loc2_,1);
          return this._justRenderTargets.length < 1;
       }
       
       private function cancelJustRenderAnimate(param1:BaseGameSprite) : Boolean
       {
          var _loc2_:int = int(this._justRenderAnimateTargets.indexOf(param1));
-         if(_loc2_ != -1)
+         if(_loc2_ == -1)
          {
-            this._justRenderAnimateTargets.splice(_loc2_,1);
+            // 2026-10-21：同上。本次卡死的直接原因就是这条误判：
+            // 人物包在人物_1 的 frame1 里无条件调 effect_ctrler.endBisha()，
+            // 开局 addFighter -> initMc -> idle() -> gotoAndStop 触发该帧脚本，
+            // endBisha 误判为「合法收尾」-> GameState.cameraResume()，而此刻镜头还没建
+            // （initCamera 在 buildGame 后面的 initFight 里）-> #1009 -> 整个 buildGame 中断。
+            return false;
          }
+         this._justRenderAnimateTargets.splice(_loc2_,1);
          return this._justRenderAnimateTargets.length < 1;
       }
       
@@ -839,9 +849,11 @@ package net.play5d.game.bvn.ctrl
       {
          if(this.cancelJustRenderAnimate(param1))
          {
+            // 先恢复命中判定：这一行一旦被跳过就是「全场打不动」（看起来像永久金身），
+            // 不能因为后面镜头/黑幕任一步抛异常而丢失。
+            GameCtrl.I.setRenderHit(true);
             GameCtrl.I.resume();
             GameCtrl.I.gameState.cameraResume();
-            GameCtrl.I.setRenderHit(true);
             this._blackBack.fadOut();
             this._gameStage.getMap().setVisible(true);
             this._gameStage.setVisibleByClass(BitmapFilterView,true);
@@ -885,10 +897,11 @@ package net.play5d.game.bvn.ctrl
       {
          if(this.cancelJustRenderAnimate(param1))
          {
+            // 同 endBisha：命中判定必须在任何可能抛异常的操作之前恢复
+            GameCtrl.I.setRenderHit(true);
             GameCtrl.I.resume();
             GameCtrl.I.gameState.cameraResume();
             this._blackBack.fadOut();
-            GameCtrl.I.setRenderHit(true);
             this._gameStage.getMap().setVisible(true);
          }
       }

@@ -29,6 +29,7 @@ doc/
 ├── architecture.md            工程结构 / 模块清单 / 路径依赖图
 ├── ane-dev-guide.md           ANE 开发指南
 ├── runtime-pitfalls.md        运行时踩坑速查〔改移动端前必读〕
+├── hurt-and-loading-fixes.md  受击/灵爆/开局加载三条卡死的根因与修复〔改 fighter 前必读〕
 ├── _api_doc.txt               类与方法签名速查 dump
 ├── 38-rule-stage/             3.8 独立规则设置界面（rule-stage.md 详解 / plan.md 移植计划）
 ├── ane/                       ANE 专题（proposal / high-level / detailed / tasks）
@@ -142,6 +143,26 @@ adb logcat -v threadtime | findstr /i "AdobeAIR BVNFileReader ANEFileReader Game
 长按展开人物子框**只对配了 `plugins=` 的角色生效**（当前 52 个角色里仅 `灵梦,妹红`、`早苗,妹红` 两个）；其余角色长按是设计的静默 `return`，不要当成 bug。
 
 真机排查触控时可临时加 `[DIAG6.15]` 前缀日志（`touchBegin` / `touchTap` 落到 `ui`、Stage 侧回调是否触发），验证通过后删除并重编。选人界面格子的预期语义是：首次点击 = 预览，再点同一格 = 确认。
+
+## 受击 / 灵爆状态机（改 fighter 目录前必读）
+
+受击僵直、灵爆钢体、灵爆命中是**三个独立计时器**，唯一递减点都在 `FighterMain.renderAnimate()`：
+
+| 计时器 | 递减点 | 归零/触发 |
+|---|---|---|
+| `FighterMcCtrler._hurtHoldFrame` | `renderHurtAnimate()` | `<= 0` → `hurtResume()` → `idle()` |
+| `FighterMain._explodeSteelFrame`（60 帧 ≈2s） | `FighterMain.renderAnimate()` | `<= 0` → `setSteelBody(false)` |
+| `FighterMain._explodeHitFrame`（10 帧） | 同上 | `<= 8`（幂等门 `_explodeIdled`）→ `idle()` |
+| `FighterMain._replaceSkillFrame`（30 帧，火影侧替身术） | 同上 | `<= 0` → `isAllowBeHit = true` |
+
+**历史事故（2026-10-21 修复）**：`render()` 与 `renderAnimate()` 原先共用一个 try，`render()` 一抛异常（`renderHurtBreak()` 解引用空的 `_actionCtrler`）同帧 `renderAnimate()` 就被跳过，三个计时器同时停摆 → **永久僵直 + 永久金身**；而 `renderHurt()` 的两道安全网又被 `explodeSteelFrame` 门控（自锁）。现行约束：
+
+1. `GameMainLogicCtrler.renderGameSprite()` 中 `render()` / `renderAnimate()` **必须是两个独立 try**，不得合回一个。
+2. `FighterMain.renderAnimate()` 调 `_fighterCtrl.renderAnimate()` 也有独立 try，保证计时器永不被控制器链拖死。
+3. `renderHurt()` 的安全网门控是 **`explodeHitFrame`**（灵爆命中窗口），**不是** `explodeSteelFrame`（钢体窗口）——后者会造成自锁。
+4. `_action.isHurtFlying` 的收状态不能只依赖角色 SWF 帧脚本：`FighterMC.renderHurtFly()` 的 case 3/4 已做引擎兜底（起身 12 帧后 `hurtResume()`）。
+5. 移出渲染列表前必须 `FighterMain.resetExplodeState()`（`GameCtrl.removeGameSprite` 已调）：否则 `GlowFilter` 的 `BitmapFilterView` 会作为独立 sprite 永久残留。
+6. **逐帧诊断日志一律走 `Debugger.DIAG_HURT`（默认 false）**。`Debugger.log()` 每次 `writeUTFBytes + flush` 同步写 flash，受击期每帧数条会明显拖慢手机帧率。低频判据日志保留常开：`【僵直归零】`/`【僵直恢复】`/`【安全网2】`/`【钢体看门狗】`/`RENDER_ERR[...]`/`FIGHTER_ANIM_ERR`。
 
 ## 代码审查与提交
 

@@ -68,16 +68,21 @@ package net.play5d.game.bvn.ui
       {
          if(this.ui.currentFrameLabel == "stop")
          {
+            // 2026-10-21：先摘回调再调用。原实现是「先调、后清」，回调里一旦抛异常
+            // （例如 goGame -> startGame -> buildGame 抛错），_fadOutBack 就永远留着，
+            // 于是每帧重试一次 -> 黑屏 + 同一个错误刷屏，只能杀进程。
             if(this._fadInBack != null)
             {
-               this._fadInBack();
+               var _f1:Function = this._fadInBack;
                this._fadInBack = null;
+               _f1();
                return;
             }
             if(this._fadOutBack != null)
             {
-               this._fadOutBack();
+               var _f2:Function = this._fadOutBack;
                this._fadOutBack = null;
+               _f2();
                return;
             }
             this.stopRender();

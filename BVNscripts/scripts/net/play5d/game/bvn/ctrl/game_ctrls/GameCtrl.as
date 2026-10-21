@@ -220,6 +220,14 @@ import net.play5d.game.bvn.utils.*;
       
       public function removeGameSprite(param1:IGameSprite, param2:Boolean = false) : void
       {
+         // 2026-10-21：移出渲染列表前先解金身。
+         // destory(false) 是早退实现（FighterMain.destory:113 直接 return），既不清映 GlowFilter 也不复位
+         // 灵爆计数器；换人流程正是先 removeGameSprite(...,false)。辉光的 BitmapFilterView 是独立 sprite，
+         // 不在这里解掉就会留下一尊永久黄色残像。
+         if(param1 is FighterMain)
+         {
+            (param1 as FighterMain).resetExplodeState();
+         }
          this.gameState.removeGameSprite(param1);
          var _loc3_:TeamVO = param1.team;
          if(Boolean(_loc3_))
@@ -245,12 +253,19 @@ import net.play5d.game.bvn.utils.*;
          GameInputer.enabled = true;
          this.gameRunData.reset();
          this.initTeam();
-         this.buildGame();
+         if(!this.buildGame())
+         {
+            // 2026-10-21：开局失败（角色/地图缺失、角色包不可用）不再抛异常打断转场，
+            // 直接回菜单——原来会变成黑屏，且转场回调每帧重试、同一个错误刷屏。
+            Debugger.log("[GameCtrl] 开局失败，返回菜单");
+            MainGame.I.goMenu();
+            return;
+         }
          GameEvent.dispatchEvent("GAME_START");
          GameRender.add(this.render);
       }
       
-      private function buildGame() : void
+      private function buildGame() : Boolean
       {
          var _loc1_:* = null;
          var _loc2_:FighterMain = this.gameRunData.p1FighterGroup.currentFighter;
@@ -264,7 +279,11 @@ import net.play5d.game.bvn.utils.*;
          var _loc4_:MapMain = this.gameRunData.map;
          if(!_loc2_ || !_loc3_ || !_loc4_)
          {
-            throw new Error("创建游戏失败");
+            // 2026-10-21：原来是 throw new Error("创建游戏失败")。
+            // 它会一路穿过 startGame/goGame 抛到 TransUI 的转场回调里，把整个转场打断成黑屏，
+            // 还看不到到底哪个是 null。改成「点名 + 安全退出」，让下一份日志直接定位上游。
+            Debugger.log("[GameCtrl] buildGame ABORT — p1.currentFighter=" + (_loc2_ ? "ok" : "null") + " p2.currentFighter=" + (_loc3_ ? "ok" : "null") + " map=" + (_loc4_ ? "ok" : "null"));
+            return false;
          }
          if(_loc2_.data.id == _loc3_.data.id)
          {
@@ -276,16 +295,16 @@ import net.play5d.game.bvn.utils.*;
          {
             _loc3_.colorTransform = null;
          }
-         if (!this.addFighter(_loc2_,1) || !this.addFighter(_loc3_,2)) return;
+         if (!this.addFighter(_loc2_,1) || !this.addFighter(_loc3_,2)) return false;
          // 2v2/1v2：额外 fighter 同时上场（出生点由 GameState.initFight 设置）
          if (GameMode.isDuoMode()) {
             var _p1f2:FighterMain = this.gameRunData.p1FighterGroup.fighter2;
             var _p2f2:FighterMain = this.gameRunData.p2FighterGroup.fighter2;
-            if (_p1f2) { if (!this.addFighter(_p1f2, 1)) return; }
-            if (_p2f2) { if (!this.addFighter(_p2f2, 2)) return; }
+            if (_p1f2) { if (!this.addFighter(_p1f2, 1)) return false; }
+            if (_p2f2) { if (!this.addFighter(_p2f2, 2)) return false; }
          } else if (GameMode.is1v2Mode()) {
             var _p2f2_1v2:FighterMain = this.gameRunData.p2FighterGroup.fighter2;
-            if (_p2f2_1v2) { if (!this.addFighter(_p2f2_1v2, 2)) return; }
+            if (_p2f2_1v2) { if (!this.addFighter(_p2f2_1v2, 2)) return false; }
          }
          _loc4_.initlize();
          this.gameState.initFight(this.gameRunData.p1FighterGroup,this.gameRunData.p2FighterGroup,_loc4_);
@@ -307,6 +326,7 @@ import net.play5d.game.bvn.utils.*;
             this._startCtrl.start1v1(_loc2_,_loc3_);
          }
          GameInterface.instance.afterBuildGame();
+         return true;
       }
       
       private function addFighter(param1:FighterMain, param2:int) : Boolean
@@ -463,10 +483,17 @@ import net.play5d.game.bvn.utils.*;
                this._gameStartAndPause = true;
                return;
             }
-            GameEvent.dispatchEvent("PAUSE_GAME");
-            this._isPauseGame = true;
-            GameUI.I.getUI().pause();
-            MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["game_pause"])));
+            // 2026-10-21：GameUI.getUI() 在 initFight 之前是 null（加载阶段切后台就会走到这里）。
+            // 原实现直接解引用 -> #1009，且此时 _isPauseGame 已置 true、暂停对话框又没建出来，
+            // 回前台后没人能调 resume(true) -> 永久黑屏。没有 UI 就不进入「菜单暂停」，只停渲染。
+            var _ui:* = Boolean(GameUI.I) ? GameUI.I.getUI() : null;
+            if(Boolean(_ui))
+            {
+               GameEvent.dispatchEvent("PAUSE_GAME");
+               this._isPauseGame = true;
+               _ui.pause();
+               MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["game_pause"])));
+            }
          }
          this._isRenderGame = false;
       }
@@ -482,7 +509,10 @@ import net.play5d.game.bvn.utils.*;
          {
             GameEvent.dispatchEvent("RESUME_GAME");
             this._isPauseGame = false;
-            GameUI.I.getUI().resume();
+            if(Boolean(GameUI.I) && Boolean(GameUI.I.getUI()))
+            {
+               GameUI.I.getUI().resume();
+            }
             MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["game_resume"])));
          }
          KeyBoarder.focus();

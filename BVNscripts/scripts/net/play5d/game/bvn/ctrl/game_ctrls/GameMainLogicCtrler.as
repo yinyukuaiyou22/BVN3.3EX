@@ -5,6 +5,7 @@ package net.play5d.game.bvn.ctrl.game_ctrls
    import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.data.TeamMap;
    import net.play5d.game.bvn.data.TeamVO;
+   import net.play5d.game.bvn.fighter.FighterMain;
    import net.play5d.game.bvn.fighter.models.HitVO;
    import net.play5d.game.bvn.interfaces.*;
    import net.play5d.game.bvn.map.MapMain;
@@ -25,7 +26,9 @@ package net.play5d.game.bvn.ctrl.game_ctrls
       
       private var _renderAnimate:Boolean;
       
-      private var _renderErrLogged:Boolean = false;
+      // 2026-10-21 卡死修复：按「角色+阶段」去重，只记每个角色每种异常的第一条。
+      // 原实现整局只记第一条，导致真正的异常被更早的无关异常挡掉、永远看不到。
+      private var _renderErrLoggedKeys:Object = {};
       
       public function GameMainLogicCtrler()
       {
@@ -275,6 +278,18 @@ package net.play5d.game.bvn.ctrl.game_ctrls
          }
       }
       
+      /**
+       * 2026-10-21 卡死修复：render() 与 renderAnimate() 拆成两个独立 try。
+       *
+       * 原实现把两件事放在同一个 try 里，且 render() 在前 —— 只要角色在 render() 里抛一次异常
+       * （受击灵爆期最可能：renderHurtBreak() 解引用 _actionCtrler），同帧的 renderAnimate()
+       * 就被整块跳过。而受击僵直 / 灵爆钢体 / 灵爆命中 三个计时器的唯一递减点全在 renderAnimate()
+       * 里，于是三者同时停摆：
+       *   _hurtHoldFrame    -> 永远回不到 0 -> 永久受击僵直
+       *   _explodeSteelFrame-> 永远清不掉   -> 永久金身（黄色辉光常驻）
+       *   _explodeHitFrame  -> 永远到不了 8 -> 没有 idle() 出口
+       * 而 FighterMcCtrler.renderHurt() 里两道安全网又被 explodeSteelFrame 门控（自锁）。
+       */
       private function renderGameSprite(param1:IGameSprite) : void
       {
          if(!param1 || param1.isDestoryed()) return;
@@ -294,6 +309,14 @@ package net.play5d.game.bvn.ctrl.game_ctrls
                _loc3_.setInAir(_loc2_);
             }
             param1.render();
+         }
+         catch(e:Error)
+         {
+            this.logRenderError(param1,e,"render");
+         }
+         // 动画推进必须独立于上面的渲染异常：受击/钢体计时器只在这里递减
+         try
+         {
             if(Boolean(this._renderAnimate) && !param1.isDestoryed())
             {
                param1.renderAnimate();
@@ -301,19 +324,22 @@ package net.play5d.game.bvn.ctrl.game_ctrls
          }
          catch(e:Error)
          {
-            // 2026-08-16：仅首次记录完整堆栈（#1065 高频异常刷屏，堆栈定位具体缺失方法）
-            if(!_renderErrLogged)
-            {
-               _renderErrLogged = true;
-               var _errStack:String = "";
-               try { _errStack = e.getStackTrace(); } catch(_e:Error) { _errStack = ""; }
-               Debugger.log("RENDER_ERR#1:", e, _errStack);
-            }
-            else
-            {
-               Debugger.log("GameMainLogicCtrler.renderGameSprite",e);
-            }
+            this.logRenderError(param1,e,"renderAnimate");
          }
+      }
+      
+      private function logRenderError(param1:IGameSprite, param2:Error, param3:String) : void
+      {
+         var _loc4_:String = param1 is FighterMain ? (param1 as FighterMain).id : "NA";
+         var _loc5_:String = _loc4_ + "|" + param3;
+         if(Boolean(this._renderErrLoggedKeys[_loc5_]))
+         {
+            return;
+         }
+         this._renderErrLoggedKeys[_loc5_] = true;
+         var _loc6_:String = "";
+         try { _loc6_ = param2.getStackTrace(); } catch(_e:Error) { _loc6_ = ""; }
+         Debugger.log("RENDER_ERR[" + param3 + "] fighter=" + _loc4_ + " :", param2, _loc6_);
       }
       
       private function checkHit(param1:IGameSprite, param2:IGameSprite) : void
@@ -324,7 +350,12 @@ package net.play5d.game.bvn.ctrl.game_ctrls
          {
             return;
          }
-         try { Debugger.log("【判定时序】param1.allowBeHit=" + (param1 is BaseGameSprite ? (param1 as BaseGameSprite).isAllowBeHit : "N/A") + " param2.allowBeHit=" + (param2 is BaseGameSprite ? (param2 as BaseGameSprite).isAllowBeHit : "N/A") + " _renderAnimate=" + this._renderAnimate); } catch (e:Error) {}
+         // 2026-10-21：逐帧诊断日志已关（每帧 N 条 + Debugger.log 同步 flush 会直接吃掉手机帧时间）
+         // 需要复现时改成 true，或在 Debugger 里打开 DIAG_HURT
+         if(Debugger.DIAG_HURT)
+         {
+            try { Debugger.log("【判定时序】param1.allowBeHit=" + (param1 is BaseGameSprite ? (param1 as BaseGameSprite).isAllowBeHit : "N/A") + " param2.allowBeHit=" + (param2 is BaseGameSprite ? (param2 as BaseGameSprite).isAllowBeHit : "N/A") + " _renderAnimate=" + this._renderAnimate); } catch (e:Error) {}
+         }
          var _loc5_:Array = param1.getCurrentHits();
          var _loc6_:Array = param2.getCurrentHits();
          if(param1 is BaseGameSprite && !(param1 as BaseGameSprite).isAllowBeHit)

@@ -556,8 +556,36 @@ import net.play5d.game.bvn.Debugger;
                }
                if(--this._hurtDownFrame <= 0)
                {
-                  this.goFrame("击飞_起",true);
+                  // 2026-10-21 卡死修复：起身之后不再把状态交还给角色 SWF 的帧脚本。
+                  // 原来这里是 goFrame("击飞_起",true) + _hurtFlyState = 0 就撒手，而
+                  // _action.isHurtFlying 与 actionState(23/24) 全工程只有 FighterAction.clearState() 能清，
+                  // 它只在 idle()/hurtResume() 里被调用。自制/移植人物包若「击飞_起」末帧没有
+                  // parent.$mc_ctrler.idle()，角色就会永久停在起身姿态；更糟的是 render() 的早退顺序
+                  // 是 isHurtFlying 优先于 isHurting，导致 renderHurt() 的两道安全网一次都不会执行。
+                  if(this.checkFrame("击飞_起"))
+                  {
+                     this.goFrame("击飞_起",true);
+                     this._hurtDownFrame = 12;
+                     this._hurtFlyState = 5;
+                  }
+                  else
+                  {
+                     this._hurtFlyState = 0;
+                     this._mcCtrler.hurtResume();
+                  }
+               }
+               break;
+            case 4:
+               // 引擎兜底的起身收尾：给 SWF 播 12 帧起身动画，之后强制收状态。
+               // 只在「仍处于倒地/弹地」时才收 —— 若角色 SWF 自己已调过 idle()（actionState 归 0），
+               // 或这 12 帧内又被新的一次受击打断（actionState 21/22），都不应该再强行 idle。
+               if(--this._hurtDownFrame <= 0)
+               {
                   this._hurtFlyState = 0;
+                  if(this._fighter.actionState == 23 || this._fighter.actionState == 24)
+                  {
+                     this._mcCtrler.hurtResume();
+                  }
                }
          }
       }

@@ -24,6 +24,7 @@ doc/
 ├── architecture.md               工程结构、模块清单、路径依赖图
 ├── ane-dev-guide.md              ANE 开发指南
 ├── runtime-pitfalls.md           运行时踩坑速查：GPU/触控/选人/手柄/打包〔改移动端前必读〕
+├── hurt-and-loading-fixes.md     受击/灵爆/开局加载三条卡死的根因与修复〔改 fighter/ctrl/state 前必读〕
 ├── _api_doc.txt                  API 文档 dump（类/方法签名速查）
 ├── 38-rule-stage/                3.8「独立规则设置界面」专题
 │   ├── rule-stage.md               实现详解 + 3.3↔3.8 规则项对照 + 移植要点
@@ -81,6 +82,7 @@ doc/
 | 类/方法签名速查 | [`_api_doc.txt`](_api_doc.txt) |
 | 走查工程结构 / 模块清单 | [`architecture.md`](architecture.md) |
 | 改移动端 UI / 触控 / 手柄 / 选人 / Debugger / 打 APK | [`runtime-pitfalls.md`](runtime-pitfalls.md)（无法解释的点不动 / 旧图不刷新 / 按钮消失 / 日志抓不到，先看它） |
+| 受击僵直 / 灵爆金身 / 替身术 / 开局黑屏 / `创建游戏失败` | [`hurt-and-loading-fixes.md`](hurt-and-loading-fixes.md)（三计数器自锁、人物包脏帧脚本、转场回调重试） |
 
 ## 3. 相关但不在 `doc/` 下的文档
 

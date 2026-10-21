@@ -95,6 +95,16 @@
 
       public static const HIDE_HITEFFECT:Boolean = false;
 
+      /**
+       * 2026-10-21：受击/灵爆相关的逐帧诊断日志总开关，默认 false。
+       * 背景：Debugger.log() 每次调用都会 writeUTFBytes + flush（同步写 flash），
+       * 受击期原先每帧 4 条、命中判定每帧 N 条，手机上光日志就能吃掉一大截帧时间。
+       * 复现「受击灵爆卡死」时把它改成 true，再按下面的标记读日志：
+       *   【受击进入】【渲染层受击】【灵压爆发】【灵压爆发检查】【僵直递减】【僵直归零】【判定时序】
+       * 低频判据（【安全网】【钢体看门狗】）不受此开关控制，始终输出。
+       */
+      public static var DIAG_HURT:Boolean = false;
+
       // 批次 6.14：构建版本号（防止看串日志 / 排查"日志与 SWF 不匹配"）
       // 规范：<项目>-<批次>-<日期>-<时间>。
       // - 项目：固定 BVN-3.3EX
@@ -103,7 +113,7 @@
       // - 时间：HHMM 格式（每次编译手动或脚本更新）
       // 调用方：build.bat 可在编译前用 sed 替换 @BUILD_TAG@ 占位符。
       // 读取方：bvn_debug.log 第一行（=== BVN Debug Log ===）之后第二行即为 BUILD 行。
-      public static const BUILD_TAG:String = "BVN-3.3EX-batch6.14-2026-10-13-1056";
+      public static const BUILD_TAG:String = "BVN-3.3EX-batch6.14-2026-10-21-1444";
 
       private static var _scale:Number = 1.0;
 

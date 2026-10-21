@@ -75,6 +75,13 @@ import net.play5d.game.bvn.Debugger;
       
       private var _explodeSteelFrame:int;
       
+      // 2026-10-21 卡死修复：灵爆窗口的幂等标记与钢体看门狗（详见 renderAnimate）
+      private var _explodeIdled:Boolean = false;
+      
+      private var _explodeSteelWatchdog:int = 0;
+      
+      private var _animErrLogged:Boolean = false;
+      
       private var _replaceSkillFrame:int;
       
       private var _speedBack:Number = 0;
@@ -114,6 +121,12 @@ import net.play5d.game.bvn.Debugger;
          {
             return;
          }
+         // 2026-10-21：先解除金身辉光并清掉灵爆窗口。
+         // 角色若在灵爆 60 帧窗口（或替身术 30 帧）内被换人/KO，会先被移出 gameState 的渲染列表，
+         // renderAnimate 不再驱动 -> 计数器永久冻结 -> setSteelBody(false) 永不执行 ->
+         // GlowFilter 对应的 BitmapFilterView（独立 game sprite）会留下一尊永久的黄色残像。
+         this.resetExplodeState();
+         this.isAllowBeHit = false;
          if(Boolean(this._fighterCtrl))
          {
             this._fighterCtrl.destory();
@@ -326,15 +339,35 @@ import net.play5d.game.bvn.Debugger;
          this.renderFzQi();
          if(Boolean(this._fighterCtrl))
          {
-            this._fighterCtrl.renderAnimate();
+            // 2026-10-21：控制器动画链单独兜底。它内部会走到 renderHurtAnimate / idle / MC 子元件推进，
+            // 任何一处抛异常都会把下面三个计时器一起跳过 —— 那正是「永久受击 + 永久金身」的成因。
+            // 这里保证：即使控制器链崩了，灵爆窗口照样按帧推进、照样能自行结束。
+            try
+            {
+               this._fighterCtrl.renderAnimate();
+            }
+            catch(e:Error)
+            {
+               if(!this._animErrLogged)
+               {
+                  this._animErrLogged = true;
+                  try { Debugger.log("FIGHTER_ANIM_ERR id=" + this.id + " :", e, e.getStackTrace()); } catch(_e:Error) {}
+               }
+            }
          }
          if(this._explodeHitFrame > 0)
          {
-            try { Debugger.log("【灵压爆发】id=" + this.id + " _explodeHitFrame(递减前)=" + (this._explodeHitFrame + 1) + " _explodeSteelFrame=" + this._explodeSteelFrame + " isAllowBeHit=" + isAllowBeHit + " actionState=" + this.actionState); } catch (e:Error) {}
-            --this._explodeHitFrame;
-            if(this._explodeHitFrame == 8)
+            if(Debugger.DIAG_HURT)
             {
-               this.idle();
+               try { Debugger.log("【灵压爆发】id=" + this.id + " _explodeHitFrame(递减前)=" + (this._explodeHitFrame + 1) + " _explodeSteelFrame=" + this._explodeSteelFrame + " isAllowBeHit=" + isAllowBeHit + " actionState=" + this.actionState); } catch (e:Error) {}
+            }
+            --this._explodeHitFrame;
+            // 2026-10-21：原来是 ==8 的等值门，一旦该计数器被跳过（render 抛异常等）就永远不回 idle()。
+            // 改成「<=8 且未走过」的幂等门：无论中间漏了几帧，都会补一次恢复。
+            if(this._explodeHitFrame <= 8 && !this._explodeIdled)
+            {
+               this._explodeIdled = true;
+               try { this.idle(); } catch(e:Error) { try { Debugger.log("【灵爆 idle 异常】id=" + this.id + " :", e); } catch(_e:Error) {} }
                isAllowBeHit = false;
             }
             if(this._explodeHitFrame <= 0)
@@ -346,11 +379,33 @@ import net.play5d.game.bvn.Debugger;
          if(this._explodeSteelFrame > 0)
          {
             --this._explodeSteelFrame;
-            this._fighterCtrl.getMcCtrl().setSteelBody(true,true);
-            if(this._explodeSteelFrame <= 0)
+            // 2026-10-21：钢体看门狗。正常 60 帧（约 2s）结束；若因为任何原因越界超时，
+            // 强制解除金身并在日志里留痕（这条是低频判据，不受 DIAG_HURT 控制）。
+            ++this._explodeSteelWatchdog;
+            var mcCtrl:FighterMcCtrler = Boolean(this._fighterCtrl) ? this._fighterCtrl.getMcCtrl() : null;
+            if(this._explodeSteelWatchdog > 150 || !mcCtrl)
             {
-               this._fighterCtrl.getMcCtrl().setSteelBody(false);
+               try { Debugger.log("【钢体看门狗】强制解除金身 id=" + this.id + " 已过帧=" + this._explodeSteelWatchdog + " 剩余=" + this._explodeSteelFrame + " mcCtrl=" + (mcCtrl ? "ok" : "null")); } catch (e:Error) {}
+               this._explodeSteelFrame = 0;
+               this._explodeSteelWatchdog = 0;
+               if(Boolean(mcCtrl))
+               {
+                  mcCtrl.setSteelBody(false);
+               }
             }
+            else
+            {
+               mcCtrl.setSteelBody(true,true);
+               if(this._explodeSteelFrame <= 0)
+               {
+                  this._explodeSteelWatchdog = 0;
+                  mcCtrl.setSteelBody(false);
+               }
+            }
+         }
+         else
+         {
+            this._explodeSteelWatchdog = 0;
          }
          if(this._replaceSkillFrame > 0)
          {
@@ -600,12 +655,42 @@ import net.play5d.game.bvn.Debugger;
          this._explodeHitVO.hurtType = 1;
          this._explodeHitFrame = 10;
          this._explodeSteelFrame = 60;
+         this._explodeIdled = false;
+         this._explodeSteelWatchdog = 0;
          isAllowBeHit = false;
       }
       
       public function get explodeSteelFrame() : int
       {
          return this._explodeSteelFrame;
+      }
+      
+      /** 2026-10-21：灵爆的「命中判定窗口」帧数（安全网用它当门控，替代原来的 explodeSteelFrame） */
+      public function get explodeHitFrame() : int
+      {
+         return this._explodeHitFrame;
+      }
+      
+      /**
+       * 2026-10-21：解除金身辉光并清空灵爆/替身术窗口。
+       * 供 destory() 与「把角色移出渲染列表」的路径调用 —— 计数器只靠 renderAnimate() 递减，
+       * 一旦角色不再被渲染，setSteelBody(false) 就永远等不到，辉光会以独立 sprite 的形式永久残留。
+       */
+      public function resetExplodeState() : void
+      {
+         // 注意：endGlow() 会走到 EffectCtrl.endFilter -> GameCtrl.removeGameSprite -> gameState，
+         // 而 GameCtrl.destory() 是先置空 gameState 再 destoryFighters()，此时解辉光会 #1009。
+         // 这里吞掉即可：角色都要销毁了，残留的 BitmapFilterView 会随 GameState 一起被回收。
+         if(Boolean(this._fighterCtrl) && Boolean(this._fighterCtrl.getMcCtrl()))
+         {
+            try { this._fighterCtrl.getMcCtrl().setSteelBody(false); } catch(e:Error) {}
+         }
+         this._explodeHitFrame = 0;
+         this._explodeSteelFrame = 0;
+         this._explodeSteelWatchdog = 0;
+         this._explodeIdled = false;
+         this._replaceSkillFrame = 0;
+         this._explodeHitVO = null;
       }
       
       public function replaceSkill() : void

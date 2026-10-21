@@ -256,6 +256,10 @@ package net.play5d.game.bvn.state
       
       public function cameraFocusOne(param1:DisplayObject) : void
       {
+         if(!this.camera)
+         {
+            return;
+         }
          this.camera.focus([param1]);
          this.camera.setZoom(3.5);
          this.camera.tweenSpd = 2.5 / GameConfig.SPEED_PLUS_DEFAULT;
@@ -263,6 +267,13 @@ package net.play5d.game.bvn.state
       
       public function cameraResume() : void
       {
+         // 2026-10-21：镜头在 initFight -> initCamera 里才创建，而人物包的帧脚本可能在
+         // addFighter 阶段就调到 endBisha() -> cameraResume()。这里兜一层，别再让外部人物包
+         // 把整个 buildGame 打断。
+         if(!this.camera)
+         {
+            return;
+         }
          this.camera.focus(this._cameraFocus);
          this.camera.tweenSpd = 2.5 / GameConfig.SPEED_PLUS_DEFAULT;
       }

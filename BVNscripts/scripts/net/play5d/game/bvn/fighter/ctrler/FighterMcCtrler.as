@@ -161,6 +161,11 @@ package net.play5d.game.bvn.fighter.ctrler
          {
             this._justHurtResume = true;
          }
+         // 2026-10-21：僵直计时器必须随状态一起归零。
+         // 原先 idle() 只清 isHurting/_action，却完全不碰 _hurtHoldFrame，残留值会让下一次受击的
+         // 递减基线错乱，也会让「僵直归零」这条判据失真。
+         this._hurtHoldFrame = 0;
+         this._hurtStuckFrame = 0;
          this.endAct();
          this._doingAction = null;
          this._doingAirAction = null;
@@ -747,9 +752,10 @@ package net.play5d.game.bvn.fighter.ctrler
          }
          if(this._hurtDownFrame > 0)
          {
+            // 2026-10-21：_actionCtrler 判空（受击飞行期间同属 render() 链路，崩了会连带跳过 renderAnimate）
             if(++this._hurtDownFrame < 20)
             {
-               if(this._actionCtrler.dashJump())
+               if(Boolean(this._actionCtrler) && Boolean(this._actionCtrler.dashJump()))
                {
                   this.doHurtDownJump();
                   this._hurtDownFrame = 0;
@@ -1908,7 +1914,12 @@ package net.play5d.game.bvn.fighter.ctrler
          {
             return;
          }
-         try { Debugger.log("【渲染层受击】id=" + this._fighter.id + " _hurtHoldFrame=" + this._hurtHoldFrame + " explodeSteelFrame=" + this._fighter.explodeSteelFrame + " isHurting=" + this._action.isHurting + " _hurtStuckFrame=" + this._hurtStuckFrame); } catch (e:Error) {}
+         // 2026-10-21：逐帧日志改为 DIAG_HURT 开关控制（默认关）。Debugger.log 每次都会同步 flush 写 flash，
+         // 受击期每帧一条在手机上足以明显掉帧，反过来放大所有暂停窗口的重叠概率。
+         if(Debugger.DIAG_HURT)
+         {
+            try { Debugger.log("【渲染层受击】id=" + this._fighter.id + " _hurtHoldFrame=" + this._hurtHoldFrame + " explodeSteelFrame=" + this._fighter.explodeSteelFrame + " isHurting=" + this._action.isHurting + " _hurtStuckFrame=" + this._hurtStuckFrame); } catch (e:Error) {}
+         }
          this.renderHurtBreak();
          // 【安全网1】_hurtHoldFrame 异常（NaN/极值）—— 立即强制恢复
          if(isNaN(this._hurtHoldFrame) || this._hurtHoldFrame < -100 || this._hurtHoldFrame > 9999)
@@ -1918,8 +1929,11 @@ package net.play5d.game.bvn.fighter.ctrler
             return;
          }
          // 兜底：若僵直帧已归零但 renderAnimate 的恢复分支因渲染链路中断未执行（如 _ghostStepIng 短路、空指针异常），强制恢复，避免永卡
-         // 灵压爆发窗口内（explodeSteelFrame>0）跳过强制恢复，交给 FighterMain.renderAnimate 正常递减链路（_explodeHitFrame==8 → idle）处理，避免钢体与受击状态互相干扰
-         if(this._hurtHoldFrame <= 0 && this._fighter.explodeSteelFrame <= 0)
+         // 2026-10-21 卡死修复：门控从 explodeSteelFrame 改为 explodeHitFrame。
+         // 原写法用「钢体窗口」(_explodeSteelFrame=60) 当门，而它的唯一递减点就在 renderAnimate() 里——
+         // 渲染链路一断，计数器永久 >0，两道安全网就跟着一起失效（自锁，这就是上一轮修复没生效的原因）。
+         // 真正需要避让的只有灵爆的 10 帧命中判定窗口；钢体窗口期间必须允许退出受击态，两者是独立的。
+         if(this._hurtHoldFrame <= 0 && this._fighter.explodeHitFrame <= 0)
          {
             if(this._fighter.isAlive)
             {
@@ -1941,14 +1955,14 @@ package net.play5d.game.bvn.fighter.ctrler
          }
          else
          {
-            // 【安全网2】isHurting 卡住超过 150 帧（5 秒@30fps）且灵压窗口已关闭 → 强制恢复
+            // 【安全网2】isHurting 卡住超过 150 帧（5 秒@30fps）且灵爆命中窗口已过 → 强制恢复
             // 正常递减时 _hurtStuckFrame 会被 hurtResume 清零或自然累积到下一帧——这里只在异常时累加
-            if(this._action.isHurting && this._fighter.explodeSteelFrame <= 0)
+            if(this._action.isHurting && this._fighter.explodeHitFrame <= 0)
             {
                this._hurtStuckFrame++;
                if(this._hurtStuckFrame > 150)
                {
-                  try { Debugger.log("【安全网2】isHurting 卡住 150 帧, 强制恢复 _hurtHoldFrame=" + this._hurtHoldFrame); } catch (e:Error) {}
+                  try { Debugger.log("【安全网2】isHurting 卡住 150 帧, 强制恢复 id=" + this._fighter.id + " _hurtHoldFrame=" + this._hurtHoldFrame + " steel=" + this._fighter.explodeSteelFrame); } catch (e:Error) {}
                   this.hurtResume();
                }
             }
@@ -1961,8 +1975,15 @@ package net.play5d.game.bvn.fighter.ctrler
       
       private function renderHurtBreak() : void
       {
-         try { Debugger.log("【灵压爆发检查】id=" + this._fighter.id + " specailSkill=" + this._actionCtrler.specailSkill() + " energy=" + this._fighter.energy + " qi=" + this._fighter.qi); } catch (e:Error) {}
-         if(!this._actionCtrler.specailSkill())
+         // 2026-10-21 卡死修复：_actionCtrler 判空（与 renderFloorAction:783 的写法对齐）。
+         // 这是整条 render() 链上唯一「无条件执行且不判空」的解引用：一旦为 null 就每帧 #1009，
+         // 被 GameMainLogicCtrler.renderGameSprite 的 try 吞掉，连带跳过同帧 renderAnimate()，
+         // 三个计时器（_hurtHoldFrame / _explodeSteelFrame / _explodeHitFrame）同时停摆。
+         if(Debugger.DIAG_HURT)
+         {
+            try { Debugger.log("【灵压爆发检查】id=" + this._fighter.id + " specailSkill=" + (Boolean(this._actionCtrler) ? this._actionCtrler.specailSkill() : "NO_CTRLER") + " energy=" + this._fighter.energy + " qi=" + this._fighter.qi); } catch (e:Error) {}
+         }
+         if(!this._actionCtrler || !this._actionCtrler.specailSkill())
          {
             return;
          }
@@ -2006,7 +2027,10 @@ package net.play5d.game.bvn.fighter.ctrler
       private function renderHurtAnimate() : void
       {
          var _loc1_:Point = null;
-         try { Debugger.log("【僵直递减】id=" + this._fighter.id + " _hurtHoldFrame(递减前)=" + (this._hurtHoldFrame + 1)); } catch (e:Error) {}
+         if(Debugger.DIAG_HURT)
+         {
+            try { Debugger.log("【僵直递减】id=" + this._fighter.id + " _hurtHoldFrame(递减前)=" + (this._hurtHoldFrame + 1)); } catch (e:Error) {}
+         }
          if(this._hurtHoldFrame-- <= 0)
          {
             try { Debugger.log("【僵直归零】id=" + this._fighter.id + " isAlive=" + this._fighter.isAlive); } catch (e:Error) {}
@@ -2031,7 +2055,8 @@ package net.play5d.game.bvn.fighter.ctrler
          }
       }
       
-      private function hurtResume() : void
+      // 2026-10-21：改为 public —— FighterMC 的起身兜底需要主动收状态（见 FighterMC.renderHurtFly case 4）
+      public function hurtResume() : void
       {
          try { Debugger.log("【僵直恢复】id=" + this._fighter.id + " isInAir=" + this._fighter.isInAir + " _isTouchFloor=" + this._isTouchFloor + " _hurtStuckFrame=" + this._hurtStuckFrame); } catch (e:Error) {}
          this._hurtStuckFrame = 0;
