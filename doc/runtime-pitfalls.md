@@ -1,8 +1,9 @@
 # 运行时踩坑速查（手机端 / 触控 / 选人 / 输入 / 受击 / 加载）
 
 > 本文件是 `AGENTS.md` 里「静默失败陷阱」表的**展开版**：常驻层只留判据，这里给完整机理与可抄的代码。
-> **进入条件**：改移动端 UI、触控、选人界面、手柄/输入、Debugger 面板、打 APK、**改 `fighter/` 受击/灵爆、排查开局黑屏或「创建游戏失败」**时读；其它时候不必读。
-> 汇总自原 `AGENTS.md` §245–735（2026-10-11 重组）+ 回补自 `CLAUDE.md.rewrite.2026-09-09-142021`（2026-10-11 二次修订）+ 2026-10-21 补入受击/灵爆/加载三条卡死。
+> **同时充当主项目唯一的开发日志**（§9，按日期倒序追加）—— 不再另建 `CHANGELOG` 或单篇专题文档。
+> **进入条件**：改移动端 UI、触控、选人界面、手柄/输入、Debugger 面板、打 APK、**改 `fighter/` 受击/灵爆、排查开局黑屏或「创建游戏失败」、想知道"这批改了什么"**时读；其它时候不必读。
+> 汇总自原 `AGENTS.md` §245–735（2026-10-11 重组）+ 回补自 `CLAUDE.md.rewrite.2026-09-09-142021`（2026-10-11 二次修订）+ 2026-10-21 补入受击/灵爆/加载三条卡死与开发日志。
 > 已删除过期 Termux 路径、已过时包名、逐批次备份台账；**保留内容均经 2026-10-11 实测核对**（详见 §8「核实记录」）。
 
 ## 0. 这份文件的读法
@@ -27,6 +28,8 @@
 | 受击中按 SPECIAL 后永久僵直 + 永久金身 | §7.1 |
 | 某角色一选就崩 / 开局 `#1009 at cameraResume` | §7.2 |
 | `创建游戏失败` 每帧刷屏 / 开局黑屏 / 切后台回来黑屏 | §7.3 |
+| 选人页 0 显示 13~14 行 / 总页数算成 11 | §5.3 |
+| 想知道"这批改了什么" / 要补开发记录 | §9 |
 
 ---
 
@@ -476,6 +479,29 @@ control 10/11/12 = D-pad 按钮（BUTTON_19/21/22，缺 down）
 8. **`SelectFighterStage.SELECT_STATE` 必须恒为 0**：`select.swf` 帧脚本每帧消费它，赋非 0 会让 `clear()` 无守卫地每帧 `removeChild(up/down)` → 第二次起 `#2025` 刷屏（批次 6.11 修复：不再赋值，辅助界面翻页由主程序 render 分页段支持）。
    **一般教训：主程序静态变量会被 select.swf 帧脚本每帧消费，赋非 0 值前必须确认帧脚本怎么读它。**
 
+### 5.3 选人网格的「行数 / 分页」权威公式（**不要按像素窗切页**）
+
+主程序 2026-10-10 起是「按页」模型，不是 3.9 的「整列直排 + 按像素窗切页」。唯一真相源
+`state/SelectFighterStage.as:261-322`（`CELL_SIZE=(60,60)` 见 `:45`，`GAME_SIZE=(800,600)` 见 `GameConfig.as:140`）：
+
+```text
+viewportH       = min(layout.height, GAME_SIZE.y)              // min(6300,600) = 600
+usableH         = viewportH - top - bottom                     // 600-60-110 = 430（小于 CELL_SIZE.y 时取 CELL_SIZE.y）
+rowsPerPage     = floor(usableH / CELL_SIZE.y)                 // floor(430/60) = 7
+maxY            = 最大行号(gridY)
+displayedVCount = min(VCount, rowsPerPage, maxY+1)
+gapX            = (width - unitSize.x - left - right)/(HCount-1)
+gapY            = (viewportH - unitSize.y - top - bottom)/(displayedVCount-1)   // 钳 gapY >= CELL_SIZE.y
+PAGE_HEIGHT     = viewportH
+TOTAL_PAGES     = ceil((maxY+1)/rowsPerPage)                   // char: ceil(138/7)=20；assist: ceil(13/7)=2
+item.y          = y+top + gapY*(gridY % rowsPerPage) + floor(gridY/rowsPerPage)*PAGE_HEIGHT + offset.y
+item.x          = x+left + gapX*gridX + offset.x
+```
+
+现状代入（`layout 900×6300, top=60, bottom=110`）：页 0 只显示 **7 行**，char 共 **20 页**（末页 5 行），assist **2 页**（7+6 行）。
+**判据**：任何「页 0 显示 13~14 行」「总页数 11」的结果都是用了旧整列模型，`gapY` 会算成 44.38 而不是 63.33。
+排查工具实现见 [`plans/game-faithful-vertical-pagination_plan.md`](plans/game-faithful-vertical-pagination_plan.md)。
+
 ---
 
 ## 6. ANE
@@ -631,3 +657,25 @@ return this._justRenderAnimateTargets.length < 1;   // 从没登记过 → 也�
 | Termux 路径 `~/BVN3.3EX-master/` | 旧 AGENTS.md §345 | 已过期，不再使用 | 🗑️ 已删 |
 
 > **维护约定**：下次修订本文件时，重跑上表中标 ✅ 的项目。路径类信息最容易漂移，`from memory` 不可信。
+
+---
+
+## 9. 主项目开发日志
+
+**这是主项目唯一的开发日志**（不另建文件、不另建 `CHANGELOG.md`）。
+写法：**新条目加到最上面**，每条 ≤3 行 —— 日期 + 这一批改了什么/为什么 + 指向（§ 或 `doc/` 路径 或 commit）。
+**不贴过程、不贴代码、不贴日志原文**；过程留在 commit message 里。改完一批代码，在同一个提交里补一行。
+
+| 日期 | 结论 | 指向 |
+|---|---|---|
+| 2026-10-21 | 受击灵爆后**永久金身+僵直**：`render`/`renderAnimate` 共用 try → 三计数器停摆、安全网自锁；拆分 try + 门控改 `explodeHitFrame` + 钢体看门狗 | §7.1 / `d3ced4e` |
+| 2026-10-21 | 人物包 `人物_1/frame1` 无条件调 `endBisha()` → 开局 `#1009 cameraResume`；`cancelJustRender*` 未登记改为返回 false | §7.2 / `d3ced4e` |
+| 2026-10-21 | `创建游戏失败` 刷屏/黑屏：`TransUI` 回调"先调后清"→ 每帧重试；`getUI()` 为 null 时 pause 半途崩 → 永久黑屏 | §7.3 / `d3ced4e` |
+| 2026-10-21 | 文档收拢：回归矩阵移入 `doc/select-regression-matrix.md`；`.trae/documents/` 3 份计划移入 `doc/plans/`；`PUSH-操作手册` 归档；受击/灵爆内容并入本文件 §7 | `260bd03` 之后的 docs 提交 |
+| 2026-10-13 | HELL/CRAZY 新增**随机纽带连招** `updateLinkAI`：只在非出招态、order 取 999、概率门 6/10 与 10/10；AImain 缺失必须走距离回退 | `doc/crazy-ai/crazy-ai.md` §10 / `f8f1036` |
+| 2026-10-12 | 同步开发进度：CRAZY 难度档 + 选人/设置/资源加载等多处修复一并提交 | `e3e2532` |
+| 2026-10-10 | 选人网格从「整列直排」改为**按页**模型（页 0 = 7 行，char 20 页 / assist 2 页）；工具与游戏同口径 | §5.3 |
+| 2026-10-09 | 外置资源**分支 B** 真机验收通过：外置根改 `Android/media/<pkg>/BVN/assets/`，首启零权限自建 5 个子目录；ANE 路线正式收口（8 类变量全败，运行时不支持） | §6 / `tools/Test/_report/2026-10-09_分支B验收报告.md` |
+| 2026-10-08 | 外置资源迁移完成：精简包 3.892 GB / 1620 文件（fighter 329 / face 1071 / map 144 / bgm 54 + config） | `tools/Test/_report/2026-10-08_资源迁移与精简包.md` |
+| 2026-09-03 | 受击卡死加「双安全网」——**无效**：两道网都被 `explodeSteelFrame` 门控，与计数器互锁；2026-10-21 才定位 | §7.1 / `ca46d10` |
+| 2026-09-02 | 选人界面批次 6.x：分页布局、人物子框（plugin）、触控监听判据（`_listeners` 而非 `hasEventListener`）+ 对称 `removeEventListener` | §3.1 / §5 |

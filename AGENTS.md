@@ -112,7 +112,7 @@ tools/script/add_asset.py        # 资产工具：自动添加角色/辅助/地�
 | 角色动作 / AI | `FighterMcCtrler.as`、`FighterAction.as`、`net/play5d/game/bvn/fighter/ctrler/ai/FighterAILogic.as` |
 | 资源加载 / 外置扫描 | `ctrl/AssetLoader.as`、`ctrl/GameLoader.as`、`mob/utils/ANEFileReader.as` |
 | 菜单 / 设置 / 暂停 | `MenuBtnGroup.as`、`MenuBtn.as`、`SetBtnGroup.as`、`SettingState.as`、`PauseDialog.as` |
-| 选人 / 分页 | `SelectFighterStage.as`、`SelectStageConfigVO.as`（回归矩阵见 `BVNscripts/scripts/REGRESSION_TEST_MATRIX_BATCH6.5.md`） |
+| 选人 / 分页 | `SelectFighterStage.as`、`SelectStageConfigVO.as`（回归矩阵见 `doc/select-regression-matrix.md`） |
 | 输入 / 手柄 | `GameInputer.as`、`FighterKeyCtrl.as`、`mob/GameInterfaceManager.as`、`mob/screenpad/` |
 | 配置存档 / UI SWF / 嵌入式资源 | `data/GameData.as`、`ConfigVO.as`、`utils/ResUtils.as`、`EmbeddedAssets.as` |
 | 调试面板 / 网络 | `Debugger.as`（`DEBUG_PANEL_ENABLED`）、`mob/sockets/`、`mob/ctrls/LAN*.as` |

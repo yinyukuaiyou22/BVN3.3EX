@@ -28,7 +28,8 @@ doc/
 ├── AI-SYSTEM-DOC.md           PC 分支 AI 系统说明〔历史文档，基准路径已失效〕
 ├── architecture.md            工程结构 / 模块清单 / 路径依赖图
 ├── ane-dev-guide.md           ANE 开发指南
-├── runtime-pitfalls.md        运行时踩坑速查〔改移动端 / fighter 前必读〕
+├── runtime-pitfalls.md        运行时踩坑速查 + 开发日志〔改移动端 / fighter 前必读〕
+├── select-regression-matrix.md 选人界面回归测试矩阵（原在 BVNscripts/scripts/，2026-10-21 移入）
 ├── _api_doc.txt               类与方法签名速查 dump
 ├── 38-rule-stage/             3.8 独立规则设置界面（rule-stage.md 详解 / plan.md 移植计划）
 ├── ane/                       ANE 专题（proposal / high-level / detailed / tasks）
@@ -37,7 +38,7 @@ doc/
 ├── jingji/                    竞技项（设计 + tasks t1…t7）
 ├── kai-chang/                 开场（proposal + tasks）
 ├── adr/                       架构决策记录（原 docs/adr 并入）
-├── plans/                     实施计划
+├── plans/                     实施计划（选人界面工具 4 份，含原 `.trae/documents/`）
 └── archive/                   归档：过时 / 重复 / 第三方 / 日志（archive/logs/ 为构建日志）
 ```
 
@@ -45,7 +46,7 @@ doc/
 
 | 路径 | 用途 |
 |---|---|
-| `BVNscripts/scripts/REGRESSION_TEST_MATRIX_BATCH6.5.md` | 选人人物子框回归矩阵（改 `SelectFighterItem` / `SelectFighterStage` / `SelectStageConfigVO` / `MenuBtn` 须同步刷行号） |
+| [`doc/runtime-pitfalls.md`](doc/runtime-pitfalls.md) **§9** | **主项目开发日志**：按日期追加的结论记录（新增一批改动后在这里补一行） |
 | `BVNscripts/3.8竞技参考/竞技改代码/CLAUDE.md` | 3.8 竞技版参考代码索引（只读参考） |
 | `tools/Test/_report/` | 真机诊断报告（如 ANE 诊断报告） |
 | `tools/skills-1.2.3/` | 第三方技能包（非本项目文档，原样留存） |

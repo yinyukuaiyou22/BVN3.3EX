@@ -23,7 +23,8 @@ doc/
 ├── AI-SYSTEM-DOC.md              PC 分支全量 AI 系统说明〔历史文档〕
 ├── architecture.md               工程结构、模块清单、路径依赖图
 ├── ane-dev-guide.md              ANE 开发指南
-├── runtime-pitfalls.md           运行时踩坑速查：GPU/触控/选人/手柄/打包/受击灵爆/开局加载〔改移动端或 fighter 前必读〕
+├── runtime-pitfalls.md           运行时踩坑速查 + 主项目开发日志（§9）：GPU/触控/选人/手柄/打包/受击灵爆/开局加载〔改移动端或 fighter 前必读〕
+├── select-regression-matrix.md   选人界面回归测试矩阵（原 `BVNscripts/scripts/REGRESSION_TEST_MATRIX_BATCH6.5.md`，2026-10-21 移入）
 ├── _api_doc.txt                  API 文档 dump（类/方法签名速查）
 ├── 38-rule-stage/                3.8「独立规则设置界面」专题
 │   ├── rule-stage.md               实现详解 + 3.3↔3.8 规则项对照 + 移植要点
@@ -53,9 +54,13 @@ doc/
 │   ├── README.md
 │   └── ADR-001-单页窗口与翻页交互.md
 ├── plans/                        实施计划
-│   └── 2026-09-07-选人界面工具-单页窗口与翻页.md
+│   ├── 2026-09-07-选人界面工具-单页窗口与翻页.md
+│   ├── game-faithful-vertical-pagination_plan.md   工具垂直分页对齐游戏内（原 .trae/documents/）
+│   ├── refimg-layering-fix-plan.md                 工具参考图图层修正（原 .trae/documents/）
+│   └── select-xml-paging-fix-plan.md               select.xml 分页清洗（原 .trae/documents/）
 └── archive/                      归档：过时 / 重复 / 第三方 / 日志
     ├── AI-SYSTEM-DOC.root-stale-2026-09-01.md   根目录旧版（已被 doc/ 内 10-09 版取代）
+    ├── push-guide-2026-10-11.md                 原根目录 PUSH-操作手册（当时沙箱不能写 git，已过时）
     ├── _api_doc.root-duplicate.txt              与 doc/_api_doc.txt 完全相同
     ├── CONTEXT.md                               mattpocock 工作流术语表
     ├── grill-me-SKILL.md                        第三方技能定义文件
@@ -82,15 +87,18 @@ doc/
 | 走查工程结构 / 模块清单 | [`architecture.md`](architecture.md) |
 | 改移动端 UI / 触控 / 手柄 / 选人 / Debugger / 打 APK | [`runtime-pitfalls.md`](runtime-pitfalls.md)（无法解释的点不动 / 旧图不刷新 / 按钮消失 / 日志抓不到，先看它） |
 | 受击僵直 / 灵爆金身 / 替身术 / 开局黑屏 / `创建游戏失败` | [`runtime-pitfalls.md`](runtime-pitfalls.md) **§7**（三计数器自锁、人物包脏帧脚本、转场回调重试 + 验收断言） |
+| 改选人界面 / 查已有回归用例 | [`select-regression-matrix.md`](select-regression-matrix.md)（改 `SelectFighterItem/SelectFighterStage/SelectStageConfigVO/MenuBtn` 时同步刷行号） |
+| **查"这批改了什么" / 补开发记录** | [`runtime-pitfalls.md`](runtime-pitfalls.md) **§9 开发日志**（按日期倒序，只记结论 + 指向） |
+| 选人界面排版工具的形成过程 | [`plans/`](plans/)（4 份计划）+ `选人界面排版工具/` 自带文档 |
 
 ## 3. 相关但不在 `doc/` 下的文档
 
 | 路径 | 用途 |
 |---|---|
-| [`BVNscripts/scripts/REGRESSION_TEST_MATRIX_BATCH6.5.md`](../BVNscripts/scripts/REGRESSION_TEST_MATRIX_BATCH6.5.md) | 选人界面人物子框回归测试矩阵（改 `SelectFighterItem/SelectFighterStage/SelectStageConfigVO/MenuBtn` 时须同步刷新，含已知失效章节说明） |
 | [`BVNscripts/3.8竞技参考/竞技改代码/CLAUDE.md`](../BVNscripts/3.8竞技参考/竞技改代码/CLAUDE.md) | 3.8 竞技版参考代码索引（**只读参考，不改造**） |
 | `tools/Test/_report/` | 真机诊断报告（如 `2026-10-09_ANE-诊断报告.md`） |
 | [`tools/skills-1.2.3/`](../tools/skills-1.2.3/) | 第三方技能包（mattpocock/skills v1.2.3，原样留存，**非本项目文档**） |
+| `选人界面排版工具/` | 独立 HTML 工具，自带 README/plan/xml解析流程/代码索引（**工具文档，不并入 doc/**） |
 | `.backup/` | 本地改动前快照（**不进提交**，见 `CLAUDE.md` 与 `.gitignore`） |
 
 ## 4. 维护约定
