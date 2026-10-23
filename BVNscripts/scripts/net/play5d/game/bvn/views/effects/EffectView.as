@@ -6,6 +6,7 @@ package net.play5d.game.bvn.views.effects
    import net.play5d.game.bvn.data.BitmapDataCacheVO;
    import net.play5d.game.bvn.data.EffectVO;
    import net.play5d.game.bvn.interfaces.IGameSprite;
+   import net.play5d.game.bvn.utils.BlendModeCompat;
    import net.play5d.kyo.utils.*;
    
    public class EffectView
@@ -48,7 +49,7 @@ package net.play5d.game.bvn.views.effects
          super();
          this._data = param1;
          this.display = new Bitmap();
-         this.display.blendMode = param1.blendMode;
+         this.display.blendMode = BlendModeCompat.map(param1.blendMode);
          this.display.smoothing = EffectCtrl.EFFECT_SMOOTHING;
          this._bitmapDatas = param1.bitmapDataCache;
          this._frameLabels = param1.frameLabelCache;

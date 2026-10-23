@@ -11,6 +11,7 @@ package net.play5d.game.bvn.mob
    import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.input.*;
    import net.play5d.game.bvn.interfaces.*;
+   import net.play5d.game.bvn.views.filter.FilterProxyManager;
    import net.play5d.game.bvn.map.MapMain;
    import net.play5d.game.bvn.mob.ctrls.*;
    import net.play5d.game.bvn.mob.data.*;
@@ -679,6 +680,8 @@ package net.play5d.game.bvn.mob
 
       public function applyConfig(param1:ConfigVO) : void
       {
+         // 2026-10-23 GPU 滤镜代理层：画质档位直接决定并发代理数/每帧烘焙预算
+         FilterProxyManager.I.applyQualityPreset(param1.quality);
          Debugger.logFold("applyConfig");
          switch(param1.quality)
          {

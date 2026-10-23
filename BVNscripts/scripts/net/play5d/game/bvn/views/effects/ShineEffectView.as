@@ -3,6 +3,7 @@ package net.play5d.game.bvn.views.effects
    import flash.display.*;
    import flash.utils.*;
    import net.play5d.game.bvn.*;
+   import net.play5d.game.bvn.utils.BlendModeCompat;
    
    public class ShineEffectView extends Bitmap
    {
@@ -60,11 +61,11 @@ package net.play5d.game.bvn.views.effects
          var _loc3_:Number = 8388607;
          if(param1 > _loc3_)
          {
-            this.blendMode = "add";
+            this.blendMode = BlendModeCompat.map("add");
          }
          else
          {
-            this.blendMode = "darken";
+            this.blendMode = BlendModeCompat.map("darken");
             param2 *= 0.8;
          }
          this.alpha = param2;

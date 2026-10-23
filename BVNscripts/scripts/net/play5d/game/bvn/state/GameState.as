@@ -11,6 +11,7 @@ package net.play5d.game.bvn.state
    import net.play5d.game.bvn.interfaces.*;
    import net.play5d.game.bvn.map.MapMain;
    import net.play5d.game.bvn.ui.*;
+   import net.play5d.game.bvn.views.filter.FilterProxyManager;
    import net.play5d.kyo.stage.*;
    
    public class GameState extends Sprite implements Istage
@@ -140,6 +141,17 @@ package net.play5d.game.bvn.state
             this._gameLayer.addChild(this._map.mapLayer);
          }
          this._gameLayer.addChild(this._playerLayer);
+         // 2026-10-23 GPU 滤镜兼容层：以 GameState 自身为根。
+         // 有的包（如时停灰度）是给整场景/背景层加 ColorMatrixFilter，只扫玩家层会漏。
+         // 兼容层出任何问题都不许影响开局，一律吞掉异常。
+         try
+         {
+            FilterProxyManager.I.registerRoot(this);
+         }
+         catch(fpErr:Error)
+         {
+            Debugger.warn("[FPROXY] registerRoot 失败：" + fpErr);
+         }
          if(Boolean(this._map.frontFixLayer))
          {
             this._gameLayer.addChild(this._map.frontFixLayer);
@@ -198,6 +210,17 @@ package net.play5d.game.bvn.state
             this.camera.focus(this._cameraFocus);
             this.gameUI.initFight(param1,param2);
             addChild(this.gameUI.getUIDisplay());
+            // HUD 不参与代理：烘成静态图既糊又冻结数值；而且代理一旦挂在 HUD 根上、
+            // 包的滤镜又没被清掉，HUD 就会永久停在"源 alpha=0 + 替身不可见"。
+            // 必须等 gameUI.initFight 之后调用，之前 _ui 还是 null。
+            try
+            {
+               FilterProxyManager.I.excludeSubtree(this.gameUI.getUIDisplay());
+            }
+            catch(fpErr2:Error)
+            {
+               Debugger.warn("[FPROXY] excludeSubtree(HUD) 失败：" + fpErr2);
+            }
             return;
          }
          throw new Error("map is error! :: mapLayer is null!");
@@ -344,6 +367,14 @@ package net.play5d.game.bvn.state
       
       public function destory(param1:Function = null) : void
       {
+         // 2026-10-23：必须赶在 removeChildren 之前注销 —— 树一摘就遍历不到了
+         try
+         {
+            FilterProxyManager.I.unregisterRoot(this);
+         }
+         catch(fpErr3:Error)
+         {
+         }
          this.removeChildren();
          if(Boolean(this._gameSprites))
          {

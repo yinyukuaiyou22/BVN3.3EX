@@ -1129,5 +1129,32 @@ package net.play5d.game.bvn.ctrl
             _loc2_++;
          }
       }
+
+      /**
+       * 查询某个显示对象当前是否被 BitmapFilterView（钢身/金身/自定义辉光）占用。
+       *
+       * 2026-10-23 新增，纯只读，不改 _filterEffects 的任何状态。
+       * 用途：GPU 滤镜位图代理层必须给这条链路让位 —— BitmapFilterView 烘的是
+       * FighterMain.getDisplay()，如果代理层把同一个节点 alpha 置 0，辉光会烘出空白。
+       */
+      public function isFilterTarget(param1:DisplayObject) : Boolean
+      {
+         if(param1 == null || this._filterEffects == null)
+         {
+            return false;
+         }
+         var i:int = 0;
+         var n:int = this._filterEffects.length;
+         while(i < n)
+         {
+            var v:BitmapFilterView = this._filterEffects[i];
+            if(v != null && v.target != null && v.target.getDisplay() == param1)
+            {
+               return true;
+            }
+            i++;
+         }
+         return false;
+      }
    }
 }

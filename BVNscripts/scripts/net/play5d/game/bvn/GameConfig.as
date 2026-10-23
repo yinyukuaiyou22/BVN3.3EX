@@ -140,7 +140,64 @@ package net.play5d.game.bvn
       public static const GAME_SIZE:Point = new Point(800,600);
       
       public static var SPEED_PLUS:Number = SPEED_PLUS_DEFAULT;
-      
+
+      // ================================================================
+      // GPU 滤镜位图代理层（2026-10-23）
+      //
+      // 背景：renderMode=gpu 下合成器**完全不渲染** DisplayObject.filters
+      // （实测见 tools/Test/_report/2026-10-23_GPU滤镜探针结论.md），
+      // 而 BitmapData.draw() 会连滤镜一起烘出来，所以在节点旁边挂一张代理位图。
+      //
+      // 这些是派生的运行时策略，唯一权威来源是 ConfigVO.quality（玩家可见档位），
+      // 由 FilterProxyManager.applyQualityPreset 覆盖；**不进存档**。
+      // ================================================================
+
+      /** 总开关。false = 完全回到没有兼容层的行为（用于 A/B 排查） */
+      public static var GPU_FILTER_PROXY:Boolean = true;
+
+      /** 并发代理上限 */
+      public static var FPROXY_MAX_PROXIES:int = 12;
+
+      /** 每帧最多烘几个节点（0 = 不限，仅调试用） */
+      public static var FPROXY_MAX_BAKE_PER_FRAME:int = 2;
+
+      /** 每帧烘焙像素总预算 */
+      public static var FPROXY_MAX_BAKE_PIXELS_PER_FRAME:int = 1000000;
+
+      /**
+       * 每帧烘焙**时间**预算（ms）。0 = 不限制（仅调试用）。
+       *
+       * 只约束「同帧叠加」：单次 BitmapData.draw() 不可分割，
+       * 所以单帧峰值 ≈ max(单节点最大耗时, 本预算)，不可能压到预算以内。
+       * 实测（真机 09:55 会话，无调试开销）：4 个整屏节点合计 77ms，
+       * 单节点最大 29ms —— 8ms 预算下会摊到 3~4 帧。
+       */
+      public static var FPROXY_BAKE_BUDGET_MS:int = 8;
+
+      /** 每帧扫描节点预算 */
+      public static var FPROXY_SCAN_NODES_PER_FRAME:int = 40;
+
+      /** 全量重扫间隔（帧）。新出现的滤镜节点最迟这么久被发现 */
+      public static var FPROXY_SCAN_INTERVAL:int = 10;
+
+      /** 扫描深度上限 */
+      public static var FPROXY_MAX_DEPTH:int = 8;
+
+      /** Blur/Glow 的 quality 上限，只用于估算外扩量 */
+      public static var FPROXY_BLUR_QUALITY_CAP:int = 2;
+
+      /** 单节点像素上限（超过就不代理，保留原样，避免 GPU 纹理炸掉） */
+      public static var FPROXY_MAX_NODE_PIXELS:int = 1100000;
+
+      /** 单边纹理上限（GPU 模式常见 1024） */
+      public static var FPROXY_MAX_TEXTURE:int = 1024;
+
+      /** 外扩像素上限 */
+      public static var FPROXY_MAX_PAD:int = 64;
+
+      /** 诊断输出（每 600 帧一条 dumpState） */
+      public static var FPROXY_DEBUG:Boolean = false;
+
       public function GameConfig()
       {
          super();

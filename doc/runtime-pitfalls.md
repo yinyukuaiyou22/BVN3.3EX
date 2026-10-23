@@ -251,6 +251,26 @@ goto :EOF
 
 ## 2. GPU 渲染与显示行为
 
+### 2.0 滤镜与混合模式在 GPU 模式下的真实行为（2026-10-23 真机实测）
+
+`tools/Test/application.xml` 是 `<renderMode>gpu</renderMode>`。Adobe 只写了「GPU 模式不支持滤镜」，没写下面这些细节，而它们直接决定滤镜兼容层怎么写。实测台：`tools/Test/filter_probe/`（GPU 包 + CPU 正对照包），完整数据见 `tools/Test/_report/2026-10-23_GPU滤镜探针结论.md`。
+
+| 事实 | 结论 |
+|---|---|
+| 合成器渲染 `DisplayObject.filters` | **完全不做**。不是慢、不是降质，是一点效果都没有（GPU 组绿像素 0，CPU 组 1130） |
+| `BitmapData.draw()` 是否包含源对象的 filters | **包含**。软件渲染器会把滤镜烘进结果 |
+| 源对象 `alpha=0` / `visible=false` 时 `draw()` | **照样画**（不吃这两个属性），所以可以「alpha=0 隐藏 + draw 烘焙」 |
+| 源对象 `colorTransform` 是否被 `draw()` 采用 | **不采用**，染色必须在结果位图上运行时施加 |
+| `applyFilter` 在 GPU 模式 | **可用**，链式两级叠加结果正确 |
+| 隐藏的滤镜节点会不会「滤镜缓存冻结」 | **不会**，逐帧改内容、`draw()` 结果逐帧跟随 |
+| GlowFilter(blur 24, q1, strength 2) 实际外扩 | 只有 10–15px（远小于 `1.5×blur`），且右/下比左/上厚约 5px |
+
+**推论**：烘焙一个带滤镜的节点只需要**一次 `draw()`**，**绝不能再 `applyFilter`**，否则每个滤镜算两遍（双倍辉光/模糊）。工程里 `KyoUtils.drawBitmapFilter`（钢身辉光）是 draw + applyFilter，那是因为它传入的滤镜**不在**目标对象上，两者不冲突 —— 别把这个写法套到「目标自己带 filters」的场景。
+
+**GPU 模式不支持的 blendMode**：`layer / alpha / erase / overlay / hardlight / lighten / darken`。工程原来有三处踩线（`EffectModel.as:52` lighten、`:186` hardlight、`ShineEffectView` 暗闪 darken），真机上完全静默失效。现在统一走 `utils/BlendModeCompat.map()`：lighten/hardlight/overlay → add，darken → multiply，其余退化 normal。
+
+滤镜兼容层本体在 `views/filter/`（`FilterProxyManager` / `FilterNodeProxy` / `FilterPad` / `FilterSignature` / `BitmapDataPool`），总开关 `GameConfig.GPU_FILTER_PROXY`。
+
 ### 2.1 Bitmap 换图不刷新（GPU 纹理缓存）
 
 AIR Android 用 GPU 渲染，**直接替换 `bitmapData` 不保证刷新纹理缓存**：
@@ -668,6 +688,8 @@ return this._justRenderAnimateTargets.length < 1;   // 从没登记过 → 也�
 
 | 日期 | 结论 | 指向 |
 |---|---|---|
+| 2026-10-23 | GPU 模式**完全不渲染** `DisplayObject.filters`（带滤镜的对象整个不画）；`draw()` 反而会把滤镜烘进来 → 「原位兄弟位图代理」兼容层落地；同时修 3 处 GPU 不支持的 blendMode | `doc/gpu-filter-proxy.md` / §2.0 |
+| 2026-10-23 | 滤镜代理三个坑：①整屏节点按尺寸跳过→场景消失（改降采样）②HUD 代理泄漏→UI 永久不回来（`excludeSubtree`）③PNG 导出留在烘焙热路径→单次 17ms 涨到 1224ms | `doc/gpu-filter-proxy.md` §6 |
 | 2026-10-21 | 受击灵爆后**永久金身+僵直**：`render`/`renderAnimate` 共用 try → 三计数器停摆、安全网自锁；拆分 try + 门控改 `explodeHitFrame` + 钢体看门狗 | §7.1 / `d3ced4e` |
 | 2026-10-21 | 人物包 `人物_1/frame1` 无条件调 `endBisha()` → 开局 `#1009 cameraResume`；`cancelJustRender*` 未登记改为返回 false | §7.2 / `d3ced4e` |
 | 2026-10-21 | `创建游戏失败` 刷屏/黑屏：`TransUI` 回调"先调后清"→ 每帧重试；`getUI()` 为 null 时 pause 半途崩 → 永久黑屏 | §7.3 / `d3ced4e` |

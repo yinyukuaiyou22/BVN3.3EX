@@ -10,6 +10,7 @@ package net.play5d.game.bvn.ctrl.game_ctrls
    import net.play5d.game.bvn.fighter.ctrler.*;
    import net.play5d.game.bvn.input.*;
    import net.play5d.game.bvn.interfaces.*;
+   import net.play5d.game.bvn.views.filter.FilterProxyManager;
    import net.play5d.game.bvn.map.MapMain;
    import net.play5d.game.bvn.state.GameState;
    import net.play5d.game.bvn.ui.*;
@@ -227,6 +228,15 @@ import net.play5d.game.bvn.utils.*;
          if(param1 is FighterMain)
          {
             (param1 as FighterMain).resetExplodeState();
+         }
+         // 2026-10-23：先释放该角色子树上的滤镜代理，晚一步树就摘走了
+         try
+         {
+            FilterProxyManager.I.releaseSubtree(param1.getDisplay());
+         }
+         catch(fpErr:Error)
+         {
+            Debugger.warn("[FPROXY] releaseSubtree 失败：" + fpErr);
          }
          this.gameState.removeGameSprite(param1);
          var _loc3_:TeamVO = param1.team;
@@ -496,6 +506,16 @@ import net.play5d.game.bvn.utils.*;
             }
          }
          this._isRenderGame = false;
+         // 只有"真暂停"（菜单/切后台，_isPauseGame=true）才停代理层。
+         // 时停/必杀走的是 EffectCtrl.freeze()->pause()（无参），此时 _isPauseGame 仍为 false、
+         // 渲染继续，代理必须继续烘 —— 写成字面量 true 会让时停的灰度永远出不来。
+         try
+         {
+            FilterProxyManager.I.setPaused(this._isPauseGame);
+         }
+         catch(fpErr:Error)
+         {
+         }
       }
       
       public function resume(param1:Boolean = false) : void
@@ -517,6 +537,13 @@ import net.play5d.game.bvn.utils.*;
          }
          KeyBoarder.focus();
          this._isRenderGame = true;
+         try
+         {
+            FilterProxyManager.I.setPaused(this._isPauseGame);
+         }
+         catch(fpErr2:Error)
+         {
+         }
       }
 
         public function isPauseGame() : Boolean
@@ -546,6 +573,14 @@ import net.play5d.game.bvn.utils.*;
            this.clearDynamicSprites();
            // 2. 清空 EffectCtrl 中所有活动特效与震屏/慢放/黑幕状态
            EffectCtrl.I.clearAll();
+           // 角色还活着，只失效不销毁
+           try
+           {
+              FilterProxyManager.I.invalidateAll();
+           }
+           catch(fpErr2:Error)
+           {
+           }
            // 3. 清空连击统计与地面接触缓存
            GameLogic.clearAllHits();
 
