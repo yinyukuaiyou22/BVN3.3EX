@@ -30,7 +30,7 @@ doc/
 ├── architecture.md            工程结构 / 模块清单 / 路径依赖图
 ├── ane-dev-guide.md           ANE 开发指南
 ├── runtime-pitfalls.md        运行时踩坑速查 + 开发日志〔改移动端 / fighter 前必读〕
-├── gpu-filter-proxy.md        GPU 模式滤镜位图代理层〔外部包挂滤镜 / 时停灰度必读〕
+├── gpu-filter-proxy.md        GPU 模式滤镜位图代理层（附录 A 改动履历 / 附录 B 错误经验）〔外部包挂滤镜 / 时停灰度必读〕
 ├── select-regression-matrix.md 选人界面回归测试矩阵（原在 BVNscripts/scripts/，2026-10-21 移入）
 ├── _api_doc.txt               类与方法签名速查 dump
 ├── 38-rule-stage/             3.8 独立规则设置界面（rule-stage.md 详解 / plan.md 移植计划）

@@ -300,3 +300,66 @@ _m.ty = nm.b * dx + nm.d * dy + nm.ty;
 | `tools/Test/filter_probe/` | 真机探针实验台（GPU + CPU 正对照） |
 | `tools/Test/_report/2026-10-23_GPU滤镜探针结论.md` | 探针完整结论与踩坑 |
 | `doc/runtime-pitfalls.md` §2.0 | 结论速查（改移动端前必读） |
+
+---
+
+## 附录 A：改动履历（2026-10-23，按时间顺序）
+
+从立项到可用一共 8 轮，每一轮都是真机反馈驱动的。**记在这里的目的是：下次遇到同类现象能直接对上号，不用再从零猜。**
+
+| 轮 | 现象 | 根因 | 修法 |
+|---|---|---|---|
+| A0 探针 | —— | 前提全是猜的：GPU 到底渲不渲滤镜、`draw()` 吃不吃滤镜、`applyFilter` 能不能用，全凭经验 | 做 `tools/Test/filter_probe/`（GPU 包 + **CPU 正对照包**），钉死 7 条事实（见 §2）。**其中一条推翻了原设计**：`draw()` 会把源对象的 filters 一起烘进去 → 原计划「draw + 逐滤镜 applyFilter」会算两遍 |
+| A1 首版 | 时停时对手/场景**整体消失** | 整屏节点（`_gameLayer`/`map`/HUD，800×600=48 万像素）超过 `FPROXY_MAX_NODE_PIXELS=36万` → 被"安全跳过" → 源节点仍带 filters → GPU 不渲染 | 超限**不跳过，改降采样**（长边 ≤512、像素 ≤110 万、最小 0.2×），并把 `1/s` 还原进显示矩阵 |
+| A2 | 时停期间反复冻结 1.2 秒 | 重节点设成「每 10 帧刷新」，而整屏 `draw()` 极慢 → 6 秒里反复冻 | 重节点只烘一次：`_heavySlow`（≥120ms）永不自动重烘，其余按 2fps 兜底 |
+| A3 | 时停结束后**UI 永久不回来** | `ui_fight`（HUD，17 个子节点）的滤镜包在效果结束后没清 → 代理常驻 → 源 `alpha` 恒 0 | 新增 `excludeSubtree()`，把 `gameUI.getUIDisplay()` 整棵子树排除出代理范围（HUD 烘静态图本身也没意义） |
+| A4 | **卡在加载**，地图出来了但没有角色和 HUD | A3 的 `excludeSubtree(this.gameUI.getUIDisplay())` 放在了 `initFight` **开头**；`getUIDisplay()` = `_ui.getUI()`，`gameUI.initFight()` 之前 `_ui` 是 null → 空引用 → `initFight` 中断 | 挪到 `addChild(gameUI.getUIDisplay())` 之后；并给**所有**外部接入点包 try/catch（兼容层出错不许影响开局） |
+| A5 | 烘得对但**看不见**（时停黑屏、I 系技能打中敌人后敌人消失） | `alpha` 与 `transform.colorTransform.alphaMultiplier` **是同一个值**：先把源 `alpha=0` 再读它的 CT，读到的 `alphaMultiplier` 就是 0，赋给代理 → 代理也透明 | 先读 CT → 再藏源 → `ct.alphaMultiplier = 1` → 最后 `display.alpha = _wantedAlpha` 兜底（日志特征：`live … a=0 srcA=0`） |
+| A6 | **滤镜每出现一次就卡一次** | 为排查加的 `BitmapData.encode(PNG)` + 写 345KB 到 `/storage/emulated/0/Android/media/`（Android 11+ 走 FUSE）留在 `bake()` 热路径，且 `debugDumpPath` 是**无条件**赋值；次要原因：`register()` 同步烘焙绕过每帧预算 | 诊断整段抽成 `buildDiag()`，只在 `FPROXY_DEBUG` 时调；`register()` 改入队 + `FPROXY_BAKE_BUDGET_MS=8` 分帧预算。**单次 1224ms → 17~29ms，单帧峰值 77ms → ≈29ms** |
+| A7 | 三处混合模式**静默失效** | GPU 模式不支持 `layer/alpha/erase/overlay/hardlight/lighten/darken`；工程用了 `lighten`(EffectModel:52)、`hardlight`(:186)、`darken`(ShineEffectView 暗闪) | 只改赋值处、不动数据层：`utils/BlendModeCompat.map()`（lighten/hardlight/overlay→add，darken→multiply，其余→normal）。33 处 `add` 映射恒等，视觉零变化 |
+
+对应提交：`7ca5365 feat(render): GPU 模式滤镜位图代理层 + 3 处 blendMode 修正`，tag `gpu-filter-proxy-2026-10-23`。
+
+**一键回滚**：`GameConfig.GPU_FILTER_PROXY = false` → 完全回到没有兼容层的行为（此时带滤镜的节点会重新变成"消失"，但其他一切照旧）。
+
+---
+
+## 附录 B：错误经验清单（用踩坑换来的规矩）
+
+这几条不只适用于滤镜，**改这个项目的任何热路径都该先过一遍**。
+
+1. **生产热路径里不许有 IO / 编码 / 回读。**
+   这次是 `encode(PNG)` + 写 FUSE 把单次烘焙从 17ms 抬到 1224ms。诊断代码一律走默认关闭的开关。
+
+2. **开关判断必须包住整段，不能只包住调用点。**
+   `debugDumpPath` 由管理器**无条件**下发，`bake()` 里再判 `!= ""` —— 看起来有开关，实际永远为真。开关要在一处决定、在下游整段生效。
+
+3. **同一个属性只允许一个 owner。**
+   `DisplayObject.alpha` 与 `transform.colorTransform.alphaMultiplier` 是同一个槽位。凡是"接管 alpha"的写法，读必须在写之前，且只能有一个通道承担。
+
+4. **"先隐藏源、再显示替代品"必须配一条不变量：没有替代品就不许隐藏。**
+   `syncVisual()` 里 `bitmapData == null → showSource()` 这一条，挡住了后面所有的"角色凭空消失"。分帧烘焙、烘焙失败、纹理超限都靠它兜底。
+
+5. **全透明不等于成功。**
+   烘焙后必须验非空（`getColorBoundsRect`）；空结果不得接管显示，且要冷却后重试（可能只是"这一刻还没内容"）。
+
+6. **不要在生命周期的早期解引用 UI。**
+   `GameUI.getUIDisplay()` 在 `gameUI.initFight()` 之前是 null，放在 `initFight` 开头会**中断整个开局**（表现是卡在加载、地图有但没角色没 HUD，日志里 `scan hit=0`）。
+
+7. **兼容层/观测层出错不许影响主流程。**
+   所有外部接入点（`registerRoot` / `excludeSubtree` / `unregisterRoot` / `releaseSubtree` / `invalidateAll` / `setPaused`）全部 try/catch 吞掉。
+
+8. **先做真机探针，再写实现。**
+   这次 7 条事实里有 2 条直接改变了设计：`draw()` 含滤镜（砍掉一半工作量、避开"双倍滤镜"）、`draw()` 不吃 `alpha=0`（`alpha=0` 隐藏成为可行的接管手段）。探针必须带 **CPU 正对照组**，否则"GPU 看不见"根本无从判断。
+
+9. **判定要用"整格统计"，不要用固定单点采样。**
+   光晕实测只有 10–15px 且四边不对称，采样点差 5px 就落到全透明区，会得出完全相反的结论。
+
+10. **中间产物要能"看见"。**
+    把 `BitmapData` 导成 PNG 直接看图，比对着参数猜 20 次都管用（`fp5`/`fp7` 一眼就证明滤镜链路是对的，问题在别处）。但导出必须默认关闭，且不要放在被测的热路径里。
+
+11. **计数字段要对齐语义。**
+    `ms` 一度把 PNG 编码和写盘也算了进去，导致"draw 很慢"这个误判持续了两轮。计时区间要明确：这次改成只含 `acquire → fillRect → draw → (首次)非空校验 → 换图`。
+
+12. **别把"能跑通"当成"对了"。**
+    第 5 轮之前，代理全都建成功、`live` 行也都正常、日志零报错 —— 但画面就是不显示。最后是靠 `live` 里的 `a=0` 这个字段发现的。**观测字段要能指向"显示状态"，不能只看"是否创建成功"。**

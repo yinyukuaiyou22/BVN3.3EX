@@ -689,7 +689,7 @@ return this._justRenderAnimateTargets.length < 1;   // 从没登记过 → 也�
 | 日期 | 结论 | 指向 |
 |---|---|---|
 | 2026-10-23 | GPU 模式**完全不渲染** `DisplayObject.filters`（带滤镜的对象整个不画）；`draw()` 反而会把滤镜烘进来 → 「原位兄弟位图代理」兼容层落地；同时修 3 处 GPU 不支持的 blendMode | `doc/gpu-filter-proxy.md` / §2.0 |
-| 2026-10-23 | 滤镜代理三个坑：①整屏节点按尺寸跳过→场景消失（改降采样）②HUD 代理泄漏→UI 永久不回来（`excludeSubtree`）③PNG 导出留在烘焙热路径→单次 17ms 涨到 1224ms | `doc/gpu-filter-proxy.md` §6 |
+| 2026-10-23 | 滤镜代理 8 轮迭代收口（探针→超限改降采样→重节点只烘一次→HUD 排除→`getUIDisplay` 时机→alpha 与 CT 同源→诊断 IO 出热路径→blendMode 映射）。12 条错误经验（热路径禁 IO、开关要包住整段、同一属性单 owner、没替身不许藏源…） | `doc/gpu-filter-proxy.md` 附录 A（改动履历）/ 附录 B（错误经验） |
 | 2026-10-21 | 受击灵爆后**永久金身+僵直**：`render`/`renderAnimate` 共用 try → 三计数器停摆、安全网自锁；拆分 try + 门控改 `explodeHitFrame` + 钢体看门狗 | §7.1 / `d3ced4e` |
 | 2026-10-21 | 人物包 `人物_1/frame1` 无条件调 `endBisha()` → 开局 `#1009 cameraResume`；`cancelJustRender*` 未登记改为返回 false | §7.2 / `d3ced4e` |
 | 2026-10-21 | `创建游戏失败` 刷屏/黑屏：`TransUI` 回调"先调后清"→ 每帧重试；`getUI()` 为 null 时 pause 半途崩 → 永久黑屏 | §7.3 / `d3ced4e` |
