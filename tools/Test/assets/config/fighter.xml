@@ -8338,7 +8338,7 @@
 	</fighter>
 
 	<fighter id="蓝染三段崩蓝（作者/给她爱舞/阿弟）" name="蓝染三段崩蓝（作者/给她爱舞/阿弟）" comic_type="0">
-		<file url="assets/fighter/火影/kakashi.swf" startFrame="1" />
+		<file url="assets/fighter/火影/爱舞蓝染.swf" startFrame="1" />
 		<face url="assets/face/火影/蓝染三段崩蓝.png" big_url="assets/face/火影/蓝染三段崩蓝_b.png" bar_url="assets/face/火影/蓝染三段崩蓝_m.png" win_url="assets/face/火影/蓝染三段崩蓝_w.png" />
 <contact>
 	<friend></friend>
@@ -9096,4 +9096,47 @@
 		<face url="assets/face/火影/random_naruto.png" />
 	</fighter>
 
+
+	<fighter id="【疾风传】日向·宁次（粉红章鱼头）" name="【疾风传】日向·宁次（粉红章鱼头）" comic_type="1">
+		<file url="assets/fighter/火影/粉红章鱼头_宁次.swf" startFrame="1" />
+		<face url="assets/face/火影/neji.png" big_url="assets/face/火影/neji_b.png" bar_url="assets/face/火影/neji_m.png" win_url="assets/face/火影/neji_w.png" />
+<contact>
+		<friend></friend>
+		<enemy></enemy>
+	</contact>
+<says>
+		<say_item>我从来都不认为——上忍就是终点！</say_item>
+		<say_item>人的命运，是从一出生就被注定了。</say_item>
+		<say_item>命运，从对手是我的那一刻开始便被决定了。</say_item>
+	</says>
+<bgm url="assets/bgm/naruto.mp3" rate="70" />
+	</fighter>
+	<fighter id="【神威】旗木·卡卡西（粉红章鱼头）" name="【神威】旗木·卡卡西（粉红章鱼头）" comic_type="1">
+		<file url="assets/fighter/火影/粉红章鱼头_卡卡西.swf" startFrame="1" />
+		<face url="assets/face/火影/kakashi_sw.png" big_url="assets/face/火影/kakashi_sw_b.png" bar_url="assets/face/火影/kakashi_sw_m.png" win_url="assets/face/火影/kakashi_sw_w.png" />
+<contact>
+		<friend></friend>
+		<enemy></enemy>
+	</contact>
+<says>
+		<say_item>忍者是不能按常理来思考的！</say_item>
+		<say_item>放心吧，就算死我也会保护你们的，我绝对不让我的同伴被杀。</say_item>
+		<say_item>以现在的你是赢不了我的，你根本不明白什么是真正的强大！</say_item>
+	</says>
+<bgm url="assets/bgm/naruto.mp3" rate="70" />
+	</fighter>
+	<fighter id="【鸣佐】漩涡鸣人与宇智波佐助（粉红章鱼头）" name="【鸣佐】漩涡鸣人与宇智波佐助（粉红章鱼头）" comic_type="1">
+		<file url="assets/fighter/火影/粉红章鱼头_鸣佐双人组.swf" startFrame="1" />
+		<face url="assets/face/火影/粉红章鱼头_鸣佐双人组.png" big_url="assets/face/火影/粉红章鱼头_鸣佐双人组_b.png" bar_url="assets/face/火影/粉红章鱼头_鸣佐双人组_m.png" win_url="assets/face/火影/粉红章鱼头_鸣佐双人组_w.png" />
+<contact>
+		<friend></friend>
+		<enemy></enemy>
+	</contact>
+<says>
+		<say_item>我不会被任何人拉下水，这就是我的忍道！</say_item>
+		<say_item>别小看我，我可是要成为火影的男人！</say_item>
+		<say_item>为什么我们明明是同伴，却要互相伤害……</say_item>
+	</says>
+<bgm url="assets/bgm/naruto.mp3" rate="70" />
+	</fighter>
 </fighter_config>

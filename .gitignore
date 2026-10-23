@@ -168,3 +168,24 @@ doc/external-fighter-37/template-package/
 #
 # 历史对象仍在 git history 中；如需彻底瘦身仓库另需
 # git filter-repo / BFG，那会重写历史并影响所有协作者。
+
+# ---------------------------------------------------------------
+# 2026-10-23 补充：GPU 滤镜兼容层开工前的仓库治理
+# ---------------------------------------------------------------
+# 同一游戏的其他版本分支 —— 只读参考，不作为提交源（约 71MB）
+BVNscripts/3.3竞技项/
+BVNscripts/3.7扩展版参考/
+BVNscripts/3.8竞技参考/
+BVNscripts/CX版源码/
+BVNscripts/人物子框3.3/
+BVNscripts/待移植/
+BVNscripts/爆改3.7MT版/
+BVNscripts/轻量版改版1/
+BVNscripts/轻量版蓝本/
+BVNscripts/神卡3.6源文件.fla
+tools/script/其他版本/
+
+# 临时残留与 AI 会话目录
+_dsh_write_test.txt
+.dsh-meow/
+acl-recovery-2026-10-19/

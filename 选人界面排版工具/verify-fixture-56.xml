@@ -1,0 +1,186 @@
+<select_config>
+
+	<stage_setting>
+		<layout x="0" y="0" width="800" height="600" left="415" right="0" top="50" bottom="100"/>
+	</stage_setting>
+
+
+	<char_list>
+
+		<!-- 第一页：6行角色 + 2行占位 = 8行（满足代码每页8行的分页逻辑） -->
+		<row offset="0,0">
+			<item>小恶魔</item>
+			<item offset="35,0">影狼</item>
+			<item offset="70,0">若鹭姬</item>
+			<item offset="105,0">上海人偶</item>
+		</row>
+
+		<row offset="0,30">
+			<item>灵梦</item>
+			<item offset="35,0">魔理沙</item>
+			<item offset="70,0">早苗</item>
+			<item offset="105,0">琪露诺</item>
+		</row>
+
+		<row offset="0,60">
+			<item>因幡天为</item>
+			<item offset="35,0">芙兰朵露</item>
+			<item offset="70,0">帕秋莉</item>
+			<item offset="105,0">咲夜</item>
+		</row>
+
+		<row offset="0,90">
+			<item>红美铃</item>
+			<item offset="35,0">文</item>
+			<item offset="70,0">幽幽子</item>
+			<item offset="105,0">妖梦</item>
+		</row>
+
+		<row offset="0,120">
+			<item>天子</item>
+			<item offset="35,0">衣玖</item>
+			<item offset="70,0">阿空</item>
+			<item offset="105,0">萃香</item>
+		</row>
+
+		<row offset="0,150">
+			<item>幽香</item>
+			<item offset="35,0">爱丽丝</item>
+			<item offset="70,0">鬼巫女</item>
+			<item offset="105,0">小町</item>
+		</row>
+
+		<row offset="0,180">
+			<item></item>
+			<item offset="35,0"></item>
+			<item offset="70,0"></item>
+			<item offset="105,0"></item>
+		</row>
+
+		<row offset="0,210">
+			<item></item>
+			<item offset="35,0"></item>
+			<item offset="70,0"></item>
+			<item offset="105,0"></item>
+		</row>
+
+		<row offset="0,-165">
+			<item>八云紫</item>
+			<item offset="35,0">伊斯塔</item>
+			<item offset="70,0">幽幽子樱之轮舞</item>
+			<item offset="105,0">黑魅灵</item>
+		</row>
+
+		<row offset="0,-135">
+			<item>铃仙</item>
+			<item offset="35,0">妹红</item>
+			<item offset="70,0">蕾米莉亚</item>
+			<item offset="105,0">溯源拉赫莱蒂</item>
+		</row>
+
+		<row offset="0,-105">
+			<item>琪露诺·旧</item>
+			<item offset="35,0">幽香·旧</item>
+			<item offset="70,0">文·旧</item>
+			<item offset="105,0">萃香·旧</item>
+		</row>
+
+		<row offset="0,-75">
+			<item>芙兰朵露·旧</item>
+			<item offset="35,0">八云紫·旧</item>
+			<item offset="70,0">伊斯塔·旧</item>
+			<item offset="105,0">红美铃·旧</item>
+		</row>
+
+		<row offset="0,-45">
+			<item>咲夜·旧</item>
+			<item offset="35,0">妹红·旧</item>
+			<item offset="70,0">幽幽子·旧</item>
+			<item offset="105,0">阿空·旧</item>
+		</row>
+
+		<row offset="0,-15">
+			<item>拉赫莱蒂</item>
+			<item offset="35,0">蕾米莉亚·旧1</item>
+			<item offset="70,0">蕾米莉亚·旧2</item>
+			<item offset="105,0">random</item>
+		</row>
+
+	</char_list>
+
+
+	<assist_list>
+
+		<row offset="0,0">
+			<item>魂</item>
+			<item offset="35,0">大妖精</item>
+			<item offset="70,0">琪露诺</item>
+			<item offset="105,0">犬咲夜</item>
+		</row>
+
+		<row offset="0,15">
+			<item>鬼啸符</item>
+			<item offset="35,0">白牛</item>
+			<item offset="70,0">白哉</item>
+			<item offset="105,0">雨龙</item>
+		</row>
+
+		<row offset="0,30">
+			<item>乱菊</item>
+			<item offset="35,0">赫丽贝尔</item>
+			<item offset="70,0">夜一</item>
+			<item offset="105,0">平子</item>
+		</row>
+
+		<row offset="0,45">
+			<item>一护修行</item>
+			<item offset="35,0">我爱罗</item>
+			<item offset="70,0">天天</item>
+			<item offset="105,0">咲夜</item>
+		</row>
+
+		<row offset="0,60">
+			<item>八云紫</item>
+			<item offset="35,0">魔理沙</item>
+			<item offset="70,0">幽幽子</item>
+			<item offset="105,0">铃仙</item>
+		</row>
+
+		<row offset="0,75">
+			<item>妹红</item>
+			<item offset="35,0">寅丸星</item>
+			<item offset="70,0">天子</item>
+			<item offset="105,0">小町</item>
+		</row>
+
+		<row offset="0,-303">
+			<item>拉赫莱蒂</item>
+			<item offset="35,0">辉夜</item>
+			<item offset="70,0">慧音</item>
+			<item offset="105,0">织板雷华</item>
+		</row>
+
+		<row offset="0,-288">
+			<item>斋藤一</item>
+			<item offset="35,0">迪亚波罗</item>
+			<item offset="70,0">比鲁斯</item>
+			<item offset="105,0">黑色高级轿车</item>
+		</row>
+
+		<row offset="0,-273">
+			<item>法尼瓦伦泰</item>
+			<item offset="35,0">银色战车镇魂曲</item>
+			<item offset="70,0">random</item>
+			<item offset="105,0">决死领域</item>
+		</row>
+
+		<row offset="0,-258">
+			<item>debug</item>
+			<item offset="35,0"></item>
+			<item offset="70,0"></item>
+			<item offset="105,0"></item>
+		</row>
+
+	</assist_list>
+
+</select_config>
