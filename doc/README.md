@@ -8,7 +8,8 @@
 | 顺序 | 文件 | 什么时候读 |
 |---|---|---|
 | 1 | [`CLAUDE.md`](../CLAUDE.md)（项目根） | **每次开工先读**：目标与边界、关键源码表、外部资源契约、ANE 现状、触控坑、提交与验收 |
-| 2 | [`AGENTS.md`](../AGENTS.md)（项目根） | **每次开工先读**：AI 工作流规则、硬规则、静默失败陷阱判据、文件速查 |
+| 2 | [`AGENTS.md`](../AGENTS.md)（项目根） | **每次开工先读**：行为合同——11 条红线、冲突后的优先级、指针 |
+| 3 | [`agent-rules.md`](agent-rules.md) | 查分支策略 / 工作流判定与四约束 / 变更台账 / 自维护规则全文时 |
 | 3 | [`runtime-pitfalls.md`](runtime-pitfalls.md) | 改移动端 UI / 触控 / 手柄 / 选人 / Debugger / 打包前读（GPU 不刷新、点不动、按钮消失的机理与代码） |
 | 3 | 本文件 | 需要按主题定位具体设计/专题文档时 |
 | 4 | [`doc/architecture.md`](architecture.md) | 需要工程结构、模块清单、路径依赖图时 |
@@ -20,6 +21,7 @@
 ```
 doc/
 ├── README.md                     ← 本文件（文档总索引）
+├── agent-rules.md                AGENTS.md 的细则层（分支策略 / 工作流 / 变更台账 / 自维护全文）
 ├── AI-SYSTEM-DOC.md              PC 分支全量 AI 系统说明〔历史文档〕
 ├── architecture.md               工程结构、模块清单、路径依赖图
 ├── ane-dev-guide.md              ANE 开发指南
@@ -118,6 +120,7 @@ doc/
 3. **过期但仍有参考价值的文档移入 `doc/archive/`**，不要直接删除；在本文件里标注被谁取代。
 4. 构建日志（`build_output.txt`、`mob_*.log`）属**临时产物**，不进提交；需要留档时放 `doc/archive/logs/`。
 5. 第三方/工具类资料（技能包、SDK 说明）**不要混进 `doc/`**，放 `tools/`。
+6. **常驻注入的规则细则统一放 [`agent-rules.md`](agent-rules.md)**；`AGENTS.md` 只留红线与指针，超 70 行即下沉。
 
 ### 4.1 约定例外：mattpocock/skills 工作流的产物路径
 

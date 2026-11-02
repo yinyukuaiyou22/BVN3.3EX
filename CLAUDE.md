@@ -26,6 +26,7 @@
 ```text
 doc/
 ├── README.md                  ← 文档总索引（先读）
+├── agent-rules.md             AGENTS.md 的细则层（分支策略 / 工作流 / 变更台账）
 ├── AI-SYSTEM-DOC.md           PC 分支 AI 系统说明〔历史文档，基准路径已失效〕
 ├── architecture.md            工程结构 / 模块清单 / 路径依赖图
 ├── ane-dev-guide.md           ANE 开发指南
