@@ -27,6 +27,7 @@ doc/
 ├── gpu-filter-proxy.md           GPU 模式滤镜位图代理层（设计 + 实测 + 附录 A 改动履历 / 附录 B 12 条错误经验）〔外部包滤镜 / 时停灰度必读〕
 ├── select-regression-matrix.md   选人界面回归测试矩阵（原 `BVNscripts/scripts/REGRESSION_TEST_MATRIX_BATCH6.5.md`，2026-10-21 移入）
 ├── _api_doc.txt                  API 文档 dump（类/方法签名速查）
+├── menu-layout-decisions.md      主菜单排版决策记录（左侧竖列 + 二级独立列，D1~D12 结论与理由）
 ├── 38-rule-stage/                3.8「独立规则设置界面」专题
 │   ├── rule-stage.md               实现详解 + 3.3↔3.8 规则项对照 + 移植要点
 │   └── plan.md                     PC 工程新增独立规则页的实现计划（含坑）
@@ -51,6 +52,11 @@ doc/
 ├── kai-chang/                    开场
 │   ├── proposal.md
 │   └── tasks/progress.md
+├── tag-mode/                     换人模式（TAG，模式 16/17）：每方 2 人、场上只出场 1 人
+│   ├── proposal.md                 目标/成功标准/已定决策（D1~D13）/已核实的代码事实
+│   ├── plan.md                     实施计划（9 个任务、换人时序、共享池、时停、验收）
+│   ├── decisions-2026-10-30.md     反修决策：封输入 / 残影清理 / 先发顺序（D1~D5）
+│   └── progress.md                 执行台账（改过的文件、跑过的命令、偏差与待验项）
 ├── adr/                          架构决策记录（原 docs/adr/ 并入）
 │   ├── README.md
 │   └── ADR-001-单页窗口与翻页交互.md
@@ -83,6 +89,8 @@ doc/
 | 规则设置界面（3.8 独立规则页） | [`38-rule-stage/rule-stage.md`](38-rule-stage/rule-stage.md) → [`38-rule-stage/plan.md`](38-rule-stage/plan.md) |
 | 竞技项（规则/行为/卍解/重复） | [`jingji/detailed-design.md`](jingji/detailed-design.md) + [`jingji/tasks/`](jingji/tasks/) |
 | 开场演出 | [`kai-chang/proposal.md`](kai-chang/proposal.md) |
+| **改主菜单排版 / 二级菜单摆位 / 菜单数据来源** | [`menu-layout-decisions.md`](menu-layout-decisions.md)（左列 + 二级独立列，含被否决方案） |
+| **换人模式（TAG）：辅助键换人 / 共享血池 / 空中时停换人** | [`tag-mode/proposal.md`](tag-mode/proposal.md) → [`tag-mode/plan.md`](tag-mode/plan.md) → [`tag-mode/progress.md`](tag-mode/progress.md) |
 | 选人界面翻页 / 单页窗口决策 | [`adr/ADR-001-单页窗口与翻页交互.md`](adr/ADR-001-单页窗口与翻页交互.md)、[`plans/2026-09-07-选人界面工具-单页窗口与翻页.md`](plans/2026-09-07-选人界面工具-单页窗口与翻页.md) |
 | **外部包挂滤镜没效果 / 时停变黑白屏 / 角色凭空消失** | [`gpu-filter-proxy.md`](gpu-filter-proxy.md)：§2 实测事实、§3 架构、§5 参数、§6 踩坑、**附录 A 改动履历**、**附录 B 12 条错误经验** |
 | 类/方法签名速查 | [`_api_doc.txt`](_api_doc.txt) |

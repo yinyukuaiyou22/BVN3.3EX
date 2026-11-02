@@ -39,6 +39,8 @@ doc/
 ├── external-fighter-37/       外置人物迁移（设计 + tasks + template-package）
 ├── jingji/                    竞技项（设计 + tasks t1…t7）
 ├── kai-chang/                 开场（proposal + tasks）
+├── tag-mode/                  换人模式 TAG（模式 16/17：每方 2 人、辅助键换人、共享血池）
+│                              proposal.md / plan.md / progress.md
 ├── adr/                       架构决策记录（原 docs/adr 并入）
 ├── plans/                     实施计划（选人界面工具 4 份，含原 `.trae/documents/`）
 └── archive/                   归档：过时 / 重复 / 第三方 / 日志（archive/logs/ 为构建日志）
@@ -59,6 +61,7 @@ doc/
 
 | 内容 | 文档 |
 |---|---|
+| **换人模式（TAG，模式 16/17）**：每方 2 人 / 只出场 1 人 / 辅助键换人（无开场动画）/ 换出无敌 2 秒 / 空中换人走鬼步同款时停且扣 60 气 / HP·气·能量·换人槽四人共享；含换人时序、共享池算法、9 个任务与验收清单 | `doc/tag-mode/proposal.md`、`doc/tag-mode/plan.md`、`doc/tag-mode/progress.md` |
 | 3.8 竞技版参考代码索引（AI 进入该目录会自动加载） | `BVNscripts/3.8竞技参考/竞技改代码/CLAUDE.md`（只读参考，不改造） |
 | 3.8「独立规则设置界面」实现详解 + 3.3↔3.8 规则项对照 + 移植要点 | `doc/38-rule-stage/rule-stage.md` |
 | PC版工程新增独立规则页的实现计划（含改动清单与坑） | `doc/38-rule-stage/plan.md` |
