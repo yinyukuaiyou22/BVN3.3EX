@@ -53,7 +53,7 @@
     grid-template-areas: "topbar topbar" "main side";
     height: 100vh;
     height: 100dvh;
-    width: 100vw;
+    width: 100%;
     overflow: hidden;
   }
 
@@ -378,6 +378,239 @@
       transition-duration: .01ms !important;
     }
   }
+
+  /* =========================================================================
+     触摸版（2026-11-08）：只在 body.touch-ui 下生效，桌面鼠标布局零改动
+     竖屏 = 画布 + 底部抽屉（8 个 tab，可折叠）；横屏 = 画布 + 右侧面板
+     ========================================================================= */
+  body.touch-ui { --bar-h: 52px; --sheet-h: 52dvh; }
+  html.touch-ui, html.touch-ui body { overflow: hidden; }
+  body.touch-ui #app {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: "topbar" "main" "sheet";
+  }
+  body.touch-ui #topbar, body.touch-ui #main, body.touch-ui #sidebar { min-width: 0; }
+  body.touch-ui #topbar {
+    flex-wrap: nowrap; gap: 6px; padding: 6px 10px;
+    padding-top: calc(6px + env(safe-area-inset-top));
+    overflow: hidden;
+  }
+  body.touch-ui #topbar h1 {
+    font-size: 13px; margin: 0 4px 0 0; flex: 1 1 0; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  body.touch-ui #topbar button {
+    min-height: 44px; padding: 8px 10px; font-size: 13px;
+    flex: 0 0 auto; white-space: nowrap;   /* 顶栏按钮不换行、不被挤压 */
+  }
+  body.touch-ui #topbar label,
+  body.touch-ui #topbar #page-nav,
+  body.touch-ui #topbar #cursor-coord { display: none; }   /* 搬家到「页面」tab / 浮动条 */
+  body.touch-ui #topbar #page-switch { flex: 0 0 auto; }
+  body.touch-ui #topbar #page-switch button { min-height: 44px; padding: 8px 10px; }
+
+  /* 面板 = 底部抽屉 */
+  body.touch-ui #sidebar {
+    grid-area: sheet;
+    position: static; width: auto;
+    height: var(--sheet-h);
+    border-left: none; border-top: 1px solid var(--border);
+    box-shadow: 0 -10px 34px rgba(0, 0, 0, .45);
+    transform: none; transition: height .26s var(--ease-quart);
+    overflow: hidden;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  body.touch-ui.sheet-open #sidebar { overflow-y: auto; }
+  body.touch-ui:not(.sheet-open) #sidebar { height: 0; border-top-color: transparent; }
+  body.touch-ui #sheet-tabs {
+    display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+    flex: 0 0 auto;   /* 不让 flex 列把它压扁（scroll 容器的 min-height:auto = 0） */
+    padding: 8px 10px; background: #0e1524; border-bottom: 1px solid var(--border-soft);
+    position: sticky; top: 0; z-index: 5;
+  }
+  body.touch-ui #sheet-tabs::-webkit-scrollbar { display: none; }
+  body.touch-ui #sheet-tabs button {
+    flex: 0 0 auto; min-height: 44px; min-width: 60px; padding: 6px 14px; margin: 0;
+    border-radius: 999px; font-size: 13px;
+    background: #131e34; border: 1px solid #223252; color: var(--muted);
+  }
+  body.touch-ui #sheet-tabs button.active {
+    background: var(--accent-soft); border-color: var(--accent); color: var(--accent);
+  }
+  body.touch-ui #sidebar > section { display: none; padding: 10px 14px 20px; }
+  body.touch-ui #sidebar > section.active { display: block; }
+  body.touch-ui #sidebar h3 { font-size: 13px; margin-bottom: 8px; }
+  body.touch-ui #sidebar label {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    min-height: 44px; margin: 0; font-size: 13px;
+    border-bottom: 1px solid rgba(31, 44, 71, .45);
+  }
+  body.touch-ui #sidebar label > span { min-width: 62px; color: var(--text); }
+  body.touch-ui #sidebar input[type=number],
+  body.touch-ui #topbar input[type=number] {
+    width: 112px; font-size: 16px; min-height: 44px; text-align: right;
+    padding: 6px 8px;
+  }
+  body.touch-ui #sidebar input[type=range] { min-height: 44px; width: 100%; }
+  body.touch-ui #sidebar select { min-height: 44px; font-size: 15px; }
+  body.touch-ui #sidebar button { min-height: 44px; min-width: 44px; font-size: 14px; padding: 8px 12px; }
+  body.touch-ui #sidebar button.step-btn.on {
+    border-color: var(--accent); color: var(--accent); background: rgba(45, 226, 255, .14);
+  }
+  body.touch-ui #sidebar .btn-arrow { min-width: 56px; min-height: 54px; font-size: 18px; }
+  body.touch-ui #cards { max-height: none; }
+  body.touch-ui #cards button { width: calc(50% - 4px); height: 46px; font-size: 12px; }
+  body.touch-ui #log { height: 160px; font-size: 11px; }
+  body.touch-ui .hint { font-size: 11px; }
+  body.touch-ui #seg-page .ref-row,
+  body.touch-ui #seg-page label { display: flex; }
+
+  /* 画布区：浮动条 / 页码胶囊 */
+  body.touch-ui #main { position: relative; overflow: hidden; touch-action: none; }
+  body.touch-ui #canvas { position: absolute; left: 50%; top: 50%; margin: 0; animation: none; }
+  #touch-fabs, #page-pill { display: none; }
+  #sheet-tabs { display: none; }        /* 桌面不显示触摸 tab 条 */
+  #seg-page { display: none; }          /* 桌面用顶栏的缩放/翻页控件，不重复 */
+  /* 触摸版新增的「步长 / 选整行 / 选整列 / 清空此格」按钮，桌面保持原样（Ctrl/Alt 点击 + Delete 已有） */
+  body:not(.touch-ui) #btn-step-1,
+  body:not(.touch-ui) #btn-step-10,
+  body:not(.touch-ui) #btn-select-row,
+  body:not(.touch-ui) #btn-select-col,
+  body:not(.touch-ui) #btn-clear-id { display: none; }
+  body.touch-ui #sheet-tabs { display: flex; }
+  body.touch-ui #touch-fabs {
+    display: flex; gap: 6px;
+    position: absolute; right: 10px; top: 8px; z-index: 40;
+  }
+  body.touch-ui #touch-fabs button {
+    width: 44px; height: 44px; min-width: 0; padding: 0; border-radius: 12px;
+    font-size: 18px; line-height: 1;
+    background: rgba(19, 30, 52, .92); color: var(--text);
+    border: 1px solid #2a3c60; backdrop-filter: blur(6px);
+  }
+  body.touch-ui #touch-fabs button.on { border-color: var(--accent); color: var(--accent); background: rgba(45, 226, 255, .16); }
+  body.touch-ui #page-pill {
+    display: flex; align-items: center; gap: 2px;
+    position: absolute; left: 10px; bottom: 12px; z-index: 40;
+    background: rgba(10, 17, 32, .9); border: 1px solid #2a3c60; border-radius: 999px;
+    padding: 2px; backdrop-filter: blur(6px);
+  }
+  body.touch-ui #page-pill button {
+    width: 44px; height: 44px; min-width: 0; border: none; border-radius: 999px;
+    background: transparent; color: var(--text); font-size: 20px; padding: 0;
+  }
+  body.touch-ui #page-pill span {
+    min-width: 58px; text-align: center; font-family: var(--mono);
+    font-size: 12px; color: var(--accent);
+  }
+  body.touch-ui #btn-panel {
+    display: flex; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom));
+    width: 56px; height: 56px;
+  }
+  body.touch-ui.sheet-open #btn-panel { bottom: calc(var(--sheet-h) + 12px); }
+
+  /* 移动端弹层（导出 / 导入） */
+  .touch-modal {
+    display: none; position: fixed; inset: 0; z-index: 320;
+    align-items: flex-end; justify-content: center;
+    background: rgba(4, 7, 13, .66); backdrop-filter: blur(2px);
+  }
+  .touch-modal.show { display: flex; }
+  .touch-modal .card {
+    width: 100%; max-width: 620px;
+    background: #101a2e; border: 1px solid var(--border); border-radius: 16px 16px 0 0;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+    animation: sheetUp .26s var(--ease-out);
+  }
+  .touch-modal h3 { margin: 0 0 10px; font-size: 15px; }
+  .touch-modal textarea {
+    width: 100%; height: 30dvh; min-height: 120px; resize: none;
+    background: #0d1526; color: var(--text); border: 1px solid #24345a; border-radius: 10px;
+    padding: 10px; font-family: var(--mono); font-size: 12px; line-height: 1.5;
+  }
+  .touch-modal .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .touch-modal .actions button {
+    flex: 1 1 auto; min-height: 46px; min-width: 92px; border-radius: 10px;
+    font-size: 14px; border: 1px solid #2a3c60; background: #182338; color: var(--text);
+  }
+  .touch-modal .actions button.primary {
+    background: linear-gradient(135deg, #2de2ff, #1789ff);
+    color: #04121a; border-color: transparent; font-weight: 700;
+  }
+  @keyframes sheetUp { from { transform: translateY(26px); opacity: .5; } to { transform: none; opacity: 1; } }
+
+  /* 上次编辑恢复条 */
+  #restore-bar {
+    display: none; position: fixed; left: 10px; right: 10px; top: calc(var(--bar-h) + 8px);
+    z-index: 45; gap: 8px; align-items: center; padding: 8px 10px;
+    background: rgba(16, 26, 46, .96); border: 1px solid var(--accent); border-radius: 12px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .45);
+  }
+  #restore-bar.show { display: flex; }
+  body.touch-ui #restore-bar { position: absolute; top: 10px; }
+  #restore-bar span { flex: 1 1 auto; font-size: 12px; color: var(--muted); }
+  #restore-bar button {
+    min-height: 38px; padding: 4px 12px; border-radius: 8px; font-size: 12px;
+    border: 1px solid #2a3c60; background: #182338; color: var(--text);
+  }
+  #restore-bar button.primary { border-color: var(--accent); color: var(--accent); }
+
+  /* 手势提示（触摸模式首次进入） */
+  #touch-help {
+    display: none; position: fixed; inset: 0; z-index: 340; padding: 24px;
+    align-items: center; justify-content: center; background: rgba(4, 7, 13, .8);
+  }
+  #touch-help.show { display: flex; }
+  #touch-help .card {
+    max-width: 340px; background: #101a2e; border: 1px solid var(--border);
+    border-radius: 16px; padding: 18px; animation: modalIn .28s var(--ease-out);
+  }
+  #touch-help h3 { margin: 0 0 10px; font-size: 15px; }
+  #touch-help p { margin: 0 0 8px; font-size: 13px; line-height: 1.7; color: var(--muted); }
+  #touch-help button {
+    width: 100%; min-height: 46px; margin-top: 8px; border-radius: 10px;
+    border: 1px solid #2a3c60; background: #182338; color: var(--text); font-size: 14px;
+  }
+
+  /* 横屏（矮屏）：面板常驻右侧，不折叠 */
+  @media (orientation: landscape) and (max-height: 620px) {
+    body.touch-ui #app {
+      grid-template-columns: minmax(0, 1fr) min(40vw, 320px);
+      grid-template-rows: auto minmax(0, 1fr);
+      grid-template-areas: "topbar topbar" "main sheet";
+    }
+    body.touch-ui #sidebar {
+      height: auto; border-left: 1px solid var(--border); border-top: none; box-shadow: none;
+    }
+    body.touch-ui:not(.sheet-open) #sidebar { height: auto; }
+    body.touch-ui #page-pill { bottom: 8px; }
+    body.touch-ui #btn-panel { display: none; }
+  }
+
+  /* 窄屏：标题只留 logo，按钮去掉 "XML" 后缀，保证顶栏一行放得下 */
+  @media (max-width: 430px) {
+    body.touch-ui #topbar h1 { max-width: 76px; margin-right: 2px; font-size: 12px; }
+    body.touch-ui #topbar .tb-xml { display: none; }
+    body.touch-ui #topbar button { padding: 8px 10px; font-size: 12px; }
+    body.touch-ui #topbar #page-switch button { padding: 8px 8px; font-size: 12px; }
+  }
+
+  /* 触摸设备：hover 样式不粘滞 */
+  @media (hover: none) {
+    #topbar button:hover { background: #182338; border-color: #2a3c60; box-shadow: none; }
+    #sidebar button:hover { background: #16223c; border-color: #2a3c60; box-shadow: none; }
+    #cards button:hover { background: #131e34; border-color: #223252; transform: none; box-shadow: none; }
+  }
+  /* 触摸 UI 的控件：禁止选中/长按菜单/双击缩放 */
+  body.touch-ui button,
+  body.touch-ui #sheet-tabs,
+  body.touch-ui #touch-fabs,
+  body.touch-ui #page-pill {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none; user-select: none;
+    touch-action: manipulation;
+  }
 </style>
 </head>
 <body>
@@ -387,8 +620,8 @@
   <div id="topbar">
     <h1>选人界面排版工具</h1>
     <span class="tb-group">
-      <button id="btn-import">导入 XML</button>
-      <button id="btn-export">导出 XML</button>
+      <button id="btn-import">导入<span class="tb-xml"> XML</span></button>
+      <button id="btn-export">导出<span class="tb-xml"> XML</span></button>
     </span>
     <span id="page-switch" class="tb-group" title="人物页 / 辅助页 各自独立画布：页码、选中、参考背景图分别记忆。垂直布局=游戏内按页模型：rowsPerPage=floor((min(h,600)-top-bottom)/renderSize.h)、gapY=(pageH-unitSize.y-top-bottom)/(displayedVCount-1)、y=top+gapY*(gridY%rowsPerPage)+页号*pageH+offset.y；水平 gapX=(w-unitSize.x-left-right)/(HCount-1)（SelectFighterStage.as:261-322）"><button id="sw-charList" class="active">人物页</button><button id="sw-assistList">辅助页</button></span>
     <label class="zoom-label"><span class="zoom-text">缩放</span> <input type="range" id="zoom" min="50" max="300" value="100" title="Ctrl+滚轮也可缩放"></label>
@@ -407,10 +640,43 @@
   <!-- Canvas area -->
   <div id="main">
     <canvas id="canvas" width="800" height="600"></canvas>
+
+    <!-- 触摸版浮动条（桌面隐藏） -->
+    <div id="touch-fabs" aria-label="画布工具">
+      <button id="fab-undo" title="撤销">↶</button>
+      <button id="fab-redo" title="重做">↷</button>
+      <button id="fab-fit" title="适应窗口（回到 100%）">⤢</button>
+      <button id="fab-lock" title="锁定编辑（只允许查看）">🔓</button>
+    </div>
+
+    <!-- 触摸版页码胶囊（桌面隐藏） -->
+    <div id="page-pill" aria-label="翻页">
+      <button id="pill-prev" title="上一页">‹</button>
+      <span id="pill-page">1/1</span>
+      <button id="pill-next" title="下一页">›</button>
+    </div>
+
+    <!-- 上次编辑恢复条（有自动保存时出现） -->
+    <div id="restore-bar">
+      <span id="restore-text">上次编辑</span>
+      <button id="restore-apply" class="primary">恢复</button>
+      <button id="restore-dismiss">丢弃</button>
+    </div>
   </div>
 
   <!-- Sidebar -->
   <aside id="sidebar">
+    <nav id="sheet-tabs" role="tablist" aria-label="参数面板（触摸版）">
+      <button id="tab-seg-layout" data-tab="seg-layout" class="active">布局</button>
+      <button id="tab-seg-grid" data-tab="seg-grid">网格</button>
+      <button id="tab-seg-spacing" data-tab="seg-spacing">间距</button>
+      <button id="tab-seg-ref" data-tab="seg-ref">参考</button>
+      <button id="tab-seg-item" data-tab="seg-item">格子</button>
+      <button id="tab-seg-page" data-tab="seg-page">页面</button>
+      <button id="tab-seg-list" data-tab="seg-list">列表</button>
+      <button id="tab-seg-log" data-tab="seg-log">日志</button>
+    </nav>
+
     <section id="seg-layout">
       <h3>网格布局 (layout)</h3>
       <label><span>x</span><input type="number" id="lx"></label>
@@ -484,7 +750,35 @@
         <button id="btn-right" class="btn-arrow">→</button>
         <button id="btn-reset">重置 offset=0,0</button>
       </div>
-      <div style="font-size:10px;color:var(--faint);margin-top:4px;">方向键 / Shift+方向键 (10px)</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px;">
+        <button id="btn-step-1" class="step-btn on">步长 1</button>
+        <button id="btn-step-10" class="step-btn">步长 10</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:4px 0;">
+        <button id="btn-select-row">选整行</button>
+        <button id="btn-select-col">选整列</button>
+        <button id="btn-clear-id">清空此格</button>
+      </div>
+      <div style="font-size:10px;color:var(--faint);margin-top:4px;">触屏：点四个箭头按步长移动（选中多格时整组移动）；桌面：方向键 / Shift+方向键 (10px)</div>
+    </section>
+
+    <section id="seg-page">
+      <h3>页面与缩放</h3>
+      <div class="ref-row" style="display:flex;gap:8px;margin:6px 0;">
+        <button id="btn-first">« 首页</button>
+        <button id="btn-last">末页 »</button>
+      </div>
+      <label><span>缩放 %</span><input type="number" id="zoom-num" min="50" max="300" step="10"></label>
+      <input type="range" id="zoom-range" min="50" max="300" step="1" style="width:100%;margin:6px 0 2px;">
+      <label><span>翻页步高</span><input type="number" id="page-step2" min="100" max="2000" step="50"></label>
+      <label><span>界面模式</span>
+        <select id="ui-mode" style="width:150px;">
+          <option value="auto">自动</option>
+          <option value="touch">触摸</option>
+          <option value="desktop">桌面</option>
+        </select>
+      </label>
+      <div class="hint">双指捏合=缩放（以指尖中点为焦点）；单指在空白处拖动=平移；「适应」回到 100%。翻页也可用画布左下角胶囊按钮，或单指上下滑不翻页（防误触）。</div>
     </section>
 
     <section id="seg-list">
@@ -525,6 +819,34 @@
       <button id="overwrite-cancel">取消</button>
       <button id="overwrite-confirm" class="confirm">覆盖</button>
     </div>
+  </div>
+</div>
+
+<!-- 触摸版：导出 / 导入弹层（桌面走原直下逻辑，不用这个） -->
+<div id="io-modal" class="touch-modal">
+  <div class="card">
+    <h3 id="io-title">导出 select.xml</h3>
+    <textarea id="io-text" spellcheck="false"></textarea>
+    <div class="actions">
+      <button id="io-download" class="primary">下载文件</button>
+      <button id="io-copy">复制 XML</button>
+      <button id="io-share">分享…</button>
+      <button id="io-file" hidden>选择文件…</button>
+      <button id="io-load" hidden>载入</button>
+      <button id="io-close">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 触摸版：首次进入的手势提示 -->
+<div id="touch-help">
+  <div class="card">
+    <h3>手机操作说明</h3>
+    <p>· <b>点一下</b>格子 = 选中；再点同一格 = 打开「格子」面板精调。</p>
+    <p>· <b>按住拖</b>格子 = 移动它（一次手势 = 一步撤销）。</p>
+    <p>· <b>双指捏合</b> = 放大/缩小画布；<b>双指拖动</b> = 平移；空白处单指拖动也能平移。</p>
+    <p>· 右上角 🔓 = 锁定编辑（只看不改）；⬋ = 撤销，⬌ = 重做。</p>
+    <button id="touch-help-close">明白了</button>
   </div>
 </div>
 
@@ -1736,6 +2058,67 @@ function startAnim() {
 
 // ---- Task 8: 单页窗口 (固定 800×600 视口 + 等比缩放 + 整体居中) ----
 const VP_W = 800, VP_H = 600;     // 物理视口，永远不变
+
+// ---- 视图（触摸版）：缩放/平移的唯一权威 ----
+// pan 单位 = 视口像素（0..800 内部坐标）；屏幕位移 = pan * (fit*zoom)
+const view = { zoom: 1, panX: 0, panY: 0, fit: 1, visW: VP_W, visH: VP_H };
+let IS_TOUCH_UI = false;
+let UI_MODE = 'auto';            // 'auto' | 'touch' | 'desktop'
+let backingQ = 1;                // 位图放大倍率（触摸放大时提清晰度；桌面恒 1）
+function pixelRatio() {
+  const d = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
+  return Math.max(1, Math.min(3, +d || 1));
+}
+function desiredBackingQ() {
+  if (!IS_TOUCH_UI) return 1;    // 桌面保持 800×600 位图（既有回归断言依赖）
+  return Math.max(1, Math.min(3, Math.round(pixelRatio() * view.fit * view.zoom * 4) / 4));
+}
+function clampView() {
+  const lx = Math.max(0, (VP_W - view.visW) / 2) + 6;
+  const ly = Math.max(0, (VP_H - view.visH) / 2) + 6;
+  view.panX = Math.max(-lx, Math.min(lx, view.panX));
+  view.panY = Math.max(-ly, Math.min(ly, view.panY));
+}
+// 以视口坐标 (px,py) 为焦点缩放：缩放后该点下的内容不动
+function zoomAtLocal(px, py, factor) {
+  const z0 = view.zoom;
+  const z1 = Math.max(0.5, Math.min(3, z0 * factor));
+  if (!(z1 > 0) || Math.abs(z1 - z0) < 1e-6) return false;
+  const r = z0 / z1;             // S / S'
+  view.panX = (px - VP_W / 2) * (r - 1) + view.panX * r;
+  view.panY = (py - VP_H / 2) * (r - 1) + view.panY * r;
+  view.zoom = z1;
+  zoomPct = Math.round(z1 * 100);
+  clampView();
+  return true;
+}
+function syncZoomInputs() {
+  const z = Math.round(view.zoom * 100);
+  ['zoom', 'zoom-range'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = z;
+  });
+  const nm = document.getElementById('zoom-num');
+  const ae = (typeof document !== 'undefined') ? document.activeElement : null;
+  if (nm && ae !== nm) nm.value = z;
+}
+function setZoomPct(pct, opts) {
+  const z = Math.max(50, Math.min(300, Math.round(+pct || 100)));
+  zoomPct = z;
+  view.zoom = z / 100;
+  if (opts && opts.resetPan) { view.panX = 0; view.panY = 0; }
+  applyFit();
+}
+function applyBackingStore(force) {
+  const q = desiredBackingQ();
+  if (!force && Math.abs(q - backingQ) < 0.13) return;
+  backingQ = q;
+  const w = Math.round(VP_W * q), h = Math.round(VP_H * q);
+  if (canvas.width !== w) canvas.width = w;
+  if (canvas.height !== h) canvas.height = h;
+  if (typeof ctx.setTransform === 'function') ctx.setTransform(q, 0, 0, q, 0, 0);
+  scheduleRender();
+}
 function applyCanvasSize() {
   // 物理画布永远 800×600；视口改为「单页窗口」：
   // 用 PAGE_HEIGHT 做页高拟合，而非整张 layout.height（避免 840×4100 被压成 ~0.146 倍）
@@ -1759,8 +2142,7 @@ function applyCanvasSize() {
   const M = totalPages();
   if (!(state.currentPage >= 0)) state.currentPage = 0;
   state.currentPage = Math.min(Math.max(0, state.currentPage), M - 1);
-  canvas.width = VP_W;
-  canvas.height = VP_H;
+  applyBackingStore(true);
   if (!canvas.style.left) canvas.style.left = '20px';
   if (!canvas.style.top) canvas.style.top = '20px';
   applyFit();
@@ -1787,13 +2169,30 @@ function applyFit() {
   if (!mainEl || typeof mainEl.getBoundingClientRect !== 'function') return;
   const r = mainEl.getBoundingClientRect();
   if (!r || !r.width || !r.height) return;
-  const pad = 36;
-  const availW = Math.max(120, r.width - pad);
-  const availH = Math.max(120, r.height - pad);
-  const fit = Math.min(availW / VP_W, availH / VP_H, 1.5);
-  const s = fit * zoomPct / 100;
-  canvas.style.width = Math.round(VP_W * s) + 'px';
-  canvas.style.height = Math.round(VP_H * s) + 'px';
+  const pad = IS_TOUCH_UI ? 10 : 36;
+  view.fit = Math.min(Math.max(120, r.width - pad) / VP_W, Math.max(120, r.height - pad) / VP_H, 1.5);
+  const S = view.fit * view.zoom;
+  view.visW = Math.min(VP_W, r.width / Math.max(0.01, S));
+  view.visH = Math.min(VP_H, r.height / Math.max(0.01, S));
+  clampView();
+  syncZoomInputs();
+  canvas.style.width = Math.round(VP_W * S) + 'px';
+  canvas.style.height = Math.round(VP_H * S) + 'px';
+  if (IS_TOUCH_UI) {
+    canvas.style.position = 'absolute';
+    canvas.style.margin = '0';
+    canvas.style.left = '50%';
+    canvas.style.top = '50%';
+    canvas.style.transformOrigin = 'center center';
+    canvas.style.transform = 'translate(-50%, -50%) translate(' +
+      (view.panX * S).toFixed(2) + 'px, ' + (view.panY * S).toFixed(2) + 'px)';
+  } else {
+    canvas.style.position = '';
+    canvas.style.margin = '';
+    canvas.style.transformOrigin = '0 0';
+    canvas.style.transform = 'scale(1)';
+  }
+  applyBackingStore();
 }
 function bindFit() {
   if (typeof window !== 'undefined' && window.addEventListener) {
@@ -1808,7 +2207,8 @@ function evtToCanvas(e) {
   if (typeof canvas.getBoundingClientRect === 'function') {
     const r = canvas.getBoundingClientRect();
     if (r && r.width && r.height) {
-      return { x: (e.clientX - r.left) * (canvas.width / r.width), y: (e.clientY - r.top) * (canvas.height / r.height) };
+      // 必须用视口基准（canvas.width 可能按 DPR 放大），否则缩放后命中偏移
+      return { x: (e.clientX - r.left) * (VP_W / r.width), y: (e.clientY - r.top) * (VP_H / r.height) };
     }
   }
   return { x: e.offsetX, y: e.offsetY };
@@ -1833,6 +2233,8 @@ function gotoPage(n) {
   renderPageIndicator();
   scheduleRender();
   if (state.currentPage !== prev && state.currentPage >= 0) {
+    view.panX = 0; view.panY = 0;     // 翻页后回到居中，避免看到页外空白
+    applyFit();
     const ph = state.viewport ? state.viewport.pageH : (state.PAGE_HEIGHT || 600);
     if (ANIM.enabled) pageAnim = { dir: state.currentPage > prev ? 1 : -1, start: ANow(), dur: 300 };
     startAnim();
@@ -1844,6 +2246,8 @@ function renderPageIndicator() {
   if (!el) return;
   const M = totalPages();
   el.textContent = '第 ' + (state.currentPage + 1) + ' / ' + M + ' 页';
+  const pill = document.getElementById('pill-page');
+  if (pill) pill.textContent = (state.currentPage + 1) + '/' + M;
   if (el.classList) {
     el.classList.remove('pop');
     void el.offsetWidth;   // 重触发 pop 动画（stub 环境无此属性亦无害）
@@ -1858,8 +2262,12 @@ function snapMainScrollToPage() {
 function resetCanvasZoom() {
   canvasScale = 1;
   zoomPct = 100;
-  canvas.style.transform = 'scale(1)';
+  view.zoom = 1;
+  view.panX = 0;
+  view.panY = 0;
+  // 容器不可测量时（stub / 隐藏）也要保持「zoom=1」的可观测状态
   canvas.style.transformOrigin = '0 0';
+  canvas.style.transform = 'scale(1)';
   canvas.style.left = '20px';
   canvas.style.top = '20px';
   const z = document.getElementById('zoom');
@@ -1901,6 +2309,7 @@ function afterStateRestore() {
 // ---- 拖拽覆盖导入：来源标记 + 脏标记 + 统一加载 + 确认 ----
 function markDirty() {
   dirty = true;
+  scheduleAutosave();
 }
 function needsConfirmOverwrite() {
   return !isDefaultInstance && dirty;
@@ -2543,7 +2952,8 @@ function roundRect(x, y, w, h, r) {
   ctx.closePath();
 }
 function render() {
-  // 清屏范围跟视口走
+  // 高清位图：位图 = 视口 × backingQ，绘制仍用 0..800 视口坐标
+  if (typeof ctx.setTransform === 'function') ctx.setTransform(backingQ, 0, 0, backingQ, 0, 0);
   ctx.clearRect(0, 0, VP_W, VP_H);
   drawRefBg();
   drawGrid();
@@ -2661,11 +3071,9 @@ canvas.addEventListener('wheel', e => {
     scheduleRender();
     return;
   }
-  if (e.ctrlKey) {   // Ctrl+滚轮 = 缩放
-    zoomPct = Math.max(50, Math.min(300, zoomPct - Math.sign(e.deltaY) * 10));
-    const z = document.getElementById('zoom');
-    if (z) z.value = zoomPct;
-    applyFit();
+  if (e.ctrlKey) {   // Ctrl+滚轮 = 缩放（以鼠标位置为焦点）
+    const p = evtToCanvas(e);
+    if (zoomAtLocal(p.x, p.y, e.deltaY > 0 ? 0.9 : 1.1)) applyFit();
     return;
   }
   if (e.deltaY > 0) gotoPage(state.currentPage + 1);
@@ -2673,8 +3081,7 @@ canvas.addEventListener('wheel', e => {
 }, { passive: false });
 // zoom 滑块: fit 倍率
 document.getElementById('zoom').addEventListener('input', e => {
-  zoomPct = Math.max(50, Math.min(300, +e.target.value || 100));
-  applyFit();
+  setZoomPct(e.target.value, { resetPan: true });
 });
 
 // ---- Task 5: sidebar segments ----
@@ -2990,6 +3397,7 @@ function renderSegmentItem() {
   inpO.x.value = it.offset.x;
   inpO.y.value = it.offset.y;
 }
+let nudgeStep = 1;   // 触摸版「步长 1 / 10」切换（桌面默认 1，Shift 仍 = 10）
 function bindSegmentItem() {
   let lastUndoTime = 0;
   inpO.x.addEventListener('input', () => {
@@ -3011,7 +3419,7 @@ function bindSegmentItem() {
     scheduleRender();
   });
   function handleArrow(e, key) {
-    const step = e.shiftKey ? 10 : 1;
+    const step = (e && e.shiftKey) ? 10 : nudgeStep;
     let dx = 0, dy = 0;
     if (key === 'ArrowUp') dy = -1;
     else if (key === 'ArrowDown') dy = 1;
@@ -3115,6 +3523,7 @@ function bindPageSwitch() {
 
 // ---- 窄屏抽屉 ----
 function bindDrawer() {
+  if (IS_TOUCH_UI) return;   // 触摸版用底部抽屉（bindTouchUI 里绑定），不叠加 drawer-open
   const btn = $('btn-panel');
   const backdrop = $('drawer-backdrop');
   if (btn) btn.addEventListener('click', () => {
@@ -3133,22 +3542,12 @@ window.addEventListener('keydown', e => {
   const ae = document.activeElement;
   if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'z') {
     e.preventDefault();
-    if (undoStack.length === 0) { log('撤销栈空'); return; }
-    redoStack.push(snapshot());
-    Object.assign(state, undoStack.pop());
-    afterStateRestore();
-    render(); renderSegmentLayout(); renderSegmentItem(); renderSegmentList(); renderSegmentGrid({ force: true });
-    log(`撤销 (剩余 ${undoStack.length} 步)`);
+    doUndo();
     return;
   }
   if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'z') {
     e.preventDefault();
-    if (redoStack.length === 0) { log('重做栈空'); return; }
-    undoStack.push(snapshot());
-    Object.assign(state, redoStack.pop());
-    afterStateRestore();
-    render(); renderSegmentLayout(); renderSegmentItem(); renderSegmentList(); renderSegmentGrid({ force: true });
-    log(`重做 (剩余 ${redoStack.length} 步)`);
+    doRedo();
     return;
   }
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
@@ -3246,38 +3645,831 @@ function serializeXML() {
 function exportXML() {
   try {
     const text = serializeXML();
-    const blob = new Blob([text], { type: 'application/xml' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'select.xml';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(a.href);
+    if (IS_TOUCH_UI) { openIo('export', text); return; }   // 触摸：下载/复制/分享都在弹层里
+    downloadXml(text);
     dirty = false;   // 导出 = 保存，清除未保存标记
+    scheduleAutosave();
     showOk(`已导出 select.xml (${text.length} 字节)`);
     log(`导出 select.xml (${text.length} 字节)`);
   } catch (err) { showError(err.message || String(err)); }
 }
-function importXML() {
-  const fi = $('file-input');
-  fi.value = '';     // 允许重复选同一文件
-  fi.onchange = () => {
-    const f = fi.files[0]; if (!f) return;
-    const r = new FileReader();
-    r.onload = () => {
-      try {
-        const next = parseXML(r.result);
-        applyLoadedState(next, { isDefault: false, label: f.name });
-      } catch (err) { showError(err.message || String(err)); }
-    };
-    r.onerror = () => showError('文件读取失败');
-    r.readAsText(f, 'utf-8');
+function readXmlFile(f) {
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const next = parseXML(r.result);
+      if (needsConfirmOverwrite()) {
+        pendingDrop = { next: next, fileName: f.name };
+        closeIo();
+        showOverwriteModal(true);
+        return;
+      }
+      applyLoadedState(next, { isDefault: false, label: f.name });
+      closeIo();
+    } catch (err) { showError(err.message || String(err)); }
   };
+  r.onerror = () => showError('文件读取失败');
+  r.readAsText(f, 'utf-8');
+}
+function pickXmlFile() {
+  const fi = $('file-input');
+  if (!fi) return;
+  fi.value = '';     // 允许重复选同一文件
+  fi.onchange = () => { readXmlFile(fi.files && fi.files[0]); };
   fi.click();
+}
+function importXML() {
+  if (IS_TOUCH_UI) { openIo('import', ''); return; }
+  pickXmlFile();
 }
 $('btn-import').addEventListener('click', importXML);
 $('btn-export').addEventListener('click', exportXML);
+
+// ===========================================================================
+// TOUCH/V1 —— 触摸版（2026-11-08）
+// 竖屏 = 画布 + 底部抽屉；横屏 = 画布 + 右侧面板
+// 画布手势：点选 / 拖动格子 / 空白拖动平移 / 双指捏合缩放
+// 约束：鼠标与键盘路径保持不变；新入口全部带 typeof 守卫（Node stub 环境不抛）
+// ===========================================================================
+const SHEET_TABS = ['seg-layout', 'seg-grid', 'seg-spacing', 'seg-ref', 'seg-item', 'seg-page', 'seg-list', 'seg-log'];
+const TAP_SLOP = 8;            // 视口 px：位移小于它算点击
+const TAP_MS = 500;            // 点击最长时长
+const LONG_PRESS_MS = 450;     // 长按：选中并打开「格子」面板
+const TOUCH = {
+  pointers: new Map(),
+  mode: 'none',                // none | pending | drag | pan | pinch | bgDrag | bgPinch
+  hit: null, start: null, last: null, downAt: 0, moved: false,
+  locked: false, lastDist: 0, lastMid: null, longPress: null,
+};
+const AUTOSAVE_KEY = 'select-layout-tool:auto:v1';
+const UI_PREF_KEY = 'select-layout-tool:ui';
+const HELP_KEY = 'select-layout-tool:help-touch';
+let sheetTab = 'seg-layout';
+let ioKind = 'export';
+let pendingRestore = null;
+let autosaveTimer = null;
+let autosaveWarned = false;
+
+function uiStorage(kind, key, val) {
+  try {
+    if (typeof localStorage === 'undefined') return null;
+    if (kind === 'get') return localStorage.getItem(key);
+    if (kind === 'set') { localStorage.setItem(key, val); return true; }
+    if (kind === 'del') { localStorage.removeItem(key); return true; }
+  } catch (e) { /* file:// / 隐私模式 / 配额 */ }
+  return null;
+}
+function uiPref() { return uiStorage('get', UI_PREF_KEY) || 'auto'; }
+function isCoarsePointer() {
+  if (typeof window === 'undefined') return false;
+  try {
+    if (window.matchMedia) {
+      if (window.matchMedia('(pointer: coarse)').matches) return true;
+      if (window.matchMedia('(any-pointer: coarse)').matches) return true;
+    }
+  } catch (e) { /* 忽略 */ }
+  try {
+    if (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0) return true;
+    if ('ontouchstart' in window) return true;
+  } catch (e) { /* 忽略 */ }
+  return false;
+}
+function forcedUIMode() {
+  try {
+    const q = String((typeof location !== 'undefined' && location.search) || '');
+    const m = /[?&]ui=(touch|desktop)/.exec(q);
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+}
+function detectUIMode() {
+  const pref = forcedUIMode() || uiPref();
+  UI_MODE = (pref === 'touch' || pref === 'desktop') ? pref : 'auto';
+  IS_TOUCH_UI = UI_MODE === 'touch' || (UI_MODE === 'auto' && isCoarsePointer());
+  const body = (typeof document !== 'undefined') ? document.body : null;
+  const root = (typeof document !== 'undefined') ? document.documentElement : null;
+  if (root && root.classList) {
+    if (IS_TOUCH_UI) root.classList.add('touch-ui');
+    else root.classList.remove('touch-ui');
+  }
+  if (body && body.classList) {
+    if (IS_TOUCH_UI) body.classList.add('touch-ui');
+    else body.classList.remove('touch-ui');
+    if (!IS_TOUCH_UI) body.classList.remove('sheet-open');
+  }
+  return IS_TOUCH_UI;
+}
+function setUIPref(mode) {
+  UI_MODE = (mode === 'touch' || mode === 'desktop') ? mode : 'auto';
+  uiStorage('set', UI_PREF_KEY, UI_MODE);
+  detectUIMode();
+  applyFit();
+  renderSegmentGrid({ force: true });
+  log('界面模式：' + (UI_MODE === 'auto' ? '自动' : UI_MODE) + (IS_TOUCH_UI ? '（触摸）' : '（桌面）'));
+}
+function vibrate(ms) {
+  try {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(ms);
+  } catch (e) { /* 忽略 */ }
+}
+
+// ---- 底部抽屉 ----
+function setSheetTab(id) {
+  if (SHEET_TABS.indexOf(id) < 0) id = 'seg-layout';
+  sheetTab = id;
+  SHEET_TABS.forEach(function (k) {
+    const sec = document.getElementById(k);
+    if (sec && sec.classList) sec.classList[k === id ? 'add' : 'remove']('active');
+    const tab = document.getElementById('tab-' + k);
+    if (tab && tab.classList) tab.classList[k === id ? 'add' : 'remove']('active');
+  });
+}
+function openSheet(tab) {
+  if (tab) setSheetTab(tab);
+  const body = (typeof document !== 'undefined') ? document.body : null;
+  if (body && body.classList) body.classList.add('sheet-open');
+  if (typeof setTimeout === 'function') { setTimeout(applyFit, 80); setTimeout(applyFit, 340); }
+}
+function closeSheet() {
+  const body = (typeof document !== 'undefined') ? document.body : null;
+  if (body && body.classList) body.classList.remove('sheet-open');
+  if (typeof setTimeout === 'function') { setTimeout(applyFit, 80); setTimeout(applyFit, 340); }
+}
+function toggleSheet() {
+  const body = (typeof document !== 'undefined') ? document.body : null;
+  const open = !!(body && body.classList && body.classList.contains('sheet-open'));
+  if (open) closeSheet(); else openSheet();
+}
+
+// ---- 撤销 / 重做（键盘与浮动按钮共用同一份实现） ----
+function doUndo() {
+  if (undoStack.length === 0) { log('撤销栈空'); return; }
+  redoStack.push(snapshot());
+  Object.assign(state, undoStack.pop());
+  afterStateRestore();
+  render(); renderSegmentLayout(); renderSegmentItem(); renderSegmentList(); renderSegmentGrid({ force: true });
+  scheduleAutosave();
+  log('撤销 (剩余 ' + undoStack.length + ' 步)');
+}
+function doRedo() {
+  if (redoStack.length === 0) { log('重做栈空'); return; }
+  undoStack.push(snapshot());
+  Object.assign(state, redoStack.pop());
+  afterStateRestore();
+  render(); renderSegmentLayout(); renderSegmentItem(); renderSegmentList(); renderSegmentGrid({ force: true });
+  scheduleAutosave();
+  log('重做 (剩余 ' + redoStack.length + ' 步)');
+}
+
+// ---- 触摸手势 ----
+function clearLongPress() {
+  if (TOUCH.longPress) { clearTimeout(TOUCH.longPress); TOUCH.longPress = null; }
+}
+function commitDrag() {
+  if (dragState || bgDrag) { dragState = null; bgDrag = null; startAnim(); }
+}
+function pinchMetrics() {
+  const ps = Array.from(TOUCH.pointers.values());
+  const a = ps[0], b = ps[1] || ps[0];
+  return {
+    dist: Math.hypot(a.x - b.x, a.y - b.y),
+    mid: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 },
+  };
+}
+function startPinch() {
+  const m = pinchMetrics();
+  TOUCH.lastDist = Math.max(1, m.dist);
+  TOUCH.lastMid = { x: m.mid.x, y: m.mid.y };
+  TOUCH.mode = refBg.edit ? 'bgPinch' : 'pinch';
+  TOUCH.moved = true;
+}
+function updatePinch() {
+  const m = pinchMetrics();
+  if (TOUCH.mode === 'bgPinch') {
+    const f = m.dist / Math.max(1, TOUCH.lastDist);
+    refBg.scale = Math.max(0.1, Math.min(8, refBg.scale * f));
+    TOUCH.lastDist = Math.max(1, m.dist);
+    const sv = Math.round(refBg.scale * 100);
+    const sl = $('bg-scale'), sn = $('bg-scale-num');
+    if (sl) sl.value = sv;
+    if (sn) sn.value = sv;
+    scheduleRender();
+    return;
+  }
+  if (TOUCH.mode !== 'pinch') return;
+  const S = Math.max(0.01, view.fit * view.zoom);
+  if (TOUCH.lastMid) {
+    view.panX += (m.mid.x - TOUCH.lastMid.x) / S;
+    view.panY += (m.mid.y - TOUCH.lastMid.y) / S;
+    clampView();
+  }
+  const f = m.dist / Math.max(1, TOUCH.lastDist);
+  if (Math.abs(f - 1) > 0.002) zoomAtLocal(m.mid.x, m.mid.y, f);
+  TOUCH.lastDist = Math.max(1, m.dist);
+  TOUCH.lastMid = { x: m.mid.x, y: m.mid.y };
+  applyFit();
+}
+function touchStartHandler(e) {
+  if (!state) return;
+  if (e.cancelable) e.preventDefault();
+  const now = ANow();
+  for (const t of e.changedTouches) {
+    const p = evtToCanvas(t);
+    TOUCH.pointers.set(t.identifier, { x: p.x, y: p.y });
+  }
+  if (TOUCH.pointers.size === 1) {
+    const p = Array.from(TOUCH.pointers.values())[0];
+    TOUCH.mode = 'pending';
+    TOUCH.hit = hitTest(p.x, p.y);
+    TOUCH.start = { x: p.x, y: p.y };
+    TOUCH.last = { x: p.x, y: p.y };
+    TOUCH.downAt = now;
+    TOUCH.moved = false;
+    clearLongPress();
+    if (TOUCH.hit) {
+      TOUCH.longPress = setTimeout(function () {
+        TOUCH.longPress = null;
+        if (TOUCH.mode !== 'pending' || TOUCH.moved || !TOUCH.hit) return;
+        vibrate(20);
+        selectItem(TOUCH.hit);
+        renderSegmentItem(); renderSegmentList(); scheduleRender();
+        openSheet('seg-item');
+        log('长按选中 ' + (TOUCH.hit.fighterID || '(空)') + '，已打开「格子」面板');
+        TOUCH.mode = 'none';
+      }, LONG_PRESS_MS);
+    }
+  } else if (TOUCH.pointers.size === 2) {
+    clearLongPress();
+    if (TOUCH.mode === 'drag' || TOUCH.mode === 'bgDrag') commitDrag();
+    TOUCH.last = null;
+    startPinch();
+  }
+}
+function touchMoveHandler(e) {
+  if (!state || !TOUCH.pointers.size) return;
+  if (e.cancelable) e.preventDefault();
+  for (const t of e.changedTouches) {
+    const rec = TOUCH.pointers.get(t.identifier);
+    if (!rec) continue;
+    const p = evtToCanvas(t);
+    rec.x = p.x; rec.y = p.y;
+  }
+  if (TOUCH.pointers.size >= 2) { updatePinch(); return; }
+  const p = Array.from(TOUCH.pointers.values())[0];
+  const dx = p.x - TOUCH.start.x, dy = p.y - TOUCH.start.y;
+  if (TOUCH.mode === 'pending') {
+    if (Math.hypot(dx, dy) <= TAP_SLOP) return;
+    TOUCH.moved = true;
+    clearLongPress();
+    if (refBg.edit) {
+      TOUCH.mode = 'bgDrag';
+      bgDrag = { startX: TOUCH.start.x, startY: TOUCH.start.y, ox: refBg.x, oy: refBg.y };
+      vibrate(8);
+    } else if (TOUCH.hit && !TOUCH.locked) {
+      TOUCH.mode = 'drag';
+      selectItem(TOUCH.hit);
+      pushUndoSnap();          // 一次手势 = 一步撤销
+      dragState = {
+        items: [{ item: TOUCH.hit, orig: { x: TOUCH.hit.offset.x, y: TOUCH.hit.offset.y } }],
+        startX: TOUCH.start.x, startY: TOUCH.start.y,
+      };
+      renderSegmentItem(); renderSegmentList();
+      vibrate(8);
+    } else {
+      TOUCH.mode = 'pan';
+    }
+  }
+  if (TOUCH.mode === 'pan') {
+    const S = Math.max(0.01, view.fit * view.zoom);
+    view.panX += (p.x - (TOUCH.last ? TOUCH.last.x : p.x)) / S;
+    view.panY += (p.y - (TOUCH.last ? TOUCH.last.y : p.y)) / S;
+    clampView();
+    applyFit();
+  } else if (TOUCH.mode === 'drag' && dragState) {
+    const v = state.viewport;
+    const ddx = Math.round((p.x - dragState.startX) / v.scale);
+    const ddy = Math.round((p.y - dragState.startY) / v.scale);
+    let changed = false;
+    dragState.items.forEach(function (s) {
+      const nx = s.orig.x + ddx, ny = s.orig.y + ddy;
+      if (nx !== s.item.offset.x || ny !== s.item.offset.y) { s.item.offset = { x: nx, y: ny }; changed = true; }
+    });
+    if (changed) markDirty();
+    startAnim(); scheduleRender();
+  } else if (TOUCH.mode === 'bgDrag' && bgDrag) {
+    const v = state.viewport;
+    refBg.x = Math.round(bgDrag.ox + (p.x - bgDrag.startX) / v.scale);
+    refBg.y = Math.round(bgDrag.oy + (p.y - bgDrag.startY) / v.scale);
+    scheduleRender();
+  }
+  TOUCH.last = { x: p.x, y: p.y };
+}
+function handleTap(p) {
+  if (!p || !state) return;
+  const it = hitTest(p.x, p.y);
+  if (!it) {
+    clearSelection();
+    renderSegmentItem(); renderSegmentList(); scheduleRender();
+    return;
+  }
+  const same = state.selectedKey === it.listKey && state.selectedRow == null && state.selectedCol == null;
+  selectItem(it);
+  renderSegmentItem(); renderSegmentList(); scheduleRender();
+  vibrate(10);
+  if (same) openSheet('seg-item');   // 再点同一格 = 打开精调面板
+}
+function touchEndHandler(e) {
+  if (!state) return;
+  const was = TOUCH.mode;
+  for (const t of e.changedTouches) TOUCH.pointers.delete(t.identifier);
+  if (TOUCH.pointers.size === 0) {
+    clearLongPress();
+    if (was === 'pending' && !TOUCH.moved && (ANow() - TOUCH.downAt) <= TAP_MS) handleTap(TOUCH.start);
+    if (was === 'drag' || was === 'bgDrag') commitDrag();
+    if (was === 'pinch' || was === 'bgPinch') applyFit();
+    TOUCH.mode = 'none';
+    TOUCH.hit = null; TOUCH.start = null; TOUCH.last = null; TOUCH.moved = false;
+  } else if (TOUCH.pointers.size === 1 && (was === 'pinch' || was === 'bgPinch')) {
+    // 双指松一只：剩下这只直接当平移，避免误改格子
+    const p = Array.from(TOUCH.pointers.values())[0];
+    TOUCH.mode = 'pan';
+    TOUCH.start = { x: p.x, y: p.y };
+    TOUCH.last = { x: p.x, y: p.y };
+    applyFit();
+  }
+  startAnim();
+}
+function touchCancelHandler(e) {
+  clearLongPress();
+  if (e && e.changedTouches) for (const t of e.changedTouches) TOUCH.pointers.delete(t.identifier);
+  if (!TOUCH.pointers.size) {
+    if (TOUCH.mode === 'drag' || TOUCH.mode === 'bgDrag') commitDrag();
+    TOUCH.mode = 'none'; TOUCH.hit = null; TOUCH.start = null; TOUCH.last = null; TOUCH.moved = false;
+    applyFit();
+  }
+}
+
+// ---- 页面步高（键盘入口与「页面」tab 共用） ----
+function setPageHeight(val, opts) {
+  let v = parseInt(val, 10);
+  if (!isFinite(v)) v = 600;
+  v = Math.max(100, Math.min(2000, v));
+  const ps = $('page-step'), ps2 = $('page-step2');
+  if (ps) ps.value = v;
+  if (ps2) ps2.value = v;
+  if (!state || v === state.PAGE_HEIGHT) return;
+  if (!(opts && opts.silent)) pushUndoSnap();
+  state.PAGE_HEIGHT = v;
+  applyCanvasSize();
+  renderSegmentGrid({ force: true });
+  snapMainScrollToPage();
+  renderPageIndicator();
+  scheduleRender();
+  log('翻页步高=' + v + ', 总页数=' + totalPages());
+}
+
+// ---- 触摸 UI 控件绑定 ----
+function bindTouchControls() {
+  const b = function (id, fn) { const el = $(id); if (el) el.addEventListener('click', fn); };
+  b('btn-first', function () { gotoPage(0); });
+  b('btn-last', function () { gotoPage(totalPages() - 1); });
+  const zr = $('zoom-range');
+  if (zr) zr.addEventListener('input', function (e) { setZoomPct(e.target.value, { resetPan: true }); });
+  const zn = $('zoom-num');
+  if (zn) zn.addEventListener('change', function (e) { setZoomPct(e.target.value, { resetPan: true }); });
+  const ps2 = $('page-step2');
+  if (ps2) ps2.addEventListener('change', function (e) { setPageHeight(e.target.value); });
+  const um = $('ui-mode');
+  if (um) {
+    um.value = (UI_MODE === 'touch' || UI_MODE === 'desktop') ? UI_MODE : 'auto';
+    um.addEventListener('change', function () {
+      uiStorage('set', UI_PREF_KEY, um.value);
+      autosaveNow();                        // 刷新前先落一次自动保存（刷新后可「恢复」）
+      log('界面模式改为 ' + um.value + '，正在刷新…');
+      if (typeof location !== 'undefined' && location.reload) location.reload();
+    });
+  }
+  // 浮动条（缩放走双指捏合 + 「页面」tab）
+  b('fab-fit', function () { resetCanvasZoom(); log('视图回到 100%'); });
+  b('fab-undo', doUndo);
+  b('fab-redo', doRedo);
+  b('fab-lock', function () {
+    TOUCH.locked = !TOUCH.locked;
+    const el = $('fab-lock');
+    if (el) {
+      el.textContent = TOUCH.locked ? '🔒' : '🔓';
+      if (el.classList) el.classList[TOUCH.locked ? 'add' : 'remove']('on');
+    }
+    vibrate(12);
+    log(TOUCH.locked ? '已锁定：只能点选 / 缩放 / 平移' : '已解锁：可以拖动格子');
+  });
+  b('pill-prev', function () { gotoPage(state.currentPage - 1); });
+  b('pill-next', function () { gotoPage(state.currentPage + 1); });
+  const setStep = function (n) {
+    nudgeStep = n;
+    const a = $('btn-step-1'), c = $('btn-step-10');
+    if (a && a.classList) a.classList[n === 1 ? 'add' : 'remove']('on');
+    if (c && c.classList) c.classList[n === 10 ? 'add' : 'remove']('on');
+    log('微调步长 = ' + n + 'px');
+  };
+  b('btn-step-1', function () { setStep(1); });
+  b('btn-step-10', function () { setStep(10); });
+  const currentOrSelected = function () {
+    const one = findSelectedItem();
+    if (one) return one;
+    const sel = getSelectedItems();
+    return sel.length ? sel[0] : null;
+  };
+  b('btn-select-row', function () {
+    const it = currentOrSelected();
+    if (!it) { showError('先点选一个格子'); return; }
+    const sel = selectRow(it.gridY, it.gridX);
+    renderSegmentItem(); renderSegmentList(); scheduleRender();
+    log('选中第 ' + it.gridY + ' 行（从 x=' + it.gridX + ' 起，共 ' + sel.length + ' 格）');
+  });
+  b('btn-select-col', function () {
+    const it = currentOrSelected();
+    if (!it) { showError('先点选一个格子'); return; }
+    const sel = selectCol(it.gridX, it.gridY);
+    renderSegmentItem(); renderSegmentList(); scheduleRender();
+    log('选中第 ' + it.gridX + ' 列（从 y=' + it.gridY + ' 起，共 ' + sel.length + ' 格）');
+  });
+  b('btn-clear-id', function () {
+    const it = findSelectedItem();
+    if (!it) { showError('先点选一个格子（整行/整列选择不支持清空）'); return; }
+    const old = it.fighterID;
+    if (!old) { showError('该格本来就是空的'); return; }
+    if (typeof confirm === 'function' && !confirm('清空该格的 fighterID？\n\n' + old + '\n\n（可用撤销恢复）')) return;
+    pushUndoSnap();
+    it.fighterID = null;
+    markDirty();
+    renderSegmentItem(); renderSegmentList(); scheduleRender();
+    log('清空 fighterID（原: ' + old + '）');
+  });
+}
+
+// ---- 导出 / 导入弹层（桌面仍走原有直下 / 选文件） ----
+function downloadXml(text) {
+  const blob = new Blob([text], { type: 'application/xml' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'select.xml';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  try { URL.revokeObjectURL(a.href); } catch (e) { /* 忽略 */ }
+}
+function canDownload() {
+  try { return 'download' in document.createElement('a'); } catch (e) { return false; }
+}
+function fallbackCopy(text) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = !!(document.execCommand && document.execCommand('copy'));
+    document.body.removeChild(ta);
+    return ok;
+  } catch (e) { return false; }
+}
+function copyText(text, cb) {
+  try {
+    if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { cb(true); }).catch(function () { cb(fallbackCopy(text)); });
+      return;
+    }
+  } catch (e) { /* 走兜底 */ }
+  cb(fallbackCopy(text));
+}
+function shareText(text) {
+  try {
+    if (typeof navigator === 'undefined' || !navigator.share) {
+      showError('此浏览器不支持系统分享，请用「复制 XML」');
+      return;
+    }
+    Promise.resolve(navigator.share({ title: 'select.xml', text: text })).catch(function () { /* 用户取消 */ });
+  } catch (e) { showError('分享不可用'); }
+}
+function closeIo() {
+  const m = $('io-modal');
+  if (m && m.classList) m.classList.remove('show');
+}
+function openIo(kind, text) {
+  ioKind = kind;
+  const m = $('io-modal');
+  if (!m || !m.classList) { if (kind === 'export') downloadXml(text || serializeXML()); return; }
+  const title = $('io-title'), ta = $('io-text');
+  const setHidden = function (id, v) { const el = $(id); if (el) el.hidden = !!v; };
+  if (ta) { ta.value = text || ''; ta.readOnly = kind === 'export'; }
+  if (title) {
+    title.textContent = kind === 'export'
+      ? '导出 select.xml（' + ((text || '').length) + ' 字节）'
+      : '导入 XML：选文件，或把内容粘贴到下框';
+  }
+  setHidden('io-download', kind !== 'export' || !canDownload());
+  setHidden('io-file', kind !== 'import');
+  setHidden('io-copy', kind !== 'export');
+  setHidden('io-share', kind !== 'export');
+  setHidden('io-load', kind !== 'import');
+  m.classList.add('show');
+  log(kind === 'export' ? '打开导出弹层' : '打开导入弹层');
+}
+function bindIoModal() {
+  const m = $('io-modal');
+  if (!m) return;
+  const b = function (id, fn) { const el = $(id); if (el) el.addEventListener('click', fn); };
+  b('io-close', closeIo);
+  b('io-download', function () {
+    const ta = $('io-text');
+    const text = ta ? ta.value : serializeXML();
+    try {
+      downloadXml(text);
+      dirty = false; scheduleAutosave();
+      showOk('已导出 select.xml');
+      closeIo();
+    } catch (e) { showError(e.message || String(e)); }
+  });
+  b('io-copy', function () {
+    const ta = $('io-text');
+    copyText(ta ? ta.value : '', function (ok) {
+      if (ok) {
+        if (ioKind === 'export') { dirty = false; scheduleAutosave(); }
+        showOk('已复制到剪贴板');
+        closeIo();
+      } else showError('复制失败：请长按文本框手动全选复制');
+    });
+  });
+  b('io-share', function () {
+    const ta = $('io-text');
+    shareText(ta ? ta.value : '');
+  });
+  b('io-file', function () { pickXmlFile(); });
+  b('io-load', function () {
+    const ta = $('io-text');
+    const text = ta ? ta.value : '';
+    if (!String(text).trim()) { showError('没有可导入的内容'); return; }
+    try {
+      const next = parseXML(text);
+      if (needsConfirmOverwrite()) {
+        pendingDrop = { next: next, fileName: '粘贴内容' };
+        closeIo();
+        showOverwriteModal(true);
+        return;
+      }
+      applyLoadedState(next, { isDefault: false, label: '粘贴内容' });
+      closeIo();
+    } catch (e) { showError(e.message || String(e)); }
+  });
+}
+
+// ---- 自动保存（同一浏览器下次打开可恢复） ----
+function autosavePayload() {
+  if (!state) return null;
+  try {
+    return JSON.stringify({
+      v: 1,
+      xml: serializeXML(),
+      currentList: state.currentList,
+      currentPage: state.currentPage,
+      pageH: state.PAGE_HEIGHT,
+      zoom: zoomPct,
+      ui: UI_MODE,
+      dirty: !!dirty,
+      savedAt: Date.now(),
+    });
+  } catch (e) { return null; }
+}
+function autosaveNow() {
+  const p = autosavePayload();
+  if (!p) return false;
+  const ok = uiStorage('set', AUTOSAVE_KEY, p);
+  if (!ok && !autosaveWarned) {
+    autosaveWarned = true;
+    log('自动保存不可用（浏览器禁用本地存储，或 file:// 限制）');
+  }
+  return !!ok;
+}
+function scheduleAutosave() {
+  if (typeof setTimeout !== 'function') return;
+  if (autosaveTimer) clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(function () { autosaveTimer = null; autosaveNow(); }, 600);
+}
+function fmtTime(d) {
+  const p = function (n) { return (n < 10 ? '0' : '') + n; };
+  return (d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+function maybeOfferRestore() {
+  const raw = uiStorage('get', AUTOSAVE_KEY);
+  if (!raw) return;
+  let data = null;
+  try { data = JSON.parse(raw); } catch (e) { return; }
+  if (!data || !data.xml || !data.dirty) return;
+  if (data.xml === DEFAULT_XML_TEXT) return;
+  pendingRestore = data;
+  const bar = $('restore-bar'), txt = $('restore-text');
+  if (!bar || !bar.classList) return;
+  if (txt) txt.textContent = '上次编辑 ' + (data.savedAt ? fmtTime(new Date(data.savedAt)) : '') + ' · 有未导出的改动';
+  bar.classList.add('show');
+}
+function applyPendingRestore() {
+  if (!pendingRestore) return;
+  const data = pendingRestore;
+  pendingRestore = null;
+  const bar = $('restore-bar');
+  if (bar && bar.classList) bar.classList.remove('show');
+  try {
+    const next = parseXML(data.xml);
+    applyLoadedState(next, { isDefault: false, label: '自动保存' });
+    if (isFinite(data.pageH)) setPageHeight(data.pageH, { silent: true });
+    if (isFinite(data.zoom)) setZoomPct(data.zoom);
+    dirty = true;
+    scheduleAutosave();
+    showOk('已恢复上次编辑');
+  } catch (e) { showError('恢复失败：' + (e.message || e)); }
+}
+function discardPendingRestore() {
+  pendingRestore = null;
+  const bar = $('restore-bar');
+  if (bar && bar.classList) bar.classList.remove('show');
+  uiStorage('del', AUTOSAVE_KEY);
+  log('已丢弃上次自动保存');
+}
+function bindRestoreBar() {
+  const a = $('restore-apply'), d = $('restore-dismiss');
+  if (a) a.addEventListener('click', applyPendingRestore);
+  if (d) d.addEventListener('click', discardPendingRestore);
+  maybeOfferRestore();
+}
+
+// ---- 首次进入的手势提示 ----
+function maybeShowTouchHelp() {
+  if (!IS_TOUCH_UI) return;
+  if (uiStorage('get', HELP_KEY)) return;
+  const el = $('touch-help');
+  if (el && el.classList) el.classList.add('show');
+}
+function closeTouchHelp() {
+  uiStorage('set', HELP_KEY, '1');
+  const el = $('touch-help');
+  if (el && el.classList) el.classList.remove('show');
+}
+
+// ---- 诊断（供 verify-browser.js / 真机排查用；不参与正常交互） ----
+function diagReport() {
+  const rectOf = function (id) {
+    const el = document.getElementById(id);
+    if (!el || typeof el.getBoundingClientRect !== 'function') return null;
+    const r = el.getBoundingClientRect();
+    if (!r) return null;
+    return { x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height) };
+  };
+  const out = {
+    uiMode: UI_MODE, touchUI: IS_TOUCH_UI,
+    zoom: Math.round(view.zoom * 100) / 100, fit: Math.round(view.fit * 1000) / 1000,
+    pan: [Math.round(view.panX), Math.round(view.panY)],
+    backingQ: backingQ, bitmap: [canvas.width, canvas.height],
+    canvasStyle: {
+      position: canvas.style.position,
+      left: canvas.style.left,
+      top: canvas.style.top,
+      transform: canvas.style.transform,
+      computedTransform: (typeof getComputedStyle === 'function') ? getComputedStyle(canvas).transform : '',
+      offset: [canvas.offsetLeft, canvas.offsetTop],
+      offsetSize: [canvas.offsetWidth, canvas.offsetHeight],
+      parent: canvas.parentElement ? (canvas.parentElement.id || canvas.parentElement.tagName) : '',
+    },
+    vw: 0, vh: 0, dpr: pixelRatio(),
+    main: rectOf('main'), canvas: rectOf('canvas'), sidebar: rectOf('sidebar'),
+    topbar: rectOf('topbar'), fabs: rectOf('touch-fabs'), pill: rectOf('page-pill'),
+    tabs: rectOf('sheet-tabs'), fabsParent: (document.getElementById('touch-fabs') && document.getElementById('touch-fabs').parentElement) ? document.getElementById('touch-fabs').parentElement.id : '',
+    mainPos: (typeof getComputedStyle === 'function') ? getComputedStyle(document.getElementById('main')).position : '',
+    sidebarWidth: (typeof getComputedStyle === 'function') ? getComputedStyle(document.getElementById('sidebar')).width : '',
+    topbarH: rectOf('topbar') ? rectOf('topbar').h : 0,
+    tabProbe: (function () {
+      const el = document.getElementById('tab-seg-grid');
+      if (!el || typeof getComputedStyle !== 'function') return null;
+      const cs = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return { h: Math.round(r.height), w: Math.round(r.width), minH: cs.minHeight, pad: cs.padding, fs: cs.fontSize, disp: cs.display, lineH: cs.lineHeight, box: cs.boxSizing };
+    })(),
+    tabsProbe: (function () {
+      const el = document.getElementById('sheet-tabs');
+      if (!el || typeof getComputedStyle !== 'function') return null;
+      const cs = getComputedStyle(el);
+      return { h: Math.round(el.getBoundingClientRect().height), disp: cs.display, pad: cs.padding, minH: cs.minHeight, ov: cs.overflowY };
+    })(),
+    inputProbe: (function () {
+      const el = document.getElementById('lx');
+      if (!el || typeof getComputedStyle !== 'function') return null;
+      const cs = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      const lab = el.parentElement;
+      const lcs = lab ? getComputedStyle(lab) : null;
+      const lr = lab ? lab.getBoundingClientRect() : null;
+      return {
+        input: { h: Math.round(r.height), w: Math.round(r.width), minH: cs.minHeight, hgt: cs.height, pad: cs.padding, box: cs.boxSizing, fs: cs.fontSize },
+        label: lr ? { h: Math.round(lr.height), w: Math.round(lr.width), minH: lcs.minHeight, disp: lcs.display, align: lcs.alignItems } : null,
+      };
+    })(),
+    topbarProbe: (function () {
+      const el = document.getElementById('topbar');
+      const h1 = el ? el.querySelector('h1') : null;
+      const btn = document.getElementById('btn-import');
+      const cs = btn && getComputedStyle ? getComputedStyle(btn) : null;
+      return {
+        h: el ? Math.round(el.getBoundingClientRect().height) : 0,
+        h1w: h1 ? Math.round(h1.getBoundingClientRect().width) : 0,
+        h1Scroll: h1 ? h1.scrollWidth : 0,
+        btnH: btn ? Math.round(btn.getBoundingClientRect().height) : 0,
+        btnWhiteSpace: cs ? cs.whiteSpace : '',
+        btnFont: cs ? cs.fontSize : '',
+      };
+    })(),
+    overflowX: 0, smallTargets: [],
+    page: state ? state.currentPage : -1, pages: state ? totalPages() : 0,
+    dirty: !!dirty, selected: state ? state.selectedKey : null,
+    undo: undoStack.length, redo: redoStack.length,
+    sheet: !!(document.body && document.body.classList && document.body.classList.contains('sheet-open')),
+  };
+  if (typeof window !== 'undefined') { out.vw = window.innerWidth; out.vh = window.innerHeight; }
+  const de = document.documentElement;
+  if (de) out.overflowX = Math.max(0, (de.scrollWidth || 0) - (de.clientWidth || 0));
+  // 找出真正越界的元素（排查横向溢出用）
+  out.overflowItems = [];
+  if (typeof document.querySelectorAll === 'function' && de) {
+    const cw = de.clientWidth || 0;
+    const nodes = document.querySelectorAll('body *');
+    for (let i = 0; i < nodes.length; i++) {
+      const el = nodes[i];
+      const r = el.getBoundingClientRect();
+      if (!r || (!r.width && !r.height)) continue;
+      // 自身在可滚动祖先里（如 tab 条、日志框）属于内部滚动，不算页面溢出
+      let inScroller = false;
+      for (let p = el.parentElement; p && p !== document.body && p.id !== 'app'; p = p.parentElement) {
+        const cs = (typeof getComputedStyle === 'function') ? getComputedStyle(p) : null;
+        // 注意：#app 自身 overflow:hidden，若把它算进来会吞掉所有条目
+        if (cs && (cs.overflowX === 'auto' || cs.overflowX === 'scroll' || cs.overflowY === 'auto' || cs.overflowY === 'scroll')) { inScroller = true; break; }
+      }
+      if (inScroller) continue;
+      if (r.right > cw + 0.5 || r.left < -0.5) {
+        out.overflowItems.push({
+          id: el.id || '', cls: String(el.className || '').slice(0, 24),
+          tag: el.tagName, left: Math.round(r.left), right: Math.round(r.right), w: Math.round(r.width),
+        });
+        if (out.overflowItems.length >= 12) break;
+      }
+    }
+  }
+  if (IS_TOUCH_UI && typeof document.querySelectorAll === 'function') {
+    const sel = '#topbar button, #btn-panel, #touch-fabs button, #page-pill button, ' +
+      '#sheet-tabs button, #sidebar button, #sidebar input[type=number], #sidebar input[type=range], #sidebar select';
+    const nodes = document.querySelectorAll(sel);
+    for (let i = 0; i < nodes.length; i++) {
+      const el = nodes[i];
+      const r = el.getBoundingClientRect();
+      if (!r || !r.width) continue;
+      if (r.width < 44 || r.height < 44) {
+        out.smallTargets.push(String(el.id || el.textContent || '?').trim().slice(0, 16) + ':' + Math.round(r.width) + 'x' + Math.round(r.height));
+      }
+    }
+  }
+  return out;
+}
+
+// ---- 触摸层总装 ----
+function bindTouchUI() {
+  detectUIMode();
+  if (canvas && typeof canvas.addEventListener === 'function') {
+    canvas.addEventListener('touchstart', touchStartHandler, { passive: false });
+    canvas.addEventListener('touchmove', touchMoveHandler, { passive: false });
+    canvas.addEventListener('touchend', touchEndHandler, { passive: false });
+    canvas.addEventListener('touchcancel', touchCancelHandler, { passive: false });
+  }
+  const btnPanel = $('btn-panel');
+  if (btnPanel && IS_TOUCH_UI) btnPanel.addEventListener('click', toggleSheet);
+  const backdrop = $('drawer-backdrop');
+  if (backdrop) backdrop.addEventListener('click', closeSheet);
+  SHEET_TABS.forEach(function (k) {
+    const tab = $('tab-' + k);
+    if (tab) tab.addEventListener('click', function () { setSheetTab(k); openSheet(); });
+  });
+  const helpClose = $('touch-help-close');
+  if (helpClose) helpClose.addEventListener('click', closeTouchHelp);
+  bindTouchControls();
+  bindIoModal();
+  bindRestoreBar();
+  setSheetTab(sheetTab);
+  maybeShowTouchHelp();
+  if (typeof window !== 'undefined' && window.addEventListener && typeof document !== 'undefined' && document.addEventListener) {
+    window.addEventListener('pagehide', autosaveNow);
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') autosaveNow();
+    });
+  }
+}
 
 // ---- Bootstrap ----
 function init() {
@@ -3286,10 +4478,14 @@ function init() {
     isDefaultInstance = true;   // 默认实例来源
     dirty = false;
   } catch (err) { showError(err.message); return; }
+  // 触摸/桌面模式必须在算画布前定下来（applyFit 依赖 IS_TOUCH_UI）
+  detectUIMode();
   // 游戏口径：PAGE_HEIGHT = min(layout.height, 600)；首屏也回写输入框，
   // 避免内嵌默认 XML 的 layout.height 变化后输入框仍显示硬编码 600。
   const psInit = document.getElementById('page-step');
   if (psInit) psInit.value = state.PAGE_HEIGHT;
+  const psInit2 = document.getElementById('page-step2');
+  if (psInit2) psInit2.value = state.PAGE_HEIGHT;
   applyCanvasSize();   // 画布尺寸跟 layout 走（支持 7 页 4100 高）
   resetCanvasView();
   bindSegmentLayout();
@@ -3302,6 +4498,7 @@ function init() {
   bindOverwriteModal();
   bindDrawer();
   bindFit();
+  bindTouchUI();      // 触摸手势 + 底部抽屉 + 导入导出弹层 + 自动保存提示
   bindRefImages();
   renderSegmentRef();   // 参考图控件回填当前活动（人物页）的背景状态
   renderSegmentLayout();
@@ -3313,23 +4510,7 @@ function init() {
   startAnim();
   // Task 8: 翻页按钮 + 输入框绑定
   const ps = document.getElementById('page-step');
-  if (ps) ps.addEventListener('change', () => {
-    let v = parseInt(ps.value, 10);
-    if (!Number.isFinite(v)) v = 600;
-    v = Math.max(100, Math.min(2000, v));
-    ps.value = v;
-    if (v === state.PAGE_HEIGHT) return;
-    // 先快照旧步高（与 applySpacing/nudge 同序），Ctrl+Z 才能真正回退
-    pushUndoSnap();
-    state.PAGE_HEIGHT = v;
-    // 步高参与 rowsPerPage / gapY / 页数推导：重算视口、侧栏信息与画布
-    applyCanvasSize();
-    renderSegmentGrid({ force: true });
-    snapMainScrollToPage();
-    renderPageIndicator();
-    scheduleRender();
-    log(`翻页步高=${v}, 总页数=${totalPages()}`);
-  });
+  if (ps) ps.addEventListener('change', () => setPageHeight(ps.value));
   const pgMap = {
     'btn-page-first': () => gotoPage(0),
     'btn-page-prev': () => gotoPage(state.currentPage - 1),
@@ -3363,6 +4544,10 @@ function init() {
   log('提示：Ctrl+点击选整列（从点击点向下到末尾）、Alt+点击选整行（从点击点向右到末尾），选中后拖动或方向键整组移动；改「格子间距」按 offset 均匀调整');
   log('提示：拖拽 select.xml 到页面即可覆盖导入（非默认实例 + 未导出改动会先确认）；Ctrl+滚轮/缩放滑块缩放画布');
   log('提示：侧栏「参考图」可上传/拖拽背景图与格子图（默认图已内嵌）；勾选「调整」后画布内拖动=移动背景、滚轮=缩放背景');
+  if (IS_TOUCH_UI) {
+    log('触摸版：点选 / 拖格 / 双指缩放；底部 tab 切换参数面板；右上浮动条 = 缩放/适应/撤销/重做/锁定');
+    log('触摸版：导出会在弹层里提供「下载 / 复制 XML / 分享」，导入支持选文件或粘贴');
+  }
 }
 init();
 
@@ -3392,6 +4577,16 @@ window.__layoutTool = {
   mapToScreen, mapFromScreen,
   totalPages, gotoPage, totalPagesFor, switchList, saveCurPageView, loadCurPageView,
   getUndoStack: () => undoStack, getRedoStack: () => redoStack,
+  // 触摸版
+  getView: () => ({ zoom: view.zoom, panX: view.panX, panY: view.panY, fit: view.fit, visW: view.visW, visH: view.visH }),
+  setZoomPct, zoomAtLocal, resetCanvasZoom, setPageHeight,
+  getTouchState: () => ({ mode: TOUCH.mode, locked: TOUCH.locked, pointers: TOUCH.pointers.size }),
+  getUIMode: () => ({ pref: UI_MODE, touchUI: IS_TOUCH_UI, sheetTab: sheetTab }),
+  setUIPref, isCoarsePointer, detectUIMode,
+  openSheet, closeSheet, toggleSheet, setSheetTab,
+  openIo, closeIo, doUndo, doRedo,
+  autosaveNow, maybeOfferRestore, applyPendingRestore, discardPendingRestore,
+  diag: diagReport,
   getRefState: () => ({
     bg: { hasImg: !!refBg.img, w: refBg.img ? refBg.img.width : 0, h: refBg.img ? refBg.img.height : 0, scale: +refBg.scale.toFixed(3), x: refBg.x, y: refBg.y, visible: refBg.visible, edit: refBg.edit, perPage: true },
     cell: { hasImg: !!refCell.img, visible: refCell.visible },

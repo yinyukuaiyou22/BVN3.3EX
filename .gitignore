@@ -189,3 +189,8 @@ tools/script/其他版本/
 _dsh_write_test.txt
 .dsh-meow/
 acl-recovery-2026-10-19/
+
+# 选人界面排版工具：触摸版验证产物（可再生成，node verify_browser.js --shots）
+选人界面排版工具/_shots/
+选人界面排版工具/_tmp-browser.html
+选人界面排版工具/_*.log
