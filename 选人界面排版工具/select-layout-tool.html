@@ -2025,6 +2025,7 @@ function animPos(item, targetPos) {
 function animNeeded() {
   if (!ANIM.enabled || !state) return false;
   if (pageAnim || dragState || hoverItem) return true;
+  if (flashKey && ANow() < flashUntil) return true;    // 列表定位的闪框动画
   if (state.selectedKey || state.selectedRow != null || state.selectedCol != null) return true; // 选中框跑马灯
   const items = currentItems();
   const gap = calcGap(items);
@@ -2969,6 +2970,7 @@ function render() {
       if (isOnCurrentPage(pos)) drawSelection(sel);
     }
   }
+  drawFlash();   // 列表定位后的提示闪框
 }
 function scheduleRender() {
   startAnim();
@@ -3459,12 +3461,98 @@ function renderSegmentList() {
     if (isItemSelected(it)) b.classList.add('active');
     b.title = `[${it.gridX},${it.gridY}] ${id} offset(${it.offset.x},${it.offset.y})`;
     b.addEventListener('click', () => {
-      selectItem(it);
-      renderSegmentItem(); renderSegmentList(); scheduleRender();
-      log(`选中 [${it.gridX},${it.gridY}] ${id}`);
+      jumpToItem(it);          // 列表点角色 = 跳到该格所在页 + 选中 + 闪一下
     });
     cards.appendChild(b);
   });
+}
+
+// ---- 列表 → 画布定位（2026-11-08：PC 与手机同一入口） ----
+// 该格在「行分页」模型里的页号：floor(gridY / rowsPerPage)
+function itemPageIndex(it) {
+  const gap = calcGap(currentItems());
+  const rpp = gap.rowsPerPage || 1;
+  return Math.max(0, Math.floor(it.gridY / rpp));
+}
+// 闪一下：跨页/跨屏时用户能一眼找到刚点的格子（drawFlash 画在外框上）
+const FLASH_MS = 1100;
+let flashKey = null, flashUntil = 0;
+function flashItem(it) {
+  if (!it) return;
+  flashKey = it.listKey;
+  flashUntil = ANow() + FLASH_MS;
+  startAnim();
+}
+function drawFlash() {
+  if (!flashKey) return;
+  if (ANow() > flashUntil) { flashKey = null; return; }
+  const items = currentItems();
+  const it = items.find(i => i.listKey === flashKey);
+  if (!it) return;
+  const gap = calcGap(items);
+  const pos = calcItemPos(it, gap);
+  if (!isOnCurrentPage(pos)) return;
+  const w = state.layout.renderSize.w, h = state.layout.renderSize.h;
+  const s = mapToScreen(pos.x, pos.y);
+  const e = mapToScreen(pos.x + w, pos.y + h);
+  const left = (flashUntil - ANow()) / FLASH_MS;             // 1 → 0
+  const pulse = 0.5 + 0.5 * Math.sin((1 - left) * Math.PI * 6);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,61,129,' + (0.35 + 0.55 * pulse).toFixed(3) + ')';
+  ctx.lineWidth = 2 + 3 * pulse;
+  ctx.shadowColor = 'rgba(255,61,129,0.9)';
+  ctx.shadowBlur = 10;
+  ctx.strokeRect(s.x - 2, s.y - 2, (e.x - s.x) + 4, (e.y - s.y) + 4);
+  ctx.restore();
+}
+// 让某格出现在可见画布里：触摸 = 钳 pan；桌面 = 滚 #main
+function ensureItemVisible(it) {
+  if (!it || !state) return;
+  const mainEl = document.getElementById('main');
+  if (!mainEl) return;
+  const gap = calcGap(currentItems());
+  const pos = calcItemPos(it, gap);
+  const w = state.layout.renderSize.w, h = state.layout.renderSize.h;
+  if (IS_TOUCH_UI) {
+    const cx = pos.x + w / 2, cy = pos.y + h / 2;
+    const visW = view.visW || VP_W, visH = view.visH || VP_H;
+    const left = VP_W / 2 - view.panX - visW / 2;
+    const right = VP_W / 2 - view.panX + visW / 2;
+    const top = VP_H / 2 - view.panY - visH / 2;
+    const bottom = VP_H / 2 - view.panY + visH / 2;
+    let changed = false;
+    if (cx < left + w / 2 || cx > right - w / 2) { view.panX = VP_W / 2 - cx; changed = true; }
+    if (cy < top + h / 2 || cy > bottom - h / 2) { view.panY = VP_H / 2 - cy; changed = true; }
+    if (changed) { clampView(); applyFit(); }
+    return;
+  }
+  // 桌面：画布 CSS 尺寸 + 居中偏移 → 目标滚动位置
+  const S = view.fit * view.zoom;
+  const cw = VP_W * S, ch = VP_H * S;
+  const canvasLeft = (mainEl.clientWidth - cw) / 2;
+  const canvasTop = (mainEl.clientHeight - ch) / 2;
+  const localY = pos.y + h / 2 - pageTopY(state.viewport);
+  const cssX = canvasLeft + (pos.x + w / 2) / VP_W * cw;
+  const cssY = canvasTop + localY / VP_H * ch;
+  const canScroll = (mainEl.scrollHeight || 0) > (mainEl.clientHeight || 0) ||
+                    (mainEl.scrollWidth || 0) > (mainEl.clientWidth || 0);
+  if (!canScroll || typeof mainEl.scrollTo !== 'function') return;
+  const targetX = Math.max(0, cssX - mainEl.clientWidth / 2);
+  const targetY = Math.max(0, cssY - mainEl.clientHeight / 2);
+  mainEl.scrollTo({ left: targetX, top: targetY, behavior: 'smooth' });
+}
+function jumpToItem(it) {
+  if (!it || !state) return;
+  const page = itemPageIndex(it);
+  const changed = page !== state.currentPage;
+  if (changed) gotoPage(page);           // gotoPage 会清 pan、写页指示
+  selectItem(it);
+  renderSegmentItem(); renderSegmentList();
+  ensureItemVisible(it);
+  flashItem(it);
+  scheduleRender(); startAnim();
+  log('列表定位 [' + it.gridX + ',' + it.gridY + '] ' + (it.fighterID || '(空)') +
+      ' → 第 ' + (page + 1) + ' / ' + totalPages() + ' 页' + (changed ? '' : '（已在当前页）'));
 }
 function bindSegmentList() {
   $('list-sel').addEventListener('change', e => switchList(e.target.value));
@@ -4576,6 +4664,12 @@ window.__layoutTool = {
   applyCanvasSize, resetCanvasView,
   mapToScreen, mapFromScreen,
   totalPages, gotoPage, totalPagesFor, switchList, saveCurPageView, loadCurPageView,
+  itemPageIndex, jumpToItem, flashItem,
+  getFlash: () => ({
+    key: flashKey,
+    active: !!(flashKey && ANow() < flashUntil),
+    remaining: flashKey ? Math.max(0, Math.round(flashUntil - ANow())) : 0,
+  }),
   getUndoStack: () => undoStack, getRedoStack: () => redoStack,
   // 触摸版
   getView: () => ({ zoom: view.zoom, panX: view.panX, panY: view.panY, fit: view.fit, visW: view.visW, visH: view.visH }),

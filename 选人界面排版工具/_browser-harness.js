@@ -224,6 +224,38 @@
     T.doUndo();
     var restored = itemByGrid(gx, gy);
     ok('clear-id-undo', !!(restored && !!restored.fighterID), restored ? String(restored.fighterID) : 'null');
+
+    // 13) 列表点角色 → 跳到该格所在页（PC 与手机同一入口）
+    document.getElementById('tab-seg-list').click();
+    await sleep(80);
+    var st2 = T.getState();
+    var gap2 = T.calcGap(st2.charList);
+    var rpp2 = gap2.rowsPerPage || 1;
+    var far = null;
+    for (var i3 = 0; i3 < st2.charList.length; i3++) {
+      if (st2.charList[i3].gridY === rpp2 && st2.charList[i3].fighterID) { far = st2.charList[i3]; break; }
+    }
+    ok('list-far-item-found', !!far, far ? ('[' + far.gridX + ',' + far.gridY + ']') : 'none');
+    if (far) {
+      var prefix = '[' + far.gridX + ',' + far.gridY + ']';
+      var cards = document.getElementById('cards').children;
+      var card = null;
+      for (var k2 = cards.length - 1; k2 >= 0; k2--) {
+        if (String(cards[k2].title || '').indexOf(prefix) === 0) { card = cards[k2]; break; }
+      }
+      ok('list-card-found', !!card, prefix);
+      T.gotoPage(0);
+      await sleep(80);
+      if (card) card.click();
+      await sleep(120);
+      var st3 = T.getState();
+      ok('list-jump-page', st3.currentPage === 1, st3.currentPage);
+      ok('list-jump-select', st3.selectedKey === far.listKey, st3.selectedKey);
+      var fl = T.getFlash();
+      ok('list-jump-flash', !!(fl && fl.active && fl.key === far.listKey), fl ? (fl.key + ' active=' + fl.active + ' left=' + fl.remaining + 'ms') : 'null');
+      ok('list-jump-page-pill', document.getElementById('pill-page').textContent === '2/' + T.totalPages(),
+        document.getElementById('pill-page').textContent);
+    }
   }
 
   function finalRects() {

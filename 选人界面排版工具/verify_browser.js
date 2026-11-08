@@ -118,7 +118,15 @@ async function runProfile(chrome, baseUrl, prof) {
   const browser = await launch(chrome);
   let cdp = null;
   try {
-    const list = await (await fetch('http://127.0.0.1:' + browser.port + '/json/list')).json();
+    let list = null;
+    for (let attempt = 0; attempt < 20 && !list; attempt++) {
+      try {
+        list = await (await fetch('http://127.0.0.1:' + browser.port + '/json/list')).json();
+      } catch (e) {
+        await sleep(200);   // DevTools HTTP 还没起来，重试
+      }
+    }
+    if (!list) throw new Error('DevTools /json/list 不可用');
     const page = list.filter((t) => t.type === 'page')[0];
     if (!page) throw new Error('没有 page target');
     cdp = await CDP.open(page.webSocketDebuggerUrl);
@@ -150,6 +158,15 @@ async function runProfile(chrome, baseUrl, prof) {
           fs.writeFileSync(path.join(SHOTS, prof.name + '-' + t + '.png'), Buffer.from(c2.data, 'base64'));
         }
         await evalValue(cdp, "document.getElementById('tab-seg-layout').click(); 'ok'");
+        // 列表定位态（跳到第 3 页 + 闪框）
+        await evalValue(cdp,
+          "(function(){var T=window.__layoutTool;var st=T.getState();var g=T.calcGap(st.charList);" +
+          "var rpp=g.rowsPerPage||1;var it=null;for(var i=0;i<st.charList.length;i++){" +
+          "if(st.charList[i].gridY===rpp*2&&st.charList[i].fighterID){it=st.charList[i];break;}}" +
+          "if(it)T.jumpToItem(it);document.getElementById('tab-seg-list').click();return 'ok';})()");
+        await sleep(220);
+        const c3 = await cdp.send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
+        fs.writeFileSync(path.join(SHOTS, prof.name + '-list-jump.png'), Buffer.from(c3.data, 'base64'));
       }
     }
     return { title: title, diag: diag };
