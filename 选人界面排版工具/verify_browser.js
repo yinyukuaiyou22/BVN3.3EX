@@ -22,6 +22,7 @@ const PROFILES = [
   { name: 'landscape-844x390-dpr2', w: 844, h: 390, dpr: 2, ui: 'touch', orient: 'landscapePrimary', angle: 90 },
   { name: 'tablet-768x1024-dpr2', w: 768, h: 1024, dpr: 2, ui: 'touch', orient: 'portraitPrimary', angle: 0 },
   { name: 'desktop-1280x800-dpr1', w: 1280, h: 800, dpr: 1, ui: 'desktop', orient: 'landscapePrimary', angle: 0 },
+  { name: 'desktop-narrow-900x700-dpr1', w: 900, h: 700, dpr: 1, ui: 'desktop', orient: 'landscapePrimary', angle: 0 },
 ];
 const TABS = ['seg-grid', 'seg-spacing', 'seg-ref', 'seg-item', 'seg-page', 'seg-list', 'seg-log'];
 
