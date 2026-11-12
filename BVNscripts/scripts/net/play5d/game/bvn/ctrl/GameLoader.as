@@ -1,6 +1,7 @@
 package net.play5d.game.bvn.ctrl
 {
    import flash.display.*;
+   import flash.geom.Point;
    import flash.utils.ByteArray;
    import flash.utils.setTimeout;
    import net.play5d.game.bvn.*;
@@ -419,17 +420,47 @@ var loadComplete:* = function(param1:DisplayObject):void
          }
          var appendY:int = 0;
          for each(item in list.list) if(item && item.y >= appendY) appendY = item.y + 1;
+         // 2026-11-12：追加必须按当前排版网格（HCount 列/行）顺序填充。
+         // 原先固定 x=0、只递增 y ⇒ 所有被追加的角色排成一根竖列，
+         // 与「5 列 × 7 行」的页布局对不上（真机表现为第一页边缘多出一个孤立头像）。
+         var hc:int = list.HCount > 0 ? list.HCount : 5;
+         var lastRow:int = -1;
+         var lastCol:int = hc - 1;
+         for each(item in list.list)
+         {
+            if(!item) continue;
+            if(item.y > lastRow || (item.y == lastRow && item.x > lastCol))
+            {
+               lastRow = item.y;
+               lastCol = item.x;
+            }
+         }
+         if(lastRow < 0)
+         {
+            lastRow = 0;
+            lastCol = hc - 1;
+         }
          var added:int = 0;
          for each(var fighter:FighterVO in FighterModel.I.getAllFighters())
          {
             if(!fighter || !fighter.id || seen[fighter.id]) continue;
-            // Put the first missing fighter into the first-page area. Further
-            // fighters continue below it and remain reachable by pagination.
-            var y:int = added < 2 ? 6 + added : appendY++;
-            list.list.push(new SelectCharListItemVO(0,y,fighter.id));
+            // 下一格：满 hc 个就换行
+            lastCol++;
+            if(lastCol >= hc)
+            {
+               lastCol = 0;
+               lastRow++;
+            }
+            // 必须带与 select.xml 相同的列偏移。实测 HCount=5、gapX=190（游戏坐标），
+            // 而 select.xml 每行是用 <item offset="-135,0"> 递减 135 紧排的 ——
+            // 不给 offset 的话追加出来的行会被 gapX 拉开成 4 列散排（真机现象：
+            // 「只对了一页，后面都是这样的」）。
+            var colOffs:Array = [0,-135,-271,-406,-539];
+            var offX:Number = lastCol < colOffs.length ? Number(colOffs[lastCol]) : Number(lastCol * -135);
+            list.list.push(new SelectCharListItemVO(lastCol,lastRow,fighter.id,new Point(offX,0)));
             seen[fighter.id] = true;
             added++;
-            Debugger.log("[GameLoader] External fighter appended to select index:", fighter.id, "row", y);
+            Debugger.log("[GameLoader] External fighter appended to select index:", fighter.id, "cell", lastCol + "," + lastRow);
          }
          if(added > 0 && list.VCount < 8) list.VCount = 8;
       }
