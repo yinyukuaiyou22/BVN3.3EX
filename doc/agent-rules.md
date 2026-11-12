@@ -74,3 +74,15 @@
 ## 6. 路径基线
 
 代码路径若未标注目录，均指 `BVNscripts/scripts/net/play5d/game/bvn/` 下。
+
+## 7. 真机与模拟器（2026-11-12 用户规则）
+
+**测试一律用 MuMu 模拟器；不往真机装。**
+
+- 真机：vivo V2073A（adb 序列 `306383853300549`）。只在用户明确说「完成了 / 给我一份安装包」时才碰。
+- 日常验证：`tools\script\pack_only.bat mumu` —— 只编译 + 打包 + 装 MuMu（`127.0.0.1:16416`）。
+- **不要直接跑 `debug_mob.bat`**：它打完包会自动挑一台设备安装，而 adb 优先挑 USB 真机，
+  表现为真机弹安装框 + `INSTALL_FAILED_ABORTED: User rejected permissions`。
+  该脚本头部已加同款警示注释。
+- 取日志 / 截图统一加 `-s 127.0.0.1:16416`；读应用私有目录（Local Store 下的
+  `bvn_debug.log` / `bvnsave.sav`）必须走 `run-as air.com.bvn.yy798`。
