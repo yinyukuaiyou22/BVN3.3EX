@@ -76,7 +76,10 @@ package net.play5d.game.bvn.ui
             });
             this._cnTxt.text = param2;
             this._cnTxt.x = 10;
-            this._cnTxt.y = 45;
+            // 2026-11-12：45 → 52。label 底部约在 40，45 只留 5px，一级项里
+            // 「OPTION / 设置」也贴得很紧；上移到 52 后间距 12px，且离背景条底部
+            // （80）还有 10px，不会溢出。一级项与二级项共用此值。
+            this._cnTxt.y = 52;
             this.ui.bg.addChild(this._cnTxt);
          }
       }
@@ -244,15 +247,26 @@ package net.play5d.game.bvn.ui
          _loc1_.greenOffset = -30;
          _loc1_.blueOffset = -30;
          this._bitmapText.colorTransform(_loc1_);
-         this._bitmapText.scaleX = this._bitmapText.scaleY = 0.75;
+         this._bitmapText.scaleX = this._bitmapText.scaleY = 1;
          // 宽度与文字位置统一交给 setWidth()/alignLeft() 负责（列宽是整列算出来的，不在这里定）
-         this.ui.bg.scaleY = 0.75;
+         // 2026-11-12 二次修复：二级项与一级项同字号、同高度，只保留颜色区分。
+         //
+         // 原实现 scaleX=scaleY=0.75 + bg.scaleY=0.75 + height=55（后 66），三重后果：
+         //   ①二级项文字比一级项小一圈 ⇒ 永远「对不齐」；②label 在 ui 层、cn 在 bg 层，
+         //   两套坐标系混用 ⇒ 间距无法用一个值调准；③height 容不下副标题 ⇒ 「拥挤」。
+         //
+         // 注意顺序：必须先 gotoAndStop(2) 再重置/校正 scaleY。
+         // 第 2 帧的美术本身比一级帧矮（它就是配 0.75 缩放设计的），
+         // 直接 scaleY=1 并不会让背景条变高，副标题就会顶出下边缘被切掉一半
+         // （真机现象：「字都丢了」）。这里按实际测量值把背景条撑到 80。
          this.ui.bg.gotoAndStop(2);
-         // 2026-11-12：子项高度必须容得下 y=45 处的中文副标题。
-         // 原值 55 只够背景条（80×0.75=60 已超出），中文副标题一压上去就和
-         // 下一项贴在一起（真机表现为二级菜单「拥挤、字挤在一起」）。
-         // 66 给到「背景条 60 + 6 呼吸」，行距 ROW_GAP 之外还有余量。
-         this.height = 66;
+         this.ui.bg.scaleY = 1;
+         var _bh:Number = this.ui.bg.height;
+         if(_bh > 0 && _bh < 80)
+         {
+            this.ui.bg.scaleY = 80 / _bh;
+         }
+         this.height = 80;
       }
       
       /**
