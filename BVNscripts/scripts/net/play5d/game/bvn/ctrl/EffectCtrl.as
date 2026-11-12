@@ -53,6 +53,12 @@ package net.play5d.game.bvn.ctrl
       
       private var _blackBack:BlackBackView;
       
+      /**
+       * 命中聚焦的目标（3.9 官方 EffectCtrl._hitFocusTarget）。
+       * 非空说明镜头正锁在这个目标身上，时停结束时要把镜头收回来。
+       */
+      private var _hitFocusTarget:IGameSprite;
+      
       private var _shakeHoldX:int = 0;
       
       private var _shakeHoldY:int = 0;
@@ -189,7 +195,35 @@ package net.play5d.game.bvn.ctrl
            }
            if(Boolean(this._filterEffects))
            {
-              this._filterEffects.length = 0;
+              // 2026-10-25：原来只 `length = 0`，把唯一的引用丢掉就算完。
+              // clearDynamicSprites() 先跑时确实已经把视图销毁了，但只要是别的路径调进来
+              // （或顺序变了），这些 Bitmap 就会既不在列表里、又还挂在 _playerLayer 上 ——
+              // 之后 endFilter 再也找不到它 = 永久残像。这里必须真的回收。
+              while(this._filterEffects.length > 0)
+              {
+                 var _loc5_:BitmapFilterView = this._filterEffects.pop();
+                 if(!Boolean(_loc5_))
+                 {
+                    continue;
+                 }
+                 try
+                 {
+                    GameCtrl.I.removeGameSprite(_loc5_,true);
+                 }
+                 catch(fe:Error)
+                 {
+                 }
+                 try
+                 {
+                    if(!_loc5_.isDestoryed())
+                    {
+                       _loc5_.destory(true);
+                    }
+                 }
+                 catch(fe2:Error)
+                 {
+                 }
+              }
            }
            if(Boolean(this._justRenderAnimateTargets))
            {
@@ -214,6 +248,8 @@ package net.play5d.game.bvn.ctrl
               this._blackBack.destory();
               this._blackBack = new BlackBackView();
            }
+           // 2026-10-23：局内重开时命中聚焦的镜头也要一起收掉，否则镜头停在被击者身上
+           this._hitFocusTarget = null;
            this._freezeFrame = 0;
            this._onFreezeOver = null;
            this._slowDownFrame = 0;
@@ -240,6 +276,18 @@ package net.play5d.game.bvn.ctrl
          this._shadowEffects = new Dictionary();
          this._blackBack = new BlackBackView();
          this._renderAnimateGap = Math.ceil(GameConfig.FPS_GAME / 30) - 1;
+         // 镜头看门狗要判断「必杀黑幕是否还在」，但 state 层不能反向依赖 ctrl 层，
+         // 所以由这里把探针注册进 GameState（GameState.probeBlackBack 负责兜异常）。
+         param1.bishaBlackProbe = this.isBlackBackShowing;
+      }
+      
+      /**
+       * 必杀黑幕是否仍在显示列表里。GameCameraFocusWatch 用它判定「演出已结束」。
+       * 注意：bisha()/wanKai() 是先 addChildAt 再聚焦，所以聚焦那一刻这里一定返回 true。
+       */
+      public function isBlackBackShowing() : Boolean
+      {
+         return Boolean(this._blackBack) && Boolean(this._blackBack.parent);
       }
       
       public function render() : void
@@ -252,6 +300,9 @@ package net.play5d.game.bvn.ctrl
          }
          this.renderSlowDown();
          this.renderShine();
+         // 钢身/金身辉光的兜底清扫：endGlow 漏调一次就是一尊永久残像，
+         // 只能每帧按「角色还要不要发光」这个唯一真相来自愈。
+         this.sweepFilterViews();
          _loc1_ = 0;
          while(_loc1_ < this._effects.length)
          {
@@ -358,6 +409,15 @@ package net.play5d.game.bvn.ctrl
                   }
                   this._onFreezeOver = null;
                }
+               // 2026-10-23：命中聚焦的镜头在这时收回（3.9 官方 EffectCtrl.renderFreeze 同一处）。
+               if(Boolean(this._hitFocusTarget))
+               {
+                  this._hitFocusTarget = null;
+                  if(Boolean(GameCtrl.I.gameState))
+                  {
+                     GameCtrl.I.gameState.cameraResume();
+                  }
+               }
                GameCtrl.I.resume();
             }
          }
@@ -420,9 +480,24 @@ package net.play5d.game.bvn.ctrl
          var _loc6_:Number = param2.y + param2.height / 2;
          var _loc7_:int = 1;
           if(Boolean(_loc4_.followDirect) && Boolean(param1.owner) && param1.owner is IGameSprite)
-          {
+         {
              _loc7_ = int((param1.owner as IGameSprite).direct);
           }
+         // 2026-10-23：命中聚焦（3.9 官方 EffectCtrl.doHitEffect 的 focusTarget 分支）。
+         // 角色包在 defineAction 里写 focusTarget:true 时，镜头拉到被击者身上；
+         // 该次时停结束时由 renderFreeze() 收回（cameraResume）。
+         if(param1.focusTarget)
+         {
+            this._hitFocusTarget = param3;
+            if(Boolean(param3) && Boolean(GameCtrl.I.gameState))
+            {
+               GameCtrl.I.gameState.cameraFocusOne(param3.getDisplay());
+            }
+         }
+         else if(Boolean(this._hitFocusTarget) && this._hitFocusTarget == param3)
+         {
+            this._hitFocusTarget = null;
+         }
          this.doEffectVO(_loc4_,_loc5_,_loc6_,_loc7_,param3);
        }
       
@@ -834,7 +909,7 @@ package net.play5d.game.bvn.ctrl
          }
          if(param2)
          {
-            GameCtrl.I.gameState.cameraFocusOne(param1.getDisplay());
+            GameCtrl.I.gameState.cameraFocusBisha(param1.getDisplay());
             this.doEffectById("bisha_super",param1.x,param1.y - 50);
          }
          else
@@ -847,13 +922,22 @@ package net.play5d.game.bvn.ctrl
       
       public function endBisha(param1:BaseGameSprite) : void
       {
-         if(this.cancelJustRenderAnimate(param1))
+         var _loc2_:Boolean = this.cancelJustRenderAnimate(param1);
+         // 2026-10-23：「endBisha = 取消镜头」是角色包的通用约定，必须无条件执行。
+         // 原来把 cameraResume 挂在 cancelJustRenderAnimate()==true 里，而那个判据在
+         // 第二次调用时必然 false —— 人物包（赛马娘 东海帝王）先 endBisha 再自己
+         // camera.focus() 摆特写、靠下一次 endBisha 收尾，那一次就被整段跳过，
+         // 镜头永远停在特写目标上。
+         if(Boolean(GameCtrl.I.gameState))
+         {
+            GameCtrl.I.gameState.cameraResumeByEffect();
+         }
+         if(_loc2_)
          {
             // 先恢复命中判定：这一行一旦被跳过就是「全场打不动」（看起来像永久金身），
             // 不能因为后面镜头/黑幕任一步抛异常而丢失。
             GameCtrl.I.setRenderHit(true);
             GameCtrl.I.resume();
-            GameCtrl.I.gameState.cameraResume();
             this._blackBack.fadOut();
             this._gameStage.getMap().setVisible(true);
             this._gameStage.setVisibleByClass(BitmapFilterView,true);
@@ -887,7 +971,7 @@ package net.play5d.game.bvn.ctrl
          {
             this.showFace(param1,param2);
          }
-         GameCtrl.I.gameState.cameraFocusOne(param1.getDisplay());
+         GameCtrl.I.gameState.cameraFocusBisha(param1.getDisplay());
          this.doEffectById("bisha_super",param1.x,param1.y - 50);
          this._gameStage.getMap().setVisible(false);
          this._gameStage.setVisibleByClass(BitmapFilterView,false);
@@ -895,12 +979,17 @@ package net.play5d.game.bvn.ctrl
       
       public function endWanKai(param1:FighterMain) : void
       {
-         if(this.cancelJustRenderAnimate(param1))
+         var _loc2_:Boolean = this.cancelJustRenderAnimate(param1);
+         // 同 endBisha：「endWanKai = 取消镜头」，无条件恢复
+         if(Boolean(GameCtrl.I.gameState))
+         {
+            GameCtrl.I.gameState.cameraResumeByEffect();
+         }
+         if(_loc2_)
          {
             // 同 endBisha：命中判定必须在任何可能抛异常的操作之前恢复
             GameCtrl.I.setRenderHit(true);
             GameCtrl.I.resume();
-            GameCtrl.I.gameState.cameraResume();
             this._blackBack.fadOut();
             this._gameStage.getMap().setVisible(true);
          }
@@ -1090,6 +1179,13 @@ package net.play5d.game.bvn.ctrl
       
       public function startFilter(param1:BaseGameSprite, param2:BitmapFilter, param3:Point = null) : void
       {
+         if(!GameConfig.FILTER_EFFECT_ENABLED)
+         {
+            // 手机端关掉「滤镜效果（实验功能）」：不新建轮廓视图；
+            // 若切换开关前已有该目标的视图，顺带回收，避免留下定格发光残像。
+            this.endFilter(param1);
+            return;
+         }
          var _loc5_:* = undefined;
          var _loc4_:* = null;
          for each(_loc5_ in this._filterEffects)
@@ -1127,6 +1223,100 @@ package net.play5d.game.bvn.ctrl
                break;
             }
             _loc2_++;
+         }
+      }
+
+      /**
+       * 钢身/金身辉光的兜底清扫（2026-10-25）。
+       *
+       * `BitmapFilterView` 是独立 game sprite（`_playerLayer` 上的 Bitmap），只靠
+       * `endGlow()` → `endFilter()` 这一条路回收。只要有一条路径漏掉它 ——
+       * 帧窗口被别处提前打断、换人/KO 先摘渲染列表、`_isGlowIng` 与实际状态不同步、
+       * 重开后 `_filterEffects` 被清空而视图还挂在场上的旧包里 —— 这个 Bitmap 就会
+       * 永远留在舞台上；而且它自己按帧号缓存，连像素都不再更新，表现就是一尊
+       * **定格的发光残像**（"刚身被打之后光晕留着不走"）。
+       *
+       * 这里把「该不该发光」的最终解释权交回角色本人，每帧只做两条 O(n) 判据：
+       *   1. 目标已销毁 / 视图已离开舞台 → 立刻回收；
+       *   2. 目标是 FighterMain，而 isSteelBody / isSuperSteelBody 都为 false → 立刻回收。
+       * `startFilter()` 目前只有 `startGlow()` 一个调用方（钢身/金身），所以 2 不会误伤。
+       */
+      private function sweepFilterViews() : void
+      {
+         if(this._filterEffects == null || this._filterEffects.length == 0)
+         {
+            return;
+         }
+         var i:int = this._filterEffects.length - 1;
+         while(i >= 0)
+         {
+            var v:BitmapFilterView = this._filterEffects[i];
+            i--;
+            if(v == null)
+            {
+               continue;
+            }
+            var dead:Boolean = !GameConfig.FILTER_EFFECT_ENABLED;
+            var tgt:BaseGameSprite = v.target;
+            var disp:DisplayObject = null;
+            try
+            {
+               disp = v.getDisplay();
+            }
+            catch(de:Error)
+            {
+               disp = null;
+            }
+            if(v.isDestoryed() || disp == null || disp.parent == null)
+            {
+               dead = true;
+            }
+            else if(tgt == null || tgt.isDestoryed())
+            {
+               dead = true;
+            }
+            else if(tgt is FighterMain && !(tgt as FighterMain).isSteelBody
+                    && !(tgt as FighterMain).isSuperSteelBody)
+            {
+               dead = true;
+            }
+            if(!dead)
+            {
+               continue;
+            }
+            var idx:int = this._filterEffects.indexOf(v);
+            if(idx >= 0)
+            {
+               this._filterEffects.splice(idx,1);
+            }
+            try
+            {
+               GameCtrl.I.removeGameSprite(v,true);
+            }
+            catch(e:Error)
+            {
+            }
+            // removeGameSprite 在「视图不在 _gameSprites 里」时会早退，显示对象自己得再摘一次
+            try
+            {
+               if(disp != null && disp.parent != null)
+               {
+                  disp.parent.removeChild(disp);
+               }
+            }
+            catch(re:Error)
+            {
+            }
+            try
+            {
+               if(!v.isDestoryed())
+               {
+                  v.destory(true);
+               }
+            }
+            catch(ve:Error)
+            {
+            }
          }
       }
 

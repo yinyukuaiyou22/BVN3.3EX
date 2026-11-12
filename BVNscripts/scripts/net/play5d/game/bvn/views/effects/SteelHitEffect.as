@@ -3,6 +3,7 @@ package net.play5d.game.bvn.views.effects
    import flash.geom.*;
    import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.data.EffectVO;
+   import net.play5d.game.bvn.data.GameData;
    import net.play5d.game.bvn.fighter.*;
    import net.play5d.game.bvn.interfaces.IGameSprite;
    
@@ -33,16 +34,26 @@ package net.play5d.game.bvn.views.effects
                if(this._fighter.isSuperSteelBody)
                {
                   ct.blueOffset = 0;
-                  EffectCtrl.I.shine(16776960,0.3);
+                  if(GameData.I.config.isSteelBodyFreeze)
+                  {
+                     EffectCtrl.I.shine(16776960,0.3);
+                  }
                }
-               this._fighter.changeColor(ct);
-               EffectCtrl.I.setOnFreezeOver(function():void
+               // 2026-11-12：恢复 3.3 原版行为 —— 上色与「冻结结束恢复颜色」必须成对，
+               // 只在刚身停顿（isSteelBodyFreeze）开启时才执行。原先是无条件执行：
+               // 而 EffectCtrl.doSteelHitEffect 在冻结关闭时会把 EffectVO.freeze 置 0，
+               // renderFreeze() 便永远走不到 _onFreezeOver，resumeColor() 永不执行，
+               // 金身上色就永久残留（真机表现：刚身闪光上色不消失）。
+               if(GameData.I.config.isSteelBodyFreeze)
                {
-                  _fighter.resumeColor();
-               });
+                  this._fighter.changeColor(ct);
+                  EffectCtrl.I.setOnFreezeOver(function():void
+                  {
+                     _fighter.resumeColor();
+                  });
+               }
             }
          }
       }
    }
 }
-

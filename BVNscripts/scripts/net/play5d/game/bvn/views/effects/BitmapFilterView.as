@@ -89,7 +89,11 @@ package net.play5d.game.bvn.views.effects
          if(Boolean(this._targetFighter))
          {
             _loc1_ = int(this._targetFighter.getMC().getCurrentFrameCount());
-            if(_loc1_ == this._bitmapFrame)
+            // 2026-10-26：判据必须带上"_targetBounds 已经算过"。
+            // 首次渲染时 getCurrentFrameCount() 可能正好是 0（等于 _bitmapFrame 的初值），
+            // 于是这里早退、_targetBounds 保持 null，紧接着 render() 里读 _targetBounds.x
+            // 就抛 #1009 —— 真机日志里那条 "RENDER_ERR ... BitmapFilterView/render" 就是它。
+            if(_loc1_ == this._bitmapFrame && Boolean(this._targetBounds))
             {
                return;
             }
@@ -100,8 +104,16 @@ package net.play5d.game.bvn.views.effects
             this._bitmap.bitmapData.dispose();
             this._bitmap.bitmapData = null;
          }
-         this._bitmap.bitmapData = KyoUtils.drawBitmapFilter(this._targetDisplay,this._filter,true,this._filterOffset);
+         var bmp:BitmapData = KyoUtils.drawBitmapFilter(this._targetDisplay,this._filter,true,this._filterOffset);
+         // 2026-11-12：drawBitmapFilter 在尺寸非法（空帧 / 边界为 0 / 超上限）时返回 null。
+         // 这里必须跳过赋值，但 _targetBounds 仍要算出来 —— 否则紧接着 render() 里读
+         // _targetBounds.x 会抛 #1009。_bitmapFrame 已在上面更新，所以不会每帧重试坏帧。
          this._targetBounds = this._targetDisplay.getBounds(this._targetDisplay);
+         if(bmp == null)
+         {
+            return;
+         }
+         this._bitmap.bitmapData = bmp;
       }
       
       public function isDestoryed() : Boolean

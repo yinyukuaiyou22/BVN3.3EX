@@ -1,4 +1,4 @@
-﻿package net.play5d.game.bvn.data
+package net.play5d.game.bvn.data
 {
    import net.play5d.game.bvn.*;
    import net.play5d.game.bvn.ctrl.*;
@@ -46,6 +46,14 @@
        
        public var cameraMaxSize:Number = 1;
        
+       /**
+        * 手机端「滤镜效果（实验功能）」（2026-11-12）。
+        * 默认 false：旧存档没有该字段时由 KyoUtils.setValueByObject 跳过，保持关闭。
+        * 只控制**画面滤镜**（通用 GPU 滤镜代理 + 钢身/金身轮廓视图），
+        * 不改钢身状态位、受击/命中染色与全屏非滤镜闪光等战斗效果。
+        */
+       public var filterEffect:Boolean = false;
+       
        public var extendConfig:IExtendConfig;
       
       public function ConfigVO()
@@ -92,6 +100,7 @@
           o.isAllowRepeatAttack = this.isAllowRepeatAttack;
           o.isChangeSpecialKey = this.isChangeSpecialKey;
           o.cameraMaxSize = this.cameraMaxSize;
+          o.filterEffect = this.filterEffect;
           if(Boolean(this.extendConfig))
          {
             o.extend_config = this.extendConfig.toSaveObj();

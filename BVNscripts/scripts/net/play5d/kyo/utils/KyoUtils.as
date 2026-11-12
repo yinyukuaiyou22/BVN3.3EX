@@ -1,4 +1,4 @@
-﻿package net.play5d.kyo.utils
+package net.play5d.kyo.utils
 {
    import com.adobe.utils.*;
    import flash.display.*;
@@ -262,18 +262,52 @@ import net.play5d.game.bvn.Debugger;
          return _loc8_;
       }
       
+      /**
+       * 2026-11-12：尺寸统一改用 getBounds()（实际可见边界），并做非法尺寸保护。
+       *
+       * 原实现用 param1.width/param1.height 建源位图，却用 getBounds() 算平移矩阵 ——
+       * 这两个量对同一 DisplayObject 并不相等：width 是该 MC 全部帧/含隐藏元件的联合边界，
+       * 外部角色包尤其容易是 0 或远超当前帧。后果是真机上的两类故障：
+       *   ① new BitmapData() 抛 ArgumentError #2015（尺寸 0 或超上限），
+       *      表现为 RENDER_ERR[render] ... drawBitmapFilter → BitmapFilterView 空白；
+       *   ② 位图尺寸远大于实际图形，烘出来的图带着整块矩形范围，
+       *      叠在角色上就是「刚身辉光显示成位图/元件范围」而不是正常的透明辉光。
+       * 现在源图与平移矩阵统一来自同一个 Rectangle，并对单边上限 8191 做钳制；
+       * 尺寸非法时返回 null，由调用方跳过本帧而不是抛异常。
+       */
       public static function drawBitmapFilter(param1:DisplayObject, param2:BitmapFilter, param3:Boolean = true, param4:Point = null) : BitmapData
       {
          var _loc5_:Matrix = null;
          var _loc6_:Rectangle = null;
-         var _loc7_:BitmapData = new BitmapData(param1.width,param1.height,true,0);
+         var iw:int = 0;
+         var ih:int = 0;
          if(param3)
          {
             _loc6_ = param1.getBounds(param1);
+            iw = Math.ceil(_loc6_.width);
+            ih = Math.ceil(_loc6_.height);
             _loc5_ = new Matrix(1,0,0,1,-_loc6_.x,-_loc6_.y);
          }
+         else
+         {
+            iw = Math.ceil(param1.width);
+            ih = Math.ceil(param1.height);
+         }
+         if(iw <= 0 || ih <= 0)
+         {
+            return null;
+         }
+         if(iw > 8191)
+         {
+            iw = 8191;
+         }
+         if(ih > 8191)
+         {
+            ih = 8191;
+         }
+         var _loc7_:BitmapData = new BitmapData(iw,ih,true,0);
          _loc7_.draw(param1,_loc5_);
-         var _loc8_:Rectangle = new Rectangle(0,0,param1.width,param1.height);
+         var _loc8_:Rectangle = new Rectangle(0,0,iw,ih);
          if(Boolean(param4))
          {
             _loc8_.x -= param4.x;
@@ -281,7 +315,24 @@ import net.play5d.game.bvn.Debugger;
             _loc8_.width += param4.x * 2;
             _loc8_.height += param4.y * 2;
          }
-         var _loc9_:BitmapData = new BitmapData(_loc8_.width,_loc8_.height,true,0);
+         var ow:int = Math.ceil(_loc8_.width);
+         var oh:int = Math.ceil(_loc8_.height);
+         if(ow <= 0 || oh <= 0)
+         {
+            _loc7_.dispose();
+            return null;
+         }
+         if(ow > 8191)
+         {
+            ow = 8191;
+            _loc8_.width = 8191;
+         }
+         if(oh > 8191)
+         {
+            oh = 8191;
+            _loc8_.height = 8191;
+         }
+         var _loc9_:BitmapData = new BitmapData(ow,oh,true,0);
          _loc9_.applyFilter(_loc7_,_loc8_,new Point(),param2);
          _loc7_.dispose();
          return _loc9_;

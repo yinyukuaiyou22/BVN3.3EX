@@ -134,6 +134,22 @@ package net.play5d.game.bvn.mob
                   GameMode.currentMode = 15;
                   MainGame.I.goSelect();
                }
+            },{
+               "txt":"TEAM TAG",
+               "cn":"换人(双人)",
+               "func":function():void
+               {
+                  GameMode.currentMode = 16;
+                  MainGame.I.goSelect();
+               }
+            },{
+               "txt":"TEAM TAG VS CPU",
+               "cn":"换人(人机)",
+               "func":function():void
+               {
+                  GameMode.currentMode = 17;
+                  MainGame.I.goSelect();
+               }
             }]
          },{
             "txt":"SINGLE PLAY",
@@ -427,7 +443,21 @@ package net.play5d.game.bvn.mob
                "value":"best"
             }],
             "optoinKey":"quality"
-         }];
+         },(GameConfig.IS_MOBILE ? {
+            // 2026-11-12：手机端「滤镜效果（实验功能）」，默认关；PC 端不显示该项（行为不变）。
+            "txt":"FILTER FX",
+            "cn":"滤镜效果（实验功能）",
+            "options":[{
+               "label":"OFF",
+               "cn":"关",
+               "value":false
+            },{
+               "label":"ON",
+               "cn":"开",
+               "value":true
+            }],
+            "optoinKey":"filterEffect"
+         } : null)];
       }
       
       /**
@@ -682,6 +712,15 @@ package net.play5d.game.bvn.mob
       {
          // 2026-10-23 GPU 滤镜代理层：画质档位直接决定并发代理数/每帧烘焙预算
          FilterProxyManager.I.applyQualityPreset(param1.quality);
+         // 2026-11-12 手机端「滤镜效果（实验功能）」：一个存档字段总控
+         // ①通用 GPU 滤镜代理 ②钢身/金身轮廓视图。PC 端不进入这里，
+         // 保持既有 GPU 代理行为与 FILTER_EFFECT_ENABLED 默认值。
+         if(GameConfig.IS_MOBILE)
+         {
+            GameConfig.FILTER_EFFECT_ENABLED = param1.filterEffect;
+            FilterProxyManager.I.setEnabled(param1.filterEffect);
+            Debugger.logFold("FILTER_FX.mobile","enabled=" + param1.filterEffect);
+         }
          Debugger.logFold("applyConfig");
          switch(param1.quality)
          {
