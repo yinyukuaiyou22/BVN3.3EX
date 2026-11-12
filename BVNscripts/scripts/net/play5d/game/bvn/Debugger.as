@@ -62,6 +62,18 @@
       
       private static var _debugEnabled:Boolean = false;
 
+      /**
+       * 滤镜代理（[FPROXY]）诊断日志总开关，默认关（2026-11-12）。
+       *
+       * 这批日志是排查滤镜问题用的，量很大且都是"正常路径"：
+       *   - dumpLive  每 120 帧一条，还要对每个代理做 4 次 getBounds；
+       *   - scan      每 300 帧一条；
+       *   - + / -     每次建/销代理各一条，且 describe() 要遍历父链。
+       * 每条都走 writeUTFBytes + flush，手机上 IO 抖动明显。
+       * 平时关掉；要查滤镜时把它置 true 即可恢复全部细节。
+       */
+      public static var DIAG_FPROXY:Boolean = false;
+
       private static var _logQueue:Array = [];
 
       private static var _logFile:File;
@@ -104,6 +116,16 @@
        * 低频判据（【安全网】【钢体看门狗】）不受此开关控制，始终输出。
        */
       public static var DIAG_HURT:Boolean = false;
+      
+      /**
+       * 换人模式（TAG）专项诊断开关，默认关。
+       *
+       * 打开后额外输出：
+       *   [TAG][PROBE] reserve …   后备角色预初始化的 begin / end / THROW / hasEnterFrame 四组证据
+       *   [TAG] rejected …         换人被拒的真实原因（banned/dead/fzqi/qi/state:N）
+       * 常态日志（共享池重置、后备就绪、switch、freeze start/end、切出无敌）不受此开关影响。
+       */
+      public static var DIAG_TAG:Boolean = false;
 
       // 批次 6.14：构建版本号（防止看串日志 / 排查"日志与 SWF 不匹配"）
       // 规范：<项目>-<批次>-<日期>-<时间>。
@@ -113,7 +135,7 @@
       // - 时间：HHMM 格式（每次编译手动或脚本更新）
       // 调用方：build.bat 可在编译前用 sed 替换 @BUILD_TAG@ 占位符。
       // 读取方：bvn_debug.log 第一行（=== BVN Debug Log ===）之后第二行即为 BUILD 行。
-      public static const BUILD_TAG:String = "BVN-3.3EX-batch6.15-2026-10-23-0945";
+      public static const BUILD_TAG:String = "BVN-3.3EX-batch6.14-2026-11-12-1911";
 
       private static var _scale:Number = 1.0;
 
@@ -251,6 +273,19 @@
              return;
           }
                    trace(msg);
+         // 2026-11-12：滤镜代理诊断日志默认静默（见 DIAG_FPROXY 注释）。
+         // 必须拦在写文件之前，否则 writeUTFBytes + flush 的开销照旧。
+         if(!DIAG_FPROXY && msg.indexOf("[FPROXY]") == 0)
+         {
+            // 三类一律保留：开关切换回执 + 异常节点判据（reject 自带 300 帧冷却）。
+            // 它们低频，但正是排查滤镜时唯一想看到的，不能跟着一起静默。
+            if(msg.indexOf("disabled by config") < 0
+               && msg.indexOf("enabled by config") < 0
+               && msg.indexOf("reject ") < 0)
+            {
+               return;
+            }
+         }
          // 文件日志：立即写入并 flush，避免主线程挂死时 ENTER_FRAME 不再触发而丢失缓冲日志
          if(_logStream)
          {
@@ -846,7 +881,7 @@
              }
           }
           catch(e2:Error) { }
-          info += "VER: " + "V3.3" + "\n";
+          info += "VER: " + "V2.0.4" + "\n";
          info += "STAGE FPS: " + _stage.frameRate;
          _perfTf.text = info;
       }
@@ -957,6 +992,10 @@
                return "TEAM_DUO";
             case 15:
                return "TEAM_DUO_WATCH";
+            case 16:
+               return "TEAM_TAG";
+            case 17:
+               return "TEAM_TAG_CPU";
             case 20:
                return "SINGLE_ACRADE";
             case 21:

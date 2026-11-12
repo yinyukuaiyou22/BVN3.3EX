@@ -21,11 +21,7 @@ package net.play5d.game.bvn.ui
       
       private var _btnData:Array;
       
-      private var _bIsOpenAI:Boolean;
-
-        private var _restartConfirm:RestartConfirmUI;
-      
-      public function PauseDialog()
+      private var _bIsOpenAI:Boolean;public function PauseDialog()
       {
          super();
          this._bg = new Sprite();
@@ -53,8 +49,8 @@ package net.play5d.game.bvn.ui
             "label":"CONTINUE",
             "cn":"继续游戏"
          },{
-             "label":"RESTART BATTLE",
-             "cn":"重开对局"
+             "label":"CHARACTER RESET",
+             "cn":"角色复位"
           },{
             "label":"BERAK SELECT",
             "cn":"返回选人"
@@ -65,7 +61,6 @@ package net.play5d.game.bvn.ui
       
       public function destory() : void
       {
-           this.closeRestartConfirm();
          if(Boolean(this._btnGroup))
          {
             this._btnGroup.removeEventListener("SELECT",this.btnGroupSelectHandler);
@@ -94,7 +89,6 @@ package net.play5d.game.bvn.ui
       
       public function hide() : void
       {
-           this.closeRestartConfirm();
          this.visible = false;
          this._btnGroup.keyEnable = false;
          GameUI.closeConfrim();
@@ -132,7 +126,7 @@ package net.play5d.game.bvn.ui
                EffectCtrl.I.endShake();
                MainGame.I.goSelect();
                break;
-             case "RESTART BATTLE":
+             case "CHARACTER RESET":
                 // 3.7 扩展移植：暂停菜单内“重开对局”入口，带 3.3 风格确认弹窗。
                 this.showRestartConfirm();
                 MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["restart_confirm"])));
@@ -151,31 +145,27 @@ package net.play5d.game.bvn.ui
       }
 
         /**
-         * 3.7 扩展移植：显示“重开对局”确认弹窗（3.3 风格）。
-         * 弹窗期间保持暂停，PauseDialog 自身按钮全部禁用，防止误触。
+         * 显示「角色复位」确认弹窗。
+         *
+         * 2026-11-12：改用 3.3 原版确认弹窗（GameUI.confrim → ConfrimUI），
+         * 不再自绘 RestartConfirmUI —— 按键导航、触摸热区、关闭时序都与
+         * 「返回标题」「退出游戏」这些既有确认框保持一致。
          */
         private function showRestartConfirm() : void
         {
-           if(Boolean(this._restartConfirm))
+           if(GameUI.showingDialog())
            {
               return;
            }
            this._btnGroup.keyEnable = false;
-             // 确保弹窗期间全局暂停标志为 true（游戏逻辑保持暂停）。
-             GameCtrl.I.pause(true);
-           this._restartConfirm = new RestartConfirmUI();
-           this._restartConfirm.yesBack = this.confirmRestartYes;
-           this._restartConfirm.noBack = this.confirmRestartNo;
-           MainGame.I.root.addChild(this._restartConfirm);
+           // 确保弹窗期间全局暂停标志为 true（游戏逻辑保持暂停）。
+           GameCtrl.I.pause(true);
+           GameUI.confrim("CHARACTER RESET","确定把双方角色复位到开局状态吗？气量会恢复到设置里的初始气量。",
+              this.confirmRestartYes,this.confirmRestartNo);
         }
 
         private function confirmRestartYes() : void
         {
-           if(Boolean(this._restartConfirm))
-           {
-              this._restartConfirm.close();
-              this._restartConfirm = null;
-           }
            MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["restart_yes"])));
            // 执行局内重开：内部会保持 isPaused=true 直到重置完成，再恢复游戏。
            GameCtrl.I.restartBattle();
@@ -183,24 +173,9 @@ package net.play5d.game.bvn.ui
 
         private function confirmRestartNo() : void
         {
-           if(Boolean(this._restartConfirm))
-           {
-              this._restartConfirm.close();
-              this._restartConfirm = null;
-           }
            this._btnGroup.keyEnable = true;
            MainGame.I.stage.dispatchEvent(new DataEvent("5d_message",false,false,JSON.stringify(["restart_cancel"])));
         }
-
-        private function closeRestartConfirm() : void
-        {
-           if(Boolean(this._restartConfirm))
-           {
-              this._restartConfirm.close();
-              this._restartConfirm = null;
-           }
-        }
-      
       private function showMoveList() : void
       {
          if(!this._moveList)

@@ -45,6 +45,9 @@ import net.play5d.game.bvn.utils.*;
       
       private var _endCtrl:GameEndCtrl;
       
+      /** 换人模式(TAG)控制器，只在模式 16/17 下创建 */
+      private var _tagCtrl:TagModeCtrler;
+      
       private var _isRenderGame:Boolean = true;
       
       private var _isPauseGame:Boolean;
@@ -100,6 +103,8 @@ import net.play5d.game.bvn.utils.*;
          this._fighterEventCtrl = new FighterEventCtrl();
          this._fighterEventCtrl.initlize();
          this._renderAnimateGap = Math.ceil(GameConfig.FPS_GAME / 30) - 1;
+         // 换人模式控制器每局重建（buildGame 里按模式创建）
+         this._tagCtrl = null;
          KeyBoarder.focus();
       }
       
@@ -163,6 +168,12 @@ import net.play5d.game.bvn.utils.*;
             this._endCtrl.destory();
             this._endCtrl = null;
          }
+         // 换人模式：必须在 gameState 置空、角色销毁之前收尾（时停没结束的话要 resume）
+         if(Boolean(this._tagCtrl))
+         {
+            this._tagCtrl.destory();
+            this._tagCtrl = null;
+         }
          if(Boolean(this.gameState))
          {
             this.gameState = null;
@@ -192,6 +203,13 @@ import net.play5d.game.bvn.utils.*;
          return null;
       }
       
+      /**
+       * 把 sprite 加入战斗。
+       * param1 = 队伍 id；**<= 0 表示「无队伍」**（只进 gameState 渲染列表，不挂 team）——
+       * 唯一来源是 EffectCtrl.startFilter() 的滤镜/辉光视图，它们本来就不属于任何阵营。
+       * 2026-10-30：以前这种调用会走 getTeam(0)→null 并打 "team is null!" 警告，
+       * 属于「第二种调用形态没被建模」，不是异常，故显式建模后直接返回。
+       */
       public function addGameSprite(param1:int, param2:IGameSprite, param3:int = -1) : void
       {
          var _loc4_:TeamVO = null;
@@ -202,6 +220,10 @@ import net.play5d.game.bvn.utils.*;
          else
          {
             this.gameState.addGameSprite(param2);
+         }
+         if(param1 <= 0)
+         {
+            return;
          }
          _loc4_ = this._teamMap.getTeam(param1);
          if(Boolean(_loc4_))
@@ -227,7 +249,25 @@ import net.play5d.game.bvn.utils.*;
          // 不在这里解掉就会留下一尊永久黄色残像。
          if(param1 is FighterMain)
          {
-            (param1 as FighterMain).resetExplodeState();
+            // 2026-10-30：残影必须在这里显式收掉。
+            // EffectCtrl._shadowEffects 以**显示对象**为 key，ShadowEffectView.render() 每帧从目标重绘并淡出，
+            // 只有 endShadow()（置 stopShadow）才会自删。角色一旦被移出渲染列表，视图仍在按帧重绘离场者的
+            // 最后一帧 —— 表现就是「换人 / 3v3 接力 / KO 之后残影永远不消失」。
+            // 金身辉光由下面的 resetExplodeState() → setSteelBody(false) 负责，这里不重复。
+            var _fxFighter:FighterMain = param1 as FighterMain;
+            if(Boolean(_fxFighter.getCtrler()) && Boolean(_fxFighter.getCtrler().getEffectCtrl()))
+            {
+               try
+               {
+                  _fxFighter.getCtrler().getEffectCtrl().endShadow();
+                  _fxFighter.getCtrler().getEffectCtrl().endGhostStep();
+               }
+               catch(eFx:Error)
+               {
+                  Debugger.warn("[FX] 离场清特效失败：" + eFx);
+               }
+            }
+            _fxFighter.resetExplodeState();
          }
          // 2026-10-23：先释放该角色子树上的滤镜代理，晚一步树就摘走了
          try
@@ -316,6 +356,13 @@ import net.play5d.game.bvn.utils.*;
             var _p2f2_1v2:FighterMain = this.gameRunData.p2FighterGroup.fighter2;
             if (_p2f2_1v2) { if (!this.addFighter(_p2f2_1v2, 2)) return false; }
          }
+         // 换人模式(TAG)：只在场的两人已上场，后备角色在这里「预初始化」（不进场、不渲染），
+         // 必须在 initFight → resetTagTeamHP 之前完成，否则读不到角色的 customHpMax。
+         if (GameMode.isTagMode()) {
+            this._tagCtrl = TagModeCtrler.I;
+            this._tagCtrl.initlize();
+            this._tagCtrl.prepareReserves();
+         }
          _loc4_.initlize();
          this.gameState.initFight(this.gameRunData.p1FighterGroup,this.gameRunData.p2FighterGroup,_loc4_);
          GameLogic.initGameLogic(_loc4_,this.gameState.camera);
@@ -339,7 +386,8 @@ import net.play5d.game.bvn.utils.*;
          return true;
       }
       
-      private function addFighter(param1:FighterMain, param2:int) : Boolean
+      /** 把一个已加载的角色加入战斗（换人模式会在对局中调用它来换人上场） */
+      public function addFighter(param1:FighterMain, param2:int) : Boolean
       {
          var _loc3_:* = null;
          if(!param1)
@@ -412,6 +460,12 @@ import net.play5d.game.bvn.utils.*;
             return;
          }
          var _loc2_:* = 0;
+         // 换人模式：新一局先回「排定的 1 号」，再 resetFight —— resetFight 只处理 currentFighter，
+         // 站位/血池/HUD 绑定都基于换回来之后的角色。
+         if(GameMode.isTagMode() && Boolean(this._tagCtrl))
+         {
+            this._tagCtrl.prepareRoundStart();
+         }
          this.gameState.resetFight(this.gameRunData.p1FighterGroup,this.gameRunData.p2FighterGroup);
          this._startCtrl = new GameStartCtrl(this.gameState);
          if(param1)
@@ -597,6 +651,10 @@ import net.play5d.game.bvn.utils.*;
            this.fightFinished = false;
 
            // 5. 角色位置/朝向/速度/HP/动画/UI 复位（复用 GameState.resetFight 的跨回合逻辑）
+           if(GameMode.isTagMode() && Boolean(this._tagCtrl))
+           {
+              this._tagCtrl.prepareRoundStart();
+           }
            this.gameState.resetFight(this.gameRunData.p1FighterGroup,this.gameRunData.p2FighterGroup);
              if(Boolean(GameUI.I) && Boolean(GameUI.I.getUI()))
              {
@@ -674,7 +732,7 @@ import net.play5d.game.bvn.utils.*;
               return;
            }
              // 回合格斗数据复位：气/能量/辅助槽/受击状态全部回到开局值。
-             param1.qi = 0;
+             param1.qi = Math.min(param1.qiMax,(GameData.I.config.initialQi >= 0 ? Number(GameData.I.config.initialQi) : 100));  // 2026-11-12：角色复位按设置里的初始气量恢复，原来写死 0 会把气清空（跨回合继承走 gameEnd 那条链，不受影响）
              param1.energy = param1.energyMax;
              param1.energyOverLoad = false;
              param1.fzqi = param1.fzqiMax;
@@ -741,6 +799,12 @@ import net.play5d.game.bvn.utils.*;
          }
          EffectCtrl.I.render();
          this.gameState.render();
+         // 换人模式(TAG)：换人必须在 sprite 迭代之外执行，且空中换人的时停计数也要在
+         // if(!_isRenderGame) 之前 tick（时停期间 _isRenderGame=false，但 EffectCtrl 仍在渲染目标）。
+         if(Boolean(this._tagCtrl))
+         {
+            this._tagCtrl.render();
+         }
          if(!this._isRenderGame)
          {
             return;
@@ -886,7 +950,8 @@ import net.play5d.game.bvn.utils.*;
          Debugger.log("GameMode.currentMode",GameMode.currentMode);
          this.gameRunData.nextRound();
          // 2v2/1v2: 双人同屏，三局两胜制（与单人模式一致），第二局回满血继续战斗
-         if (GameMode.isDuoMode() || GameMode.is1v2Mode()) {
+         // 换人模式(TAG)同理：共享血池没有「第二命」，一局一胜，打满三局两胜
+         if (GameMode.isDuoMode() || GameMode.is1v2Mode() || GameMode.isTagMode()) {
             if (this.gameRunData.p1Wins < 2 && this.gameRunData.p2Wins < 2)
             {
                this.buildNextRound(false);
@@ -990,14 +1055,14 @@ import net.play5d.game.bvn.utils.*;
          var _loc2_:Number = 30 / param1;
          this.setAnimateFPS(_loc2_);
          this._mainLogicCtrl.setSpeedPlus(GameConfig.SPEED_PLUS_DEFAULT / param1);
-         this.gameState.camera.tweenSpd = 2.5 * param1;
+         this.gameState.camera.tweenSpd = GameConfig.CAMERA_TWEEN_SPD * param1;
       }
       
       public function slowResume() : void
       {
          this.setAnimateFPS(30);
          this._mainLogicCtrl.setSpeedPlus(GameConfig.SPEED_PLUS_DEFAULT);
-         this.gameState.camera.tweenSpd = 2.5;
+         this.gameState.camera.tweenSpd = GameConfig.CAMERA_TWEEN_SPD;
       }
       
       public function setFighterActionCtrl(param1:FighterMain, param2:int, param3:Boolean = false) : void

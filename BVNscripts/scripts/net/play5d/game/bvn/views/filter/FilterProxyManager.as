@@ -1156,6 +1156,12 @@ package net.play5d.game.bvn.views.filter
 
       private function dumpLive() : void
       {
+         // 2026-11-12：默认静默。这条日志每个代理要做 4 次 getBounds 并拼长字符串，
+         // 每 120 帧跑一次，手机上纯属白烧帧。要查滤镜时开 Debugger.DIAG_FPROXY。
+         if(!Debugger.DIAG_FPROXY)
+         {
+            return;
+         }
          var i:int = 0;
          while(i < this._order.length)
          {
