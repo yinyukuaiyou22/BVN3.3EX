@@ -32,7 +32,7 @@ package net.play5d.game.bvn.mob.utils
        *  ExtensionContext.createExtensionContext() always throws Error #2113 in the
        *  runtime's LoaderContext.SecurityDomain check, BEFORE any Java code runs.
        *  Verified against 8 variable families incl. a third-party ANE control group and
-       *  Adobe's own AIR 33.1.1 — see tools/Test/_report/2026-10-09_ANE-诊断报告.md.
+       *  Adobe's own AIR 33.1.1 — see doc/archive/_report/2026-10-09_ANE-诊断报告.md.
        *  Only set to true if a future toolchain is proven to load the ANE. */
       public static var ANE_ENABLED:Boolean = false;
 

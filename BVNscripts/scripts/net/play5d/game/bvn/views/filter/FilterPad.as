@@ -14,7 +14,7 @@ package net.play5d.game.bvn.views.filter
    /**
     * 滤镜外扩量计算（单位：**逻辑像素**；烘焙时再乘倍率换算成位图像素）。
     *
-    * 实测（真机 AIR 51，见 tools/Test/_report/2026-10-23_GPU滤镜探针结论.md）：
+    * 实测（真机 AIR 51，见 doc/archive/_report/2026-10-23_GPU滤镜探针结论.md）：
     * GlowFilter(blur 24, quality 1, strength 2) 的实际可见外扩只有 10~15px，
     * 远小于常见的 "1.5 × blur" 估算；而且四边不对称（右/下比左/上厚约 5px）。
     * 所以 k = 0.6 + 0.2×quality（默认 qCap=2 → 1.0×blur），再 +6 的保守余量；

@@ -1,0 +1,9 @@
+﻿[15:45:26.814] [FPROXY] enabled by config
+[15:45:43.133] 时停!
+[15:45:43.291] [FPROXY] + root1/instance19/instance12934/instance12948 bake=975x1024@121% filters=1 ms=6 cost=6 edge=-
+[15:45:43.336] [FPROXY] + instance19/instance12934/instance12935/map bake=1024x770@127% filters=1 ms=24 cost=25 edge=-
+[15:45:50.732] 时间恢复吧!
+[15:47:16.994] [FPROXY] disabled by config, proxies released
+[15:50:10.491] [FPROXY] disabled by config, proxies released
+[15:50:43.828] 时停!
+[15:50:54.170] 时间恢复吧!

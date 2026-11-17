@@ -53,7 +53,7 @@ doc/
 |---|---|
 | [`doc/runtime-pitfalls.md`](doc/runtime-pitfalls.md) **§9** | **主项目开发日志**：按日期追加的结论记录（新增一批改动后在这里补一行） |
 | `BVNscripts/3.8竞技参考/竞技改代码/CLAUDE.md` | 3.8 竞技版参考代码索引（只读参考） |
-| `tools/Test/_report/` | 真机诊断报告（如 ANE 诊断报告） |
+| [`doc/archive/_report/`](doc/archive/_report/) | 历史真机诊断报告（ANE / 分支B / GPU 滤镜 / 资源迁移）；原 `tools/Test/_report/` 已于 2026-11-17 清理 |
 | `tools/skills-1.2.3/` | 第三方技能包（非本项目文档，原样留存） |
 
 **文档维护约定**：新文档一律进 `doc/`（**不要再建顶层 `docs/`**）；新增或移动后同步更新 `doc/README.md` 与上表；过期但仍有参考价值的文档移入 `doc/archive/` 而不是删除；构建日志（`build_output.txt`、`mob_*.log`）属临时产物，留档时放 `doc/archive/logs/`。
@@ -96,7 +96,7 @@ Android 包名是 `air.com.bvn.yy798`，外置根目录是 `/storage/emulated/0/
 `Error #2113: Provided parameter LoaderContext.SecurityDomain is from a disallowed domain.`，失败点在 AIR 运行时的
 `flash.external::ExtensionContext$/_createExtensionContext()`，**早于任何 Java 代码**（logcat 有 `initialize() called`，从无 `createContext() called`）。
 
-已逐项实测排除的 8 类变量（真机探针见 `tools/Test/ane_probe/`，报告见 `tools/Test/_report/2026-10-09_ANE-诊断报告.md`）：
+已逐项实测排除的 8 类变量（真机探针见 `tools/Test/ane_probe/`，报告见 `doc/archive/_report/2026-10-09_ANE-诊断报告.md`）：
 ANE 自身实现 / 命名空间 26.0·32.0 / SWF 版本 37·43 / `supportedProfiles` / Adobe 原版 AIR 33.1.1 / **第三方 ANEToolkit 对照组** / 去掉 `android:debuggable` / **`application/51.0` 现代 Gradle 打包路径**。
 第三方 ANE 与 Adobe 自家 SDK 同样失败 ⇒ **不是本项目代码问题，是 AIR 运行时缺陷**（上游 `freshplanet/ANE-Alert#12`、`ANE-DatePicker#6` 同栈且无解）。
 

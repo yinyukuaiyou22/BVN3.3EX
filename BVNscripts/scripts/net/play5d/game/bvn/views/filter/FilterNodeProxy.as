@@ -24,7 +24,7 @@ package net.play5d.game.bvn.views.filter
    /**
     * 单个「带滤镜节点」的位图代理。
     *
-    * 工作原理（实测依据见 tools/Test/_report/2026-10-23_GPU滤镜探针结论.md）：
+    * 工作原理（实测依据见 doc/archive/_report/2026-10-23_GPU滤镜探针结论.md）：
     *   1. 源节点原地不动，只把 alpha 置 0 —— GPU 合成器就没东西可画了；
     *   2. 在**同一个父容器、紧跟源的 z 序**插一张 Bitmap；
     *   3. Bitmap 的像素 = 源节点 draw 的结果（draw 会把 filters 一起烘进去，所以**不要再 applyFilter**）；

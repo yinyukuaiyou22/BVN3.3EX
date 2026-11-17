@@ -1,0 +1,213 @@
+{
+  "mode": "cpu",
+  "screencap": [
+    2408,
+    1080
+  ],
+  "stage": [
+    2342,
+    1080
+  ],
+  "calibrated": true,
+  "border": [
+    66,
+    0,
+    2407,
+    1079
+  ],
+  "cell": [
+    468,
+    540
+  ],
+  "probe_meta": {
+    "PT": {
+      "A_c": [
+        234,
+        270
+      ],
+      "A_r": [
+        288,
+        270
+      ],
+      "B_c": [
+        702,
+        270
+      ],
+      "B_r": [
+        756,
+        270
+      ],
+      "H_c": [
+        1170,
+        270
+      ],
+      "H_r": [
+        1224,
+        270
+      ],
+      "E_c": [
+        234,
+        810
+      ],
+      "E_r": [
+        288,
+        810
+      ],
+      "F_c": [
+        702,
+        810
+      ],
+      "I_c": [
+        1170,
+        810
+      ],
+      "G_c": [
+        1638,
+        810
+      ],
+      "G_r": [
+        1692,
+        810
+      ],
+      "J_c": [
+        2106,
+        810
+      ]
+    },
+    "MODE": "cpu",
+    "RUNTIME": "AND 51,0,1,1 playerType=Desktop",
+    "STAGE": "2342 1080",
+    "QUALITY": "MEDIUM frameRate=24",
+    "CELL": "468 540 BLOCK=80 PAD=20 RING=54",
+    "EXPECT": "A_r=green"
+  },
+  "cell_stats": {
+    "A": {
+      "red": 1600,
+      "green": 1130,
+      "magenta": 502,
+      "cyan": 0,
+      "pink": 0,
+      "warm": 0,
+      "other": 59948
+    },
+    "B": {
+      "red": 1600,
+      "green": 0,
+      "magenta": 234,
+      "cyan": 0,
+      "pink": 0,
+      "warm": 0,
+      "other": 61346
+    },
+    "H": {
+      "red": 1600,
+      "green": 0,
+      "magenta": 234,
+      "cyan": 0,
+      "pink": 0,
+      "warm": 0,
+      "other": 61346
+    },
+    "C": {
+      "red": 0,
+      "green": 0,
+      "magenta": 234,
+      "cyan": 0,
+      "pink": 0,
+      "warm": 0,
+      "other": 62946
+    },
+    "D": {
+      "red": 0,
+      "green": 0,
+      "magenta": 234,
+      "cyan": 0,
+      "pink": 0,
+      "warm": 0,
+      "other": 62946
+    },
+    "E": {
+      "red": 900,
+      "green": 444,
+      "magenta": 502,
+      "cyan": 0,
+      "pink": 0,
+      "warm": 0,
+      "other": 61334
+    },
+    "F": {
+      "red": 900,
+      "green": 0,
+      "magenta": 234,
+      "cyan": 0,
+      "pink": 0,
+      "warm": 0,
+      "other": 62046
+    },
+    "I": {
+      "red": 900,
+      "green": 0,
+      "magenta": 234,
+      "cyan": 0,
+      "pink": 0,
+      "warm": 0,
+      "other": 62046
+    },
+    "G": {
+      "red": 0,
+      "green": 0,
+      "magenta": 409,
+      "cyan": 900,
+      "pink": 0,
+      "warm": 0,
+      "other": 61871
+    },
+    "J": {
+      "red": 900,
+      "green": 0,
+      "magenta": 234,
+      "cyan": 0,
+      "pink": 0,
+      "warm": 0,
+      "other": 62046
+    }
+  },
+  "verdict": {
+    "valid_red_blocks": true,
+    "valid_empty_cells": true,
+    "F1_filters_rendered": true,
+    "F1_expect": true,
+    "F1_pass": true,
+    "F2_draw_includes_filters": true,
+    "F2_pass": true,
+    "F3_draw_respects_alpha0": false,
+    "F3_pass": true,
+    "F3b_draw_respects_visible": false,
+    "F3b_pass": true,
+    "F4_chain_inner_cyan": true,
+    "F4_chain_ring_magenta": true,
+    "F4_pass": true,
+    "F5_draw_includes_ct": false,
+    "F5_pass": true
+  },
+  "selfcheck": {
+    "frames": 20,
+    "contains_glow_alpha0": true,
+    "contains_glow_alpha1": true,
+    "content_tracks_alpha0": true,
+    "content_tracks_alpha1": true,
+    "center_alternates": true,
+    "green_px": [
+      1094,
+      1094,
+      1094,
+      1094
+    ],
+    "verdict": {
+      "F2b_draw_glow_when_hidden": true,
+      "F6_content_updates_per_frame": true
+    }
+  },
+  "probe_txt_path": "/storage/emulated/0/Android/media/air.com.bvn.filterprobecpu/filterprobe.txt"
+}

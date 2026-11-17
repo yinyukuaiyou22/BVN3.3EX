@@ -180,7 +180,7 @@ package net.play5d.game.bvn
       // GPU 滤镜位图代理层（2026-10-23）
       //
       // 背景：renderMode=gpu 下合成器**完全不渲染** DisplayObject.filters
-      // （实测见 tools/Test/_report/2026-10-23_GPU滤镜探针结论.md），
+      // （实测见 doc/archive/_report/2026-10-23_GPU滤镜探针结论.md），
       // 而 BitmapData.draw() 会连滤镜一起烘出来，所以在节点旁边挂一张代理位图。
       //
       // 这些是派生的运行时策略，唯一权威来源是 ConfigVO.quality（玩家可见档位），
