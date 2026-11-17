@@ -52,7 +52,7 @@ doc/
 | 路径 | 用途 |
 |---|---|
 | [`doc/runtime-pitfalls.md`](doc/runtime-pitfalls.md) **§9** | **主项目开发日志**：按日期追加的结论记录（新增一批改动后在这里补一行） |
-| `BVNscripts/3.8竞技参考/竞技改代码/CLAUDE.md` | 3.8 竞技版参考代码索引（只读参考） |
+| [`BVNscripts/3.8竞技参考/3.8.8.6新版/CLAUDE.md`](BVNscripts/3.8竞技参考/3.8.8.6新版/CLAUDE.md) | 3.8 竞技版参考代码索引（只读参考；目录内只剩唯一源码树 `src/` + 原版 `launch.swf`） |
 | [`doc/archive/_report/`](doc/archive/_report/) | 历史真机诊断报告（ANE / 分支B / GPU 滤镜 / 资源迁移）；原 `tools/Test/_report/` 已于 2026-11-17 清理 |
 | `tools/skills-1.2.3/` | 第三方技能包（非本项目文档，原样留存） |
 
@@ -63,7 +63,7 @@ doc/
 | 内容 | 文档 |
 |---|---|
 | **换人模式（TAG，模式 16/17）**：每方 2 人 / 只出场 1 人 / 辅助键换人（无开场动画）/ 换出无敌 2 秒 / 空中换人走鬼步同款时停且扣 60 气 / HP·气·能量·换人槽四人共享；含换人时序、共享池算法、9 个任务与验收清单 | `doc/tag-mode/proposal.md`、`doc/tag-mode/plan.md`、`doc/tag-mode/progress.md` |
-| 3.8 竞技版参考代码索引（AI 进入该目录会自动加载） | `BVNscripts/3.8竞技参考/竞技改代码/CLAUDE.md`（只读参考，不改造） |
+| 3.8 竞技版参考代码索引（AI 进入该目录会自动加载） | [`BVNscripts/3.8竞技参考/3.8.8.6新版/CLAUDE.md`](BVNscripts/3.8竞技参考/3.8.8.6新版/CLAUDE.md)（只读参考，不改造；2026-11-17 四份反编译树已合并为 `src/`） |
 | 3.8「独立规则设置界面」实现详解 + 3.3↔3.8 规则项对照 + 移植要点 | `doc/38-rule-stage/rule-stage.md` |
 | PC版工程新增独立规则页的实现计划（含改动清单与坑） | `doc/38-rule-stage/plan.md` |
 | **手机端主项目** CRAZY（疯狂）人机难度**移植记录**（源：3.7 扩展版参考工程 Shonen-Clash-main 的最难档）：档位机制、逐项移植对照、调参坑、回滚 | `doc/crazy-ai/crazy-ai.md` |
