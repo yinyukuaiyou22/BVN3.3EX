@@ -62,7 +62,7 @@
 
 | 类 | 所在路径 | 职责 | 是否持有网络/文件状态 |
 |---|---|---|---|
-| `GithubUpdater` | `utils/GithubUpdater.as` | 全部网络与落盘：查版本、下文件、写 `.ver`。全静态，构造即 `throw new Error("Static Class")` | 是（13 个静态字段） |
+| `GithubUpdater` | `utils/GithubUpdater.as` | 全部网络与落盘：查版本、下文件、写 `.ver`。全静态，构造即 `throw new Error("Static Class")` | 是（17 个静态字段，见 §3.6） |
 | `UpdateManager` | `utils/UpdateManager.as` | 把磁盘上的 SWF 读进内存并 `loadBytes`，产出 `Loader`；顺带兜 `UncaughtErrorEvent` | 是（`_stream`/`_bytes`/`_loader`） |
 | `UpdateCtrl` | `mob/ctrls/UpdateCtrl.as` | 唯一 UI 层：对话框 + 全屏进度层 + 退出应用 | 是（`_overlay`/`_label`/`_info`） |
 | `launchWUFAN` | `scripts/launchWUFAN.as` | 文档类兼引导器：宿主判定、补丁查找、版本门、装载、再启动游戏 | 是（`_patchLoader`，只写不读） |
@@ -81,7 +81,7 @@
 
 ### 3.3 检查 → 下载 → 落盘 → 装载（文字箭头图）
 
-`@text
+```text
 [launchWUFAN.initBackHandler()]
         │  UpdateCtrl.I.update(updateBack, updateBack)
         ▼
@@ -133,7 +133,7 @@ onPatchLoaded() → getDefinition("launchWUFAN") → 取补丁 VERSION_CODE
         ▼
 补丁自己作为文档类：showStartPic → RootSprite.STAGE=stage → initSDK → initGame →
 initGameConfig（两条明文 http 配置）→ buildGame → initBackHandler → 再次 UpdateCtrl.I.update()
-`@
+```
 
 ### 3.4 版本号在这个系统里出现四种形态
 
@@ -157,6 +157,43 @@ initGameConfig（两条明文 http 配置）→ buildGame → initBackHandler �
 | `/storage/emulated/0/assets/update/launchWUFAN.swf`（+`.ver`） | 不是代码写的（人工投放） | `checkAndLoadExternal()` 的第二候选 | 手工补丁，需存储权限 |
 | `File.applicationStorageDirectory/bvnpoly.conf` | `GamePolyCtrl.saveLocalConfig()` | `readLocalConfig()` | 远程配置原文（`payload|md5`） |
 | `…/Android/data/com.jarworld.bleach.bvi/files/<swf>` 等 10 条 | 不是代码写的 | `UpdateManager.findUpdateFile()` | 兼容旧人工投放路径 |
+
+### 3.6 `GithubUpdater` 的 17 个静态字段
+
+全静态类，一次只会有一轮检查与一轮下载，字段就是它的全部状态。理解「谁写、何时清」比读方法体更快。
+
+| 字段 | 类型 | 谁写 | 何时清 / 复位 |
+|---|---|---|---|
+| `_checkLoader` | `URLLoader` | `check()` | `abortCheck()` 里摘监听、`close()`、置 `null` |
+| `_checkTimer` | `uint` | `check()` 的 `setTimeout` 返回值 | `abortCheck()` 里 `clearTimeout` |
+| `_checkLocal` | `int` | `check()` 算出的比较基线 | 不复位，下次 `check()` 覆写 |
+| `_checkResult` | `Function` | `check()` | `abortCheck()` / `finishCheck()` 取走快照后置 `null` |
+| `_checkError` | `Function` | `check()` | 同上 |
+| `_dlStream` | `URLStream` | `download()` | `endDownload()` 摘四个监听、`close()`、置 `null` |
+| `_dlFile` | `FileStream` | `download()` | `onDlComplete()` 或 `endDownload()` 里 `close()` + 置 `null` |
+| `_dlTmp` | `File` | `download()` | `endDownload()` 置 `null`（错误时先 `deleteFile()`） |
+| `_dlChunk` | `ByteArray` | `download()` | `endDownload()` 里 `clear()` + 置 `null` |
+| `_dlInfo` | `Object` | `download()` | `endDownload()` 置 `null` |
+| `_dlStallTimer` | `uint` | `download()` 与 `onStallCheck()` 自续 | `endDownload()` 里 `clearTimeout` |
+| `_dlOnProgress` / `_dlOnDone` / `_dlOnError` | `Function` ×3 | `download()` | `endDownload()` 置 `null` |
+| `_dlBusy` | `Boolean` | `download()` 置 true | `endDownload()` 置 false（重入分支不置，见 §4.4 步骤 7） |
+| `_dlWritten` | `Number` | `download()` 置 0、`drainDownload()` 累加 | 下次 `download()` 归零 |
+| `_dlLastProgress` | `int` | `download()` 与 `drainDownload()` | 不复位 |
+
+### 3.7 参数与定时器总表
+
+| 参数/数值 | 值 | 出处 | 作用 | 谁取消/复位 |
+|---|---|---|---|---|
+| `CHECK_TIMEOUT_MS` | 5000 | `GithubUpdater` 常量 | 检查总超时 | `abortCheck()` |
+| `STALL_TIMEOUT_MS` | 20000 | `GithubUpdater` 常量 | 停摆判据（距上一字节的间隔） | 一次性判断，不取消 |
+| 看门狗轮询间隔 | 5000（字面量，两处） | `download()` 与 `onStallCheck()` | 每隔 5 秒看一次 | `endDownload()` |
+| 进度 UI 节流 | 250（字面量） | `UpdateCtrl.onDlProgress()` | 250 毫秒内不重排文本 | 时间戳比较，无定时器 |
+| `MAX_SIZE_BYTES` | 314572800（300 MiB） | `GithubUpdater` 常量 | 元数据尺寸上限 | — |
+| `.ver` 尺寸窗口 | `0 < size <= 32` | `installedVersion()` / `readVersionHint()` | 防误读二进制文件 | 越界即返回 0 |
+| `isSafeTag()` 长度窗口 | 1~40 | `GithubUpdater` | 防 URL 注入 | — |
+| 进度遮罩 | 黑底 `alpha 0.88`、字号 28、左右各 40 | `UpdateCtrl.showOverlay()` | 全屏覆盖 | `hideOverlay()` |
+
+**这两处定时器都不归 `TimerOutUtils.pauseAllTimer()` 管**（它是另一套 `flash.utils.Timer` 封装，见 §5 T15）；只有 `UpdateCtrl` 的 250 毫秒节流是纯时间戳比较、不依赖任何定时器。切后台时这两个 `flash.utils.setTimeout` 的行为需要真机确认（§7 U14）。
 
 ---
 
@@ -316,7 +353,7 @@ initGameConfig（两条明文 http 配置）→ buildGame → initBackHandler �
 - `GameUI.alert(param1, param2, param3)` 的三个形参分别是 `enMsg` / `cnMsg` / `close`，`UpdateCtrl` 只传了第一个，第二个传 `null`。`StyleDialogView.setMsg(en, cn)` 的实现是 `_msg.text = en ? en.toUpperCase() : ""`，`_sub.text = cn ? cn : ""` —— **正文会被强制大写**，印尼语文案会以全大写显示，副行永远空。
 - `AlertUI.build()` 调 `_view.setButtons([{"label":"OK","text":"OK"}], 0)`，只有一个按钮，不存在取消/关闭按钮。`UpdateCtrl.showAlert()` 里那段 `dlg.hasOwnProperty("cancelBtn")` / `("closeBtn")` 的隐藏逻辑没有执行机会（§5 T6）。
 
-**失败提示文案在哪**：全部硬编码在 `GithubUpdater`（网络/校验类）与 `UpdateCtrl`（流程类）里，印尼语，共 12 条，见 §4.3 表与 §4.4 表；没有任何 i18n 表或语言分支（`GameUI.SHOW_CN_TEXT` 不参与）。
+**失败提示文案在哪**：全部硬编码在 `GithubUpdater`（网络/校验类）、`UpdateCtrl`（流程类）与 `UpdateManager`（装载类）里，印尼语；逐条清单见 §4.12。没有任何 i18n 表或语言分支（`GameUI.SHOW_CN_TEXT` 不参与）。
 
 ### 4.9 安全与完整性：三道弱门，执行权全给
 
@@ -366,6 +403,66 @@ initGameConfig（两条明文 http 配置）→ buildGame → initBackHandler �
 | `MainGame.VERSION_LABEL` / `VERSION_DATE` | 两个 `const`，零引用 | 全树各只有声明一行 |
 | `ui/TitleScreenUI.as:TitleScreenUI.setVersion()` | 形参 `str` 完全没被使用，函数体只清空 `_versionBtn` 的子对象 | 方法体只有 `while(_versionBtn.numChildren > 0) removeChildAt(0)` |
 
+### 4.12 全部文案清单（按出处，逐条对得上）
+
+**`GithubUpdater` 侧 17 条**（网络与落盘）：
+
+| # | 出处 | 触发条件 | 原文 |
+|---|---|---|---|
+| 1 | `check()` catch | `_checkLoader.load()` 同步抛错 | `Gagal memulai pengecekan: + err.message` |
+| 2 | `onCheckComplete()` | `JSON` 里没有 `tag_name` | `Respon GitHub tidak berisi rilis.` |
+| 3 | `onCheckComplete()` | `isSafeTag(tag)` 为假 | `Tag rilis tidak valid.` |
+| 4 | `onCheckComplete()` | assets 里找不到同名资产 | `Rilis <tag> tidak memiliki file launchWUFAN.swf.` |
+| 5 | `onCheckComplete()` | `size <= 0` 或 `> MAX_SIZE_BYTES` | `Ukuran file rilis tidak wajar.` |
+| 6 | `onCheckComplete()` catch | `JSON.parse` 抛错 | `Respon GitHub tidak valid: + err.message` |
+| 7 | `onCheckIOError()` | `IO_ERROR` / `SECURITY_ERROR` | `Tidak bisa menghubungi GitHub (offline / rate limit).` |
+| 8 | `onCheckTimeout()` | 5 秒到 | `Pengecekan update timeout.` |
+| 9 | `download()` | `_dlBusy` 为真 | `Download masih berjalan.` |
+| 10 | `download()` | `info` 空或 tag 非法 | `Info rilis tidak valid.` |
+| 11 | `download()` catch | 建目录、删 tmp、开流等抛错 | `Gagal memulai download: + err.message` |
+| 12 | `onDlProgress()` catch | `drainDownload()` 抛错（写盘失败或数据超长） | `Gagal menulis file: + err.message` |
+| 13 | `onDlComplete()` | `_dlWritten != info.size` | `Ukuran file tidak cocok (X dari Y bytes).` |
+| 14 | `onDlComplete()` | 三字节魔数不是 SWF | `File yang diunduh bukan SWF yang valid.` |
+| 15 | `onDlComplete()` catch | `moveTo` 或写 `.ver` 抛错 | `Gagal memasang update: + ex.message` |
+| 16 | `onDlIOError()` | 下载期 IO / 安全错误 | `Download gagal: + e.text` |
+| 17 | `onStallCheck()` | 20 秒无新字节 | `Koneksi terputus (tidak ada data masuk).` |
+
+**`UpdateCtrl` 侧（标题 3 条 + 正文 5 条）**：
+
+| 位置 | 原文 |
+|---|---|
+| `onCheckResult()` 标题 | `Update Tersedia` |
+| `onCheckResult()` 正文 | `Versi baru tersedia: <name> (<MB> MB)` + 空行 + `shorten(notes,300)` + 空行 + `Tekan OK untuk mengunduh.` |
+| `startDownload()` | `Menghubungkan ke GitHub...` |
+| `onDlProgress()` | `Mengunduh <name>` + 换行 + `<loaded> / <total> MB (<pct>%)` |
+| `onDlDone()` 标题/正文 | `Update Berhasil` / `Patch <name> sudah terpasang.` + 空行 + `Game akan ditutup. Buka kembali untuk menerapkan patch.` |
+| `onDlError()` 标题/正文 | `Update Gagal` / `<msg>` + 空行 + `Game dilanjutkan tanpa update.` |
+
+**`UpdateManager` 侧 9 条独立文案（11 个调用点：「另一轮装载在跑」与「Gagal membaca file」各出现两次）**：
+
+| # | 出处 | 原文 |
+|---|---|---|
+| 1 | `loadUpdate()` / `loadFile()` | `Proses load update lain masih berjalan.` |
+| 2 | `loadUpdate()` | `File update '<name>' tidak ditemukan.` + 两条候选路径说明（其中一条写死 `com.jarworld.bleach.bvi`） |
+| 3 | `loadFile()` | `Error: file update kosong (0 Bytes).` |
+| 4 | `loadFile()` catch | `Gagal Buka Stream: + err.message` |
+| 5 | `onStreamProgress()` / `onStreamComplete()` catch | `Gagal membaca file: + err.message` |
+| 6 | `onStreamComplete()` | `Error: Pembacaan file menghasilkan 0 Bytes.` + 「若放在 Android/data 之外，请在设置里打开存储权限」 |
+| 7 | `onStreamError()` | `Error Stream File: + e.text` |
+| 8 | `startLoader()` catch | `Crash saat eksekusi SWF: + err.message` |
+| 9 | `onLoaderError()` | `Gagal eksekusi SWF: + errText` |
+
+**装载期的 4 条进度日志**（走 `logTo(_onLog, …)`，在 `launchWUFAN` 里就是 `sendLog`→`trace`，屏幕上看不到）：
+
+```text
+1. Memeriksa & memindai penyimpanan eksternal HP...
+2. Ukuran file: <x.xx> MB | RAM: <x.x> MB. Membaca file...
+3. Pembacaan file berhasil (<x.xx> MB). Memuat SWF...
+4. SWF Eksternal Berhasil Dimuat! RAM: <x.x> MB
+```
+
+这四条日志带 1~4 编号，说明作者按「扫描 → 读盘 → 装载」三段设计，但 `launchWUFAN.setupDebugger()` 建的调试文本框从未上屏（§4.11），所以这四行只存在于 `trace` 通道。
+
 ---
 
 ## 5. 陷阱与反编译噪音
@@ -390,11 +487,11 @@ initGameConfig（两条明文 http 配置）→ buildGame → initBackHandler �
 
 **T5 失败即放行，玩家侧静默。**
 证据：`onCheckError()` 只 `trace`，`onDlError()` 弹 `Update Gagal` 后 `proceed`，`onCheckResult(null)` 直接 `proceed`。
-后果：限流、离线、GitHub 改结构导致的解析失败，全部表现为「这次启动没有更新提示」，没有任何可诊断输出（`trace` 在发布版里不进文件日志——参考工程没有主项目那样的文件日志实现）。
+后果：限流、离线、GitHub 改结构导致的解析失败，全部表现为「这次启动没有更新提示」，没有任何可诊断输出：这三条失败路径只调 `trace`，不写文件、不上报；参考工程的 `debug/Debugger.as` 整份文件没有 `FileStream`，没有文件日志实现。
 
 **T6 `GameUI.alert` 返回 `void`，`dlg` 恒为 `null`。**
 证据：`ui/GameUI.as:GameUI.alert()` 签名 `:void`；`UpdateCtrl.showAlert()` 里 `dlg = GameUI.alert(...)`。
-性质：反编译产物里「把 void 调用赋给变量」这种形状既可能是原码残留（早期 `alert` 有返回值），也可能是反编译噪音，**从这份树里无法判定**；能确认的是：那段隐藏取消/关闭按钮的代码在本树上不可达，而 `AlertUI.build()` 本来就只建一个 OK 按钮。
+性质：反编译产物里「把 void 调用赋给变量」这种形状有两种来源——原码残留（早期 `alert` 有返回值）或反编译噪音；**以这份树无法判定是哪一种**。能确认的是：那段隐藏取消/关闭按钮的代码在本树上不可达，而 `AlertUI.build()` 本来就只建一个 OK 按钮。
 
 **T7 对话框正文会被强制大写。**
 证据：`ui/dialog/StyleDialogView.as:StyleDialogView.setMsg()` 的 `_msg.text = en ? en.toUpperCase() : ""`；`UpdateCtrl` 把所有文案放在 `enMsg` 位。
@@ -439,6 +536,26 @@ initGameConfig（两条明文 http 配置）→ buildGame → initBackHandler �
 **T17 反编译噪音的辨认方法（本树通用）。**
 本树是反编译产物：局部变量名一律 `param1` / `_loc1_`，`parseConfig()` 里出现 `var _loc14_:Boolean = false;` 只为在 `catch` 后 `return _loc14_`（未初始化路径读局部变量），`GamePolyCtrl` 的 `loadNext` 闭包被拆成 `*` 类型。这类形状**不要当成 bug 修**；判据是「能否从对外行为上证明」——能证明的写正文，不能证明的进 §7。
 
+**T18 `installedVersion()` 要求 swf 与 ver 同时存在，删一个就把基线打回 0。**
+证据：`installedVersion()` 里 `if(!swf.exists || !f.exists || f.size <= 0 || f.size > 32) return 0;`。
+后果：只删 `.swf`（或只删 `.ver`）不会让系统「忘掉已装补丁」，而是让基线掉回「传入版本」——若传入版本低于远端，同一个 release 会被重复下载、重复覆盖。
+
+**T19 检查与下载共用一个全静态类，没有并发保护。**
+证据：`check()` 起手 `abortCheck()` 后立刻覆写 `_checkResult` / `_checkError` / `_checkLocal`；`download()` 用 `_dlBusy` 挡重入，而 `check()` 没有对应的 busy 标记。
+后果：两处同时调 `check()` 时，先发起那一轮的回调永远不来（监听已被摘掉），它的 `proceed` 也不执行。当前 `UpdateCtrl.update()` 是唯一调用点且 `initBackHandler()` 只跑一次，所以是潜在问题。
+
+**T20 装载两步不是事务：swf 换掉了、ver 没写成。**
+证据：`installDownloaded()` 先 `moveTo`、后写 `.ver`；`onDlComplete()` 只把异常包成 `Gagal memasang update`，不回滚。
+后果：`.ver` 停在旧值时 `installedVersion()` 返回旧值，同一 release 会再次下载；启动侧 `readVersionHint()` 还会拿旧 hint 去比 `VERSION_CODE`，把刚装上的新补丁判成「补丁过期」而跳过（T4 的另一面）。
+
+**T21 更新对话框是启动闸门，玩家不点就进不了游戏。**
+证据：`launchWUFAN.updateBack()` 是启动期**唯一**调用 `RootSprite.I.getMainGame().goLogo()` 的地方（另两处在 `state/GameOverState.as` 与 `state/CongratulateState.as`，属于局内回 Logo）；`updateBack` 作为 `UpdateCtrl.update(updateBack, updateBack)` 的两个参数传入，只在 `proceed()` 时执行；`AlertUI.build()` 只建一个 OK 按钮，而 `showAlert()` 里试图隐藏 `cancelBtn`/`closeBtn` 的分支不可达（§4.11）。
+后果：检查到「有更新」而玩家一直不点 OK，应用停在启动图，游戏主体不启动。更新是硬要求时这是特性，只做提示时这就是缺陷——移植必须把提示改成非阻塞（§6.2 步骤 3、§6.3 第 4 项）。
+
+**T22 「检查」这一个动作有三个不同实现，互相不认识。**
+证据：① `GithubUpdater.check()`（真检查，启动时自动跑一次）；② `ViewManager.checkUpdate()`（跳浏览器，设置菜单里的 `Check Update`）；③ `GamePolyCtrl.getVersion()`（远程配置 `VS` 段，零调用点）。
+后果：排查「为什么没有更新提示」时三处都要看，而其中两处与更新无关。
+
 ---
 
 ## 6. 移植可行性
@@ -453,12 +570,12 @@ initGameConfig（两条明文 http 配置）→ buildGame → initBackHandler �
 | `installDownloaded()` 的 `.ver` 戳 | **要改** | 见 T3：必须先验后用（装载成功后再写 `.ver`），或把 `.ver` 换成「补丁 SWF 内 `VERSION_CODE` 读回值」。原样搬会带着锁死陷阱进主项目 |
 | `UpdateManager`（`loadFile` / `startLoader` / `fail` / `onUncaughtError`） | **能搬（内存策略要改）** | 主项目已在用同一套原语：`主项目 ctrl/AssetLoader.as:AssetLoader.loadDisplay()`（`LoaderContext(false)` + `allowCodeImport` + `loadBytes`）、`主项目 utils/ResUtils.as`、`主项目 mob/utils/UIAssetUtil.as`（`ApplicationDomain.currentDomain` + `allowCodeImport = true` + `loadBytes`）。改动点：`_bytes.length = total` 的整包预分配（T11）在手机上要加尺寸上限或改流式 |
 | `launchWUFAN` 的引导器结构（`isLoadedByHost` + 版本门 + `addChild(loader)`） | **要改（风险最高）** | 主项目文档类是 `主项目 launch.as:launch`，它同时承担全部启动装配（`ScreenRotater.I.init` / `Debugger.initFileLog` / 缩放 `updateSize` / `UIAssetUtil.I.initalize` / `ScreenPadManager.initlize`）。塞进补丁分支等于把「启动路径」整体纳入回归面，而 `launch.as` 所在的树当前有 66 个未提交改动 |
-| `UpdateCtrl` 的 UI（`showAlert` / `showOverlay`） | **能搬但建议重写** | 文案硬编码印尼语且会被 `toUpperCase()`（T7）；`dlg` 分支不可达（T6）；进度层是裸 `Sprite` + `TextField`，与主项目 UI 风格不统一。主项目已有 `主项目 ui/GameUI.as:GameUI.alert()` 可复用 |
-| `GamePolyCtrl` 的签名配置通道 | **要改** | 依赖 `com.adobe.crypto.MD5`，**主项目全树没有 MD5 实现**（搜 `MD5` 零命中）。要用就得把 as3crypto 的 `MD5` 一起搬，或换成主项目能算的校验方式 |
+| `UpdateCtrl` 的 UI（`showAlert` / `showOverlay`） | **能搬但建议重写** | 文案硬编码印尼语且会被 `toUpperCase()`（T7）；`dlg` 分支不可达（T6）；进度层是裸 `Sprite` + `TextField`，与主项目 UI 风格不统一。主项目已有 `主项目 ui/GameUI.as:GameUI.alert()` 可复用；另注意它是**启动闸门**（T21），搬之前先决定「提示是否阻塞」 |
+| `GamePolyCtrl` 的签名配置通道 | **要改** | 依赖 `com.adobe.crypto.MD5`，**主项目全树没有 MD5 实现**（搜 `MD5` 零命中）。要用就得把 as3crypto 的 `MD5` 一起搬，或换成主项目能算的校验方式。另：`getVersion()` 零调用点（§4.11），搬过来先要决定谁来读 `VersionInfoVO` |
 | `VersionInfoVO` | **能搬** | 纯 VO，5 个公开字段，无依赖 |
-| `ChangelogPopup` | **能搬（需补依赖）** | 依赖 `ui/OptKit.as`（3.7 独有的绘制工具类，**主项目没有**）与 `TweenLite`（主项目有，`主项目 com/greensock/`）。搬它等于搬 `OptKit` |
+| `ChangelogPopup` | **能搬（需补依赖）** | 依赖 `ui/OptKit.as`（3.7 独有的绘制工具类，**主项目没有**）与 `TweenLite`（主项目有，`主项目 com/greensock/`）。搬它等于搬 `OptKit`。另：它的内容是硬编码的 `PATCH 1.0.3 UPDATE` 七行文本（`GameInterfaceManager.getGameMenu()` 里写死（`OTHER` → `CHANGELOG` 项）），与 Release notes 无连接 |
 | `UpdateURL` | **不要搬** | 桩类，解出来是外链（T14） |
-| Android 侧「替换已安装 APK」 | **搬不了** | 代码里没有任何地方触碰 `File.applicationDirectory`（全树只有两处**读**：`mob/utils/FileUtils.as` 与 `mob/AssetLoader.as`），装完只 `exit()` 不自重启（4.7）。APK 的更新通道只能是人工安装/应用商店 |
+| Android 侧「替换已安装 APK」 | **搬不了** | 代码里没有任何地方触碰 `File.applicationDirectory`（参考全树只有两处**读**：`mob/utils/FileUtils.as` 与 `mob/AssetLoader.as`，无一处写），装完只 `exit()` 不自重启（4.7）。APK 的更新通道只能是人工安装/应用商店 |
 
 ### 6.2 结论：搬「检查 + 提示」，不搬「自替换」
 
@@ -466,7 +583,7 @@ initGameConfig（两条明文 http 配置）→ buildGame → initBackHandler �
 
 **四条理由（都能落到代码上）**：
 
-1. **自替换的真正代价在引导器，不在下载器。** `launchWUFAN` 把「文档类」与「引导器」压在同一个类里，靠 `isLoadedByHost()` 区分身份；主项目的 `launch.as` 已经是 300 行的启动装配器（屏幕旋转、日志、缩放、UI 资源、虚拟摇杆全在里面）。要让主项目具备同样的能力，等于重写启动路径——收益是「不用重装 APK」，成本是把整条启动链纳入回归面。
+1. **自替换的真正代价在引导器，不在下载器。** `launchWUFAN` 把「文档类」与「引导器」压在同一个类里，靠 `isLoadedByHost()` 区分身份；主项目的 `launch.as` 已经是 313 行的启动装配器（屏幕旋转、文件日志、缩放、UI 资源、虚拟摇杆全在里面）。要让主项目具备同样的能力，等于重写启动路径——收益是「不用重装 APK」，成本是把整条启动链纳入回归面。而这条链是**最不该动**的那条：它一坏，玩家看到的是黑屏而不是一个功能缺失。
 2. **跑得起来这件事已经被主项目自己证明了。** 主项目的 `AssetLoader.loadDisplay()` 从 `Android/media/.../BVN/assets/` 读外置人物 SWF，`ANEFileReader.readBytesAsync` 拿到 `ByteArray` 后同样用 `LoaderContext` + `allowCodeImport` + `loadBytes` 执行代码。也就是说「AIR 在 Android 上执行外部 SWF 代码」在主项目是**现役能力**，不是待验证假设；所以「能不能」不构成搬的理由，「该不该」才是。
 3. **两条版本线会分裂。** 主项目的发布物是 APK（GitHub Release 附件），补丁壳走 SWF。一旦补丁先跑起来，`VERSION_CODE`（补丁里的）与 APK 内的构建号就各说各话，而 `.ver` 锁死（T3）正是这种分裂的产物。要么统一到「APK 是唯一版本载体」，要么接受两套号并写死映射——两条都比「只提示」贵。
 4. **ANE 不是障碍。** 整条链只 import `flash.events` / `flash.filesystem` / `flash.net` / `flash.utils` / `flash.system` / `flash.display`，没有一行依赖原生扩展。所以「主项目 ANE 已停用」这件事对本专题**不构成限制**（背景见 `CLAUDE.md` 的 ANE 现状一节，此处不展开）。
@@ -476,24 +593,38 @@ initGameConfig（两条明文 http 配置）→ buildGame → initBackHandler �
 | 步骤 | 改哪里 | 具体动作 |
 |---|---|---|
 | 1 | 新建一个静态类（建议 `utils/VersionCheck.as`） | 搬 `check()` / `onCheckComplete()` / `finishCheck()` / `abortCheck()` / `isSafeTag()`，换成主项目仓库地址；比较算法改成分段数值比较；加 HTTP 状态码分支（`HTTPStatusEvent`）与一次重试 |
-| 2 | `主项目 launch.as:launch.initBackHandler()` | 在 `this._mainGame.goLogo()` 之前发起检查（与参考的 `UpdateCtrl.I.update(...)` 同位） |
-| 3 | 提示 | 复用 `主项目 ui/GameUI.as:GameUI.alert()`，正文给「新版本 + 下载页 URL」，按钮只留 OK；下载交给系统浏览器（`主项目 net/play5d/kyo/utils/WebUtils.as:WebUtils.getURL()` 已有 `navigateToURL`） |
-| 4 | 版本号 | 新增 `VERSION_CODE`（整型）作为唯一比较依据，并把 `MenuState` 里硬编码的 `V2.0.4` 换成常量（顺带修掉主项目同款 T12） |
+| 2 | `主项目 launch.as:launch.initBackHandler()` | 在 `this._mainGame.goLogo()` 之前发起检查（与参考的 `UpdateCtrl.I.update(...)` 同位），但**不要把 `goLogo()` 挂到检查回调上**（否则就是 T21 的闸门） |
+| 3 | 提示 | 复用 `主项目 ui/GameUI.as:GameUI.alert()`，正文给「新版本 + 下载页 URL」，按钮只留 OK；下载交给系统浏览器（`主项目 net/play5d/kyo/utils/WebUtils.as:WebUtils.getURL()` 已有 `navigateToURL`）。提示与进 Logo 解耦：先 `goLogo()`，检查结果回来再弹 |
+| 4 | 版本号 | 新增 `VERSION_CODE`（整型）作为唯一比较依据，并把 `主项目 MenuState` 里硬编码的 `V2.0.4` 换成常量（顺带修掉主项目同款 T12） |
 | 5 | 不做 | 不写 `.ver`、不 `loadBytes`、不 `exit()`、不碰 `applicationStorageDirectory/update` |
 
 **如果坚持要「落盘但不自替换」**（例如用来下发人物包/资源包）：可以搬 `download()` 全套 + `drainDownload()` 的尺寸校验 + `onStallCheck()` 的 20 秒判停，但交付物换成数据包、末段校验换成对应格式头，并且**不要**沿用 `launchWUFAN.swf` / `.ver` 这两个命名，避免与参考工程的人工补丁目录混淆。
+
+### 6.3 若只搬「检查 + 提示」：落地后的自验清单
+
+| # | 验什么 | 判据 |
+|---|---|---|
+| 1 | 常量替换干净 | 全树搜不到 `RizkyRaya` / `Shonen-Clash` / `launchWUFAN.swf` 三个旧值 |
+| 2 | 版本比较保序 | 用 `v1.0.5` / `v1.10.0` / `v2.0.0` 三组 tag 验证「大版本不被小版本压住」，与 §5 T1 的表对照 |
+| 3 | 超时可控 | 断网启动，确认最坏等待不超过设定值，且游戏照常进 Logo |
+| 4 | 不阻塞启动 | 有更新时先 `goLogo()` 再弹提示，确认玩家不点 OK 也能进菜单（对照 §5 T21） |
+| 5 | 失败留痕 | 断网/限流场景能在真机日志里看到一条可检索记录（用 `主项目 Debugger.log`，不是 `trace`，对照 §5 T5） |
+| 6 | 文案可读 | 对话框正文不被 `toUpperCase()` 破坏（对照 §5 T7）；若复用 `GameUI.alert`，正文只放短句、详情进第二参 |
+| 7 | 手动入口存在 | 设置菜单里那一项要真的触发检查（对照 §5 T14/T22），而不是开浏览器 |
+| 8 | 版本号一致 | 界面显示的版本号与 `VERSION_CODE` 同源（对照 §5 T12，主项目当前硬编码 `V2.0.4`） |
+| 9 | 零写入 | 确认没有对 `applicationStorageDirectory/update`、没有对 `.ver` 的写操作（不引入 §5 T3/T20 的失败面） |
 
 ---
 
 ## 7. 未实测清单
 
-以下每一条都是「代码里读不到结论、必须动手才能确认」的项。列在一起，避免正文出现软断言。
+以下每一条都是「代码里读不到结论、必须动手才能确认」的项。集中列在这里，正文不出现软断言。
 
 | # | 待验项 | 需要什么手段才能验 |
 |---|---|---|
-| U1 | GitHub `releases/latest` 的匿名限流在真实设备上的实际触发频率与表现形式（403 走 `IOErrorEvent` 还是 `HTTPStatusEvent`） | 真机 + Charles/mitmproxy 抓包，或人为在 1 小时内打满额度后启动应用，看 `trace` 是否出现 `Tidak bisa menghubungi GitHub` |
+| U1 | GitHub `releases/latest` 的匿名限流在真实设备上的触发频率与表现形式（403 落到 `IOErrorEvent` 还是 `HTTPStatusEvent`） | 真机 + Charles/mitmproxy 抓包；或人为打满额度后启动应用，看 `trace` 是否出现 `Tidak bisa menghubungi GitHub` |
 | U2 | `URLStream` 在服务端不返回 `Content-Length` 时是否派发 `ProgressEvent.PROGRESS`（若只派 `COMPLETE`，则 `_dlLastProgress` 不刷新，20 秒看门狗会误杀） | 起一个不设 `Content-Length` 的本地 HTTP 服务，把 `ASSET_NAME` 指向它，观察是否触发 `Koneksi terputus` |
-| U3 | `releases/download/<tag>/<asset>` 的 302 跳转在 AIR `URLStream` 上是否自动跟随、跳转后 `asset.size` 与实收字节是否一致 | 抓包看是否出现两次请求；或用一个已知大小不符的 Release 复现 `Ukuran file tidak cocok` |
+| U3 | `releases/download/<tag>/<asset>` 的 302 跳转在 AIR `URLStream` 上是否自动跟随、跳转后实收字节与 `asset.size` 是否一致 | 抓包看是否出现两次请求；或用一个已知大小不符的 Release 复现 `Ukuran file tidak cocok` |
 | U4 | `allowCodeImport = true` 的 `loadBytes` 在 Android 上能否执行来自 `applicationStorageDirectory` 的 SWF（主项目只证明了 `Android/media` 外置目录这一条路） | 真机：往 `…/Local Store/update/` 放一个改过 UI 文案的 `launchWUFAN.swf`，看补丁是否接管 |
 | U5 | 隔离域装载后，补丁内的 `RootSprite` / `MainGame` 静态字段是否真的与引导器互不可见（两套单例） | 在补丁与引导器各打一条带域标识的日志，比对是否出现两份 |
 | U6 | 补丁运行期崩溃时引导器的表现（`onUncaughtError` 只计数不恢复，崩溃后应用是否直接死） | 故意在补丁里 `throw`，观察进程是否退出 |
@@ -501,10 +632,14 @@ initGameConfig（两条明文 http 配置）→ buildGame → initBackHandler �
 | U8 | 进度遮罩期间底层 UI 是否确实收不到点击（`_overlay` 无监听者但 `mouseEnabled` 默认） | 真机：下载中点击 Logo/菜单区域，看是否穿透 |
 | U9 | `TitleScreenUI._versionBtn` 空 `Sprite` 是否真的无法命中（T13 的运行时确认） | 真机点标题界面右下角，看 `versionClickHandler` 是否触发（配合临时日志） |
 | U10 | `/storage/emulated/0/assets/update/` 在目标 Android 版本上能否 `createDirectory()`（Android 10+ 分区存储） | 真机：删掉该目录后启动，看日志是否出现 `DIR PERMISSION ERROR`；再核对 APK 的 `targetSdkVersion` 与存储权限声明 |
-| U11 | `File.documentsDirectory.requestPermission()` 在目标机型上的弹出时机与拒绝后的行为（`initlize()` 里只调一次，未处理拒绝） | 真机首次启动，拒绝授权后重进，看补丁目录是否仍不可用、是否有二次请求 |
-| U12 | 参考工程 APK 的 `application.xml` / AndroidManifest 权限集合（本树只有 `scripts/`，没有描述文件） | 需要参考工程的打包配置或对成品 APK 做 `aapt dump permissions` |
+| U11 | `File.documentsDirectory.requestPermission()` 在目标机型上的弹出时机与拒绝后的行为（`initlize()` 只调一次，未处理拒绝） | 真机首次启动，拒绝授权后重进，看补丁目录是否仍不可用、是否有二次请求 |
+| U12 | 参考工程 APK 的 `application.xml` / AndroidManifest 权限集合（参考树只有 `scripts/`，没有描述文件） | 需要参考工程的打包配置，或对成品 APK 做 `aapt dump permissions` |
 | U13 | 完整补丁装载的内存峰值（`_bytes.length = total` + `loadBytes` 的副本）在 2GB/3GB 机型上是否 OOM | 真机 + `adb shell dumpsys meminfo`，用一个接近真实体积的补丁 SWF |
-| U14 | `flash.utils.setTimeout` 在切后台（`deactivate` 且系统冻结 SWF）时的行为——`_checkTimer` 与 `_dlStallTimer` 是否继续走时（T15 只说清了「不归 `TimerOutUtils` 管」，没说明系统冻结下的表现） | 真机：检查/下载途中按 Home 停留 60 秒再回来，看是否立刻报超时或断流 |
+| U14 | `flash.utils.setTimeout` 在切后台（`deactivate` 且系统冻结 SWF）时的行为——`_checkTimer` 与 `_dlStallTimer` 是否继续走时（T15 只证到「不归 `TimerOutUtils` 管」，没证到系统冻结下的表现） | 真机：检查/下载途中按 Home 停留 60 秒再回来，看是否立刻报超时或断流 |
+| U15 | 下载中按 Home / 锁屏后 `URLStream` 是继续收字节还是断流（决定 20 秒看门狗的误判率） | 真机 + 抓包，比对后台期间字节是否增长、恢复后是否弹 `Koneksi terputus` |
+| U16 | 「版本戳锁死」全链（T3）在真机上是否如推演般发生 | 造一个 tag 数字化值 200、内部 `VERSION_CODE` 100 的补丁放进 Release，走完整下载 → 重启 → 再检查，观察是否永久不再提示 |
+| U17 | 「更新对话框是启动闸门」（T21）的实际观感：玩家不点 OK 时应用是否停在启动图且无其他入口 | 真机：造出「有更新」状态，点开应用后不操作 60 秒，看是否进入 Logo |
+| U18 | 参考工程实际发版时 tag 与 `VERSION_CODE` 的对应约定（代码里只有 `v1.0.5` 这一处痕迹来自文案之外，远端历史在代码里读不到） | 拉该仓库的历史 Release 列表（`api.github.com/repos/RizkyRaya/Shonen-Clash/releases`），比对每版 `tag_name` 数字化值与该版 SWF 的 `VERSION_CODE` 是否同步递增 |
 
 ---
 
@@ -512,12 +647,12 @@ initGameConfig（两条明文 http 配置）→ buildGame → initBackHandler �
 
 | 问题 | 答复 |
 |---|---|
-| 1 更新源形式 / 鉴权 / 限流处理 | GitHub REST `releases/latest` + `releases/download/<tag>/<asset>`；无鉴权、无请求头；限流只在文案里提了一句，无任何处理。`UpdateURL.as` 不是更新源（XOR 解出一个 YouTube 频道页） |
+| 1 更新源形式 / 鉴权 / 限流处理 | GitHub REST `releases/latest` + `releases/download/<tag>/<asset>`；无鉴权、无请求头、无状态码分支；限流只在失败文案里提了一句，无任何处理。`UpdateURL.as` 不是更新源（XOR 解出一个 YouTube 频道页，被设置菜单的 `Check Update` 拿去开浏览器） |
 | 2 版本比较算法 / `VERSION_LABEL` 与 tag | 数字拼接整数比较（`digitsToInt`），非语义化；`VERSION_LABEL` 零引用，与 tag 无换算；`v` 前缀因「非数字丢弃」而无影响 |
-| 3 检查状态机 / 定时器 / 重试 | 单次请求 + `CHECK_TIMEOUT_MS = 5000`，`_checkTimer` 一次性；`_checkLocal = max(传入, 已装补丁)`；四类结果汇到 `finishCheck()`；零重试、零退避 |
-| 4 下载流程 / 临时文件 / 续传 / 停摆 | `URLStream` + `FileStream` 分块；tmp 在 `applicationStorageDirectory/update/launchWUFAN.swf.tmp`；无续传（起手删、错即删、无 `Range`）；停摆判据 `getTimer()-_dlLastProgress > 20000`，5 秒轮询；恢复 = 整体重下 |
+| 3 检查状态机 / 定时器 / 重试 | 单次请求 + `CHECK_TIMEOUT_MS = 5000`，`_checkTimer` 一次性；`_checkLocal = max(传入, 已装补丁)`；九类结果汇到 `finishCheck()`；零重试、零退避 |
+| 4 下载流程 / 临时文件 / 续传 / 停摆 | `URLStream` + `FileStream` 分块；tmp 在 `applicationStorageDirectory/update/launchWUFAN.swf.tmp`；无续传（起手删、错即删、无 `Range`）；停摆判据 `getTimer() - _dlLastProgress > 20000`，5 秒轮询；恢复 = 整体重下 |
 | 5 装完怎么用 / 移动端可行性 | 不替换自身：`moveTo` 覆盖 + 写 `.ver` + 提示 + `exit()`；下次启动 `loadBytes` 补丁接管。代码里没有 APK 自更新的任何尝试 |
-| 6 进度与 UI / 失败文案 | `_dlOnProgress` → `UpdateCtrl.onDlProgress()`（250ms 节流）→ 全屏黑底 `Sprite` + `TextField`；失败文案 12 条，硬编码印尼语在 `GithubUpdater` / `UpdateCtrl` |
-| 7 安全与完整性 | 无哈希、无签名；三道弱门（元数据尺寸范围 / 字节数相等 / 三字节魔数）+ 装载期 `extVersion >= VERSION_CODE` |
-| 8 与主项目的关系 | 主项目零更新能力（0 处相关类）；`MainGame.UPDATE_INFO` 无写入点、`MenuState` 首启弹窗不可达；`VERSION` 常量零引用 |
-| 9 平台差异 | 只写应用私有目录（无需权限）；旧补丁目录在共享存储、需权限且失败即降级；全树无 `applicationDirectory` 写入；整条链不依赖 ANE。manifest 权限集合与分区存储实测见 §7 U10/U12 |
+| 6 进度与 UI / 失败文案 | `_dlOnProgress` → `UpdateCtrl.onDlProgress()`（250ms 节流）→ 全屏黑底 `Sprite` + `TextField`；文案清单见 §4.12（`GithubUpdater` 17 条 / `UpdateManager` 9 条 / `UpdateCtrl` 标题 3 条 + 正文 5 条），全部硬编码印尼语 |
+| 7 安全与完整性 | 无哈希、无签名；三道弱门（元数据尺寸范围 / 字节数相等 / 三字节魔数）+ 装载期 `extVersion >= VERSION_CODE`；下完即 `allowCodeImport` 执行 |
+| 8 与主项目的关系 | 主项目零更新能力（0 处相关类）；`MainGame.UPDATE_INFO` 无写入点、`MenuState` 首启弹窗不可达；`VERSION` / `VERSION_LABEL` / `VERSION_DATE` 零引用，界面版本号另写死一份 |
+| 9 平台差异 | 只写应用私有目录（无需权限）；旧补丁目录在共享存储、需权限且失败即降级；全树无 `applicationDirectory` 写入；整条链不依赖 ANE。manifest 权限集合与分区存储实测见 §7 U10 / U12 |
