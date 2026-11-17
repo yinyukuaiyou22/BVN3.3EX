@@ -29,7 +29,17 @@ doc/
 ├── gpu-filter-proxy.md           GPU 模式滤镜位图代理层（设计 + 实测 + 附录 A 改动履历 / 附录 B 12 条错误经验）〔外部包滤镜 / 时停灰度必读〕
 ├── select-regression-matrix.md   选人界面回归测试矩阵（原 `BVNscripts/scripts/REGRESSION_TEST_MATRIX_BATCH6.5.md`，2026-10-21 移入）
 ├── _api_doc.txt                  API 文档 dump（类/方法签名速查）
+├── decisions-select-video.md    选人/加载界面视频（25s 上限、进选人释放 StageVideo 槽、循环、翻页兼容）D1~D5
 ├── menu-layout-decisions.md      主菜单排版决策记录（左侧竖列 + 二级独立列，D1~D12 结论与理由）
+├── 37-extended/                  3.7 扩展版参考源码的拆解与移植参考（6 册 + 术语表，2026-11-17 建）
+│   ├── 00-README.md                目标/约束/优先级 + 事实基线 + 六册导航
+│   ├── 01-diff-inventory.md        3.7 独有 227 类逐类清单 + 主项目独有 39 类「别覆盖清单」+ 同名陷阱
+│   ├── 02-camera.md                相机：3.7 单类 vs 主项目三件套（含不能整文件覆盖的原因）
+│   ├── 03-json-map.md              特殊格式地图：MUGEN def → stage.json → 渲染器（含 v2.5 patch 差异）
+│   ├── 04-selfdrawn-ui.md          自绘 UI：分层与契约（145/152 纯代码绘制，7 个类按名取 SWF 元件）
+│   ├── 05-gamepad-continue.md      手柄四实现路由 + 改键 UI + 局内重开重置链
+│   ├── 06-updater.md               自动更新：检查 / 分块下载 / 落盘 / 重试
+│   └── glossary.md                 术语表（含四个「Continue」不是同一件事）
 ├── 38-rule-stage/                3.8「独立规则设置界面」专题
 │   ├── rule-stage.md               实现详解 + 3.3↔3.8 规则项对照 + 移植要点
 │   └── plan.md                     PC 工程新增独立规则页的实现计划（含坑）
@@ -89,9 +99,11 @@ doc/
 | ANE 为什么不能用 | [`ane/tasks/progress.md`](ane/tasks/progress.md) + `CLAUDE.md`「ANE 现状：已按设计停用」 |
 | 改 PC 端 AI 等级 / 难度 | [`crazy-ai/crazy-ai.md`](crazy-ai/crazy-ai.md)（**手机端主项目**）、[`AI-SYSTEM-DOC.md`](AI-SYSTEM-DOC.md)（PC 分支，历史） |
 | 规则设置界面（3.8 独立规则页） | [`38-rule-stage/rule-stage.md`](38-rule-stage/rule-stage.md) → [`38-rule-stage/plan.md`](38-rule-stage/plan.md) |
+| **3.7 参考里有什么值得搬 / 相机·JSON 地图·自绘 UI·手柄·自动更新怎么实现的** | [`37-extended/00-README.md`](37-extended/00-README.md) 先读导航 → 对应册；**动手前必看** [`01-diff-inventory.md`](37-extended/01-diff-inventory.md) §4.2「别覆盖清单」 |
 | 竞技项（规则/行为/卍解/重复） | [`jingji/detailed-design.md`](jingji/detailed-design.md) + [`jingji/tasks/`](jingji/tasks/) |
 | 开场演出 | [`kai-chang/proposal.md`](kai-chang/proposal.md) |
 | **改主菜单排版 / 二级菜单摆位 / 菜单数据来源** | [`menu-layout-decisions.md`](menu-layout-decisions.md)（左列 + 二级独立列，含被否决方案） |
+| **选人/加载界面视频（黑底、不循环、第二次没画面）** | [decisions-select-video.md](decisions-select-video.md)（D1~D5：25s 上限、进选人释放视频槽、循环、翻页兼容兜底） |
 | **换人模式（TAG）：辅助键换人 / 共享血池 / 空中时停换人** | [`tag-mode/proposal.md`](tag-mode/proposal.md) → [`tag-mode/plan.md`](tag-mode/plan.md) → [`tag-mode/progress.md`](tag-mode/progress.md) |
 | 选人界面翻页 / 单页窗口决策 | [`adr/ADR-001-单页窗口与翻页交互.md`](adr/ADR-001-单页窗口与翻页交互.md)、[`plans/2026-09-07-选人界面工具-单页窗口与翻页.md`](plans/2026-09-07-选人界面工具-单页窗口与翻页.md) |
 | **外部包挂滤镜没效果 / 时停变黑白屏 / 角色凭空消失** | [`gpu-filter-proxy.md`](gpu-filter-proxy.md)：§2 实测事实、§3 架构、§5 参数、§6 踩坑、**附录 A 改动履历**、**附录 B 12 条错误经验** |
@@ -107,8 +119,8 @@ doc/
 
 | 路径 | 用途 |
 |---|---|
-| [`BVNscripts/3.8竞技参考/竞技改代码/CLAUDE.md`](../BVNscripts/3.8竞技参考/竞技改代码/CLAUDE.md) | 3.8 竞技版参考代码索引（**只读参考，不改造**） |
-| `tools/Test/_report/` | 真机诊断报告（如 `2026-10-09_ANE-诊断报告.md`） |
+| [`BVNscripts/3.8竞技参考/3.8.8.6新版/CLAUDE.md`](../BVNscripts/3.8竞技参考/3.8.8.6新版/CLAUDE.md) | 3.8 竞技版参考代码索引（**只读参考，不改造**；唯一源码树 `src/` + 原版 `launch.swf`） |
+| [`doc/archive/_report/`](archive/_report/) | 历史真机诊断报告（ANE / 分支B / GPU 滤镜 / 资源迁移）；原 `tools/Test/_report/` 已于 2026-11-17 清理 |
 | [`tools/skills-1.2.3/`](../tools/skills-1.2.3/) | 第三方技能包（mattpocock/skills v1.2.3，原样留存，**非本项目文档**） |
 | `选人界面排版工具/` | 独立 HTML 工具，自带 README/plan/xml解析流程/代码索引（**工具文档，不并入 doc/**） |
 | `.backup/` | 本地改动前快照（**不进提交**，见 `CLAUDE.md` 与 `.gitignore`） |

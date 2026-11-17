@@ -34,6 +34,8 @@ doc/
 ├── gpu-filter-proxy.md        GPU 模式滤镜位图代理层（附录 A 改动履历 / 附录 B 错误经验）〔外部包挂滤镜 / 时停灰度必读〕
 ├── select-regression-matrix.md 选人界面回归测试矩阵（原在 BVNscripts/scripts/，2026-10-21 移入）
 ├── _api_doc.txt               类与方法签名速查 dump
+├── 37-extended/               3.7 扩展版参考源码拆解（6 册 + glossary；先读 00-README）
+│                              相机 / JSON 地图 / 自绘 UI / 手柄+重开 / 自动更新 / 差异清单
 ├── 38-rule-stage/             3.8 独立规则设置界面（rule-stage.md 详解 / plan.md 移植计划）
 ├── ane/                       ANE 专题（proposal / high-level / detailed / tasks）
 ├── crazy-ai/crazy-ai.md       手机端主项目 CRAZY 难度移植记录〔重点〕
@@ -64,9 +66,10 @@ doc/
 |---|---|
 | **换人模式（TAG，模式 16/17）**：每方 2 人 / 只出场 1 人 / 辅助键换人（无开场动画）/ 换出无敌 2 秒 / 空中换人走鬼步同款时停且扣 60 气 / HP·气·能量·换人槽四人共享；含换人时序、共享池算法、9 个任务与验收清单 | `doc/tag-mode/proposal.md`、`doc/tag-mode/plan.md`、`doc/tag-mode/progress.md` |
 | 3.8 竞技版参考代码索引（AI 进入该目录会自动加载） | [`BVNscripts/3.8竞技参考/3.8.8.6新版/CLAUDE.md`](BVNscripts/3.8竞技参考/3.8.8.6新版/CLAUDE.md)（只读参考，不改造；2026-11-17 四份反编译树已合并为 `src/`） |
+| **3.7 扩展版参考能搬什么 / 相机·JSON 地图·自绘 UI·手柄·自动更新怎么实现**：含 227 个独有类逐类清单、39 个主项目独有类「别覆盖清单」、同名陷阱、移植可行性 | `doc/37-extended/00-README.md`（导航）→ `01-diff-inventory.md`（先看「别覆盖清单」）→ 02~06 各册 |
 | 3.8「独立规则设置界面」实现详解 + 3.3↔3.8 规则项对照 + 移植要点 | `doc/38-rule-stage/rule-stage.md` |
 | PC版工程新增独立规则页的实现计划（含改动清单与坑） | `doc/38-rule-stage/plan.md` |
-| **手机端主项目** CRAZY（疯狂）人机难度**移植记录**（源：3.7 扩展版参考工程 Shonen-Clash-main 的最难档）：档位机制、逐项移植对照、调参坑、回滚 | `doc/crazy-ai/crazy-ai.md` |
+| **手机端主项目** CRAZY（疯狂）人机难度**移植记录**（源：`BVNscripts/3.7扩展版参考/scripts/` 的最难档；旧稿写的 `Shonen-Clash-main/` 路径已不存在）：档位机制、逐项移植对照、调参坑、回滚 | `doc/crazy-ai/crazy-ai.md` |
 | PC 分支全量 AI 系统说明（**基准路径 `BVNscripts/PC/` 已不存在，属历史文档**；读结论前先核对路径） | `doc/AI-SYSTEM-DOC.md` |
 
 规则页相关约定：竞技规则项走 `ConfigVO` 字段 + `optoinKey` 字符串绑定（注意是错拼）；UI 复用设置界面框架，新元件 AS 链接 `rule_ui`（在 setting.fla 内），角色实例名 `yuna`；改过 UI SWF 后必须重跑 build（编译期内嵌）。
