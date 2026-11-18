@@ -22,7 +22,7 @@ package net.play5d.game.bvn
       
       public static var I:MainGame;
       
-      public static const VERSION:String = "V3.3";
+      public static const VERSION:String = "V2.0.4";
       
       public static const VERSION_DATE:String = "2019.3.32";
       
@@ -166,6 +166,13 @@ package net.play5d.game.bvn
       public function goRule() : void
       {
          try { stageCtrl.goStage(new RuleState()); } catch(e:Error) { var _st:String = ""; try { _st = e.getStackTrace(); } catch(_e:Error) {} Debugger.log("[MainGame] goRule FAILED:",e.message,_st); }
+         this.setFPS(30);
+      }
+      
+      /** 相机与画质页（设置 → CAMERA SET，2026-11-18 新增；与 goRule 同构）。 */
+      public function goCamera() : void
+      {
+         try { stageCtrl.goStage(new CameraState()); } catch(e:Error) { var _st:String = ""; try { _st = e.getStackTrace(); } catch(_e:Error) {} Debugger.log("[MainGame] goCamera FAILED:",e.message,_st); }
          this.setFPS(30);
       }
       

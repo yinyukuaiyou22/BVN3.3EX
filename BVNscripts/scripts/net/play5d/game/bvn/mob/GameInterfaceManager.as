@@ -213,6 +213,9 @@ package net.play5d.game.bvn.mob
             },{
                "txt":"RULE CFG",
                "cn":"规则设置"
+            },{
+               "txt":"CAMERA CFG",
+               "cn":"镜头设置"
             }]
          },{
             "txt":"TRAINING",
@@ -586,6 +589,87 @@ package net.play5d.game.bvn.mob
                "value":1
             }],
             "optoinKey":"cameraMaxSize"
+         }];
+      }
+      
+      /**
+       * 相机与画质页数据（2026-11-18 新增）。
+       * 第 1 项无 options，是「一键切换原版/增强镜头」总开关，由 CameraState 按 selectedLabel 处理；
+       * 其后为 3 个镜头项 + 从设置页搬来的画质项（全项目只此一份，另一处已删）。
+       */
+      public function getCameraMenu() : Array
+      {
+         return [{
+            "txt":"CAMERA SWITCH",
+            "cn":"一键切换原版/增强镜头"
+         },{
+            "txt":"CAM DIST",
+            "cn":"镜头距离",
+            "options":[{
+               "label":"FAR",
+               "cn":"远",
+               "value":0
+            },{
+               "label":"NORMAL",
+               "cn":"标准",
+               "value":1
+            },{
+               "label":"CLOSE",
+               "cn":"近",
+               "value":2
+            },{
+               "label":"V.CLOSE",
+               "cn":"极近",
+               "value":3
+            }],
+            "optoinKey":"camDistLevel"
+         },{
+            "txt":"AUTO ZOOM",
+            "cn":"自动缩放",
+            "options":[{
+               "label":"ON",
+               "cn":"开",
+               "value":true
+            },{
+               "label":"OFF",
+               "cn":"关",
+               "value":false
+            }],
+            "optoinKey":"camAutoZoom"
+         },{
+            "txt":"CAM SHAKE",
+            "cn":"镜头震动",
+            "options":[{
+               "label":"ON",
+               "cn":"开",
+               "value":true
+            },{
+               "label":"OFF",
+               "cn":"关",
+               "value":false
+            }],
+            "optoinKey":"camShake"
+         },{
+            "txt":"QUALITY",
+            "cn":"画质等级",
+            "options":[{
+               "label":"LOW",
+               "cn":"低",
+               "value":"low"
+            },{
+               "label":"MEDIUM",
+               "cn":"中",
+               "value":"medium"
+            },{
+               "label":"HIGH",
+               "cn":"高",
+               "value":"high"
+            },{
+               "label":"BEST",
+               "cn":"最高",
+               "value":"best"
+            }],
+            "optoinKey":"quality"
          }];
       }
       

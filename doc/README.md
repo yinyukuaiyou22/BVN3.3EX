@@ -30,7 +30,7 @@ doc/
 ├── select-regression-matrix.md   选人界面回归测试矩阵（原 `BVNscripts/scripts/REGRESSION_TEST_MATRIX_BATCH6.5.md`，2026-10-21 移入）
 ├── _api_doc.txt                  API 文档 dump（类/方法签名速查）
 ├── decisions-select-video.md    选人/加载界面视频（25s 上限、进选人释放 StageVideo 槽、循环、翻页兼容）D1~D5
-├── menu-layout-decisions.md      主菜单排版决策记录（左侧竖列 + 二级独立列，D1~D12 结论与理由）
+├── menu-layout-decisions.md      主菜单排版决策记录（左侧竖列 + 二级独立列，D1~D13；含菜单条目/跳转的唯一改动点）
 ├── 37-extended/                  3.7 扩展版参考源码的拆解与移植参考（6 册 + 术语表，2026-11-17 建）
 │   ├── 00-README.md                目标/约束/优先级 + 事实基线 + 六册导航
 │   ├── 01-diff-inventory.md        3.7 独有 227 类逐类清单 + 主项目独有 39 类「别覆盖清单」+ 同名陷阱
@@ -102,7 +102,7 @@ doc/
 | **3.7 参考里有什么值得搬 / 相机·JSON 地图·自绘 UI·手柄·自动更新怎么实现的** | [`37-extended/00-README.md`](37-extended/00-README.md) 先读导航 → 对应册；**动手前必看** [`01-diff-inventory.md`](37-extended/01-diff-inventory.md) §4.2「别覆盖清单」 |
 | 竞技项（规则/行为/卍解/重复） | [`jingji/detailed-design.md`](jingji/detailed-design.md) + [`jingji/tasks/`](jingji/tasks/) |
 | 开场演出 | [`kai-chang/proposal.md`](kai-chang/proposal.md) |
-| **改主菜单排版 / 二级菜单摆位 / 菜单数据来源** | [`menu-layout-decisions.md`](menu-layout-decisions.md)（左列 + 二级独立列，含被否决方案） |
+| **改主菜单排版 / 二级菜单摆位 / 菜单条目与跳转** | [`menu-layout-decisions.md`](menu-layout-decisions.md)（D1~D13，含被否决方案）。**改动点只有两处**：条目与二级子项 = `GameInterfaceManager.getGameMenu()`；label→页面 = `MenuBtnGroup.getFucByLabel()`。旧 PC 菜单（`GameInterface.getDefaultMenu()` 静态表）已废弃 |
 | **选人/加载界面视频（黑底、不循环、第二次没画面）** | [decisions-select-video.md](decisions-select-video.md)（D1~D5：25s 上限、进选人释放视频槽、循环、翻页兼容兜底） |
 | **换人模式（TAG）：辅助键换人 / 共享血池 / 空中时停换人** | [`tag-mode/proposal.md`](tag-mode/proposal.md) → [`tag-mode/plan.md`](tag-mode/plan.md) → [`tag-mode/progress.md`](tag-mode/progress.md) |
 | 选人界面翻页 / 单页窗口决策 | [`adr/ADR-001-单页窗口与翻页交互.md`](adr/ADR-001-单页窗口与翻页交互.md)、[`plans/2026-09-07-选人界面工具-单页窗口与翻页.md`](plans/2026-09-07-选人界面工具-单页窗口与翻页.md) |

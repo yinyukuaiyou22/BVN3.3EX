@@ -400,6 +400,21 @@ package net.play5d.game.bvn.ui
       }
       
       /**
+       * 相机与画质页（CAMERA SET）专用入口，与 initRuleSet() 同构，
+       * 只是数据源换成 getCameraMenu()（2026-11-18 新增）。
+       */
+      public function initCameraSet() : void
+      {
+         Debugger.log("[SetBtnGroup]","initCameraSet()");
+         this.buildBtnsByData(GameInterface.instance.getCameraMenu());
+         this.initArrow();
+         GameRender.add(this.render,this);
+         this.claimInput();
+         GameInputer.focus();
+         GameInputer.enabled = true;
+      }
+      
+      /**
        * 一键切换规则后，把每个选项的显示刷新为 ConfigVO 的当前值。
        * setOptionByValue 走静默分支，不会再派发 OPTION_CHANGE。
        */
@@ -703,26 +718,8 @@ package net.play5d.game.bvn.ui
                }],
                "optoinKey":"bgmVolume"
             },{
-               "txt":"QUALITY",
-               "cn":"画质等级",
-               "options":[{
-                  "label":"LOW",
-                  "cn":"低",
-                  "value":"low"
-               },{
-                  "label":"MEDIUM",
-                  "cn":"中",
-                  "value":"medium"
-               },{
-                  "label":"HIGH",
-                  "cn":"高",
-                  "value":"high"
-               },{
-                  "label":"BEST",
-                  "cn":"最高",
-                  "value":"best"
-               }],
-               "optoinKey":"quality"
+               "txt":"CAMERA SET",
+               "cn":"镜头与画质"
             }];
          }
          this.buildBtnsByData(_loc4_);

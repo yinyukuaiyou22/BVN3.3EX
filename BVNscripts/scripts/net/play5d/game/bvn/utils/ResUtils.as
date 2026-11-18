@@ -17,6 +17,9 @@ package net.play5d.game.bvn.utils
       
       /** 规则设置界面 UI（与 SETTING 同在 setting.swf 内，独立元件） */
       public static var RULE:String = "rule_ui";
+
+      /** 相机设置界面 UI（setting.swf 内独立元件，2026-11-18 新增；内含 角色3，舞台实例名 yuna1） */
+      public static var SCREEN:String = "Screen";
       
       public static var CONGRATULATIONS:String = "mc_congratulations";
       

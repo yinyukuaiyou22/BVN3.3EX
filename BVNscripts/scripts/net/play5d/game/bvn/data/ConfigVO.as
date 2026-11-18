@@ -54,6 +54,21 @@ package net.play5d.game.bvn.data
         */
        public var filterEffect:Boolean = false;
        
+       /** 镜头增强总开关（2026-11-18）：false = 完全原版镜头行为（可回退基线） */
+       public var camEnhance:Boolean = false;
+
+       /** 镜头距离档位：0=Far 1=Normal 2=Close 3=VeryClose。只换取景，不受总开关约束 */
+       public var camDistLevel:int = 1;
+
+       /** 自动缩放（3.7 行为）：按焦点包围盒反推缩放。受 camEnhance 门控 */
+       public var camAutoZoom:Boolean = false;
+
+       /** 震屏（3.7 行为）：trauma 平方 + punchZoom 弹簧。受 camEnhance 门控 */
+       public var camShake:Boolean = false;
+
+       /** 留白钳制（3.7 keepFrameInView）。受 camEnhance 门控，无独立 UI 行 */
+       public var camFrameClamp:Boolean = false;
+
        public var extendConfig:IExtendConfig;
       
       public function ConfigVO()
@@ -101,6 +116,11 @@ package net.play5d.game.bvn.data
           o.isChangeSpecialKey = this.isChangeSpecialKey;
           o.cameraMaxSize = this.cameraMaxSize;
           o.filterEffect = this.filterEffect;
+          o.camEnhance = this.camEnhance;
+          o.camDistLevel = this.camDistLevel;
+          o.camAutoZoom = this.camAutoZoom;
+          o.camShake = this.camShake;
+          o.camFrameClamp = this.camFrameClamp;
           if(Boolean(this.extendConfig))
          {
             o.extend_config = this.extendConfig.toSaveObj();

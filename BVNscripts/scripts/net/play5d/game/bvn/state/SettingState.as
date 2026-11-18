@@ -78,6 +78,9 @@ package net.play5d.game.bvn.state
                var controlSetUI:ControlSetUI = new ControlSetUI();
                this.goInnerSetPage(controlSetUI);
                break;
+            case "CAMERA SET":
+               MainGame.I.goCamera();
+               break;
             case "APPLY":
                GameData.I.saveData();
                GameData.I.config.applyConfig();

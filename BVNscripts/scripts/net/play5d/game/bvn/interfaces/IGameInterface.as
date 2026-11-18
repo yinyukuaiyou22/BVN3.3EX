@@ -27,6 +27,8 @@ package net.play5d.game.bvn.interfaces
       function getSettingMenu() : Array;
       
       function getRuleMenu() : Array;
+
+      function getCameraMenu() : Array;
       
       function updateInputConfig() : Boolean;
       

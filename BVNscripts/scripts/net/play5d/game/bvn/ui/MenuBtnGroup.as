@@ -17,15 +17,27 @@ package net.play5d.game.bvn.ui
       
       protected var _btnConfig:Array;
       
-      protected var _xadd:Number = -40;
+      // ===== 2026-10-27 排版参数（逻辑像素，800×600 坐标系）=====
+      /** 一级列左缘 */
+      private static const MARGIN_LEFT:Number = 24;
+      /** 一级列顶部（6 项 ×80 + 80 = 560 = 600 − MARGIN_BOTTOM，刚好用满安全区） */
+      private static const MARGIN_TOP:Number = 80;
+      /** 底部安全区 */
+      private static const MARGIN_BOTTOM:Number = 40;
+      /** 父列右缘 → 子列左缘 */
+      private static const COL_GAP:Number = 12;
+      /** 行距 */
+      private static const ROW_GAP:Number = 5;
+      /** 子列超高时行距可压缩到的最小比例 */
+      private static const MIN_ROW_GAP_RATE:Number = 0.6;
       
-      protected var _yadd:Number = 5;
+      /** 一级列宽（layoutColumns 后有效） */
+      private var _colW:Number = 0;
+      
+      /** 子列宽度（layoutChildColumn 后有效） */
+      private var _childColW:Number = 0;
       
       private var _btnIndex:int;
-      
-      private var _startPoint:Point;
-      
-      private var _btnHeight:Number = 0;
       
       private var _btns:Array = [];
       
@@ -34,11 +46,11 @@ package net.play5d.game.bvn.ui
       public function MenuBtnGroup()
       {
          super();
-         if(GameConfig.TOUCH_MODE)
-         {
-            // 与 SetBtnGroup 共用同一缩放常量，避免两处硬编码漂移
-            this.scaleX = this.scaleY = SetBtnGroup.TOUCH_SCALE;
-         }
+         // 2026-10-27 排版重做：主菜单**不再整体缩放**（原来 TOUCH_MODE 下整组 ×1.1）。
+         // 原因：一级 6 项 × (75+5) = 480 逻辑像素，×1.1 就是 528，再加上顶部边距必然超出 600，
+         // 旧版是靠「对角线错位 + 整组滚动」勉强绕过去的；改成规整竖列后必须让尺寸可静态推导。
+         // 手机按钮不至于变小到难按：800×600 会被等比放大到设备屏（1080p 横屏约 ×2.4）。
+         this.scaleX = this.scaleY = 1;
       }
       
       public function destory() : void
@@ -55,18 +67,26 @@ package net.play5d.game.bvn.ui
          this._btns = null;
       }
       
+      /**
+       * 入场动画：从左缘滑入 + 淡入。
+       * 原来是逐按钮 scaleX 0.01→1，缩放原点在按钮中心 —— 左对齐后动画期间左缘会先被推出去再弹回，
+       * 视觉上「抖一下」。滑入 + 淡入没有原点问题，最终位置也不变。
+       */
       public function fadIn(param1:Number = 0.5, param2:Number = 0.05) : void
       {
          var _loc3_:int = 0;
          var _loc4_:* = null;
+         var _loc5_:Number = NaN;
          while(_loc3_ < this._btns.length)
          {
             _loc4_ = this._btns[_loc3_];
-            _loc4_.ui.scaleX = 0.01;
+            _loc5_ = _loc4_.ui.x;
+            _loc4_.ui.x = _loc5_ - 20;
+            _loc4_.ui.alpha = 0;
             TweenLite.to(_loc4_.ui,param1,{
-               "scaleX":1,
-               "delay":_loc3_ * param2,
-               "ease":Back.easeOut
+               "x":_loc5_,
+               "alpha":1,
+               "delay":_loc3_ * param2
             });
             _loc3_++;
          }
@@ -76,8 +96,6 @@ package net.play5d.game.bvn.ui
       {
          var _loc1_:int = 0;
          var _loc2_:* = null;
-         this.y -= 40;
-         this._startPoint = new Point(x,y);
          this._btnConfig = GameInterface.instance.getGameMenu();
          if(!this._btnConfig)
          {
@@ -89,14 +107,12 @@ package net.play5d.game.bvn.ui
             this.addMenuBtn(_loc2_);
             _loc1_++;
          }
-         this.setBtns(true,false);
+         // 2026-10-27 排版重做：位置由 layoutColumns() 完全决定（左侧竖列），
+         // 不再有 y-=40 / y+=30 这类为「对角线阶梯 + 整组滚动」服务的补偿。
+         this.layoutColumns(false);
          if(!GameConfig.TOUCH_MODE)
          {
             this.hoverBtn(this._btns[0]);
-         }
-         if(GameConfig.TOUCH_MODE)
-         {
-            this.y += 30;
          }
          GameRender.add(this.render);
       }
@@ -121,10 +137,6 @@ package net.play5d.game.bvn.ui
          {
             _loc7_.index = this._btns.length;
             this._btns.push(_loc7_);
-            if(this._btnHeight == 0)
-            {
-               this._btnHeight = _loc7_.height;
-            }
          }
          _loc3_ = param1.children;
          if(Boolean(_loc3_))
@@ -180,42 +192,10 @@ package net.play5d.game.bvn.ui
       
       private function moveScroll() : void
       {
-         if(!this._startPoint)
-         {
-            return;
-         }
-         var _loc1_:int = int(this._btns.length);
-         if(Boolean(this._showIngChildrenBtn))
-         {
-            _loc1_ += this._showIngChildrenBtn.children.length;
-         }
-         if(_loc1_ < 5)
-         {
-            return;
-         }
-         var _loc2_:Number = Number(GameConfig.GAME_SIZE.y);
-         var _loc3_:Number = this._startPoint.y + this.height;
-         if(_loc3_ < _loc2_)
-         {
-            return;
-         }
-         var _loc4_:Number = _loc2_ - this._startPoint.y;
-         var _loc5_:Number = _loc4_ / _loc1_;
-         var _loc6_:Number = this._btnHeight + this._yadd;
-         var _loc7_:int = int(this._btnIndex);
-         if(Boolean(this._showIngChildrenBtn))
-         {
-            if(this._btnIndex < this._showIngChildrenBtn.children.length && Boolean(this._showIngChildrenBtn.children[this._btnIndex].isHover()))
-            {
-               _loc7_ = this._showIngChildrenBtn.index + 1 + this._btnIndex;
-            }
-            else if(this._btnIndex > this._showIngChildrenBtn.index)
-            {
-               _loc7_ = this._btnIndex + this._showIngChildrenBtn.children.length;
-            }
-         }
-         var _loc8_:Number = _loc7_ * (_loc5_ - _loc6_) + this._startPoint.y;
-         TweenLite.to(this,0.2,{"y":_loc8_});
+         // 2026-10-27 排版重做：整组滚动的唯一用途是「一条对角线长阶梯放不下」，
+         // 改成左侧竖列 + 二级独立列后，一级 6×80 / 二级 7×60 都在可用高度内，
+         // 滚动会算出错误位移，故停用（保留空实现，避免外部若有调用直接崩）。
+         // 子列真放不下时由 layoutChildColumn() 压缩行距并在日志里留痕。
       }
       
       private function hoverBtn(param1:MenuBtn) : void
@@ -231,7 +211,6 @@ package net.play5d.game.bvn.ui
             {
                _loc2_.hover();
                this._btnIndex = _loc3_;
-               this.moveScroll();
             }
             else
             {
@@ -424,6 +403,12 @@ package net.play5d.game.bvn.ui
                   MainGame.I.goRule();
                };
                break;
+            case "CAMERA CFG":
+               func = function():void
+               {
+                  MainGame.I.goCamera();
+               };
+               break;
             case "TRAINING":
                func = function():void
                {
@@ -463,9 +448,45 @@ package net.play5d.game.bvn.ui
             }
          }
          this._showIngChildrenBtn = param1;
-         this.setBtns(true,true);
          param1.openChild();
+         this.openChildren(param1);
          this.hoverBtn(param1.children[0]);
+      }
+      
+      /**
+       * 展开子列：子项挂到本组、排到父列右侧（父列位置不动），从左缘滑入 + 淡入。
+       * 与旧实现的区别：旧实现把所有子项插进主列的同一条阶梯里续排，父列因此被挤走。
+       */
+      private function openChildren(param1:MenuBtn) : void
+      {
+         var _loc2_:int = 0;
+         var _loc3_:MenuBtn = null;
+         var _loc4_:Number = NaN;
+         while(_loc2_ < param1.children.length)
+         {
+            _loc3_ = param1.children[_loc2_];
+            _loc3_.ui.alpha = 0;
+            if(!contains(_loc3_.ui))
+            {
+               addChild(_loc3_.ui);
+            }
+            _loc2_++;
+         }
+         // 先做一次「立即定位」（左缘对齐在 layoutChildColumn 里算），再统一从左侧滑入 + 淡入。
+         // 不能像旧版那样自己写死初始 x：偏移量要由 bgOffsetX 决定，否则滑入起点会歪。
+         this.layoutChildColumn(param1,false);
+         _loc2_ = 0;
+         while(_loc2_ < param1.children.length)
+         {
+            _loc4_ = param1.children[_loc2_].ui.x;
+            param1.children[_loc2_].ui.x = _loc4_ - 20;
+            TweenLite.to(param1.children[_loc2_].ui,0.2,{
+               "x":_loc4_,
+               "alpha":1,
+               "delay":_loc2_ * 0.04
+            });
+            _loc2_++;
+         }
       }
       
       private function closeChildren(param1:Boolean, param2:Boolean) : void
@@ -485,67 +506,164 @@ package net.play5d.game.bvn.ui
          }
          this._showIngChildrenBtn.closeChild();
          this._showIngChildrenBtn = null;
+         // 父列位置从不改动，这里不需要重排；保留参数以兼容既有调用点
          if(param1)
          {
-            this.setBtns(false,param2);
+            this.layoutColumns(Boolean(param2));
          }
       }
       
-      private function setBtns(param1:Boolean, param2:Boolean = false) : void
+      /**
+       * 一级列排版：左侧竖列，x 恒定，列宽统一（按最宽标签 + 两侧内边距），文字靠左。
+       * param1 = true 时用 tween 过渡，false 时立即赋值（build / 重置用）。
+       */
+      private function layoutColumns(param1:Boolean = false) : void
       {
-         var _loc3_:int = 0;
-         var _loc4_:* = null;
-         var _loc5_:int = 0;
-         var _loc6_:* = null;
-         var _loc7_:* = 0;
-         var _loc8_:* = 0;
-         while(_loc3_ < this._btns.length)
+         var _loc2_:int = 0;
+         var _loc3_:MenuBtn = null;
+         var _loc4_:Number = 0;
+         var _loc5_:Number = 0;
+         var _loc6_:Number = 0;
+         var _loc7_:Number = 0;
+         _loc2_ = 0;
+         while(_loc2_ < this._btns.length)
          {
-            _loc4_ = this._btns[_loc3_];
-            if(param2)
+            _loc4_ = Math.max(_loc4_,this._btns[_loc2_].measuredWidth);
+            _loc2_++;
+         }
+         this._colW = _loc4_ + MenuBtn.TEXT_PAD * 2;
+         var _loc8_:Number = GameConfig.GAME_SIZE.x - MARGIN_LEFT * 2 - COL_GAP;
+         if(this._colW > _loc8_)
+         {
+            this._colW = _loc8_;
+         }
+         if(this._colW < MenuBtn.TEXT_PAD * 2)
+         {
+            this._colW = MenuBtn.TEXT_PAD * 2;
+         }
+         _loc5_ = MARGIN_LEFT;
+         _loc6_ = MARGIN_TOP;
+         _loc2_ = 0;
+         while(_loc2_ < this._btns.length)
+         {
+            _loc3_ = this._btns[_loc2_];
+            _loc3_.setWidth(this._colW);
+            _loc3_.alignLeft();
+            if(!contains(_loc3_.ui))
             {
-               TweenLite.to(_loc4_.ui,0.2,{
-                  "x":_loc7_,
-                  "y":_loc8_
+               addChild(_loc3_.ui);
+            }
+            // 按「背景条左缘」摆位：mc_wzbtn 是中心注册，直接给 MARGIN_LEFT 会让左半截出屏
+            var _locX:Number = _loc5_ - _loc3_.bgOffsetX;
+            if(param1)
+            {
+               TweenLite.to(_loc3_.ui,0.2,{
+                  "x":_locX,
+                  "y":_loc6_
                });
             }
             else
             {
-               _loc4_.ui.x = _loc7_;
-               _loc4_.ui.y = _loc8_;
+               _loc3_.ui.x = _locX;
+               _loc3_.ui.y = _loc6_;
             }
-            _loc7_ += this._xadd;
-            _loc8_ += _loc4_.height + this._yadd;
-            if(param1)
+            _loc6_ += _loc3_.height + ROW_GAP;
+            _loc2_++;
+         }
+         if(Boolean(this._showIngChildrenBtn))
+         {
+            this.layoutChildColumn(this._showIngChildrenBtn,param1);
+         }
+      }
+      
+      /**
+       * 子列排版：父列右侧独立一列，列宽按子项最宽标签算并夹进屏幕；
+       * 起点对齐父项 y，底端越界整列上移；仍放不下先压缩行距（最低 0.6×），再不行允许溢出并留日志。
+       */
+      private function layoutChildColumn(param1:MenuBtn, param2:Boolean = false) : void
+      {
+         var _loc3_:Array = param1.children;
+         if(!_loc3_ || _loc3_.length < 1)
+         {
+            return;
+         }
+         var _loc4_:Number = 0;
+         var _loc5_:int = 0;
+         var _loc6_:Number = 0;
+         var _loc7_:Number = 0;
+         var _loc8_:Number = 0;
+         _loc5_ = 0;
+         while(_loc5_ < _loc3_.length)
+         {
+            _loc4_ = Math.max(_loc4_,_loc3_[_loc5_].measuredWidth);
+            _loc5_++;
+         }
+         _loc6_ = _loc4_ + MenuBtn.TEXT_PAD * 2;
+         var _loc9_:Number = MARGIN_LEFT + this._colW + COL_GAP;
+         var _loc10_:Number = GameConfig.GAME_SIZE.x - _loc9_ - MARGIN_LEFT;
+         if(_loc6_ > _loc10_)
+         {
+            _loc6_ = _loc10_;
+         }
+         if(_loc6_ < MenuBtn.TEXT_PAD * 2)
+         {
+            _loc6_ = MenuBtn.TEXT_PAD * 2;
+         }
+         this._childColW = _loc6_;
+         _loc7_ = ROW_GAP;
+         _loc5_ = 0;
+         while(_loc5_ < _loc3_.length)
+         {
+            _loc8_ += _loc3_[_loc5_].height + _loc7_;
+            _loc5_++;
+         }
+         var _loc11_:Number = GameConfig.GAME_SIZE.y - MARGIN_TOP - MARGIN_BOTTOM;
+         if(_loc8_ > _loc11_)
+         {
+            _loc7_ = Math.max(ROW_GAP * MIN_ROW_GAP_RATE,ROW_GAP - (_loc8_ - _loc11_) / _loc3_.length);
+            _loc8_ = 0;
+            _loc5_ = 0;
+            while(_loc5_ < _loc3_.length)
             {
-               addChild(_loc4_.ui);
+               _loc8_ += _loc3_[_loc5_].height + _loc7_;
+               _loc5_++;
             }
-            if(this._showIngChildrenBtn == _loc4_)
+         }
+         var _loc12_:Number = param1.ui.y;
+         if(_loc12_ + _loc8_ > GameConfig.GAME_SIZE.y - MARGIN_BOTTOM)
+         {
+            _loc12_ = GameConfig.GAME_SIZE.y - MARGIN_BOTTOM - _loc8_;
+         }
+         if(_loc12_ < MARGIN_TOP)
+         {
+            _loc12_ = MARGIN_TOP;
+         }
+         if(_loc12_ + _loc8_ > GameConfig.GAME_SIZE.y - MARGIN_BOTTOM)
+         {
+            Debugger.log("[MENU] child column overflow n=" + _loc3_.length + " h=" + _loc8_ + " gap=" + _loc7_);
+         }
+         _loc5_ = 0;
+         while(_loc5_ < _loc3_.length)
+         {
+            var _loc13_:MenuBtn = _loc3_[_loc5_];
+            _loc13_.setWidth(_loc6_);
+            _loc13_.alignLeft();
+            // 同样按背景条左缘摆位（子列也有自己的统一列宽与中心注册美术）
+            var _locX2:Number = _loc9_ - _loc13_.bgOffsetX;
+            if(param2)
             {
-               while(_loc5_ < _loc4_.children.length)
-               {
-                  _loc6_ = _loc4_.children[_loc5_];
-                  _loc6_.ui.x = _loc7_;
-                  _loc6_.ui.y = _loc8_;
-                  if(param2)
-                  {
-                     _loc6_.ui.scaleX = 0.01;
-                     TweenLite.to(_loc6_.ui,0.2,{
-                        "scaleX":1,
-                        "delay":_loc5_ * 0.04,
-                        "ease":Back.easeOut
-                     });
-                  }
-                  if(param1)
-                  {
-                     addChild(_loc6_.ui);
-                  }
-                  _loc7_ += this._xadd;
-                  _loc8_ += _loc6_.height + this._yadd;
-                  _loc5_++;
-               }
+               TweenLite.to(_loc13_.ui,0.2,{
+                  "x":_locX2,
+                  "y":_loc12_
+               });
             }
-            _loc3_++;
+            else
+            {
+               _loc13_.ui.x = _locX2;
+               _loc13_.ui.y = _loc12_;
+            }
+            _loc12_ += _loc13_.height + _loc7_;
+            _loc5_++;
          }
       }
       
