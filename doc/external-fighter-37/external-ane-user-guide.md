@@ -2,21 +2,23 @@
 
 本说明适用于当前 Android 主线（包名 `air.com.bvn.yy798`）。程序启动时先读取 APK 内置 `assets/`；对于 `assets/...` 相对 URL，会优先检查外置目录，外置文件不存在时自动回退 APK。外置文件存在但损坏时不会静默替换，以便从日志定位问题。
 
+> 原生扩展（ANE）已按设计停用，外置优先机制不依赖它：读取走 AIR 自身的 File API，使用方式和本文完全一致。
+
 ## 外置目录
 
 ```text
-/storage/emulated/0/Android/data/air.com.bvn.yy798/BVN/assets/
+/storage/emulated/0/Android/media/air.com.bvn.yy798/BVN/assets/
   config/   fighter/   face/   bgm/   map/   sounds/
 ```
 
 使用 ADB 推送模板包（设备已连接且允许调试）：
 
 ```text
-adb shell mkdir -p /storage/emulated/0/Android/data/air.com.bvn.yy798/BVN/assets
-adb push template-package/. /storage/emulated/0/Android/data/air.com.bvn.yy798/BVN/assets/
+adb shell mkdir -p /storage/emulated/0/Android/media/air.com.bvn.yy798/BVN/assets
+adb push template-package/. /storage/emulated/0/Android/media/air.com.bvn.yy798/BVN/assets/
 ```
 
-文件管理器无法访问 `Android/data` 时，请使用 ADB 或具备作用域存储权限的文件管理器。不要把文件放到 `/data/user/0/...`，该目录是应用私有日志目录，不是用户资源入口。
+这个目录应用自己就能建，文件管理器也能进。`Android/data/` 下的同一位置是旧写法，应用在那里建不出目录（Error #3001），已废弃。不要把文件放到 `/data/user/0/...`，那是应用私有目录，放进去游戏读不到。
 
 ## 必备文件关系
 
