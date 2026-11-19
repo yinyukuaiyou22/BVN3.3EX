@@ -40,6 +40,7 @@ doc/
 ├── 37-extended/               3.7 扩展版参考源码拆解（6 册 + glossary；先读 00-README）
 │                              相机 / JSON 地图 / 自绘 UI / 手柄+重开 / 自动更新 / 差异清单
 ├── 38-rule-stage/             3.8 独立规则设置界面（rule-stage.md 详解 / plan.md 移植计划）
+├── gamepad/gamepad.md         手柄支持：入口路径 / 默认表与设备差异 / 虚拟手柄测试台 / 日志判据 / 待办
 ├── ane/                       ANE 专题（proposal / high-level / detailed / tasks）
 ├── crazy-ai/crazy-ai.md       手机端主项目 CRAZY 难度移植记录〔重点〕
 ├── external-fighter-37/       外置人物迁移（设计 + tasks + template-package）
