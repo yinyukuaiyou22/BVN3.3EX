@@ -152,7 +152,7 @@ adb logcat -v threadtime | findstr /i "AdobeAIR BVNFileReader ANEFileReader Game
 
    计算可滚动距离时注意两个量纲陷阱：`_scrollRect` 是**本地**尺寸，而 `SetBtnGroup` 在 `TOUCH_MODE` 下 `scale=1.1`，本地 600 渲染后是 660 游戏单位、超出部分被屏幕裁掉 → 有效视口必须按 `GameConfig.GAME_SIZE.y / scaleY ≈ 545` 算（按 600 算会让末尾 APPLY 卡在屏幕外）；`launch.FULL_SCREEN_SIZE` 是**设备像素**而非游戏单位，不要在本地单位混算里使用它。
 
-长按展开人物子框**只对配了 `plugins=` 的角色生效**（当前 52 个角色里仅 `灵梦,妹红`、`早苗,妹红` 两个）；其余角色长按是设计的静默 `return`，不要当成 bug。
+长按展开人物子框**只对配了子框的角色生效**：角色级在 `fighter.xml` 写 `plugins=`（母本 138 个 fighter 里 20 个有），格子级在 `select.xml` 的 `<item>` 下写 `<plugin id>` 子节点（现网未使用）；`select.xml` 的 69 个角色格里 20 格带子框。其余角色长按是设计的静默 `return`，不要当成 bug。`灵梦,妹红` 那类 id 是 FLA 示例，母本配置里没有。
 
 真机排查触控时可临时加 `[DIAG6.15]` 前缀日志（`touchBegin` / `touchTap` 落到 `ui`、Stage 侧回调是否触发），验证通过后删除并重编。选人界面格子的预期语义是：首次点击 = 预览，再点同一格 = 确认。
 
