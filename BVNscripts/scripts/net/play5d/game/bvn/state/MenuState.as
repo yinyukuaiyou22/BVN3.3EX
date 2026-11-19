@@ -44,7 +44,9 @@ package net.play5d.game.bvn.state
       
       public function afterBuild() : void
       {
-         this._ui.gotoAndPlay(2);
+         // 2026-11-19：先挂「恢复输入」的定时器，再做可能抛异常的初始化。
+         // build() 里把 GameInputer.enabled 关了，恢复动作原本排在 gotoAndPlay 之后；
+         // 一旦 gotoAndPlay 抛异常，定时器根本挂不上，表现为「回到主菜单后键盘/手柄全部无响应、且没有任何日志」。
          setTimeout(function():void
          {
             try
@@ -70,12 +72,14 @@ package net.play5d.game.bvn.state
             // 否则一旦上面抛异常，GameInputer.enabled 会永久停在 false（表现为键盘/触屏全部失效、卡在菜单）
             GameInputer.enabled = true;
          },500);
+         Debugger.log("[MenuState]","afterBuild input-restore timer armed");
+         this._ui.gotoAndPlay(2);
          this._versionTxt = new TextField();
          UIUtils.formatText(this._versionTxt,{
             "color":0,
             "size":18
          });
-         this._versionTxt.text = "V3.3";
+         this._versionTxt.text = "V2.0.4";
          this._versionTxt.autoSize = "left";
          this._versionTxt.x = GameConfig.GAME_SIZE.x - this._versionTxt.width - 15;
          this._versionTxt.y = GameConfig.GAME_SIZE.y - this._versionTxt.height - 10;
@@ -109,17 +113,15 @@ package net.play5d.game.bvn.state
          SoundCtrl.I.playSwcSound(snd_menu5);
          this._btnGroup = new MenuBtnGroup();
          this._btnGroup.enabled = false;
-         this._btnGroup.x = 470;
-         this._btnGroup.y = 100;
+         // 2026-10-27 排版重做：菜单改成左侧竖列，锚点必须能静态推导 ⇒ 直接挂 _ui 顶层、原点归零，
+         // 位置全部由 MenuBtnGroup.layoutColumns() 在自己的局部坐标系里决定（MARGIN_LEFT/MARGIN_TOP）。
+         // 原来挂 title.swf 的 btnct 并把组设在 (470,100)：btnct 的位移/缩放未知且可能被 title 动画驱动，
+         // 挂进去会让「左边距 24」退化成 (24 - ct.x)/ct.scaleX 这种运行时补偿，动画一介入还会漂移。
          ct = this._ui.getChildByName("btnct") as Sprite;
-         if(Boolean(ct))
-         {
-            ct.addChild(this._btnGroup);
-         }
-         else
-         {
-            this._ui.addChild(this._btnGroup);
-         }
+         this._btnGroup.x = 0;
+         this._btnGroup.y = 0;
+         this._ui.addChild(this._btnGroup);
+         Debugger.log("[MENU] btnct=" + (Boolean(ct) ? "found(ignored)" : "none") + " anchor=(0,0)+layoutMargin");
          this._btnGroup.build();
          this._btnGroup.fadIn(0.2,0.04);
          setTimeout(function():void

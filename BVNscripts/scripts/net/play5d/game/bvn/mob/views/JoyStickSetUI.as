@@ -100,9 +100,6 @@ package net.play5d.game.bvn.mob.views
             "label":"SET DEFAULT",
             "cn":"还原默认按键"
          },{
-            "label":"BUY JOY",
-            "cn":"购买推荐手柄"
-         },{
             "label":"APPLY",
             "cn":"应用"
          },{
@@ -145,9 +142,6 @@ package net.play5d.game.bvn.mob.views
                this._tmpJoyConfig = new JoyStickConfigVO();
                this._tmpJoyConfig.deviceId = this._deviceId;
                GameUI.alert("SET JOYSTICK DEFAULT SUCCESS","已设置为默认按键");
-               break;
-            case "BUY JOY":
-               URL.buyJoystick();
                break;
             case "APPLY":
                this._joyConfig.readObj(this._tmpJoyConfig.toObj());
@@ -297,7 +291,18 @@ package net.play5d.game.bvn.mob.views
       
       public function fadOut() : void
       {
-         TweenLite.to(this._ui,0.3,{"y":600});
+         // 2026-11-19：退出时必须关掉本页的收键闸。
+         // 旧版只把 _ui 滑到 y=600、既不隐藏也不关 keyEnable，而 SetBtnGroup.inputOwner
+         // 是「栈顶仍在显示列表且 keyEnable 的组」——于是这个已经看不见的页面继续吃按键，
+         // 表现为「退出手柄设置后按键还卡在那一页」。
+         this._btnGroup.keyEnable = false;
+         TweenLite.to(this._ui,0.3,{
+            "y":600,
+            "onComplete":function():void
+            {
+               _ui.visible = false;
+            }
+         });
       }
       
       public function getUI() : DisplayObject

@@ -240,6 +240,13 @@ package net.play5d.game.bvn.mob
       public function getSettingMenu() : Array
       {
          return [{
+            // 2026-11-19：显式的手柄入口，放在设置列表第一行。
+            // 此前改键页只能「设置 → 控制设置 → 手柄按键设置」两级点进去，实测很难找到。
+            // 这里直接挂行级 select 回调（buildBtnsByData 支持），不进 SettingState 的 case，避免双开。
+            "txt":"Gamepad",
+            "cn":"手柄设置",
+            "select":ViewManager.I.goP1JoyStickSet
+         },{
             // 注意：这里不能再挂 "select": ViewManager.I.goP1JoyStickSet。
             // SetBtn.onSelect 会先调 select() 再派发 SELECT，SettingState.onBtnSelect 的
             // case "Joystick Setting" 又会开 ControlSetUI —— 同一次选择会连开两个子页

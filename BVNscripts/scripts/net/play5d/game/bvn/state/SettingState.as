@@ -137,8 +137,17 @@ package net.play5d.game.bvn.state
       
       private function goMainSetting() : void
       {
+         // 2026-11-19：子页返回时真正销毁它（removeChild + destory → releaseInput）。
+         // 旧版只 fadOut 不销毁：页面虽然看不见，但它自己的 SetBtnGroup 仍挂在显示列表上，
+         // SetBtnGroup.inputOwner 会一直选中它，表现为「设置界面里按键卡在上一页」。
+         // 用 captured 引用判断，避免快速二次进入时把这个新页误销毁。
+         var capturedInner:IInnerSetUI = this._innerSetUI;
          var tweenComplete:* = function():void
          {
+            if(capturedInner != null && _innerSetUI == capturedInner)
+            {
+               destoryInnerSetUI();
+            }
             _btnGroup.keyEnable = true;
          };
          TweenLite.to(this._btnGroup,0.2,{
