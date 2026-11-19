@@ -20,8 +20,8 @@
 
 ## 文档地图（AI 检索入口）
 
-**全部文档已收拢到 `doc/`；根目录只保留 `CLAUDE.md` / `AGENTS.md` / `README.md` 三个入口。**
-**详细索引（含每个文件用途 + 「按主题快速定位」表）见 [`doc/README.md`](doc/README.md) —— 找文档先读它。**
+**文档分两处，别搬错：开发向在 `doc/`（下表的树），用户向在根目录 `docs/`（README + 01 安装发布 / 02 外置资源与配置 / 03 人物子框 / 04 常见问题 / 05 发行说明，2026-11-18 定）；根目录只保留 `CLAUDE.md` / `AGENTS.md` / `README.md` 三个入口文件。**
+**开发向详细索引（含每个文件用途 + 「按主题快速定位」表）见 [`doc/README.md`](doc/README.md) —— 找开发文档先读它。**
 
 ```text
 doc/
@@ -61,7 +61,7 @@ doc/
 | [`doc/archive/_report/`](doc/archive/_report/) | 历史真机诊断报告（ANE / 分支B / GPU 滤镜 / 资源迁移）；原 `tools/Test/_report/` 已于 2026-11-17 清理 |
 | `tools/skills-1.2.3/` | 第三方技能包（非本项目文档，原样留存） |
 
-**文档维护约定**：新文档一律进 `doc/`（**不要再建顶层 `docs/`**）；新增或移动后同步更新 `doc/README.md` 与上表；过期但仍有参考价值的文档移入 `doc/archive/` 而不是删除；构建日志（`build_output.txt`、`mob_*.log`）属临时产物，留档时放 `doc/archive/logs/`。
+**文档维护约定**：开发向文档进 `doc/`，用户向文档进根目录 `docs/`（两边不互相搬）；新增或移动后同步更新 `doc/README.md` 与上表；过期但仍有参考价值的文档移入 `doc/archive/` 而不是删除；构建日志（`build_output.txt`、`mob_*.log`）属临时产物，留档时放 `doc/archive/logs/`。
 
 ## 参考工程索引与专题文档
 
