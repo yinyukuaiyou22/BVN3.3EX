@@ -2,6 +2,7 @@ package net.play5d.game.bvn.mob.input
 {
    import flash.display.Stage;
    import flash.utils.Dictionary;
+   import net.play5d.game.bvn.Debugger;
    import net.play5d.game.bvn.input.*;
    
    public class GameJoystickInput implements IGameInput
@@ -154,8 +155,11 @@ package net.play5d.game.bvn.mob.input
          {
             return false;
          }
-         var _r:Boolean = Boolean(JoySticker.isDown(this._config.deviceId,this._config.back)) || Boolean(JoySticker.isDown(this._config.deviceId,this._config.select));
-         this._checkEdge("back", [this._config.back, this._config.select], _r);
+         // 2026-11-19：BACK 只认 back 槽位，不再 || select。
+         // 旧逻辑让确认键兼做返回键：玩家把 SELECT 改到某键后，菜单里按它会「既确认又返回」。
+         // 键盘 ESC 与触屏 BACK 行不受影响；手柄的返回键可在改键页单独绑定。
+         var _r:Boolean = JoySticker.isDown(this._config.deviceId,this._config.back);
+         this._checkEdge("back", [this._config.back], _r);
          this._joyLog("back",_r);
          return _r;
       }

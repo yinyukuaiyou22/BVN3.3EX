@@ -12,6 +12,7 @@ package net.play5d.game.bvn.ui
    import net.play5d.game.bvn.events.SetBtnEvent;
    import net.play5d.game.bvn.input.*;
    import net.play5d.game.bvn.interfaces.*;
+   import net.play5d.game.bvn.mob.views.ViewManager;
    import net.play5d.game.bvn.utils.*;
    
    public class SetBtnGroup extends Sprite
@@ -492,6 +493,12 @@ package net.play5d.game.bvn.ui
             "optoinKey":"ENABLE_KEYBOARD",
             "optionValue":_loc1_.getValueByKey("ENABLE_KEYBOARD")
          },{
+            // 2026-11-19：P1 手柄改键入口。走行级 select 回调打开 JoyStickSetUI，
+            // 刻意不在 SettingState.onBtnSelect 里加同名 case —— 两处同时命中会连开两个子页。
+            "label":"Joy Key Set",
+            "cn":"手柄按键设置",
+            "select":ViewManager.I.goP1JoyStickSet
+         },{
             "label":"BACK",
             "cn":"返回"
          }]);
@@ -508,6 +515,12 @@ package net.play5d.game.bvn.ui
          {
             _loc5_ = param1[_loc4_];
             _loc3_ = this.addBtn(_loc5_.label,_loc5_.cn,_loc5_.options);
+            // 2026-11-19：让 setBtnData 也支持行级 select 回调（此前只有 buildBtnsByData 支持），
+            // 子页（ControlSetUI / JoyStickSetUI）才能挂「点开另一个子页」的行。
+            if(_loc5_.select != undefined)
+            {
+               _loc3_.onSelect = _loc5_.select;
+            }
             if(_loc5_.optoinKey != undefined)
             {
                _loc3_.optionKey = _loc5_.optoinKey;

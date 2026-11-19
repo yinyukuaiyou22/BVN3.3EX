@@ -1,4 +1,4 @@
-﻿package net.play5d.game.bvn.mob.data
+package net.play5d.game.bvn.mob.data
 {
    import net.play5d.game.bvn.interfaces.*;
    import net.play5d.game.bvn.mob.input.*;
@@ -87,8 +87,11 @@ this.updateJoyConfig();
       public function updateJoyConfig() : void
       {
          this.initDefaultDevices();
-         // 菜单手柄设备号跟随 P1（向后兼容批次 1 的设计：单手柄模型，菜单/P1 视为同一物理设备）。
-         this.joyMenuConfig.deviceId = this.joy1Config.deviceId;
+         // 2026-11-19：菜单配置整体跟随 P1，而不只是 deviceId。
+         // 菜单通道是 joy_menu -> joyMenuConfig；旧逻辑只同步设备号，玩家在改键页把方向/确认改到别的键后，
+         // 战斗里生效、菜单里仍按默认键 —— 表现为「改了没用」。这里把 P1 的整张键位表拷过去。
+         // 必须放在 initDefaultDevices() 之后，否则刚分配的 deviceId 会被覆盖回 null。
+         this.joyMenuConfig.readObj(this.joy1Config.toObj());
       }
 
       private function initDefaultDevices() : void

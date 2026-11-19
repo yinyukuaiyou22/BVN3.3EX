@@ -144,8 +144,19 @@ package net.play5d.game.bvn.mob.input
          }
       }
       
+      /**
+       * 空设备表占位。平台不支持手柄时 _gameDeivces 从未创建，
+       * 调用方（如 JoyStickSetUI.initBtns）直接读 .length 会抛 Error #1009。
+       * 统一返回空表，让调用方只管判空。
+       */
+      private static var _emptyDeivces:Vector.<GameInputDevice> = new Vector.<GameInputDevice>();
+
       public static function getAllDeivces() : Vector.<GameInputDevice>
       {
+         if(!_gameDeivces)
+         {
+            return _emptyDeivces;
+         }
          return _gameDeivces;
       }
       
