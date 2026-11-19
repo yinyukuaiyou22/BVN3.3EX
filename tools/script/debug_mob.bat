@@ -1,4 +1,10 @@
-﻿::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@echo off
+chcp 65001 >nul
+:: 2026-11-18: chcp must be the very first thing in this file.
+:: This file is UTF-8; Chinese text placed BEFORE chcp 65001 is parsed as GBK
+:: and its tail bytes get executed as commands ("'...' is not recognized").
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::
 :: Copyright (C) 2021-2026, 5DPLAY Game Studio
 :: All rights reserved.
@@ -19,12 +25,13 @@
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ::
 :: ############################################################################
-:: ⚠ 重要（2026-11-12 用户规则）：本脚本打完包会**自动挑一台设备安装**，而 adb 会
-::   优先挑到 USB 连着的真机（V2073A / 306383853300549）—— 表现为真机弹安装框、
-::   报 INSTALL_FAILED_ABORTED: User rejected permissions。
-::   用户明确要求：**日常验证一律用 MuMu 模拟器，不要往真机装**；
-::   真机只在用户明确说「完成了 / 给我一份安装包」时才碰。
-::   ⇒ 日常请改用 tools\script\pack_only.bat：
+:: IMPORTANT (user rule, 2026-11-12): this script INSTALLS the apk after packing,
+:: and adb prefers the USB-attached real phone, which pops an install dialog and
+:: fails with INSTALL_FAILED_ABORTED: User rejected permissions.
+:: Rule: daily verification uses the MuMu emulator only; never install on the phone.
+::   => for build-only, use tools\script\pack_only.bat
+::   => for the minimal release apk, use tools\script\pack_min.ps1
+:: (old) pack_only shortcuts:
 ::        pack_only.bat        只编译 + 打 tools\Test\bvn.apk
 ::        pack_only.bat mumu   打完并装到 MuMu（127.0.0.1:16416）
 :: ############################################################################
@@ -237,7 +244,7 @@ if %PACK_MISSING%==1 (
 :: ---- Whitelist: effect.swf + movelist.jpg + sounds/ + font/ + 7 runtime config XMLs ----
 :: NOTE: a single -C . precedes ALL file args. Multiple -C flags each reset the base dir,
 ::       so "-C . a\b.xml -C . b.xml" resolves the second against "." and fails "no such file".
-call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass "%BVN_KEYSTORE_PASS%" "bvn.apk" "application.xml" -platformsdk "%ANDROID_SDK%" -extdir "%TEST_DIR%" "launch.swf" -C . assets\effect.swf assets\movelist.jpg assets\sounds assets\font assets\config\preload.xml assets\config\fighter.xml assets\config\assist.xml assets\config\select.xml assets\config\salect.xml assets\config\map.xml assets\config\mission.xml
+call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass "%BVN_KEYSTORE_PASS%" "bvn.apk" "application.xml" -platformsdk "%ANDROID_SDK%" -extdir "%TEST_DIR%" "launch.swf" -C . icons assets\effect.swf assets\movelist.jpg assets\sounds assets\font assets\config\preload.xml assets\config\fighter.xml assets\config\assist.xml assets\config\select.xml assets\config\salect.xml assets\config\map.xml assets\config\mission.xml
 set ADT_RESULT=%errorlevel%
 goto PACK_DONE
 
@@ -246,7 +253,9 @@ goto PACK_DONE
 if not exist "%MIN_DIR%\assets\config\select.xml" (
     echo [MIN] min_assets not found - trying to generate it...
     pushd "%TEST_DIR%"
-    python build_min_assets.py
+    :: 2026-11-18: 直接用 `python` 会命中坏掉的 venv shim（报 failed to locate pyvenv.cfg），
+    :: 改用 Windows 启动器 py -3；机器上没有 py 时再退回 python。
+    where py >nul 2>nul && (py -3 build_min_assets.py) || (python build_min_assets.py)
     popd
 )
 if not exist "%MIN_DIR%\assets\config\select.xml" (
@@ -281,7 +290,7 @@ if %PACK_MISSING%==1 (
 
 :: Every directory below is already minimal inside min_assets, and every file name is
 :: ASCII-only (ADT rejects non-ASCII asset names - measured exit 12).
-call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass "%BVN_KEYSTORE_PASS%" "bvn_min.apk" "application.xml" -platformsdk "%ANDROID_SDK%" -extdir "%TEST_DIR%" "launch.swf" -C min_assets assets\effect.swf assets\movelist.jpg assets\sounds assets\font assets\config assets\fighter assets\face assets\map assets\bgm
+call "%ADT%" -package -target apk-captive-runtime -arch armv8 -storetype pkcs12 -keystore "%CERT%" -storepass "%BVN_KEYSTORE_PASS%" "bvn_min.apk" "application.xml" -platformsdk "%ANDROID_SDK%" -extdir "%TEST_DIR%" "launch.swf" -C . icons -C min_assets assets\effect.swf assets\movelist.jpg assets\sounds assets\font assets\config assets\fighter assets\face assets\map assets\bgm
 set ADT_RESULT=%errorlevel%
 
 :PACK_DONE

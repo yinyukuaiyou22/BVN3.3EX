@@ -453,21 +453,7 @@ package net.play5d.game.bvn.mob
                "value":"best"
             }],
             "optoinKey":"quality"
-         },(GameConfig.IS_MOBILE ? {
-            // 2026-11-12：手机端「滤镜效果（实验功能）」，默认关；PC 端不显示该项（行为不变）。
-            "txt":"FILTER FX",
-            "cn":"滤镜效果（实验功能）",
-            "options":[{
-               "label":"OFF",
-               "cn":"关",
-               "value":false
-            },{
-               "label":"ON",
-               "cn":"开",
-               "value":true
-            }],
-            "optoinKey":"filterEffect"
-         } : null)];
+         }];
       }
       
       /**
@@ -677,6 +663,22 @@ package net.play5d.game.bvn.mob
                "value":"best"
             }],
             "optoinKey":"quality"
+         },{
+            // 2026-11-19：从常规设置（GAME CFG）搬到画面设置，和画质等级同页。
+            // 去掉了原先的 IS_MOBILE 限制：PC 上这个开关同样生效（关掉会跳过滤镜绘制），
+            // 藏起来反而让人找不到。默认值保持 ConfigVO.filterEffect 的现有默认。
+            "txt":"FILTER FX",
+            "cn":"滤镜效果（实验功能）",
+            "options":[{
+               "label":"OFF",
+               "cn":"关",
+               "value":false
+            },{
+               "label":"ON",
+               "cn":"开",
+               "value":true
+            }],
+            "optoinKey":"filterEffect"
          }];
       }
       
