@@ -1,5 +1,6 @@
 package net.play5d.game.bvn.mob.utils
 {
+   import flash.desktop.NativeApplication;
    import flash.events.*;
    import flash.external.ExtensionContext;
    import flash.filesystem.File;
@@ -118,7 +119,52 @@ package net.play5d.game.bvn.mob.utils
        *  Users can push custom content via adb (tar, to avoid CJK filename truncation):
        *    adb push x.tar /sdcard/ && adb shell tar xf /sdcard/x.tar -C <this dir>
        *  Subdirs: fighter/ map/ face/ bgm/ config/  (auto-created on first launch) */
-      public static var EXTERNAL_BASE:String = "/storage/emulated/0/Android/media/air.com.bvn.yy798/BVN/assets/";
+      /**
+       * 2026-11-19：改为按实际应用 id 推导，不再写死包名。
+       * 原因：包名一改（如换成 BVNEXyinyu），Android 侧真实包名变成 "air." + applicationID，
+       * 写死的路径会指到旧目录，外置资源静默回退 APK 内置、玩家以为资源丢了。
+       * actionScript 侧取不到 id 时退回旧包名，保证 PC/异常场景仍可用。
+       */
+      private static function _defaultExternalBase() : String
+      {
+         var appId:String = null;
+         try
+         {
+            appId = NativeApplication.nativeApplication.applicationID;
+            Debugger.log(TAG, "_defaultExternalBase appId=[", appId, "]");
+         }
+         catch(e:Error)
+         {
+            Debugger.log(TAG, "_defaultExternalBase FAILED:", e.message);
+            appId = null;
+         }
+         if(!appId)
+         {
+            appId = "com.bvn.yy798";
+         }
+         return "/storage/emulated/0/Android/media/air." + appId + "/BVN/assets/";
+      }
+
+      /**
+       * 惰性求值：不能在静态初始化时调 applicationID —— 那时 NativeApplication 还没就绪，
+       * 取到 null 会静默走兜底分支，包名改了也仍指向旧目录（2026-11-19 实测踩过）。
+       * 首次读取时才计算；getter/setter 成对，tryInitExternalBase() 里的赋值照旧可用。
+       */
+      private static var _externalBase:String;
+
+      public static function get EXTERNAL_BASE() : String
+      {
+         if(!_externalBase)
+         {
+            _externalBase = _defaultExternalBase();
+         }
+         return _externalBase;
+      }
+
+      public static function set EXTERNAL_BASE(param1:String) : void
+      {
+         _externalBase = param1;
+      }
 
       /** DocumentsProvider authority string. File managers (e.g. MT Manager) use this to browse app data.
        *  Call registerProvider() to wake the process before opening in a file manager. */

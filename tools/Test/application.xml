@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <application xmlns="http://ns.adobe.com/air/application/32.0">
-	<id>com.bvn.yy798</id>
+	<id>BVNEXyinyu</id>
 	<filename>launch</filename>
 	<name>死神vs火影</name>
 	<versionNumber>2.0.5</versionNumber>
 	<copyright>YinYu</copyright>
+
+	<icon>
+		<image512x512>icons/icon_512.png</image512x512>
+		<image192x192>icons/icon_192.png</image192x192>
+		<image144x144>icons/icon_144.png</image144x144>
+		<image96x96>icons/icon_96.png</image96x96>
+		<image72x72>icons/icon_72.png</image72x72>
+		<image48x48>icons/icon_48.png</image48x48>
+		<image36x36>icons/icon_36.png</image36x36>
+	</icon>
 
 	<initialWindow>
 		<content>launch.swf</content>

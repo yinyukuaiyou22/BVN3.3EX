@@ -61,7 +61,9 @@ try {
       'bvn_min.apk','application.xml','-platformsdk',$sdk,'-extdir',$test,
       'launch.swf','-C','min_assets',
       'assets\effect.swf','assets\movelist.jpg','assets\sounds','assets\font',
-      'assets\config','assets\fighter','assets\face','assets\map','assets\bgm'
+      'assets\config','assets\fighter','assets\face','assets\map','assets\bgm',
+      # 图标必须显式打进包，否则 adt 报 error 303 Icon is missing from package
+      '-C','.','icons'
    )
    & $adt @adtArgs
    if ($LASTEXITCODE -ne 0) { throw ('adt failed: ' + $LASTEXITCODE) }
