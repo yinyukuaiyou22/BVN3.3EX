@@ -1,7 +1,7 @@
 # BVN 项目文档索引
 
 > **AI 检索入口。** 本文件是 `doc/` 的唯一目录，找文档先看这里。
-> 整理日期：2026-10-11（把根目录散落文档、`docs/` 双根目录、第三方技能包统一收拢）。
+> 整理日期：2026-11-19（补 4 份决策/清单、2 份计划与 archive 实际条目，链接零失效）；上一轮 2026-10-11 收拢根目录散落文档与 `docs/` 双根目录。
 
 ## 0. 先读哪几个
 
@@ -31,6 +31,10 @@ doc/
 ├── _api_doc.txt                  API 文档 dump（类/方法签名速查）
 ├── decisions-select-video.md    选人/加载界面视频（25s 上限、进选人释放 StageVideo 槽、循环、翻页兼容）D1~D5
 ├── menu-layout-decisions.md      主菜单排版决策记录（左侧竖列 + 二级独立列，D1~D13；含菜单条目/跳转的唯一改动点）
+├── decisions-人物包整合.md       人物包按作者分组重写 fighter.xml/select.xml 的结论与待定问题（select 排版不变）
+├── decisions-ai-link-chain.md   HELL/CRAZY 随机纽带连招的决策与执行记录（2026-10-12/13）
+├── decisions-agents-md-slim.md  AGENTS.md 精简决策（三段骨架的来源；基线 tag snapshot/pre-agents-slim-2026-11-02-1034）
+├── 未入包角色清单.md            精简包缺口：2026-11-01 基准下 352 个 / 5612 MB 未入包，附作者与体积
 ├── 37-extended/                  3.7 扩展版参考源码的拆解与移植参考（6 册 + 术语表，2026-11-17 建）
 │   ├── 00-README.md                目标/约束/优先级 + 事实基线 + 六册导航
 │   ├── 01-diff-inventory.md        3.7 独有 227 类逐类清单 + 主项目独有 39 类「别覆盖清单」+ 同名陷阱
@@ -76,8 +80,12 @@ doc/
 │   ├── 2026-09-07-选人界面工具-单页窗口与翻页.md
 │   ├── game-faithful-vertical-pagination_plan.md   工具垂直分页对齐游戏内（原 .trae/documents/）
 │   ├── refimg-layering-fix-plan.md                 工具参考图图层修正（原 .trae/documents/）
+│   ├── 2026-11-08-选人界面工具-触摸版.md            选人排版工具触摸版（手势替代鼠标）
+│   ├── 2026-11-12-MuMu幽灵步与滤镜实验开关.md       MuMu 幽灵步与滤镜实验开关
 │   └── select-xml-paging-fix-plan.md               select.xml 分页清洗（原 .trae/documents/）
 └── archive/                      归档：过时 / 重复 / 第三方 / 日志
+    ├── cleanup-2026-11-17.md                    工作区清理记录（只删可再生产物 + 回收站策略 + 结果）
+    ├── _report/                                 历史真机诊断报告（ANE / 分支B / GPU 滤镜 / 资源迁移，8 个文件）
     ├── AI-SYSTEM-DOC.root-stale-2026-09-01.md   根目录旧版（已被 doc/ 内 10-09 版取代）
     ├── push-guide-2026-10-11.md                 原根目录 PUSH-操作手册（当时沙箱不能写 git，已过时）
     ├── _api_doc.root-duplicate.txt              与 doc/_api_doc.txt 完全相同
@@ -107,6 +115,10 @@ doc/
 | **换人模式（TAG）：辅助键换人 / 共享血池 / 空中时停换人** | [`tag-mode/proposal.md`](tag-mode/proposal.md) → [`tag-mode/plan.md`](tag-mode/plan.md) → [`tag-mode/progress.md`](tag-mode/progress.md) |
 | 选人界面翻页 / 单页窗口决策 | [`adr/ADR-001-单页窗口与翻页交互.md`](adr/ADR-001-单页窗口与翻页交互.md)、[`plans/2026-09-07-选人界面工具-单页窗口与翻页.md`](plans/2026-09-07-选人界面工具-单页窗口与翻页.md) |
 | **外部包挂滤镜没效果 / 时停变黑白屏 / 角色凭空消失** | [`gpu-filter-proxy.md`](gpu-filter-proxy.md)：§2 实测事实、§3 架构、§5 参数、§6 踩坑、**附录 A 改动履历**、**附录 B 12 条错误经验** |
+| 哪个角色还没进精简包 / 包体怎么凑 | [`未入包角色清单.md`](未入包角色清单.md)（2026-11-01 基准：352 个 / 5612 MB 未入包，含作者与体积） |
+| 人物包整合（按作者分组重写 fighter.xml/select.xml） | [`decisions-人物包整合.md`](decisions-人物包整合.md) |
+| HELL/CRAZY 随机纽带连招 | [`decisions-ai-link-chain.md`](decisions-ai-link-chain.md) + `CLAUDE.md`「随机纽带连招约定」 |
+| AGENTS.md 为什么这么瘦 / 三段骨架怎么来的 | [`decisions-agents-md-slim.md`](decisions-agents-md-slim.md) |
 | 类/方法签名速查 | [`_api_doc.txt`](_api_doc.txt) |
 | 走查工程结构 / 模块清单 | [`architecture.md`](architecture.md) |
 | 改移动端 UI / 触控 / 手柄 / 选人 / Debugger / 打 APK | [`runtime-pitfalls.md`](runtime-pitfalls.md)（无法解释的点不动 / 旧图不刷新 / 按钮消失 / 日志抓不到，先看它） |

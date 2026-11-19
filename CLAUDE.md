@@ -33,6 +33,9 @@ doc/
 ├── runtime-pitfalls.md        运行时踩坑速查 + 开发日志〔改移动端 / fighter 前必读〕
 ├── gpu-filter-proxy.md        GPU 模式滤镜位图代理层（附录 A 改动履历 / 附录 B 错误经验）〔外部包挂滤镜 / 时停灰度必读〕
 ├── select-regression-matrix.md 选人界面回归测试矩阵（原在 BVNscripts/scripts/，2026-10-21 移入）
+├── menu-layout-decisions.md   主菜单排版决策 D1~D13（改菜单只动 GameInterfaceManager / MenuBtnGroup）
+├── decisions-*.md             决策记录：人物包整合 / HELL 随机纽带连招 / AGENTS.md 精简 / 选人视频
+├── 未入包角色清单.md          精简包还没装哪些角色（2026-11-01 基准，352 个 / 5612 MB）
 ├── _api_doc.txt               类与方法签名速查 dump
 ├── 37-extended/               3.7 扩展版参考源码拆解（6 册 + glossary；先读 00-README）
 │                              相机 / JSON 地图 / 自绘 UI / 手柄+重开 / 自动更新 / 差异清单
