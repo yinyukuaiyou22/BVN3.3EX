@@ -16,7 +16,38 @@ package net.play5d.game.bvn.input
       
       private static const JUST_DOWN_DELAY:Number = 0.1;
       
-      public static var enabled:Boolean = true;
+      /** 临时探针（2026-11-21）：记录 enabled 每次翻转与关闭时的调用栈，
+       *  用来钉死「从选人回主菜单后按键失效」。核实完即删。 */
+      private static var _enabled:Boolean = true;
+      
+      public static function get enabled() : Boolean
+      {
+         return _enabled;
+      }
+      
+      public static function set enabled(param1:Boolean) : void
+      {
+         if(param1 != _enabled)
+         {
+            var st:String = "";
+            if(!param1)
+            {
+               try
+               {
+                  st = new Error().getStackTrace();
+               }
+               catch(_e:Error)
+               {
+               }
+               if(st && st.length > 400)
+               {
+                  st = st.substr(0,400);
+               }
+            }
+            Debugger.log("[INPUT] enabled " + _enabled + " -> " + param1 + (st != "" ? " stack=" + st : ""));
+         }
+         _enabled = param1;
+      }
       
       private static var _inputMap:Dictionary = new Dictionary();
       

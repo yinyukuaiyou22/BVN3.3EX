@@ -86,7 +86,7 @@ package net.play5d.game.bvn.mob
             "txt":"TEAM PLAY",
             "cn":"小队模式",
             "children":[{
-               "txt":"TEAM ACRADE",
+               "txt":"ARCADE",
                "cn":"闯关",
                "func":function():void
                {
@@ -95,61 +95,73 @@ package net.play5d.game.bvn.mob
                   MainGame.I.goSelect();
                }
             },{
-               "txt":"TEAM VS PEOPLE",
-               "cn":"小队对战",
-               "func":function():void
-               {
-                  GameMode.currentMode = 11;
-                  MainGame.I.goSelect();
-               }
+               "txt":"VS",
+               "cn":"对战",
+               "children":[{
+                  "txt":"PEOPLE",
+                  "cn":"双人对战",
+                  "func":function():void
+                  {
+                     GameMode.currentMode = 11;
+                     MainGame.I.goSelect();
+                  }
+               },{
+                  "txt":"CPU",
+                  "cn":"VS 人机",
+                  "func":function():void
+                  {
+                     GameMode.currentMode = 12;
+                     MainGame.I.goSelect();
+                  }
+               },{
+                  "txt":"WATCH",
+                  "cn":"观战",
+                  "func":function():void
+                  {
+                     GameMode.currentMode = 13;
+                     MainGame.I.goSelect();
+                  }
+               }]
             },{
-               "txt":"TEAM VS CPU",
-               "cn":"VS人机",
-               "func":function():void
-               {
-                  GameMode.currentMode = 12;
-                  MainGame.I.goSelect();
-               }
-            },{
-               "txt":"TEAM WATCH",
-               "cn":"观战小队",
-               "func":function():void
-               {
-                  GameMode.currentMode = 13;
-                  MainGame.I.goSelect();
-               }
-            },{
-               "txt":"TEAM DUO",
+               "txt":"DUO",
                "cn":"2v2",
-               "func":function():void
-               {
-                  GameMode.currentMode = 14;
-                  MainGame.I.goSelect();
-               }
+               "children":[{
+                  "txt":"DUO",
+                  "cn":"2v2 对战",
+                  "func":function():void
+                  {
+                     GameMode.currentMode = 14;
+                     MainGame.I.goSelect();
+                  }
+               },{
+                  "txt":"WATCH",
+                  "cn":"观战 2v2",
+                  "func":function():void
+                  {
+                     GameMode.currentMode = 15;
+                     MainGame.I.goSelect();
+                  }
+               }]
             },{
-               "txt":"TEAM DUO WATCH",
-               "cn":"观战(2v2)",
-               "func":function():void
-               {
-                  GameMode.currentMode = 15;
-                  MainGame.I.goSelect();
-               }
-            },{
-               "txt":"TEAM TAG",
-               "cn":"换人(双人)",
-               "func":function():void
-               {
-                  GameMode.currentMode = 16;
-                  MainGame.I.goSelect();
-               }
-            },{
-               "txt":"TEAM TAG VS CPU",
-               "cn":"换人(人机)",
-               "func":function():void
-               {
-                  GameMode.currentMode = 17;
-                  MainGame.I.goSelect();
-               }
+               "txt":"TAG",
+               "cn":"换人",
+               "children":[{
+                  "txt":"TAG",
+                  "cn":"换人(双人)",
+                  "func":function():void
+                  {
+                     GameMode.currentMode = 16;
+                     MainGame.I.goSelect();
+                  }
+               },{
+                  "txt":"VS CPU",
+                  "cn":"换人(人机)",
+                  "func":function():void
+                  {
+                     GameMode.currentMode = 17;
+                     MainGame.I.goSelect();
+                  }
+               }]
             }]
          },{
             "txt":"SINGLE PLAY",

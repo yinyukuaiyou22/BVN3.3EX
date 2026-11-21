@@ -34,14 +34,15 @@ package net.play5d.game.bvn.ui
       /** 一级列宽（layoutColumns 后有效） */
       private var _colW:Number = 0;
       
-      /** 子列宽度（layoutChildColumn 后有效） */
+      /** 最近一次排版的子列宽度（placeColumn 后有效） */
       private var _childColW:Number = 0;
       
       private var _btnIndex:int;
       
       private var _btns:Array = [];
       
-      private var _showIngChildrenBtn:MenuBtn;
+      /** 已展开的层级（第 1 个 = 一级项的子项列，依次递进）；2026-11-21 由单层改为栈，支持三级 */
+      private var _openLevels:Array = [];
       
       public function MenuBtnGroup()
       {
@@ -56,6 +57,23 @@ package net.play5d.game.bvn.ui
       public function destory() : void
       {
          var _loc1_:* = undefined;
+         // 展开层挂在组上的子项 ui 要先摘掉，否则 dispose 之后它们仍是本组的子节点
+         var _lv:int = 0;
+         while(_lv < this._openLevels.length)
+         {
+            var _list:Array = this._openLevels[_lv].children;
+            var _j:int = 0;
+            while(Boolean(_list) && _j < _list.length)
+            {
+               if(Boolean(_list[_j] && _list[_j].ui) && contains(_list[_j].ui))
+               {
+                  removeChild(_list[_j].ui);
+               }
+               _j++;
+            }
+            _lv++;
+         }
+         this._openLevels = [];
          GameRender.remove(this.render);
          for each(_loc1_ in this._btns)
          {
@@ -195,46 +213,48 @@ package net.play5d.game.bvn.ui
          // 2026-10-27 排版重做：整组滚动的唯一用途是「一条对角线长阶梯放不下」，
          // 改成左侧竖列 + 二级独立列后，一级 6×80 / 二级 7×60 都在可用高度内，
          // 滚动会算出错误位移，故停用（保留空实现，避免外部若有调用直接崩）。
-         // 子列真放不下时由 layoutChildColumn() 压缩行距并在日志里留痕。
+         // 子列真放不下时由 placeColumn() 压缩行距并在日志里留痕。
       }
       
       private function hoverBtn(param1:MenuBtn) : void
       {
-         var _loc2_:* = null;
-         var _loc3_:int = 0;
-         var _loc4_:* = null;
-         var _loc5_:int = 0;
-         while(_loc3_ < this._btns.length)
+         var b:MenuBtn = null;
+         var i:int = 0;
+         i = 0;
+         while(i < this._btns.length)
          {
-            _loc2_ = this._btns[_loc3_];
-            if(_loc2_ == param1)
+            b = this._btns[i];
+            if(b == param1)
             {
-               _loc2_.hover();
-               this._btnIndex = _loc3_;
+               b.hover();
+               this._btnIndex = i;
             }
             else
             {
-               _loc2_.normal();
+               b.normal();
             }
-            _loc3_++;
+            i++;
          }
-         if(Boolean(this._showIngChildrenBtn))
+         var lv:int = 0;
+         while(lv < this._openLevels.length)
          {
-            _loc4_ = this._showIngChildrenBtn.children;
-            while(_loc5_ < _loc4_.length)
+            var list:Array = this._openLevels[lv].children;
+            i = 0;
+            while(Boolean(list) && i < list.length)
             {
-               _loc2_ = _loc4_[_loc5_];
-               if(_loc2_ == param1)
+               b = list[i];
+               if(b == param1)
                {
-                  _loc2_.hover();
-                  this._btnIndex = _loc5_;
+                  b.hover();
+                  this._btnIndex = i;
                }
                else
                {
-                  _loc2_.normal();
+                  b.normal();
                }
-               _loc5_++;
+               i++;
             }
+            lv++;
          }
       }
       
@@ -431,290 +451,246 @@ package net.play5d.game.bvn.ui
          return func;
       }
       
-      private function toogleChildren(param1:MenuBtn) : void
+      /** 当前用键盘/手柄操作的那一层：最深展开层的子项；没有展开则一级列 */
+      private function getActiveList() : Array
       {
-         var _loc2_:* = false;
-         if(Boolean(this._showIngChildrenBtn))
+         if(this._openLevels.length > 0)
          {
-            _loc2_ = param1 == this._showIngChildrenBtn;
-            if(!_loc2_)
-            {
-               this._showIngChildrenBtn.normal();
-            }
-            this.closeChildren(_loc2_,_loc2_);
-            if(Boolean(_loc2_))
-            {
-               return;
-            }
+            return this._openLevels[this._openLevels.length - 1].children;
          }
-         this._showIngChildrenBtn = param1;
-         param1.openChild();
-         this.openChildren(param1);
-         this.hoverBtn(param1.children[0]);
+         return this._btns;
       }
       
       /**
-       * 展开子列：子项挂到本组、排到父列右侧（父列位置不动），从左缘滑入 + 淡入。
-       * 与旧实现的区别：旧实现把所有子项插进主列的同一条阶梯里续排，父列因此被挤走。
+       * 展开 / 收起某一项。点已展开的项 = 收起它及其以下；点别的项 = 全部收起后只展开它。
+       * 2026-11-21：由「只支持一层」改为层级栈，支持三级（TEAM PLAY → VS → PEOPLE 这种）。
+       */
+      private function toogleChildren(param1:MenuBtn) : void
+      {
+         var depth:int = this._openLevels.indexOf(param1);
+         if(depth != -1)
+         {
+            this.closeFrom(depth);
+            return;
+         }
+         this.closeFrom(0);
+         this._openLevels.push(param1);
+         param1.openChild();
+         this.openChildren(param1);
+         if(Boolean(param1.children) && param1.children.length > 0)
+         {
+            this._btnIndex = 0;
+            this.hoverBtn(param1.children[0]);
+         }
+      }
+      
+      /**
+       * 从第 param1 层开始收起（含该层及更深层），光标回到上一层里被收起的那一项。
+       */
+      private function closeFrom(param1:int) : void
+      {
+         if(param1 < 0)
+         {
+            param1 = 0;
+         }
+         var closing:MenuBtn = null;
+         var backIndex:int = 0;
+         var backList:Array = this._btns;
+         if(param1 < this._openLevels.length)
+         {
+            closing = this._openLevels[param1];
+            backList = param1 > 0 ? this._openLevels[param1 - 1].children : this._btns;
+            backIndex = backList.indexOf(closing);
+         }
+         var i:int = this._openLevels.length - 1;
+         while(i >= param1)
+         {
+            var lv:MenuBtn = this._openLevels[i];
+            var j:int = 0;
+            while(Boolean(lv.children) && j < lv.children.length)
+            {
+               var cb:MenuBtn = lv.children[j];
+               if(Boolean(cb) && Boolean(cb.ui) && contains(cb.ui))
+               {
+                  removeChild(cb.ui);
+                  cb.ui.alpha = 1;
+               }
+               j++;
+            }
+            lv.closeChild();
+            this._openLevels.pop();
+            i--;
+         }
+         if(param1 == 0)
+         {
+            this._openLevels = [];
+         }
+         this.layoutColumns(true);
+         if(Boolean(closing) && backIndex >= 0)
+         {
+            this._btnIndex = backIndex;
+            this.hoverBtn(closing);
+         }
+      }
+      
+      /**
+       * 展开子列：子项挂到本组、按层级依次排到父列右侧，从左缘滑入 + 淡入。
        */
       private function openChildren(param1:MenuBtn) : void
       {
-         var _loc2_:int = 0;
-         var _loc3_:MenuBtn = null;
-         var _loc4_:Number = NaN;
-         while(_loc2_ < param1.children.length)
+         var i:int = 0;
+         var b:MenuBtn = null;
+         while(i < param1.children.length)
          {
-            _loc3_ = param1.children[_loc2_];
-            _loc3_.ui.alpha = 0;
-            if(!contains(_loc3_.ui))
+            b = param1.children[i];
+            b.ui.alpha = 0;
+            if(!contains(b.ui))
             {
-               addChild(_loc3_.ui);
+               addChild(b.ui);
             }
-            _loc2_++;
+            i++;
          }
-         // 先做一次「立即定位」（左缘对齐在 layoutChildColumn 里算），再统一从左侧滑入 + 淡入。
-         // 不能像旧版那样自己写死初始 x：偏移量要由 bgOffsetX 决定，否则滑入起点会歪。
-         this.layoutChildColumn(param1,false);
-         _loc2_ = 0;
-         while(_loc2_ < param1.children.length)
+         // 先立即定位（x 由 placeColumn 按累计层宽算），再统一从左侧滑入 + 淡入
+         this.layoutColumns(false);
+         i = 0;
+         while(i < param1.children.length)
          {
-            _loc4_ = param1.children[_loc2_].ui.x;
-            param1.children[_loc2_].ui.x = _loc4_ - 20;
-            TweenLite.to(param1.children[_loc2_].ui,0.2,{
-               "x":_loc4_,
+            var tx:Number = param1.children[i].ui.x;
+            param1.children[i].ui.x = tx - 20;
+            TweenLite.to(param1.children[i].ui,0.2,{
+               "x":tx,
                "alpha":1,
-               "delay":_loc2_ * 0.04
+               "delay":i * 0.04
             });
-            _loc2_++;
-         }
-      }
-      
-      private function closeChildren(param1:Boolean, param2:Boolean) : void
-      {
-         var _loc3_:int = 0;
-         var _loc4_:* = null;
-         var _loc5_:Array = this._showIngChildrenBtn.children;
-         _loc3_ = 0;
-         while(_loc3_ < _loc5_.length)
-         {
-            _loc4_ = _loc5_[_loc3_];
-            if(Boolean(_loc4_) && Boolean(_loc4_.ui) && contains(_loc4_.ui))
-            {
-               removeChild(_loc4_.ui);
-            }
-            _loc3_++;
-         }
-         this._showIngChildrenBtn.closeChild();
-         this._showIngChildrenBtn = null;
-         // 父列位置从不改动，这里不需要重排；保留参数以兼容既有调用点
-         if(param1)
-         {
-            this.layoutColumns(Boolean(param2));
+            i++;
          }
       }
       
       /**
-       * 一级列排版：左侧竖列，x 恒定，列宽统一（按最宽标签 + 两侧内边距），文字靠左。
-       * param1 = true 时用 tween 过渡，false 时立即赋值（build / 重置用）。
+       * 全量排版：一级列 + 每一层展开列，从左往右依次紧排。
+       * 列宽 / 行距 / 纵向夹取都在 placeColumn() 里算。
        */
       private function layoutColumns(param1:Boolean = false) : void
       {
-         var _loc2_:int = 0;
-         var _loc3_:MenuBtn = null;
-         var _loc4_:Number = 0;
-         var _loc5_:Number = 0;
-         var _loc6_:Number = 0;
-         var _loc7_:Number = 0;
-         _loc2_ = 0;
-         while(_loc2_ < this._btns.length)
+         var i:int = 0;
+         var mw:Number = 0;
+         i = 0;
+         while(i < this._btns.length)
          {
-            _loc4_ = Math.max(_loc4_,this._btns[_loc2_].measuredWidth);
-            _loc2_++;
+            mw = Math.max(mw,this._btns[i].measuredWidth);
+            i++;
          }
-         this._colW = _loc4_ + MenuBtn.TEXT_PAD * 2;
-         var _loc8_:Number = GameConfig.GAME_SIZE.x - MARGIN_LEFT * 2 - COL_GAP;
-         if(this._colW > _loc8_)
+         var w1:Number = mw + MenuBtn.TEXT_PAD * 2;
+         var limit1:Number = GameConfig.GAME_SIZE.x - MARGIN_LEFT * 2 - COL_GAP;
+         if(w1 > limit1)
          {
-            this._colW = _loc8_;
+            w1 = limit1;
          }
-         if(this._colW < MenuBtn.TEXT_PAD * 2)
+         if(w1 < MenuBtn.TEXT_PAD * 2)
          {
-            this._colW = MenuBtn.TEXT_PAD * 2;
+            w1 = MenuBtn.TEXT_PAD * 2;
          }
-         _loc5_ = MARGIN_LEFT;
-         _loc6_ = MARGIN_TOP;
-         _loc2_ = 0;
-         while(_loc2_ < this._btns.length)
+         this._colW = w1;
+         this.placeColumn(this._btns,MARGIN_LEFT,w1,MARGIN_TOP,param1);
+         var x:Number = MARGIN_LEFT + w1 + COL_GAP;
+         var lv:int = 0;
+         while(lv < this._openLevels.length)
          {
-            _loc3_ = this._btns[_loc2_];
-            _loc3_.setWidth(this._colW);
-            _loc3_.alignLeft();
-            if(!contains(_loc3_.ui))
+            var btn:MenuBtn = this._openLevels[lv];
+            var list:Array = btn.children;
+            if(Boolean(list) && list.length > 0)
             {
-               addChild(_loc3_.ui);
+               mw = 0;
+               i = 0;
+               while(i < list.length)
+               {
+                  mw = Math.max(mw,list[i].measuredWidth);
+                  i++;
+               }
+               var w:Number = mw + MenuBtn.TEXT_PAD * 2;
+               var avail:Number = GameConfig.GAME_SIZE.x - x - MARGIN_LEFT;
+               if(w > avail)
+               {
+                  w = avail;
+               }
+               if(w < MenuBtn.TEXT_PAD * 2)
+               {
+                  w = MenuBtn.TEXT_PAD * 2;
+               }
+               this._childColW = w;
+               this.placeColumn(list,x,w,btn.ui.y,param1);
+               x = x + w + COL_GAP;
             }
-            // 按「背景条左缘」摆位：mc_wzbtn 是中心注册，直接给 MARGIN_LEFT 会让左半截出屏
-            var _locX:Number = _loc5_ - _loc3_.bgOffsetX;
-            if(param1)
+            lv++;
+         }
+      }
+      
+      /**
+       * 排一列：统一列宽、文字靠左、按背景条左缘摆位；纵向从 param4 起，
+       * 越界先压行距（最低 0.6×），仍越界则整列上移并留日志。
+       */
+      private function placeColumn(param1:Array, param2:Number, param3:Number, param4:Number, param5:Boolean) : void
+      {
+         var n:int = Boolean(param1) ? int(param1.length) : 0;
+         if(n < 1)
+         {
+            return;
+         }
+         var i:int = 0;
+         var total:Number = 0;
+         var availH:Number = GameConfig.GAME_SIZE.y - MARGIN_TOP - MARGIN_BOTTOM;
+         while(i < n)
+         {
+            total += param1[i].height + ROW_GAP;
+            i++;
+         }
+         var gap:Number = ROW_GAP;
+         if(total > availH)
+         {
+            gap = Math.max(ROW_GAP * MIN_ROW_GAP_RATE,ROW_GAP - (total - availH) / n);
+            total = 0;
+            i = 0;
+            while(i < n)
             {
-               TweenLite.to(_loc3_.ui,0.2,{
-                  "x":_locX,
-                  "y":_loc6_
+               total += param1[i].height + gap;
+               i++;
+            }
+         }
+         var y:Number = param4;
+         if(y + total > GameConfig.GAME_SIZE.y - MARGIN_BOTTOM)
+         {
+            y = GameConfig.GAME_SIZE.y - MARGIN_BOTTOM - total;
+         }
+         if(y < MARGIN_TOP)
+         {
+            y = MARGIN_TOP;
+         }
+         if(y + total > GameConfig.GAME_SIZE.y - MARGIN_BOTTOM)
+         {
+            Debugger.log("[MENU] column overflow n=" + n + " h=" + total + " gap=" + gap);
+         }
+         i = 0;
+         while(i < n)
+         {
+            var b:MenuBtn = param1[i];
+            b.setWidth(param3);
+            b.alignLeft();
+            // 按背景条左缘摆位：mc_wzbtn 是中心注册，x 要给「目标左缘 − bgOffsetX」
+            var tx:Number = param2 - b.bgOffsetX;
+            if(param5)
+            {
+               TweenLite.to(b.ui,0.2,{
+                  "x":tx,
+                  "y":y
                });
             }
             else
             {
-               _loc3_.ui.x = _locX;
-               _loc3_.ui.y = _loc6_;
+               b.ui.x = tx;
+               b.ui.y = y;
             }
-            _loc6_ += _loc3_.height + ROW_GAP;
-            _loc2_++;
-         }
-         if(Boolean(this._showIngChildrenBtn))
-         {
-            this.layoutChildColumn(this._showIngChildrenBtn,param1);
-         }
-      }
-      
-      /**
-       * 子列排版：父列右侧独立一列，列宽按子项最宽标签算并夹进屏幕；
-       * 起点对齐父项 y，底端越界整列上移；仍放不下先压缩行距（最低 0.6×），再不行允许溢出并留日志。
-       */
-      private function layoutChildColumn(param1:MenuBtn, param2:Boolean = false) : void
-      {
-         var _loc3_:Array = param1.children;
-         if(!_loc3_ || _loc3_.length < 1)
-         {
-            return;
-         }
-         var _loc4_:Number = 0;
-         var _loc5_:int = 0;
-         var _loc6_:Number = 0;
-         var _loc7_:Number = 0;
-         var _loc8_:Number = 0;
-         _loc5_ = 0;
-         while(_loc5_ < _loc3_.length)
-         {
-            _loc4_ = Math.max(_loc4_,_loc3_[_loc5_].measuredWidth);
-            _loc5_++;
-         }
-         _loc6_ = _loc4_ + MenuBtn.TEXT_PAD * 2;
-         var _loc9_:Number = MARGIN_LEFT + this._colW + COL_GAP;
-         var _loc10_:Number = GameConfig.GAME_SIZE.x - _loc9_ - MARGIN_LEFT;
-         if(_loc6_ > _loc10_)
-         {
-            _loc6_ = _loc10_;
-         }
-         if(_loc6_ < MenuBtn.TEXT_PAD * 2)
-         {
-            _loc6_ = MenuBtn.TEXT_PAD * 2;
-         }
-         this._childColW = _loc6_;
-         // 2026-11-21：二级项在 2026-11-12 提到 80 高后，单列 8 项 = 680 > 可用 480，
-         // 旧逻辑把行距压到 3 仍有 664，只能打日志放它越界 —— 真机上 TEAM TAG VS CPU（模式 17）
-         // 整项落到屏外，触屏永远点不到（键盘/手柄靠 index 仍能选中，所以一直没被发现）。
-         // 现在：单列放不下就改两列网格（列优先：前一半在左列、后一半在右列），
-         // 行高/字号/行距一律不动，索引仍是 0..n-1 的一维顺序（导航语义不变）。
-         var _loc11_:Number = GameConfig.GAME_SIZE.y - MARGIN_TOP - MARGIN_BOTTOM;
-         var _loc14_:Number = 0;
-         _loc5_ = 0;
-         while(_loc5_ < _loc3_.length)
-         {
-            _loc14_ += _loc3_[_loc5_].height + ROW_GAP;
-            _loc5_++;
-         }
-         var _loc15_:int = 1;
-         var _loc16_:int = _loc3_.length;
-         if(_loc14_ > _loc11_)
-         {
-            // 两列各用「单列标签宽」，两列 + 列间距要塞进父列右侧的可用宽度，否则退回单列并留日志
-            if(_loc6_ * 2 + COL_GAP <= _loc10_)
-            {
-               _loc15_ = 2;
-               _loc16_ = Math.ceil(_loc3_.length / 2);
-            }
-            else
-            {
-               Debugger.log("[MENU] child grid skipped: need=" + (_loc6_ * 2 + COL_GAP) + " avail=" + _loc10_);
-            }
-         }
-         var _loc17_:Array = [];
-         var _loc18_:Number = 0;
-         _loc5_ = 0;
-         while(_loc5_ < _loc16_)
-         {
-            _loc18_ = _loc3_[_loc5_].height;
-            if(_loc15_ > 1 && _loc5_ + _loc16_ < _loc3_.length)
-            {
-               _loc18_ = Math.max(_loc18_,_loc3_[_loc5_ + _loc16_].height);
-            }
-            _loc17_.push(_loc18_);
-            _loc5_++;
-         }
-         _loc7_ = ROW_GAP;
-         _loc8_ = _loc16_ * _loc7_;
-         _loc5_ = 0;
-         while(_loc5_ < _loc16_)
-         {
-            _loc8_ += Number(_loc17_[_loc5_]);
-            _loc5_++;
-         }
-         if(_loc8_ > _loc11_)
-         {
-            _loc7_ = Math.max(ROW_GAP * MIN_ROW_GAP_RATE,ROW_GAP - (_loc8_ - _loc11_) / _loc16_);
-            _loc8_ = _loc16_ * _loc7_;
-            _loc5_ = 0;
-            while(_loc5_ < _loc16_)
-            {
-               _loc8_ += Number(_loc17_[_loc5_]);
-               _loc5_++;
-            }
-         }
-         var _loc12_:Number = param1.ui.y;
-         if(_loc12_ + _loc8_ > GameConfig.GAME_SIZE.y - MARGIN_BOTTOM)
-         {
-            _loc12_ = GameConfig.GAME_SIZE.y - MARGIN_BOTTOM - _loc8_;
-         }
-         if(_loc12_ < MARGIN_TOP)
-         {
-            _loc12_ = MARGIN_TOP;
-         }
-         if(_loc12_ + _loc8_ > GameConfig.GAME_SIZE.y - MARGIN_BOTTOM)
-         {
-            Debugger.log("[MENU] child column overflow n=" + _loc3_.length + " h=" + _loc8_ + " gap=" + _loc7_ + " cols=" + _loc15_);
-         }
-         var _loc19_:int = 0;
-         _loc5_ = 0;
-         while(_loc5_ < _loc16_)
-         {
-            _loc19_ = 0;
-            while(_loc19_ < _loc15_)
-            {
-               var _loc20_:int = _loc5_ + _loc19_ * _loc16_;
-               if(_loc20_ < _loc3_.length)
-               {
-                  var _loc13_:MenuBtn = _loc3_[_loc20_];
-                  _loc13_.setWidth(_loc6_);
-                  _loc13_.alignLeft();
-                  // 同样按背景条左缘摆位（子列也有自己的统一列宽与中心注册美术）
-                  var _locX2:Number = _loc9_ + _loc19_ * (_loc6_ + COL_GAP) - _loc13_.bgOffsetX;
-                  if(param2)
-                  {
-                     TweenLite.to(_loc13_.ui,0.2,{
-                        "x":_locX2,
-                        "y":_loc12_
-                     });
-                  }
-                  else
-                  {
-                     _loc13_.ui.x = _locX2;
-                     _loc13_.ui.y = _loc12_;
-                  }
-               }
-               _loc19_++;
-            }
-            _loc12_ += Number(_loc17_[_loc5_]) + _loc7_;
-            _loc5_++;
+            y += b.height + gap;
+            i++;
          }
       }
       
@@ -728,7 +704,7 @@ package net.play5d.game.bvn.ui
          {
             return;
          }
-         var _loc1_:Array = this._showIngChildrenBtn ? this._showIngChildrenBtn.children : this._btns;
+         var _loc1_:Array = this.getActiveList();
          if(GameInputer.up("MENU",1))
          {
             --this._btnIndex;
@@ -753,10 +729,10 @@ package net.play5d.game.bvn.ui
          }
          if(GameInputer.back(1))
          {
-            if(Boolean(this._showIngChildrenBtn))
+            // 三级时逐层回退：先收最深一层，再收上一层
+            if(this._openLevels.length > 0)
             {
-               this._btnIndex = this._showIngChildrenBtn.index;
-               this.closeChildren(true,true);
+               this.closeFrom(this._openLevels.length - 1);
             }
          }
       }
