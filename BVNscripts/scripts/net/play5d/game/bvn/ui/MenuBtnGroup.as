@@ -675,6 +675,12 @@ package net.play5d.game.bvn.ui
             var b:MenuBtn = param1[i];
             b.setWidth(param3);
             b.alignLeft();
+            // 2026-11-21：这里必须保证按钮已挂到本组（重构时漏过这一行，
+            // 表现是 build() 正常、日志齐全，但一级菜单整个不显示 —— 因为按钮从未进显示列表）
+            if(!contains(b.ui))
+            {
+               addChild(b.ui);
+            }
             // 按背景条左缘摆位：mc_wzbtn 是中心注册，x 要给「目标左缘 − bgOffsetX」
             var tx:Number = param2 - b.bgOffsetX;
             if(param5)
