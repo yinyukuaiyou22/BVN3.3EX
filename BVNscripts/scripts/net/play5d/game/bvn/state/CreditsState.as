@@ -74,7 +74,9 @@ package net.play5d.game.bvn.state
       
       private function getCreditsText() : String
       {
-         return "设计、美术、研发、特效、人物制作：剑jian<br/>人物制作：剑jian、数字化流天、L、V.临界幻想、Azrael，影、赤炎<br/>辅助人物制作：小海、主流<br/>图片资源整理：剑jian、数字化流天、社长星<br/>测试及策划：剑jian、数字化流天<br/>特殊贡献：灰原·银<br/>";
+         // 2026-11-21：人员名单整块删除（用户要求只保留原作者署名）。
+         // 官网/反馈/邮箱/仓库/免费声明由 GameInterfaceManager.getCreadits() 追加在本段之后。
+         return "原作者：剑jian<br/>";
       }
       
       private function getDefaultCredits(param1:String) : Sprite

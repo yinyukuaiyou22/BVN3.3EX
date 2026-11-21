@@ -79,7 +79,8 @@ package net.play5d.game.bvn.state
             "color":0,
             "size":18
          });
-         this._versionTxt.text = "V2.0.4";
+         // 2026-11-21：角标改为「常量 + 测试版」，版本号只在 MainGame.VERSION 改一处。
+         this._versionTxt.text = MainGame.VERSION + " 测试版";
          this._versionTxt.autoSize = "left";
          this._versionTxt.x = GameConfig.GAME_SIZE.x - this._versionTxt.width - 15;
          this._versionTxt.y = GameConfig.GAME_SIZE.y - this._versionTxt.height - 10;

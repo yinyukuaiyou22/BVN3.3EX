@@ -135,7 +135,7 @@
       // - 时间：HHMM 格式（每次编译手动或脚本更新）
       // 调用方：build.bat 可在编译前用 sed 替换 @BUILD_TAG@ 占位符。
       // 读取方：bvn_debug.log 第一行（=== BVN Debug Log ===）之后第二行即为 BUILD 行。
-      public static const BUILD_TAG:String = "BVN-3.3EX-batch6.14-2026-11-12-1911";
+      public static const BUILD_TAG:String = "BVN-3.3EX-batch6.14-2026-11-21-1842";
 
       private static var _scale:Number = 1.0;
 
@@ -881,7 +881,7 @@
              }
           }
           catch(e2:Error) { }
-          info += "VER: " + "V2.0.4" + "\n";
+          info += "VER: " + MainGame.VERSION + "\n";
          info += "STAGE FPS: " + _stage.frameRate;
          _perfTf.text = info;
       }

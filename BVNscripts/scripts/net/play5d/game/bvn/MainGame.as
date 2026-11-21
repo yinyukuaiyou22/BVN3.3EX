@@ -22,7 +22,7 @@ package net.play5d.game.bvn
       
       public static var I:MainGame;
       
-      public static const VERSION:String = "V2.0.4";
+      public static const VERSION:String = "V2.0.5";
       
       public static const VERSION_DATE:String = "2019.3.32";
       

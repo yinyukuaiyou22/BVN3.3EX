@@ -123,7 +123,7 @@ package
          GameData.I.config.keyInputMode = 1;
          GameConfig.SHOW_HOW_TO_PLAY = false;
          UIUtils.LOCK_FONT = "Droid Sans Fallback";
-         URL.MARK = "bvn_mobV3.3";
+         URL.MARK = "bvn_mobV2.0.5";
          ScreenPadManager.initlize(stage);
          UIAssetUtil.I.initalize(this.buildGame);
       }

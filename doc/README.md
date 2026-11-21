@@ -30,7 +30,8 @@ doc/
 ├── select-regression-matrix.md   选人界面回归测试矩阵（原 `BVNscripts/scripts/REGRESSION_TEST_MATRIX_BATCH6.5.md`，2026-10-21 移入）
 ├── _api_doc.txt                  API 文档 dump（类/方法签名速查）
 ├── decisions-select-video.md    选人/加载界面视频（25s 上限、进选人释放 StageVideo 槽、循环、翻页兼容）D1~D5
-├── menu-layout-decisions.md      主菜单排版决策记录（左侧竖列 + 二级独立列，D1~D13；含菜单条目/跳转的唯一改动点）
+├── menu-layout-decisions.md      主菜单排版决策记录（左侧竖列 + 二级独立列 + 放不下时的两列网格，D1~D14；含菜单条目/跳转的唯一改动点）
+├── release-branding.md           版本号改哪几处 + 制作组页署名与链接（唯一事实源，2026-11-21 建）
 ├── decisions-人物包整合.md       人物包按作者分组重写 fighter.xml/select.xml 的结论与待定问题（select 排版不变）
 ├── decisions-ai-link-chain.md   HELL/CRAZY 随机纽带连招的决策与执行记录（2026-10-12/13）
 ├── decisions-agents-md-slim.md  AGENTS.md 精简决策（三段骨架的来源；基线 tag snapshot/pre-agents-slim-2026-11-02-1034）
@@ -112,7 +113,7 @@ doc/
 | **3.7 参考里有什么值得搬 / 相机·JSON 地图·自绘 UI·手柄·自动更新怎么实现的** | [`37-extended/00-README.md`](37-extended/00-README.md) 先读导航 → 对应册；**动手前必看** [`01-diff-inventory.md`](37-extended/01-diff-inventory.md) §4.2「别覆盖清单」 |
 | 竞技项（规则/行为/卍解/重复） | [`jingji/detailed-design.md`](jingji/detailed-design.md) + [`jingji/tasks/`](jingji/tasks/) |
 | 开场演出 | [`kai-chang/proposal.md`](kai-chang/proposal.md) |
-| **改主菜单排版 / 二级菜单摆位 / 菜单条目与跳转** | [`menu-layout-decisions.md`](menu-layout-decisions.md)（D1~D13，含被否决方案）。**改动点只有两处**：条目与二级子项 = `GameInterfaceManager.getGameMenu()`；label→页面 = `MenuBtnGroup.getFucByLabel()`。旧 PC 菜单（`GameInterface.getDefaultMenu()` 静态表）已废弃 |
+| **改主菜单排版 / 二级菜单摆位 / 菜单条目与跳转** | [`menu-layout-decisions.md`](menu-layout-decisions.md)（D1~D14，含被否决方案）。**改动点只有两处**：条目与二级子项 = `GameInterfaceManager.getGameMenu()`；label→页面 = `MenuBtnGroup.getFucByLabel()`。旧 PC 菜单（`GameInterface.getDefaultMenu()` 静态表）已废弃 |
 | **选人/加载界面视频（黑底、不循环、第二次没画面）** | [decisions-select-video.md](decisions-select-video.md)（D1~D5：25s 上限、进选人释放视频槽、循环、翻页兼容兜底） |
 | **换人模式（TAG）：辅助键换人 / 共享血池 / 空中时停换人** | [`tag-mode/proposal.md`](tag-mode/proposal.md) → [`tag-mode/plan.md`](tag-mode/plan.md) → [`tag-mode/progress.md`](tag-mode/progress.md) |
 | 选人界面翻页 / 单页窗口决策 | [`adr/ADR-001-单页窗口与翻页交互.md`](adr/ADR-001-单页窗口与翻页交互.md)、[`plans/2026-09-07-选人界面工具-单页窗口与翻页.md`](plans/2026-09-07-选人界面工具-单页窗口与翻页.md) |

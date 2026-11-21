@@ -888,9 +888,13 @@ package net.play5d.game.bvn.mob
       public function getCreadits(param1:String) : Sprite
       {
          var _loc2_:Sprite = new Sprite();
-         param1 += "游戏官网 : <a href=\"" + URL.markURL("http://www.5dplay.net/") + "\" target=\"_blank\">www.5dplay.net</a>" + "<br/>";
-         param1 += "面板BUG反馈 : <a href=\"" + URL.markURL("https://space.bilibili.com/485366223") + "\" target=\"_blank\"><font color=\"#4488ff\"><u>作者主页</u></font></a><br/>";
+         // 2026-11-21：官网换成改版站 1212321.com；「作者主页」链接文字改为「改版作者」；
+         // 末尾补改版代码仓库与免费声明（版权/防倒卖口径）。
+         param1 += "游戏官网 : <a href=\"" + URL.markURL("https://1212321.com/") + "\" target=\"_blank\"><font color=\"#4488ff\"><u>1212321.com</u></font></a>" + "<br/>";
+         param1 += "面板BUG反馈 : <a href=\"" + URL.markURL("https://space.bilibili.com/485366223") + "\" target=\"_blank\"><font color=\"#4488ff\"><u>改版作者</u></font></a><br/>";
          param1 += "反馈邮箱 : <a href=\"mailto:yinyu7798@foxmail.com\"><font color=\"#4488ff\"><u>yinyu7798@foxmail.com</u></font></a><br/>";
+         param1 += "此改版代码仓库 : <a href=\"" + URL.markURL("https://github.com/yinyukuaiyou22/BVN3.3EX") + "\" target=\"_blank\"><font color=\"#4488ff\"><u>github.com/yinyukuaiyou22/BVN3.3EX</u></font></a><br/>";
+         param1 += "本版本完全免费，付费获取请举报并申请退款；更新见 7723 游戏盒或作者 B 站私信<br/>";
          var _loc3_:TextField = new TextField();
          var _loc4_:TextFormat = new TextFormat();
          _loc4_.font = "微软雅黑";
@@ -901,7 +905,7 @@ package net.play5d.game.bvn.mob
          _loc3_.multiline = true;
          if(ENGLISH_VERSION)
          {
-            _loc3_.htmlText = "website : <a href=\"" + URL.markURL("http://www.5dplay.net/") + "\" target=\"_blank\"><font color=\"#4488ff\"><u>www.5dplay.net</u></font></a><br/>" + "BUG Report : <a href=\"" + URL.markURL("https://space.bilibili.com/485366223") + "\" target=\"_blank\"><font color=\"#4488ff\"><u>BiliBili Space</u></font></a><br/>" + "E-mail : <a href=\"mailto:yinyu7798@foxmail.com\"><font color=\"#4488ff\"><u>yinyu7798@foxmail.com</u></font></a><br/>";
+            _loc3_.htmlText = "website : <a href=\"" + URL.markURL("https://1212321.com/") + "\" target=\"_blank\"><font color=\"#4488ff\"><u>1212321.com</u></font></a><br/>" + "BUG Report : <a href=\"" + URL.markURL("https://space.bilibili.com/485366223") + "\" target=\"_blank\"><font color=\"#4488ff\"><u>Mod author</u></font></a><br/>" + "E-mail : <a href=\"mailto:yinyu7798@foxmail.com\"><font color=\"#4488ff\"><u>yinyu7798@foxmail.com</u></font></a><br/>";
          }
          else
          {

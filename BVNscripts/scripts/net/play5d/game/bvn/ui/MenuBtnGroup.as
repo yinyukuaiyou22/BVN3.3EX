@@ -610,22 +610,63 @@ package net.play5d.game.bvn.ui
             _loc6_ = MenuBtn.TEXT_PAD * 2;
          }
          this._childColW = _loc6_;
-         _loc7_ = ROW_GAP;
+         // 2026-11-21：二级项在 2026-11-12 提到 80 高后，单列 8 项 = 680 > 可用 480，
+         // 旧逻辑把行距压到 3 仍有 664，只能打日志放它越界 —— 真机上 TEAM TAG VS CPU（模式 17）
+         // 整项落到屏外，触屏永远点不到（键盘/手柄靠 index 仍能选中，所以一直没被发现）。
+         // 现在：单列放不下就改两列网格（列优先：前一半在左列、后一半在右列），
+         // 行高/字号/行距一律不动，索引仍是 0..n-1 的一维顺序（导航语义不变）。
+         var _loc11_:Number = GameConfig.GAME_SIZE.y - MARGIN_TOP - MARGIN_BOTTOM;
+         var _loc14_:Number = 0;
          _loc5_ = 0;
          while(_loc5_ < _loc3_.length)
          {
-            _loc8_ += _loc3_[_loc5_].height + _loc7_;
+            _loc14_ += _loc3_[_loc5_].height + ROW_GAP;
             _loc5_++;
          }
-         var _loc11_:Number = GameConfig.GAME_SIZE.y - MARGIN_TOP - MARGIN_BOTTOM;
+         var _loc15_:int = 1;
+         var _loc16_:int = _loc3_.length;
+         if(_loc14_ > _loc11_)
+         {
+            // 两列各用「单列标签宽」，两列 + 列间距要塞进父列右侧的可用宽度，否则退回单列并留日志
+            if(_loc6_ * 2 + COL_GAP <= _loc10_)
+            {
+               _loc15_ = 2;
+               _loc16_ = Math.ceil(_loc3_.length / 2);
+            }
+            else
+            {
+               Debugger.log("[MENU] child grid skipped: need=" + (_loc6_ * 2 + COL_GAP) + " avail=" + _loc10_);
+            }
+         }
+         var _loc17_:Array = [];
+         var _loc18_:Number = 0;
+         _loc5_ = 0;
+         while(_loc5_ < _loc16_)
+         {
+            _loc18_ = _loc3_[_loc5_].height;
+            if(_loc15_ > 1 && _loc5_ + _loc16_ < _loc3_.length)
+            {
+               _loc18_ = Math.max(_loc18_,_loc3_[_loc5_ + _loc16_].height);
+            }
+            _loc17_.push(_loc18_);
+            _loc5_++;
+         }
+         _loc7_ = ROW_GAP;
+         _loc8_ = _loc16_ * _loc7_;
+         _loc5_ = 0;
+         while(_loc5_ < _loc16_)
+         {
+            _loc8_ += Number(_loc17_[_loc5_]);
+            _loc5_++;
+         }
          if(_loc8_ > _loc11_)
          {
-            _loc7_ = Math.max(ROW_GAP * MIN_ROW_GAP_RATE,ROW_GAP - (_loc8_ - _loc11_) / _loc3_.length);
-            _loc8_ = 0;
+            _loc7_ = Math.max(ROW_GAP * MIN_ROW_GAP_RATE,ROW_GAP - (_loc8_ - _loc11_) / _loc16_);
+            _loc8_ = _loc16_ * _loc7_;
             _loc5_ = 0;
-            while(_loc5_ < _loc3_.length)
+            while(_loc5_ < _loc16_)
             {
-               _loc8_ += _loc3_[_loc5_].height + _loc7_;
+               _loc8_ += Number(_loc17_[_loc5_]);
                _loc5_++;
             }
          }
@@ -640,29 +681,39 @@ package net.play5d.game.bvn.ui
          }
          if(_loc12_ + _loc8_ > GameConfig.GAME_SIZE.y - MARGIN_BOTTOM)
          {
-            Debugger.log("[MENU] child column overflow n=" + _loc3_.length + " h=" + _loc8_ + " gap=" + _loc7_);
+            Debugger.log("[MENU] child column overflow n=" + _loc3_.length + " h=" + _loc8_ + " gap=" + _loc7_ + " cols=" + _loc15_);
          }
+         var _loc19_:int = 0;
          _loc5_ = 0;
-         while(_loc5_ < _loc3_.length)
+         while(_loc5_ < _loc16_)
          {
-            var _loc13_:MenuBtn = _loc3_[_loc5_];
-            _loc13_.setWidth(_loc6_);
-            _loc13_.alignLeft();
-            // 同样按背景条左缘摆位（子列也有自己的统一列宽与中心注册美术）
-            var _locX2:Number = _loc9_ - _loc13_.bgOffsetX;
-            if(param2)
+            _loc19_ = 0;
+            while(_loc19_ < _loc15_)
             {
-               TweenLite.to(_loc13_.ui,0.2,{
-                  "x":_locX2,
-                  "y":_loc12_
-               });
+               var _loc20_:int = _loc5_ + _loc19_ * _loc16_;
+               if(_loc20_ < _loc3_.length)
+               {
+                  var _loc13_:MenuBtn = _loc3_[_loc20_];
+                  _loc13_.setWidth(_loc6_);
+                  _loc13_.alignLeft();
+                  // 同样按背景条左缘摆位（子列也有自己的统一列宽与中心注册美术）
+                  var _locX2:Number = _loc9_ + _loc19_ * (_loc6_ + COL_GAP) - _loc13_.bgOffsetX;
+                  if(param2)
+                  {
+                     TweenLite.to(_loc13_.ui,0.2,{
+                        "x":_locX2,
+                        "y":_loc12_
+                     });
+                  }
+                  else
+                  {
+                     _loc13_.ui.x = _locX2;
+                     _loc13_.ui.y = _loc12_;
+                  }
+               }
+               _loc19_++;
             }
-            else
-            {
-               _loc13_.ui.x = _locX2;
-               _loc13_.ui.y = _loc12_;
-            }
-            _loc12_ += _loc13_.height + _loc7_;
+            _loc12_ += Number(_loc17_[_loc5_]) + _loc7_;
             _loc5_++;
          }
       }
