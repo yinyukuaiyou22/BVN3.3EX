@@ -17,6 +17,7 @@
 ### 1.2 范围
 
 - 只改主项目 `BVNscripts/scripts/`；不加美术资源也能跑（特效可降级）。
+- **拼招必须在 RULE CFG（竞技选项）里可开关**：默认开、随存档持久化、纳入一键竞技/娱乐切换；LAN 两端必须同值。
 - 不改角色包契约：138 个角色包一行都不用动。
 - 不改必杀、抓取、子弹、辅助的既有结算。
 
@@ -35,7 +36,7 @@
 | 拼招 | 同一逻辑拍内，双方攻击判定都命中对方身体 | `checkHit` 的 A→B 与 B→A 同时成立 |
 | 面长 | 命中瞬间，攻击盒在朝向上的外沿到角色根的横向距离 | `HitVO.currentArea` + `FighterMain.x` |
 | 后出 | 招式起手更晚（全局渲染帧号更大） | `doAction` 时的 `GameCtrl.renderFrame` |
-| 同时出 | 两侧起手帧差在容差内 | `CLASH_SIM_WINDOW` |
+| 同时出 | 两侧起手帧差在容差内 | `CLASH_SIM_WINDOW_MS` |
 | 打防效果 | 防御受创的数值与表现：掉 5%、扣气、硬直、后退、不倒地 | `doDefenseHit` 的口径 |
 | 全技能纽带 | 一段窗口内把普攻/砍技/招式的动作槽全部打开 | `setClashLinkAct`（组合既有 setXxx） |
 | 弹开 | 双方后退、短暂不可打、无伤害、无纽带 | 新增 `doClashRecoil` |
@@ -53,7 +54,7 @@
 | 1 | 重击 > 轻击 | `HitType.isHeavy(hitType)`，重击类 = 6/3/5/7/8/9 |
 | 2 | 击倒 > 不击倒 | `HitVO.hurtType == 1` |
 | 3 | 面长 > 面短 | 实际攻击盒外沿 − 角色根 x，容差 2px 内算相同 |
-| 4 | 后出 > 先出 | 起手帧号大者胜；差 ≤1 渲染帧算同时 |
+| 4 | 后出 > 先出 | 起手帧号大者胜；差值折成毫秒后在容差内算同时（§6.3） |
 | 5 | 全相等 | 同时出 → 双方弹开 |
 
 ### 3.2 参与范围
@@ -75,7 +76,19 @@
 
 - 面长用**命中瞬间的实际攻击盒**，不是 `AImain` 的声明范围：玩家眼里的「谁手长」就是这一下实际打到多远。
 - 重击统一按 `HitType.isHeavy`，不按数值大小比较（`hitType=10` 石化不在重击表里，按数值比会把它判成重击）。
-- 2P 补偿不靠猜：机制本身不依赖遍历顺序，另有 1 帧同时窗口与可配置的每侧偏移常数，常数默认 0，实测后再填（见 §12）。
+- 2P 补偿不靠猜：机制本身不依赖遍历顺序，另有同时窗口与可配置的每侧偏移常数，常数默认 0，实测后再填（见 §12）。
+
+### 3.5 开关（2026-11-23 追加）
+
+拼招是规则项，必须进 RULE CFG，不允许只藏在 `ConfigVO` 里。三处必须同改，缺一行就等于没接上：
+
+1. `GameInterfaceManager.getRuleMenu()` 加一行：`txt="CLASH"`、`cn="拼招"`、ON/OFF、`optoinKey="clashEnabled"`；
+2. `ConfigVO` 加字段（默认 true）并写进 `toSaveObj()`（读档走 `KyoUtils.setValueByObject`，自动）；
+3. `isSportRuleEnabled()` 与 `setAllRuleConfig()` 都要带上它——漏了这条，一键切换会永远判不出「已符合竞技标准」。
+
+推荐档位：竞技=开、娱乐=关（保留现在的双中手感），实现时只是 `setAllRuleConfig` 里两行布尔。
+
+LAN：两端必须同值，否则同一拍会判出不同结果（见 §9 D19）。
 
 ---
 
@@ -101,7 +114,7 @@
 
 `GameCtrl` 初始化：`_renderAnimateGap = ceil(FPS_GAME/30) - 1`（`GameCtrl.as:105`，60fps 时为 1）；`checkRenderAnimate()` 隔帧才调 `renderAnimate()` 置 `_renderAnimate = true`（850-864）；`checkHit` 只在该标志为真时执行（129-131），循环末尾复位（143）。
 
-推论：**一拍 = 33ms**。所以「同一帧」的容差要按 60Hz 渲染帧号量，不能按 30Hz 逻辑帧量。
+推论：**一拍 = 33ms**。所以「同一帧」的容差只能按渲染帧号折算成毫秒来定（§6.3），不能按逻辑帧数硬编码；而 `FPS_GAME` 本身会被画质与 LAN 改动（30 或 60），硬编码必然在某一档上失真。
 
 ### 4.4 受击与打防
 
@@ -139,7 +152,7 @@
 
 ### 5.4 影响面
 
-改动落在核心判定链（`checkHit`）与角色状态机（`FighterMcCtrler`），属于跨模块改动：所有角色、所有模式、AI、TAG、LAN 都会经过这条路径。因此开关默认给「关掉即完全等于今天」，并且第一版不做设置页，只留 `ConfigVO`。
+改动落在核心判定链（`checkHit`）与角色状态机（`FighterMcCtrler`），属于跨模块改动：所有角色、所有模式、AI、TAG、LAN 都会经过这条路径。因此开关默认给「关掉即完全等于今天」，并且开关本身必须进 RULE CFG（见 §3.5 与 §8 第 2~4 项）。
 
 ---
 
@@ -199,7 +212,15 @@ startFrame: FighterMain / FighterAttacker → 该角色当前动作的起手帧�
             其他 owner（Bullet / Assister）→ 不合格，直接返回「不算拼招」。
 ```
 
-比较：heavy、knockdown 逐位比；reach 差在 ±2px 内算相等；effectiveStart 差在 ±1 帧内算相等；四项全平 → 同时。
+比较：heavy、knockdown 逐位比；reach 差在 ±2px 内算相等；effectiveStart 差在容差内算相等；四项全平 → 同时。
+
+容差不能写死「1 帧」：`ConfigVO.applyConfig()` 会按画质调 `GameConfig.setGameFps()`（low=30、其余 60），LAN 开局又强制 30fps（`LANGameCtrl.gameStart`）。按毫秒折算：
+
+```text
+windowFrames = floor(CLASH_SIM_WINDOW_MS / (1000 / GameConfig.FPS_GAME))
+```
+
+60fps → 1 帧（16.7ms），30fps → 0 帧（严格同帧）。写死 1 帧会让 30fps 下 33ms 的差距也算同时，「后出」永远判不出来。
 
 ### 6.4 面长的锚点
 
@@ -211,7 +232,7 @@ startFrame: FighterMain / FighterAttacker → 该角色当前动作的起手帧�
 grantClashLink():
    _clashLinkFrame = CLASH_LINK_TICKS          // 8 拍
 
-FighterMcCtrler.render()：在封输入检查之后、输入轮询之前
+FighterMcCtrler.render()：插在 renderMoveTarget() 之后、_actionCtrler.render() 之前（707-730 段；ghostStep/tagFreeze 已在更早处早退，不会误发）
    if (_clashLinkFrame > 0) setClashLinkAct(_fighter.isInAir)
 
 FighterMcCtrler.renderAnimate()：与其它计时器同节拍
@@ -263,7 +284,7 @@ EffectCtrl doClashEffect(rect, direct) —— 找不到资源时降级到 doDefe
 
 | 常量 | 默认 | 说明 |
 |---|---|---|
-| `CLASH_SIM_WINDOW` | 1 | 起手帧差 ≤ 此值算同时（渲染帧） |
+| `CLASH_SIM_WINDOW_MS` | 20 | 同时容差（毫秒折算：60fps≈1 帧，30fps=0 帧） |
 | `CLASH_REACH_EPS` | 2 | 面长相等的容差（px） |
 | `CLASH_SIDE_LAG` | `[0,0]` | 每侧起手帧偏移补偿，下标 = team id；实测后填 |
 | `CLASH_LINK_TICKS` | 8 | 纽带窗口长度（30Hz 拍） |
@@ -271,7 +292,7 @@ EffectCtrl doClashEffect(rect, direct) —— 找不到资源时降级到 doDefe
 | `CLASH_RECOIL_FRAMES` | 6 | 弹开后的判定压制与硬直 |
 | `CLASH_RECOIL_SPEED` | 6 | 弹开后退速度 |
 
-开关：`ConfigVO` 加 `clashEnabled:Boolean = true`（沿用 `optoinKey` 绑定约定，注意是错拼）。第一版不改设置页，只留字段与训练模式入口。
+开关：`ConfigVO.clashEnabled:Boolean = true`，`optoinKey` 也用 `clashEnabled`（注意 `optoinKey` 是错拼，别“修”它）。三处联动见 §3.5。
 
 日志：`Debugger` 加 `DIAG_CLASH`（默认 false，逐帧候选与完整数值）；另加一条**常开**的低频判据日志，每次拼招一行：
 
@@ -287,20 +308,23 @@ EffectCtrl doClashEffect(rect, direct) —— 找不到资源时降级到 doDefe
 
 | # | 文件 | 改动 | 行为影响 | 风险 |
 |---|---|---|---|---|
-| 1 | `GameConfig.as` | 新增 §7 的 8 个常量 | 无（未读） | 低 |
-| 2 | `data/ConfigVO.as` | `clashEnabled` 字段 + 存取 | 默认 true | 中（设置项要接 `optoinKey`） |
-| 3 | `Debugger.as` | `DIAG_CLASH` | 无 | 低 |
-| 4 | `ctrl/game_ctrls/GameCtrl.as` | `renderFrame:uint`，`render()` 里 pause 早退之后自增 | 新增只读计数 | 低 |
-| 5 | `fighter/ctrler/ClashResolver.as` | **新增**：`judge` + 比较 + 面长 + 资格过滤 | 纯逻辑 | 中 |
-| 6 | `fighter/models/ClashVerdictVO.as` | **新增**：结果对象（类型/赢家/输家/理由/数值快照） | 无 | 低 |
-| 7 | `fighter/ctrler/FighterMcCtrler.as` | `_actionStartFrame`（`doAction` 埋点）、`_clashLinkFrame`、`_clashGuardFrame` 相关、`grantClashLink`、`setClashLinkAct`、`doClashGuard`、`doClashRecoil` | 中 | 高（状态机敏感） |
-| 8 | `fighter/FighterMain.as` | `getActionStartFrame()` 转发、`getCurrentHits()` 压制早退、`_clashGuardFrame` 递减、`resetClashState()`（离场/重开清窗口） | 中 | 中 |
-| 9 | `fighter/FighterAttacker.as` | `getCurrentHits()` 在主人被压制时返回 null | 低 | 低 |
-| 10 | `ctrl/game_ctrls/GameMainLogicCtrler.as` | `checkHit` 三段式化；`claim` 戳；拼招日志 | 高 | **高（核心）** |
-| 11 | `ctrl/EffectCtrl.as` | `doClashEffect`（缺资源降级） | 低 | 低 |
-| 12 | `doc/` | 本文 + `doc/README.md` 索引 + `CLAUDE.md` 参考表一行 | 无 | 低 |
+| 1 | `GameConfig.as` | 新增 §7 的 9 个常量 | 无（未读） | 低 |
+| 2 | `data/ConfigVO.as` | `clashEnabled` 字段 + `toSaveObj()` + `isSportRuleEnabled()` + `setAllRuleConfig()` | 默认 true，进一键切换 | 中（漏 `toSaveObj` 会掉存档） |
+| 3 | `mob/GameInterfaceManager.as` | `getRuleMenu()` 加一行 CLASH（ON/OFF，`optoinKey="clashEnabled"`） | 规则页多一行 | 低（`RuleState` 已 `initScroll`+`enableScrollDrag`，加行不用改 UI） |
+| 4 | `mob/data/HostVO.as` | LAN 下发拼招开关（`toByteArray/readByteArray` 末位加 1 字节，旧端按 `bytesAvailable` 判空） | 两端同值 | 中（协议兼容） |
+| 5 | `Debugger.as` | `DIAG_CLASH` | 无 | 低 |
+| 6 | `ctrl/game_ctrls/GameCtrl.as` | `renderFrame:uint`（`render()` 里 pause 早退之后自增）；`removeGameSprite` 调 `resetClashState()` | 只读计数 + 离场清窗口 | 低 |
+| 7 | `fighter/ctrler/ClashResolver.as` | **新增**：`judge` + 比较 + 面长 + 资格过滤 | 纯逻辑 | 中 |
+| 8 | `fighter/models/ClashVerdictVO.as` | **新增**：结果对象（类型/赢家/输家/理由/数值快照） | 无 | 低 |
+| 9 | `fighter/ctrler/FighterMcCtrler.as` | `_actionStartFrame`（`doAction` 埋点）、`_clashLinkFrame`、`grantClashLink`、`setClashLinkAct`、`doClashGuard`、`doClashRecoil`；`render()` 在 `renderMoveTarget()` 之后、`_actionCtrler.render()` 之前重放覆盖层 | 中 | 高（状态机敏感） |
+| 10 | `fighter/FighterMain.as` | `getActionStartFrame()` 转发、`getCurrentHits()` 压制早退、`_clashGuardFrame` 递减、`resetClashState()` | 中 | 中 |
+| 11 | `fighter/FighterAttacker.as` | `getCurrentHits()` 在主人被压制时返回 null（把私有 `getOwnerFighter()` 提为 public，或加一个谓词） | 低 | 低 |
+| 12 | `ctrl/game_ctrls/GameMainLogicCtrler.as` | `checkHit` 三段式化；`claim` 戳；拼招日志 | 高 | **高（核心）** |
+| 13 | `state/GameState.as` | `resetFight()` 里逐个 fighter 调 `resetClashState()` | 回合重置清窗口 | 低 |
+| 14 | `ctrl/EffectCtrl.as` | `doClashEffect`（缺资源降级） | 低 | 低 |
+| 15 | `doc/` | 本文 + `doc/README.md` 索引 + `CLAUDE.md` 参考表一行 + `doc/38-rule-stage/rule-stage.md` 补一条规则项 | 无 | 低 |
 
-不改：`FighterAction`（沿用现成槽位）、`FighterMC`（判定区缓存不动）、`EffectModel`（第一版不新增特效定义）、任何角色包。
+不改：`FighterAction`（沿用现成槽位）、`FighterMC`（判定区缓存不动）、`EffectModel`（第一版不新增特效定义）、`RuleState`/`SetBtnGroup`（行数据驱动，加行不改代码）、任何角色包。
 
 ---
 
@@ -318,7 +342,7 @@ EffectCtrl doClashEffect(rect, direct) —— 找不到资源时降级到 doDefe
 **D2 判定是 30Hz，「同帧」不等于 16.7ms**
 现象：按 30Hz 逻辑帧写容差，手感上会变成「差两拍还判同时」，拼招会抢掉正常连招的先手。
 原因：`_renderAnimateGap` 让 `checkHit` 隔帧执行（§4.3）。
-对策：起手帧号取 60Hz 渲染帧，容差 1 帧（≈16.7ms）。
+对策：起手帧号取渲染帧号，容差按毫秒折算成帧数（§6.3），不写死帧数。
 
 **D3 单线程 + 遍历顺序**
 现象：P1 恒先结算；任何「谁先到谁判赢」的写法都天然偏 P1；同时出会被写成两个人都赢。
@@ -394,7 +418,24 @@ EffectCtrl doClashEffect(rect, direct) —— 找不到资源时降级到 doDefe
 **D16 重开与换人**
 现象：换人/重开/回合结束没清窗口，下一场带着「纽带」或「判定压制」进场。
 原因：`_clashLinkFrame`/`_clashGuardFrame` 是新计时器。
-对策：`FighterMain.resetClashState()` 在 `destory`、`resetExplodeState`、回合重置三处调用；TAG 换出的角色必须清零。
+对策：`resetClashState()` 挂两个真实入口——`GameCtrl.removeGameSprite()`（TAG 换人、KO 离场都走它）与 `GameState.resetFight()`（回合重置）。`FighterMain.destory(false)` 是早退实现，不能当入口。
+
+### 9.5 配置与开关类
+
+**D17 帧率会变，容差不能按帧写死**
+现象：低画质（`quality=low`）把 `FPS_GAME` 降到 30，LAN 开局更是强制 30fps；写死「1 帧」在 30fps 下等于 33ms，`后出` 永远判不出来。
+原因：`ConfigVO.applyConfig()` → `GameConfig.setGameFps()`；`LANGameCtrl.gameStart()` 直接 `setGameFps(30)`。
+对策：容差按毫秒折算成帧数（§6.3），判据日志里打出 `FPS_GAME`。
+
+**D18 竞技选项三处联动，漏一处就是接了个假开关**
+现象：只加字段不加 `getRuleMenu()` → 规则页看不见；只加行不改 `isSportRuleEnabled()` → 一键切换永远判不出竞技标准；漏 `toSaveObj()` → 重启后开关回默认。
+原因：规则项由「字段 + 行数据 + 一键切换判定 + 序列化」四处共同定义。
+对策：按 §3.5 同改，并在验收里专测「关掉 → 重开 → 仍是关」。
+
+**D19 LAN 两端配置不同会不同步**
+现象：房主开着拼招、客人关着，同一拍一边判拼招一边判双中，血量分叉。
+原因：`HostVO` 只下发 hp/gameTime/gameMode（`toByteArray` 3 字节），规则项各端读本地 `ConfigVO`。
+对策：`HostVO` 末位加一字节下发 `clashEnabled`，旧端用 `bytesAvailable` 判空回落默认；更稳的做法是房内强制同一值。
 
 ---
 
@@ -405,6 +446,8 @@ EffectCtrl doClashEffect(rect, direct) —— 找不到资源时降级到 doDefe
 - **角色包零改动**：缺帧静默降级；没有 AImain 的角色包不受影响（面长不用 AImain）。
 - **模式**：VS / 竞技 / 剧情 / 1v2 / 2v2 / TAG 全走同一路径；TAG 换人无敌不入拼招。
 - **训练模式**：可开拼招判据可视化（第二版），第一版只在日志里看。
+- **旧存档**：没有 `clashEnabled` 字段时 `KyoUtils.setValueByObject` 会跳过，字段保持默认 true；但 `toSaveObj()` 必须显式写出新键，否则每次启动都回默认。
+- **LAN**：房主与客人必须同值（§D19）；旧客户端缺该字节时按默认 true 处理。
 - **录像/重开**：`GameLogic.clearAllHits()` 不受影响；新计时器必须随角色重置（§D16）。
 
 ---
@@ -437,12 +480,14 @@ TDD Route: mode=off, decision=skipped, authority=项目现状（AS3 无单测框
 | 12 | 钢体 / 替身 / 换人无敌中 | 不算拼招 | 走原无敌链路 | 无【拼招】行 |
 | 13 | TAG 2v2 两人同时贴身 | 每角色每拍最多一次 | 不出现两次火花 | 单拍内【拼招】≤ 对数 |
 | 14 | AI vs AI 高难度 | 同规则 | 无明显「必拼赢」 | 统计 20 次胜负分布 |
+| 15 | RULE CFG 关掉拼招 | — | 同拍互殴回到双中 | 无【拼招】行 |
+| 16 | 一键切换竞技/娱乐 | — | 开关随档位变化、界面同步刷新、重启后保持 | 规则页显示一致 |
 
 ### 11.3 验收判据
 
 1. `./build.bat` 零错误（改动含 4 个以上 `.as`，按规则先查基线）。
 2. 关闭开关时，同一段对拼录像的受击帧与改动前一致（逐帧比对日志）。
-3. 场景 1~14 全过；`【拼招】` 日志能一眼看出是哪个维度决出的胜负。
+3. 场景 1~16 全过；`【拼招】` 日志能一眼看出是哪个维度决出的胜负。
 4. 真机（MuMu）30 分钟对局无新增异常日志、无永久硬直、无永久不可打。
 
 ---
@@ -456,10 +501,10 @@ TDD Route: mode=off, decision=skipped, authority=项目现状（AS3 无单测框
 `DIAG_CLASH` 打开时，在 `checkHit` 的接触点打一行：
 
 ```text
-[HIT] f=1832 atk=鸣人[P1] st=1830 vs 佐助[P2] st=1831 | 30Hz拍=916
+[HIT] f=1832 fps=60 atk=鸣人[P1] st=1830 vs 佐助[P2] st=1831 | 拍=916
 ```
 
-字段：渲染帧号、攻击方、起手帧、受击方、受击方起手帧、逻辑拍号。
+字段：渲染帧号、`FPS_GAME`、攻击方、起手帧、受击方、受击方起手帧、逻辑拍号。
 
 ### 12.2 采样
 
@@ -473,7 +518,11 @@ TDD Route: mode=off, decision=skipped, authority=项目现状（AS3 无单测框
 
 ### 12.4 兜底
 
-即使偏移存在且未填常数，1 帧同时窗口也会把它吸收成「同时弹开」，不会变成 P1 稳赢——这是选 1 帧容差而不是严格同帧的主要理由。
+即使偏移存在且未填常数，同时窗口（60fps 下 1 帧）也会把它吸收成「同时弹开」，不会变成 P1 稳赢——这是选「毫秒折算的容差」而不是严格同帧的主要理由。
+
+### 12.5 帧率提醒
+
+探针必须在同一个 `FPS_GAME` 下采样：60fps 与 30fps 的「1 帧」差一倍。LAN 与低画质都跑 30fps，样本要分开记。
 
 ---
 
@@ -483,7 +532,8 @@ TDD Route: mode=off, decision=skipped, authority=项目现状（AS3 无单测框
 
 | # | 任务 | 文件 | 验收 | 依赖 |
 |---|---|---|---|---|
-| T1 | 常量、开关、日志通道 | `GameConfig` `ConfigVO` `Debugger` | 编译过；开关关掉行为不变 | — |
+| T0 | 竞技选项接入（字段/行数据/一键切换/序列化/LAN 字节） | `ConfigVO` `GameInterfaceManager` `HostVO` | 规则页出现 CLASH 行；关掉重开后仍是关；一键切换带上它 | — |
+| T1 | 常量、日志通道 | `GameConfig` `Debugger` | 编译过；开关关掉行为不变 | T0 |
 | T2 | 全局帧号 + 动作起手帧埋点 | `GameCtrl` `FighterMcCtrler` `FighterMain` | 日志打出两侧起手帧 | T1 |
 | T3 | 裁决器（纯逻辑） | `ClashResolver` `ClashVerdictVO` | 手工构造 6 组数值得到预期 verdict | T1 |
 | T4 | `checkHit` 三段式 + claim | `GameMainLogicCtrler` | 不拼招时与改动前逐帧一致 | T2 T3 |
@@ -511,7 +561,7 @@ TDD Route: mode=off, decision=skipped, authority=项目现状（AS3 无单测框
 
 1. 必杀要不要作为纽带奖励的一部分（当前否，改一行常量即可放开）；
 2. 拼招是否计分/计连击（当前否）；
-3. 是否进设置页（当前只在 `ConfigVO`，第二版再做 UI）。
+3. 竞技档里拼招默认开还是关（当前建议竞技=开、娱乐=关；只影响 `setAllRuleConfig` 两行）。
 
 ---
 
