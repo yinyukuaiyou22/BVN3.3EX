@@ -86,7 +86,7 @@
 2. `ConfigVO` 加字段（默认 true）并写进 `toSaveObj()`（读档走 `KyoUtils.setValueByObject`，自动）；
 3. `isSportRuleEnabled()` 与 `setAllRuleConfig()` 都要带上它——漏了这条，一键切换会永远判不出「已符合竞技标准」。
 
-推荐档位：竞技=开、娱乐=关（保留现在的双中手感），实现时只是 `setAllRuleConfig` 里两行布尔。
+档位（用户 2026-11-23 定）：**竞技=关、娱乐=开**。所以字段默认值取 `true`（默认/娱乐就是开），`setAllRuleConfig(true)` 里置 `false`、`setAllRuleConfig(false)` 里置 `true`，`isSportRuleEnabled()` 的判定式里要加 `!clashEnabled`。
 
 LAN：两端必须同值，否则同一拍会判出不同结果（见 §9 D19）。
 
@@ -292,7 +292,7 @@ EffectCtrl doClashEffect(rect, direct) —— 找不到资源时降级到 doDefe
 | `CLASH_RECOIL_FRAMES` | 6 | 弹开后的判定压制与硬直 |
 | `CLASH_RECOIL_SPEED` | 6 | 弹开后退速度 |
 
-开关：`ConfigVO.clashEnabled:Boolean = true`，`optoinKey` 也用 `clashEnabled`（注意 `optoinKey` 是错拼，别“修”它）。三处联动见 §3.5。
+开关：`ConfigVO.clashEnabled:Boolean = true`（默认 = 娱乐/默认开；竞技档由 `setAllRuleConfig` 置 false），`optoinKey` 也用 `clashEnabled`（注意 `optoinKey` 是错拼，别“修”它）。三处联动见 §3.5。
 
 日志：`Debugger` 加 `DIAG_CLASH`（默认 false，逐帧候选与完整数值）；另加一条**常开**的低频判据日志，每次拼招一行：
 
@@ -481,7 +481,7 @@ TDD Route: mode=off, decision=skipped, authority=项目现状（AS3 无单测框
 | 13 | TAG 2v2 两人同时贴身 | 每角色每拍最多一次 | 不出现两次火花 | 单拍内【拼招】≤ 对数 |
 | 14 | AI vs AI 高难度 | 同规则 | 无明显「必拼赢」 | 统计 20 次胜负分布 |
 | 15 | RULE CFG 关掉拼招 | — | 同拍互殴回到双中 | 无【拼招】行 |
-| 16 | 一键切换竞技/娱乐 | — | 开关随档位变化、界面同步刷新、重启后保持 | 规则页显示一致 |
+| 16 | 一键切换竞技/娱乐 | — | 竞技档=关、娱乐档=开，界面同步刷新，重启后保持 | 规则页显示一致 |
 
 ### 11.3 验收判据
 
@@ -560,8 +560,7 @@ TDD Route: mode=off, decision=skipped, authority=项目现状（AS3 无单测框
 未决（实现前可再定）：
 
 1. 必杀要不要作为纽带奖励的一部分（当前否，改一行常量即可放开）；
-2. 拼招是否计分/计连击（当前否）；
-3. 竞技档里拼招默认开还是关（当前建议竞技=开、娱乐=关；只影响 `setAllRuleConfig` 两行）。
+2. 拼招是否计分/计连击（当前否）。
 
 ---
 
