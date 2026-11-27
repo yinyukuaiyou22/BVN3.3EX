@@ -400,6 +400,8 @@ package net.play5d.game.bvn.fighter.ctrler
       public function doClashRecoil(param1:FighterMain, param2:Rectangle, param3:HitVO) : void
       {
          var _loc4_:Number = Boolean(param1) && param1.x < this._fighter.x ? 1 : -1;
+         // 打平：双方各吃对方这一下的伤害，但钳到至少剩 1 血 —— 拼招不致命（2026-11-27 用户定）。
+         this.applyClashTieDamage(param3);
          this._action.isDefenseHiting = true;
          this._defenseHoldFrame = GameConfig.CLASH_RECOIL_FRAMES;
          this._beHitGap = GameConfig.CLASH_RECOIL_FRAMES;
@@ -413,6 +415,26 @@ package net.play5d.game.bvn.fighter.ctrler
          }
       }
       
+      /** 打平伤害：按对方这一下的面板伤害扣血，扣完若不足 1 血则退回 1（本就 ≤1 则不变）。 */
+      private function applyClashTieDamage(param1:HitVO) : void
+      {
+         if(param1 == null)
+         {
+            return;
+         }
+         var _loc2_:Number = param1.getDamage();
+         if(_loc2_ <= 0)
+         {
+            return;
+         }
+         var _loc3_:Number = this._fighter.hp;
+         this._fighter.loseHp(_loc2_);
+         if(this._fighter.hp < 1)
+         {
+            this._fighter.hp = _loc3_ > 1 ? 1 : _loc3_;
+         }
+      }
+
       public function setAirMove(param1:Boolean) : void
       {
          this._action.airMove = param1;

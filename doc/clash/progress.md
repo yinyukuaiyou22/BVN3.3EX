@@ -25,7 +25,7 @@
 
 - 赢家：`grantClashLink()` 开 8 拍窗口，`render()` 在输入轮询前重放 `setClashLinkAct()`（地面六槽 / 空中两槽），`doAction` 起手即消费；
 - 输家：`doClashGuard()` 复用打防口径（5% 掉血、扣气、5~10 拍硬直、后退、气不足破防），不要求处于防御态；
-- 同时出：双方 `doClashRecoil()`，后退 + 6 拍硬直，不扣血不扣气不给纽带；
+- 同时出：双方 `doClashRecoil()`，后退 + 6 拍硬直，**双方各吃对方这一下的伤害但钳到剩 1 血（不致命）**，不扣气、不给纽带；
 - 判定压制：`FighterMain._clashGuardFrame` 窗口内自身 `getCurrentHits()` 与 `FighterAttacker` 一律返回 null，杜绝「输了还打中」；
 - 重置：`GameCtrl.removeGameSprite()` 与 `GameState.resetFight()` 清窗口；
 - 特效：`EffectCtrl.doClashEffect()` 暂时复用防御火花，不新增资源。
