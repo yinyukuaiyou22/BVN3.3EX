@@ -58,6 +58,9 @@ package net.play5d.game.bvn.fighter.ctrler
       private var _defenseFrameDelay:int = 0;
       
       private var _moveTargetParam:MoveTargetParamVO;
+
+      /** 吸附因目标进入击飞态被强制结束后，本次招式内忽略后续 moveTarget 调用（防角色包每帧重设）。 */
+      private var _moveTargetLocked:Boolean = false;
       
       private var _hurtDownFrame:int;
       
@@ -195,6 +198,7 @@ package net.play5d.game.bvn.fighter.ctrler
          this.endAct();
          this._doingAction = null;
          this._doingAirAction = null;
+         this._moveTargetLocked = false;
          this.setSteelBody(false);
          this._justDefenseFrame = 0.1 * GameConfig.FPS_GAME;
          this.effectCtrler.endShadow();
@@ -845,8 +849,16 @@ package net.play5d.game.bvn.fighter.ctrler
       {
          if(!param1)
          {
-            this._moveTargetParam.clear();
-            this._moveTargetParam = null;
+            if(Boolean(this._moveTargetParam))
+            {
+               this._moveTargetParam.clear();
+               this._moveTargetParam = null;
+            }
+            return;
+         }
+         // 目标刚被击飞时结束过吸附：本次招式内不再接受新的吸引，避免角色包每帧重设把它又拽上天。
+         if(this._moveTargetLocked)
+         {
             return;
          }
          this._moveTargetParam = new MoveTargetParamVO(param1);
@@ -1285,6 +1297,18 @@ package net.play5d.game.bvn.fighter.ctrler
          {
             return;
          }
+         // 2026-11-27 修「吸附+击倒=起飞」：目标一旦进入击飞/倒地/死亡，立刻结束吸引并恢复重力。
+         // 否则每帧的 setVecY(-speed.y) / 直接改 y 会把击倒速度顶掉，isInAir 永远为真，角色一路往上飞。
+         if(_loc4_ is FighterMain)
+         {
+            var _loc5_:int = (_loc4_ as FighterMain).actionState;
+            if(_loc5_ == FighterActionState.HURT_FLYING || _loc5_ == FighterActionState.HURT_DOWN || _loc5_ == FighterActionState.HURT_DOWN_TAN || _loc5_ == FighterActionState.DEAD)
+            {
+               this._moveTargetLocked = true;
+               this.moveTarget(null);
+               return;
+            }
+         }
          if(Boolean(this._moveTargetParam.followMcName))
          {
             _loc3_ = this._mc.getChildByName(this._moveTargetParam.followMcName);
@@ -1433,6 +1457,7 @@ package net.play5d.game.bvn.fighter.ctrler
           this._doActionFrame = 0;
           this._actionStartFrame = GameCtrl.I.renderFrame;
           this._clashLinkFrame = 0;
+          this._moveTargetLocked = false;
           ++this.doActionTimes;
           this._mc.goFrame(param1,true,0,param3);
           this._fighter.dispatchEvent(new FighterEvent("DO_ACTION"));
