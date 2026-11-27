@@ -44,6 +44,12 @@ package net.play5d.game.bvn.data
        
        public var isChangeSpecialKey:Boolean = true;
        
+       /**
+        * 拼招（对拼裁决）开关（2026-11-27）。默认 true = 娱乐/默认档开启；
+        * 竞技档由 setAllRuleConfig(true) 置 false。详见 doc/clash/plan.md。
+        */
+       public var clashEnabled:Boolean = true;
+
        public var cameraMaxSize:Number = 1;
        
        /**
@@ -114,6 +120,7 @@ package net.play5d.game.bvn.data
           o.allowWankai = this.allowWankai;
           o.isAllowRepeatAttack = this.isAllowRepeatAttack;
           o.isChangeSpecialKey = this.isChangeSpecialKey;
+          o.clashEnabled = this.clashEnabled;
           o.cameraMaxSize = this.cameraMaxSize;
           o.filterEffect = this.filterEffect;
           o.camEnhance = this.camEnhance;
@@ -233,7 +240,7 @@ package net.play5d.game.bvn.data
       /** 当前是否已符合竞技标准（一键切换的判定依据） */
       public function isSportRuleEnabled() : Boolean
       {
-         return this.isSteelBodyFreeze && this.initialQi == 100 && !this.allowWankai && !this.isAllowRepeatAttack && !this.isChangeSpecialKey && this.cameraMaxSize == 1;
+         return this.isSteelBodyFreeze && this.initialQi == 100 && !this.allowWankai && !this.isAllowRepeatAttack && !this.isChangeSpecialKey && !this.clashEnabled && this.cameraMaxSize == 1;
       }
       
       /**
@@ -255,6 +262,7 @@ package net.play5d.game.bvn.data
             this.allowWankai = false;
             this.isAllowRepeatAttack = false;
             this.isChangeSpecialKey = false;
+            this.clashEnabled = false;
          }
          else
          {
@@ -262,6 +270,7 @@ package net.play5d.game.bvn.data
             this.allowWankai = true;
             this.isAllowRepeatAttack = true;
             this.isChangeSpecialKey = true;
+            this.clashEnabled = true;
          }
       }
    }

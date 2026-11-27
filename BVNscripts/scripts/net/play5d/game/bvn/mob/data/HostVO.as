@@ -14,6 +14,9 @@ package net.play5d.game.bvn.mob.data
       public var hp:int = 1;
       
       public var gameTime:int = 60;
+
+      /** 拼招开关（2026-11-27）：由房主下发，保证两端同值；旧端缺该字节时按默认 true。 */
+      public var clashEnabled:Boolean = true;
       
       public function HostVO()
       {
@@ -26,7 +29,8 @@ package net.play5d.game.bvn.mob.data
             "ownerName":this.ownerName,
             "gameMode":this.gameMode,
             "hp":this.hp,
-            "gameTime":this.gameTime
+            "gameTime":this.gameTime,
+            "clashEnabled":this.clashEnabled
          };
          return JSON.stringify(_loc2_);
       }
@@ -38,6 +42,10 @@ package net.play5d.game.bvn.mob.data
          this.gameMode = _loc2_.gameMode;
          this.hp = _loc2_.hp;
          this.gameTime = _loc2_.gameTime;
+         if(_loc2_.clashEnabled != null)
+         {
+            this.clashEnabled = _loc2_.clashEnabled == true;
+         }
       }
       
       public function toByteArray() : ByteArray
@@ -46,6 +54,7 @@ package net.play5d.game.bvn.mob.data
          _loc1_.writeByte(this.gameMode);
          _loc1_.writeByte(this.gameTime);
          _loc1_.writeByte(this.hp);
+         _loc1_.writeByte(this.clashEnabled ? 1 : 0);
          return _loc1_;
       }
       
@@ -54,6 +63,11 @@ package net.play5d.game.bvn.mob.data
          this.gameMode = param1.readByte();
          this.gameTime = param1.readByte();
          this.hp = param1.readByte();
+         // 旧客户端只发 3 字节：缺字节时保持默认 true，不读越界。
+         if(param1.bytesAvailable > 0)
+         {
+            this.clashEnabled = param1.readByte() != 0;
+         }
       }
       
       public function getGameModeStr() : String

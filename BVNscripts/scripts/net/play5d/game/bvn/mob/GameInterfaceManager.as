@@ -553,6 +553,20 @@ package net.play5d.game.bvn.mob
             }],
             "optoinKey":"isAllowRepeatAttack"
          },{
+            // 2026-11-27 拼招（对拼裁决）：竞技档默认关、娱乐档默认开（见 doc/clash/plan.md）
+            "txt":"CLASH",
+            "cn":"拼招",
+            "options":[{
+               "label":"OFF",
+               "cn":"关",
+               "value":false
+            },{
+               "label":"ON",
+               "cn":"开",
+               "value":true
+            }],
+            "optoinKey":"clashEnabled"
+         },{
             "txt":"CHANGE SPECIAL KEY",
             "cn":"修改灵替按键",
             "options":[{

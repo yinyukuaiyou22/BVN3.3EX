@@ -50,6 +50,8 @@ package net.play5d.game.bvn.mob.ctrls
          GameData.I.config.fightTime = param1.gameTime;
          GameConfig.setGameFps(30);
          GameData.I.config.keyInputMode = 1;
+         // 拼招开关随房主下发，避免两端判定分叉（见 doc/clash/plan.md D19）
+         GameData.I.config.clashEnabled = param1.clashEnabled;
          LANUtils.updateParams();
          switch(param1.gameMode - 1)
          {
