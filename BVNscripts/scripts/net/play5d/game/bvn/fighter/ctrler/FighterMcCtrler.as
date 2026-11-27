@@ -45,6 +45,12 @@ package net.play5d.game.bvn.fighter.ctrler
       
       private var _doActionFrame:int;
       
+      /** 当前动作的起手渲染帧号（拼招「后出」判据） */
+      private var _actionStartFrame:int = 0;
+      
+      /** 拼招纽带窗口剩余（30Hz 拍） */
+      private var _clashLinkFrame:int = 0;
+      
       private var _isTouchFloor:Boolean = true;
       
       private var _isDefense:Boolean;
@@ -56,6 +62,15 @@ package net.play5d.game.bvn.fighter.ctrler
       private var _hurtDownFrame:int;
       
       private var _ghostStepIng:Boolean;
+      
+      /**
+       * 2026-10-30：换人模式空中换人的「外部时停」标志。
+       *
+       * 换人时停借的是 EffectCtrl.ghostStep（黑幕 + justRender），而 justRender 每帧会对目标调
+       * FighterMain.render() → 本函数。若不像角色自己的鬼步那样短路，冻结的 0.4 秒里控制器
+       * 仍会读输入、跑 renderAirAction —— 玩家按着「上/跳」就会持续起跳，表现为换人后往上飘。
+       */
+      private var _tagFreezeIng:Boolean;
       
       private var _ghostStepFrame:int;
       
@@ -127,6 +142,17 @@ package net.play5d.game.bvn.fighter.ctrler
       public function setActionCtrler(param1:IFighterActionCtrl) : void
       {
          this._actionCtrler = param1;
+      }
+      
+      /** 换人模式：外部时停期间封输入（由 TagModeCtrler 开关，结束时务必复位） */
+      public function setTagFreeze(param1:Boolean) : void
+      {
+         this._tagFreezeIng = param1;
+      }
+      
+      public function get isTagFreezeIng() : Boolean
+      {
+         return this._tagFreezeIng;
       }
       
       public function setMc(param1:FighterMC) : void
@@ -264,6 +290,127 @@ package net.play5d.game.bvn.fighter.ctrler
          this.setSkillAIR();
          this.setBishaAIR();
          this.setAirMove(true);
+      }
+      
+      /**
+       * 拼招赢家：开启「全技能纽带」窗口。窗口内每帧在 render() 里重放动作槽，
+       * doAction 起手即消费（见 doc/clash/plan.md §6.5）。
+       */
+      public function grantClashLink() : void
+      {
+         this._clashLinkFrame = GameConfig.CLASH_LINK_TICKS;
+      }
+      
+      public function clearClashLink() : void
+      {
+         this._clashLinkFrame = 0;
+      }
+      
+      /** 只开放技能槽，不动移动/跳跃/防御/瞬步/万解/摔技；缺帧由各 setXxx 的 checkFrame 静默跳过。 */
+      public function setClashLinkAct(param1:Boolean) : void
+      {
+         if(param1)
+         {
+            this.setAttackAIR();
+            this.setSkillAIR();
+         }
+         else
+         {
+            this.setAttack();
+            this.setSkill1();
+            this.setSkill2();
+            this.setZhao1();
+            this.setZhao2();
+            this.setZhao3();
+         }
+      }
+      
+      public function getActionStartFrame() : int
+      {
+         return this._actionStartFrame;
+      }
+      
+      /**
+       * 拼招输家：打防效果。与 doDefenseHit 同口径（5% 掉血 / 扣气 / 硬直 / 后退 / 气不足破防），
+       * 但**不要求处于防御态**——拼招时输家多半还在出招（见 §6.6）。
+       */
+      public function doClashGuard(param1:HitVO, param2:Rectangle) : void
+      {
+         var _loc3_:int = 0;
+         var _loc4_:Number = NaN;
+         var _loc5_:Number = NaN;
+         this._fighter.loseHp(param1.getDamage() * GameConfig.DEFENSE_LOSE_HP_RATE);
+         if(Boolean(this._fighter.isAlive) && Boolean(GameLogic.checkFighterDie(this._fighter)))
+         {
+            FighterEventDispatcher.dispatchEvent(this._fighter,"DIE");
+            this._fighter.isAlive = false;
+            this.doHurt(param1,param2);
+            return;
+         }
+         this._fighter.defenseHit = param1;
+         if(param1.isBreakDef)
+         {
+            _loc3_ = 90;
+         }
+         else
+         {
+            _loc3_ = param1.getDamage() / 5;
+            if(_loc3_ > 50)
+            {
+               _loc3_ = 50;
+            }
+         }
+         if(!this._fighter.hasEnergy(_loc3_,false))
+         {
+            this.doBreakDefense(param1,param2);
+            this._fighter.lockClashGuard(GameConfig.CLASH_GUARD_HOLD_MAX);
+            return;
+         }
+         this._fighter.useEnergy(_loc3_);
+         this._beHitGap = param1.hurtType == 1 ? 8 : 4;
+         this._fighter.isAllowBeHit = false;
+         _loc4_ = param1.hitx;
+         if(Boolean(param1.owner))
+         {
+            _loc4_ *= param1.owner.direct;
+         }
+         this._action.isDefenseHiting = true;
+         _loc5_ = param1.hurtType == 0 ? param1.hurtTime / 1000 * GameConfig.FPS_GAME / 5 : GameConfig.CLASH_GUARD_HOLD_MAX;
+         if(_loc5_ < GameConfig.CLASH_GUARD_HOLD_MIN)
+         {
+            _loc5_ = GameConfig.CLASH_GUARD_HOLD_MIN;
+         }
+         if(_loc5_ > GameConfig.CLASH_GUARD_HOLD_MAX)
+         {
+            _loc5_ = GameConfig.CLASH_GUARD_HOLD_MAX;
+         }
+         this._defenseHoldFrame = _loc5_;
+         this._fighter.setVelocity(_loc4_,0);
+         this._fighter.setDamping(1,0);
+         this._fighter.lockClashGuard(Math.round(_loc5_));
+         if(Boolean(param2))
+         {
+            EffectCtrl.I.doDefenseEffect(param1,param2,this._fighter.defenseType);
+         }
+      }
+      
+      /**
+       * 拼招同时出：双方弹开。不扣血、不扣气、不给纽带，只后退 + 短暂判定压制（见 §6.7）。
+       */
+      public function doClashRecoil(param1:FighterMain, param2:Rectangle, param3:HitVO) : void
+      {
+         var _loc4_:Number = Boolean(param1) && param1.x < this._fighter.x ? 1 : -1;
+         this._action.isDefenseHiting = true;
+         this._defenseHoldFrame = GameConfig.CLASH_RECOIL_FRAMES;
+         this._beHitGap = GameConfig.CLASH_RECOIL_FRAMES;
+         this._fighter.isAllowBeHit = false;
+         this._fighter.setVelocity(_loc4_ * GameConfig.CLASH_RECOIL_SPEED,0);
+         this._fighter.setDamping(0.1,0);
+         this._fighter.lockClashGuard(GameConfig.CLASH_RECOIL_FRAMES);
+         if(Boolean(param2) && Boolean(param3))
+         {
+            EffectCtrl.I.doClashEffect(param3,param2,this._fighter.defenseType);
+         }
       }
       
       public function setAirMove(param1:Boolean) : void
@@ -690,6 +837,11 @@ package net.play5d.game.bvn.fighter.ctrler
          {
             return;
          }
+         // 换人时停期间完全不吃输入：只保留速度与位移（由 renderVelocity/fixGameSpritePosition 处理）
+         if(this._tagFreezeIng)
+         {
+            return;
+         }
          if(this._justDefenseFrame > 0)
          {
             --this._justDefenseFrame;
@@ -699,9 +851,21 @@ package net.play5d.game.bvn.fighter.ctrler
          {
             this.renderMoveTarget();
          }
+         // 拼招赢家：窗口内每帧在输入轮询之前重放「全技能」动作槽（角色帧脚本每帧重写，必须重放）
+         if(this._clashLinkFrame > 0)
+         {
+            this.setClashLinkAct(this._fighter.isInAir);
+         }
          if(Boolean(this._actionCtrler))
          {
             this._actionCtrler.render();
+         }
+         // 换人模式(TAG)：这里只把请求入队，真正的增删由 TagModeCtrler 在
+         // GameCtrl.render() 的 sprite 迭代之外执行（遍历中改 gameSprites 会漏/重渲染）。
+         // 放在空中/地面分支之前，所以空中也能触发（空中换人走时停分支）。
+         if(GameMode.isTagMode() && Boolean(this._actionCtrler) && Boolean(this._actionCtrler.enabled()) && Boolean(this._actionCtrler.tagSwitch()))
+         {
+            TagModeCtrler.requestSwitch(this._fighter);
          }
          if(this._action.isHurtFlying)
          {
@@ -766,6 +930,11 @@ package net.play5d.game.bvn.fighter.ctrler
       
       private function renderAssist() : void
       {
+         // 换人模式(TAG)：召唤辅助被禁用（辅助键改成换人键），别让残留的 ADD_ASSISTER 链路触发
+         if(GameMode.isTagMode())
+         {
+            return;
+         }
          if(this._fighter.actionState != 0 && this._fighter.actionState != 20)
          {
             return;
@@ -946,6 +1115,10 @@ package net.play5d.game.bvn.fighter.ctrler
             this._justHurtResume = false;
          }
          this.renderBeHitGap();
+         if(this._clashLinkFrame > 0)
+         {
+            --this._clashLinkFrame;
+         }
          if(Boolean(this._mc))
          {
             this._mc.renderAnimate();
@@ -1236,6 +1409,8 @@ package net.play5d.game.bvn.fighter.ctrler
          this._fighter.isCross = false;
          this._fighter.isApplyG = true;
           this._doActionFrame = 0;
+          this._actionStartFrame = GameCtrl.I.renderFrame;
+          this._clashLinkFrame = 0;
           ++this.doActionTimes;
           this._mc.goFrame(param1,true,0,param3);
           this._fighter.dispatchEvent(new FighterEvent("DO_ACTION"));

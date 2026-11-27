@@ -61,6 +61,9 @@ import net.play5d.game.bvn.utils.*;
       private var _renderAnimateFrame:int = 0;
       
       public var fightFinished:Boolean;
+      
+      /** 全局渲染帧号（拼招裁决的时序基准）：GameCtrl.render() 每跑一帧 +1 */
+      public var renderFrame:uint = 0;
         // 局内重开：重置过程中的全局输入防护标志（移植自3.7重开流程）
         public var isResetting:Boolean = false;
       
@@ -268,6 +271,7 @@ import net.play5d.game.bvn.utils.*;
                }
             }
             _fxFighter.resetExplodeState();
+            _fxFighter.resetClashState();
          }
          // 2026-10-23：先释放该角色子树上的滤镜代理，晚一步树就摘走了
          try
@@ -797,6 +801,7 @@ import net.play5d.game.bvn.utils.*;
          {
             return;
          }
+         ++this.renderFrame;
          EffectCtrl.I.render();
          this.gameState.render();
          // 换人模式(TAG)：换人必须在 sprite 迭代之外执行，且空中换人的时停计数也要在

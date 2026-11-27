@@ -2,9 +2,11 @@ package net.play5d.game.bvn.fighter
 {
    import flash.display.MovieClip;
    import flash.geom.*;
+   import net.play5d.game.bvn.GameConfig;
    import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.data.FighterVO;
    import net.play5d.game.bvn.data.GameData;
+   import net.play5d.game.bvn.data.GameMode;
    import net.play5d.game.bvn.data.TeamVO;
    import net.play5d.game.bvn.fighter.ctrler.*;
    import net.play5d.game.bvn.fighter.models.*;
@@ -40,6 +42,12 @@ import net.play5d.game.bvn.Debugger;
       public var isSuperSteelBody:Boolean = false;
       
       public var data:FighterVO;
+      
+      /** 拼招判定压制剩余帧：窗口内自身与攻击体的判定一律失效（防止「输了还打中」）。 */
+      private var _clashGuardFrame:int = 0;
+      
+      /** 本帧是否已参与过拼招裁决（帧号，-1 = 未参与），保证每角色每帧最多一次。 */
+      public var clashResolvedFrame:int = -1;
 
       public var initFailed:Boolean = false;
       
@@ -82,7 +90,17 @@ import net.play5d.game.bvn.Debugger;
       
       private var _animErrLogged:Boolean = false;
       
+      /** 2026-10-27：气/能量条推进异常的“只记一次”标记（避免每帧刷屏） */
+      private var _energyErrLogged:Boolean = false;
+      
       private var _replaceSkillFrame:int;
+      
+      /** 换人模式(TAG)：切出无敌的剩余帧数（在 renderAnimate 里递减，单位 = 30Hz 帧） */
+      private var _tagInvincibleFrame:int = 0;
+      
+      /** 换人无敌闪烁：暗态透明度与半周期帧数（30Hz 下 4 帧 ≈ 每秒闪 3.75 次） */
+      private static const TAG_BLINK_ALPHA:Number = 0.45;
+      private static const TAG_BLINK_FRAME:int = 4;
       
       private var _speedBack:Number = 0;
       
@@ -300,6 +318,13 @@ import net.play5d.game.bvn.Debugger;
       
       public function initlize() : void
       {
+         // 换人模式(TAG)：后备角色会被预先初始化，之后 addFighter 换回来时又会调一次 initlize，
+         // 必须幂等 —— 否则每次换人都新建一套 FighterCtrler/FighterBuffCtrler，旧控制链泄漏且
+         // 旧 MC 上的 ctrler 引用全部失效。
+         if(Boolean(this._fighterCtrl))
+         {
+            return;
+         }
          this._fighterCtrl = new FighterCtrler();
          if(Boolean(_mainMc.setFighterCtrler))
          {
@@ -335,8 +360,26 @@ import net.play5d.game.bvn.Debugger;
          {
             return;
          }
-         this.renderEnergy();
-         this.renderFzQi();
+         if(this._clashGuardFrame > 0)
+         {
+            --this._clashGuardFrame;
+         }
+         // 2026-10-27：这两行排在三个计时器之前，任何一处抛异常都会把「僵直 / 钢体 / 换人无敌」
+         // 一起停摆 —— 正是历史上 render/renderAnimate 共用 try 的那个坑（见 CLAUDE.md 受击状态机）。
+         // 单独兜底并只记一次，保证计时器永远能推进。
+         try
+         {
+            this.renderEnergy();
+            this.renderFzQi();
+         }
+         catch(eEnergy:Error)
+         {
+            if(!this._energyErrLogged)
+            {
+               this._energyErrLogged = true;
+               try { Debugger.log("FIGHTER_ENERGY_ERR id=" + this.id + " :", eEnergy); } catch(_e:Error) {}
+            }
+         }
          if(Boolean(this._fighterCtrl))
          {
             // 2026-10-21：控制器动画链单独兜底。它内部会走到 renderHurtAnimate / idle / MC 子元件推进，
@@ -415,6 +458,63 @@ import net.play5d.game.bvn.Debugger;
                isAllowBeHit = true;
             }
          }
+         // 换人无敌窗口：**不再改写 isAllowBeHit**。
+         // 该标志只在「状态切换」时被控制器赋值（dash/dashStop/idle/doAction…），并不每帧刷新；
+         // 我们若强制写 false，窗口结束后没有任何人写回 true ⇒ 角色只要不进入新状态就永久不可被打
+         // （实测：切人后站着不动就一直无敌，一移动/出招才恢复）。
+         // 现在换人无敌改用 TAG 自己的谓词（tagInvincibleFrame），由 checkHit 读取。
+         if(this._tagInvincibleFrame > 0)
+         {
+            --this._tagInvincibleFrame;
+            // 2026-10-30 用户定：无敌期用透明度闪烁表示，「不闪了就等于无敌结束」。
+            this.updateTagInvincibleBlink();
+            if(this._tagInvincibleFrame <= 0)
+            {
+               this.clearTagInvincible();
+            }
+         }
+      }
+      
+      /**
+       * 换人无敌的透明度闪烁：每 TAG_BLINK_FRAME 个 animate 帧切换一次 alpha。
+       * 只改显示对象自身的 alpha，不碰判定；闪烁只在 renderAnimate 的 30Hz 节奏上跑。
+       */
+      private function updateTagInvincibleBlink() : void
+      {
+         var _loc1_:* = this.getDisplay();
+         if(!Boolean(_loc1_))
+         {
+            return;
+         }
+         var _loc2_:int = int(this._tagInvincibleFrame / TAG_BLINK_FRAME);
+         try
+         {
+            _loc1_.alpha = _loc2_ % 2 == 0 ? TAG_BLINK_ALPHA : 1;
+         }
+         catch(eBlink:Error)
+         {
+         }
+      }
+      
+      /**
+       * 清掉换人无敌：计时归零 + 透明度恢复 1。
+       * 换下/离场/重开都必须走这里，否则"闪到一半被换下"会留下永久半透明的角色。
+       */
+      public function clearTagInvincible() : void
+      {
+         this._tagInvincibleFrame = 0;
+         var _loc1_:* = this.getDisplay();
+         if(!Boolean(_loc1_))
+         {
+            return;
+         }
+         try
+         {
+            _loc1_.alpha = 1;
+         }
+         catch(eClear:Error)
+         {
+         }
       }
       
       override public function render() : void
@@ -467,6 +567,10 @@ import net.play5d.game.bvn.Debugger;
       
       override public function getCurrentHits() : Array
       {
+         if(this._clashGuardFrame > 0)
+         {
+            return null;
+         }
          if(Boolean(this._explodeHitVO) && this._explodeHitFrame < 8)
          {
             return [this._explodeHitVO];
@@ -565,9 +669,10 @@ import net.play5d.game.bvn.Debugger;
       
       private function renderFzQi() : void
       {
-         if(this.fzqi < 100)
+         if(this.fzqi < this.fzqiMax)
          {
-            this.fzqi += 0.2;
+            // 换人模式(TAG)：辅助槽兼作换人槽，回复速度用 TAG_FUZHU_ADD_PERFRAME（0.8/帧 ≈ 4.2 秒满）
+            this.fzqi += GameMode.isTagMode() ? GameConfig.TAG_FUZHU_ADD_PERFRAME : GameConfig.FUZHU_QU_ADD_PERFRAME;
          }
       }
       
@@ -676,8 +781,79 @@ import net.play5d.game.bvn.Debugger;
        * 供 destory() 与「把角色移出渲染列表」的路径调用 —— 计数器只靠 renderAnimate() 递减，
        * 一旦角色不再被渲染，setSteelBody(false) 就永远等不到，辉光会以独立 sprite 的形式永久残留。
        */
+      private function getMcCtrler() : FighterMcCtrler
+      {
+         return Boolean(this._fighterCtrl) ? this._fighterCtrl.getMcCtrl() : null;
+      }
+      
+      public function grantClashLink() : void
+      {
+         var _loc1_:FighterMcCtrler = this.getMcCtrler();
+         if(_loc1_ != null)
+         {
+            _loc1_.grantClashLink();
+         }
+      }
+      
+      public function doClashGuard(param1:HitVO, param2:Rectangle) : void
+      {
+         var _loc3_:FighterMcCtrler = this.getMcCtrler();
+         if(_loc3_ != null)
+         {
+            _loc3_.doClashGuard(param1,param2);
+         }
+      }
+      
+      public function doClashRecoil(param1:FighterMain, param2:Rectangle, param3:HitVO) : void
+      {
+         var _loc4_:FighterMcCtrler = this.getMcCtrler();
+         if(_loc4_ != null)
+         {
+            _loc4_.doClashRecoil(param1,param2,param3);
+         }
+      }
+      
+      public function lockClashGuard(param1:int) : void
+      {
+         if(param1 > this._clashGuardFrame)
+         {
+            this._clashGuardFrame = param1;
+         }
+      }
+      
+      public function isClashGuardLocked() : Boolean
+      {
+         return this._clashGuardFrame > 0;
+      }
+      
+      public function getActionStartFrame() : int
+      {
+         if(!this._fighterCtrl)
+         {
+            return 0;
+         }
+         var _loc1_:FighterMcCtrler = this._fighterCtrl.getMcCtrl();
+         return _loc1_ != null ? _loc1_.getActionStartFrame() : 0;
+      }
+      
+      /** 回合重置 / 离场 / 重开：清掉拼招纽带窗口与判定压制，别把状态带进下一场。 */
+      public function resetClashState() : void
+      {
+         this._clashGuardFrame = 0;
+         this.clashResolvedFrame = -1;
+         if(Boolean(this._fighterCtrl))
+         {
+            var _loc1_:FighterMcCtrler = this._fighterCtrl.getMcCtrl();
+            if(_loc1_ != null)
+            {
+               _loc1_.clearClashLink();
+            }
+         }
+      }
+      
       public function resetExplodeState() : void
       {
+         this.resetClashState();
          // 注意：endGlow() 会走到 EffectCtrl.endFilter -> GameCtrl.removeGameSprite -> gameState，
          // 而 GameCtrl.destory() 是先置空 gameState 再 destoryFighters()，此时解辉光会 #1009。
          // 这里吞掉即可：角色都要销毁了，残留的 BitmapFilterView 会随 GameState 一起被回收。
@@ -690,7 +866,30 @@ import net.play5d.game.bvn.Debugger;
          this._explodeSteelWatchdog = 0;
          this._explodeIdled = false;
          this._replaceSkillFrame = 0;
+         this.clearTagInvincible();
          this._explodeHitVO = null;
+      }
+      
+      /**
+       * 换人模式(TAG)：切出角色无敌。
+       * param1 的单位是 renderAnimate 的帧（30Hz）—— 1 秒要传 1 * GameConfig.FPS_ANIMATE（=30），
+       * 不能用 FPS_GAME（60fps 下那样会变成 2 倍时长）。
+       *
+       * 注意：这里**不再**写 `isAllowBeHit = false`。那个标志只在状态切换时被控制器赋值，
+       * 窗口结束后无人复位 ⇒ 会把角色永久锁成"不可被打"。无敌判定改由 checkHit 读
+       * `tagInvincibleFrame`（本类自己的谓词），与共享标志解耦。
+       */
+      public function startTagInvincible(param1:int) : void
+      {
+         this._tagInvincibleFrame = param1;
+         // 立刻进入暗态：闪烁本身就是"无敌中"的提示，不能等下一帧才开始
+         this.updateTagInvincibleBlink();
+         Debugger.log("[TAG] 切出无敌 id=" + this.id + " frames=" + param1);
+      }
+      
+      public function get tagInvincibleFrame() : int
+      {
+         return this._tagInvincibleFrame;
       }
       
       public function replaceSkill() : void

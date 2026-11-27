@@ -64,6 +64,16 @@ package net.play5d.game.bvn.fighter
          {
             param1.setAttackerCtrler(this._ctrler);
          }
+         // 2026-11-13 注入加固：$attacker_ctrler 是攻击盒符号自己在时间轴上声明的变量，
+         // 角色包漏写 setAttackerCtrler、或子元件用裸名沿父链查找时，一进 ENTER_FRAME 就抛 #1065。
+         // 这里直接补写动态属性（幂等，与 setter 写的是同一个字段），父链查找即可命中。
+         try
+         {
+            param1["$attacker_ctrler"] = this._ctrler;
+         }
+         catch(eAttacker:Error)
+         {
+         }
          if(Boolean(param2))
          {
             if(param2.x != undefined)
@@ -383,6 +393,12 @@ package net.play5d.game.bvn.fighter
          var _loc4_:* = null;
          var _loc5_:Rectangle = null;
          var _loc6_:String = null;
+         // 拼招：主人被判定压制（打防/弹开窗口）期间，攻击体也一律失效，避免「输了还打中」。
+         var _guardOwner:FighterMain = this.getOwner() as FighterMain;
+         if(_guardOwner != null && _guardOwner.isClashGuardLocked())
+         {
+            return null;
+         }
          if(!this._hitAreaCache)
          {
             return null;

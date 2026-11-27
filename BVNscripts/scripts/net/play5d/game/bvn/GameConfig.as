@@ -65,6 +65,22 @@ package net.play5d.game.bvn
       
       public static const DEFENSE_HOLD_FRAME_DOWN:int = 10;
       
+      // ===== 2026-11-27 拼招（对拼裁决），见 doc/clash/plan.md =====
+      /** 同时容差（毫秒）：按 FPS 折算成帧数，60fps≈1 帧、30fps=0 帧 */
+      public static const CLASH_SIM_WINDOW_MS:Number = 20;
+      /** 面长相等的容差（px） */
+      public static const CLASH_REACH_EPS:Number = 2;
+      /** 每侧起手帧偏移补偿，下标 = team id（1/2）；实测后再填 */
+      public static var CLASH_SIDE_LAG:Array = [0,0];
+      /** 赢家纽带窗口（30Hz 拍） */
+      public static const CLASH_LINK_TICKS:int = 8;
+      /** 输家打防硬直 */
+      public static const CLASH_GUARD_HOLD_MIN:int = 5;
+      public static const CLASH_GUARD_HOLD_MAX:int = 10;
+      /** 同时出弹开 */
+      public static const CLASH_RECOIL_FRAMES:int = 6;
+      public static const CLASH_RECOIL_SPEED:Number = 6;
+      
       public static const HURT_DAMPING_X:Number = 0.1;
       
       public static const HURT_DAMPING_Y:Number = 0.5;

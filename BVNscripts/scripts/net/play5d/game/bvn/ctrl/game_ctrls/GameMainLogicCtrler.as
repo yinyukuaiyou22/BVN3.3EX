@@ -5,7 +5,11 @@ package net.play5d.game.bvn.ctrl.game_ctrls
    import net.play5d.game.bvn.ctrl.*;
    import net.play5d.game.bvn.data.TeamMap;
    import net.play5d.game.bvn.data.TeamVO;
+   import net.play5d.game.bvn.data.HitType;
+   import net.play5d.game.bvn.fighter.FighterAttacker;
    import net.play5d.game.bvn.fighter.FighterMain;
+   import net.play5d.game.bvn.fighter.ctrler.ClashResolver;
+   import net.play5d.game.bvn.fighter.models.ClashVerdictVO;
    import net.play5d.game.bvn.fighter.models.HitVO;
    import net.play5d.game.bvn.interfaces.*;
    import net.play5d.game.bvn.map.MapMain;
@@ -358,7 +362,14 @@ package net.play5d.game.bvn.ctrl.game_ctrls
          }
          var _loc5_:Array = param1.getCurrentHits();
          var _loc6_:Array = param2.getCurrentHits();
-         if(param1 is BaseGameSprite && !(param1 as BaseGameSprite).isAllowBeHit)
+         // 不可被打有两个来源（2026-10-30）：
+         //   ① isAllowBeHit —— 控制器在状态切换时写（冲刺/出招/钢体/替身术…），属于角色自身状态；
+         //   ② tagInvincibleFrame —— 换人无敌窗口，属于 TAG 子系统自己的谓词。
+         // 换人无敌**不能**再借 ①：那个标志不会每帧刷新，写 false 之后窗口结束没人复位，
+         // 角色站着不动就会永久不可被打（实测 bug）。
+         var _tagInv1:Boolean = param1 is FighterMain && (param1 as FighterMain).tagInvincibleFrame > 0;
+         var _tagInv2:Boolean = param2 is FighterMain && (param2 as FighterMain).tagInvincibleFrame > 0;
+         if(_tagInv1 || param1 is BaseGameSprite && !(param1 as BaseGameSprite).isAllowBeHit)
          {
             _loc3_ = null;
          }
@@ -366,7 +377,7 @@ package net.play5d.game.bvn.ctrl.game_ctrls
          {
             _loc3_ = param1.getBodyArea();
          }
-         if(param2 is BaseGameSprite && !(param2 as BaseGameSprite).isAllowBeHit)
+         if(_tagInv2 || param2 is BaseGameSprite && !(param2 as BaseGameSprite).isAllowBeHit)
          {
             _loc4_ = null;
          }
@@ -376,6 +387,18 @@ package net.play5d.game.bvn.ctrl.game_ctrls
          }
          var _loc7_:Object = this.getHitObj(_loc5_,_loc4_);
          var _loc8_:Object = this.getHitObj(_loc6_,_loc3_);
+         // 2026-11-27 拼招：只有两向同时命中、且双方本帧都还没参与过裁决，才进裁决。
+         // 裁决只读数值（重击/击倒/面长/后出），不看遍历顺序 —— 见 doc/clash/plan.md。
+         var _loc9_:ClashVerdictVO = null;
+         if(Boolean(_loc7_) && Boolean(_loc8_) && !this.isClashClaimed(param1) && !this.isClashClaimed(param2))
+         {
+            _loc9_ = ClashResolver.I.judge(_loc7_.hitVO,param1,_loc8_.hitVO,param2,_loc7_.hitRect,_loc8_.hitRect);
+         }
+         if(Boolean(_loc9_))
+         {
+            this.applyClash(_loc9_,param1,param2);
+            return;
+         }
          if(Boolean(_loc7_))
          {
             param2.beHit(_loc7_.hitVO,_loc7_.hitRect);
@@ -425,6 +448,46 @@ package net.play5d.game.bvn.ctrl.game_ctrls
             _loc3_++;
          }
          return null;
+      }
+      
+      /** 该精灵（或其攻击体主人）本帧是否已经参与过拼招裁决：每角色每帧最多一次。 */
+      private function isClashClaimed(param1:IGameSprite) : Boolean
+      {
+         var _loc2_:FighterMain = param1 as FighterMain;
+         if(_loc2_ == null && param1 is FighterAttacker)
+         {
+            _loc2_ = (param1 as FighterAttacker).getOwner() as FighterMain;
+         }
+         return _loc2_ != null && _loc2_.clashResolvedFrame == GameCtrl.I.renderFrame;
+      }
+      
+      /** 应用裁决：赢家拿纽带窗口，输家吃打防；同时出双方弹开。不调用 beHit。 */
+      private function applyClash(param1:ClashVerdictVO, param2:IGameSprite, param3:IGameSprite) : void
+      {
+         var _loc4_:FighterMain = param1.fighterA;
+         var _loc5_:FighterMain = param1.fighterB;
+         _loc4_.clashResolvedFrame = GameCtrl.I.renderFrame;
+         _loc5_.clashResolvedFrame = GameCtrl.I.renderFrame;
+         if(Debugger.DIAG_CLASH)
+         {
+            Debugger.log("[CLASH] f=" + GameCtrl.I.renderFrame + " A=" + _loc4_.id + " fA=" + param1.startA + " rA=" + Math.round(param1.reachA) + " | B=" + _loc5_.id + " fB=" + param1.startB + " rB=" + Math.round(param1.reachB) + " => " + param1.reason);
+         }
+         Debugger.log("【拼招】f=" + GameCtrl.I.renderFrame + " " + _loc4_.id + " h" + (HitType.isHeavy(param1.hitA.hitType) ? 1 : 0) + "k" + (param1.hitA.hurtType == 1 ? 1 : 0) + " r" + Math.round(param1.reachA) + " s" + param1.startA + " | " + _loc5_.id + " h" + (HitType.isHeavy(param1.hitB.hitType) ? 1 : 0) + "k" + (param1.hitB.hurtType == 1 ? 1 : 0) + " r" + Math.round(param1.reachB) + " s" + param1.startB + " => " + param1.reason);
+         if(param1.type == ClashVerdictVO.WIN_A)
+         {
+            _loc4_.grantClashLink();
+            _loc5_.doClashGuard(param1.hitA,param1.rectAtoB);
+         }
+         else if(param1.type == ClashVerdictVO.WIN_B)
+         {
+            _loc5_.grantClashLink();
+            _loc4_.doClashGuard(param1.hitB,param1.rectBtoA);
+         }
+         else
+         {
+            _loc4_.doClashRecoil(_loc5_,param1.rectBtoA,param1.hitB);
+            _loc5_.doClashRecoil(_loc4_,param1.rectAtoB,param1.hitA);
+         }
       }
       
       public function renderPause() : void

@@ -8,6 +8,7 @@ package net.play5d.game.bvn.state
    import net.play5d.game.bvn.ctrl.game_ctrls.*;
    import net.play5d.game.bvn.data.*;
    import net.play5d.game.bvn.fighter.FighterMain;
+   import net.play5d.game.bvn.fighter.ctrler.FighterCtrler;
    import net.play5d.game.bvn.interfaces.*;
    import net.play5d.game.bvn.map.MapMain;
    import net.play5d.game.bvn.ui.*;
@@ -27,7 +28,32 @@ package net.play5d.game.bvn.state
       
       public var camera:GameCamera;
       
+      /**
+       * 镜头门面（3.9 移植 GameCameraCtrler）。
+       * camera 本身仍然对外公开 —— 老人物包是直接摸 GameState.camera 的，
+       * 不能断。新代码走这个门面。
+       */
+      public var cameraCtrler:GameCameraCtrler;
+      
       private var _cameraFocus:Array;
+      
+      /**
+       * 必杀黑幕是否仍在显示。由 EffectCtrl.initlize() 注册进来，
+       * 这样 state 层不用反向 import ctrl 层。
+       */
+      public var bishaBlackProbe:Function;
+      
+      /**
+       * 单人特写镜头的撤销看门狗。镜头生命周期只在这里收口：
+       * GameCamera.focus() 只管几何，谁拉的镜头谁负责拉回来这件事由它兜底。
+       */
+      private var _cameraFocusWatch:GameCameraFocusWatch;
+      
+      /**
+       * initCamera 时的基准 zoom。单人视角下 renderTwo 不执行、autoZoom 不接管，
+       * cameraResume 必须显式把 zoom 复位，否则会停在特写的 3.4~4.3 倍上。
+       */
+      private var _cameraDefaultZoom:Number = 2;
       
       public var gameUI:GameUI;
       
@@ -162,11 +188,19 @@ package net.play5d.game.bvn.state
          }
          this._cameraFocus = [];
          var _isDuo:Boolean = GameMode.isDuoMode() || GameMode.is1v2Mode();
+         // 换人模式（TAG）：一队一个共享血池，先按「两人默认值之和」重置，再逐个摆位置。
+         // 后备角色此刻虽不在场，但已经预初始化过，customHpMax 可读。
+         var _isTag:Boolean = GameMode.isTagMode();
+         if(_isTag)
+         {
+            GameLogic.resetTagTeamHP(param1);
+            GameLogic.resetTagTeamHP(param2);
+         }
          var _loc5_:FighterMain = param1.currentFighter;
          var _loc6_:FighterMain = param2.currentFighter;
          if(Boolean(_loc5_))
          {
-            GameLogic.resetFighterHP(_loc5_);
+            if(!_isTag) GameLogic.resetFighterHP(_loc5_);
             _loc5_.x = this._map.p1pos.x;
             _loc5_.y = this._map.p1pos.y;
             _loc5_.direct = 1;
@@ -175,7 +209,7 @@ package net.play5d.game.bvn.state
          }
          if(Boolean(_loc6_))
          {
-            GameLogic.resetFighterHP(_loc6_);
+            if(!_isTag) GameLogic.resetFighterHP(_loc6_);
             if(GameMode.isAcrade())
             {
                GameLogic.setMessionEnemyAttack(_loc6_);
@@ -207,8 +241,13 @@ package net.play5d.game.bvn.state
          {
             _loc4_ = new Point(this._map.mapLayer.width,GameConfig.GAME_SIZE.y);
             this.initCamera();
-            this.camera.focus(this._cameraFocus);
+            this.camera.focus(this._cameraFocus,false,GameCamera.FOCUS_OWNER_ENGINE);
             this.gameUI.initFight(param1,param2);
+            // 换人模式：initFight 只画了场上两人，把「后备角色」头像补上
+            if(_isTag)
+            {
+               TagModeCtrler.I.refreshHUD();
+            }
             addChild(this.gameUI.getUIDisplay());
             // HUD 不参与代理：烘成静态图既糊又冻结数值；而且代理一旦挂在 HUD 根上、
             // 包的滤镜又没被清掉，HUD 就会永久停在"源 alpha=0 + 替身不可见"。
@@ -226,14 +265,45 @@ package net.play5d.game.bvn.state
          throw new Error("map is error! :: mapLayer is null!");
       }
       
+      /** 拼招：回合重置时清掉该队（含后备）的纽带窗口与判定压制。 */
+      private function resetClashStateOfGroup(param1:GameRunFighterGroup) : void
+      {
+         if(param1 == null)
+         {
+            return;
+         }
+         if(param1.fighter1 != null)
+         {
+            param1.fighter1.resetClashState();
+         }
+         if(param1.fighter2 != null)
+         {
+            param1.fighter2.resetClashState();
+         }
+         if(param1.fighter3 != null)
+         {
+            param1.fighter3.resetClashState();
+         }
+      }
+      
       public function resetFight(param1:GameRunFighterGroup, param2:GameRunFighterGroup) : void
       {
          var _loc3_:FighterMain = param1.currentFighter;
          var _loc4_:FighterMain = param2.currentFighter;
          this._cameraFocus = [];
+         // 拼招（2026-11-27）：回合重置要清纽带窗口与判定压制，别把状态带进下一局
+         this.resetClashStateOfGroup(param1);
+         this.resetClashStateOfGroup(param2);
+         // 换人模式（TAG）：新一局把共享血池按「两人默认值之和」重置（含不在场的后备角色）
+         var _isTagRound:Boolean = GameMode.isTagMode();
+         if(_isTagRound)
+         {
+            GameLogic.resetTagTeamHP(param1);
+            GameLogic.resetTagTeamHP(param2);
+         }
          if(Boolean(_loc3_))
          {
-            GameLogic.resetFighterHP(_loc3_);
+            if(!_isTagRound) GameLogic.resetFighterHP(_loc3_);
             _loc3_.x = this._map.p1pos.x;
             _loc3_.y = this._map.p1pos.y;
             _loc3_.direct = 1;
@@ -243,7 +313,7 @@ package net.play5d.game.bvn.state
          }
          if(Boolean(_loc4_))
          {
-            GameLogic.resetFighterHP(_loc4_);
+            if(!_isTagRound) GameLogic.resetFighterHP(_loc4_);
             _loc4_.x = this._map.p2pos.x;
             _loc4_.y = this._map.p2pos.y;
             _loc4_.direct = -1;
@@ -274,22 +344,93 @@ package net.play5d.game.bvn.state
             }
          }
          this.gameUI.initFight(param1,param2);
+         // 换人模式：新一局也要把「后备角色」头像补回 HUD
+         if(_isTagRound)
+         {
+            TagModeCtrler.I.refreshHUD();
+         }
          this.cameraResume();
       }
       
+      /**
+       * 引擎自己的单人特写：开场 / KO / 胜利。
+       * 带 FOCUS_OWNER_ENGINE 标记，GameCameraFocusWatch 不会接管 —— 这些镜头由
+       * 各自的流程（GameStartCtrl / FightUI）负责收尾。
+       */
       public function cameraFocusOne(param1:DisplayObject) : void
+      {
+         var _loc2_:int = GameConfig.CAMERA_TWEEN_SPD / GameConfig.SPEED_PLUS_DEFAULT;
+         if(!this.camera)
+         {
+            return;
+         }
+         this.camera.focus([param1],false,GameCamera.FOCUS_OWNER_ENGINE);
+         this.camera.setZoom(3.5);
+         this.camera.tweenSpd = _loc2_;
+      }
+      
+      /**
+       * 必杀 / 完凯的单人特写。
+       * owner 标成 FOCUS_OWNER_BISHA：这类镜头由 GameCameraFocusWatch 兜底撤销
+       * （帧标签切换 / 黑幕结束 / 超时）。
+       */
+      public function cameraFocusBisha(param1:DisplayObject) : void
+      {
+         var _loc2_:int = GameConfig.CAMERA_TWEEN_SPD / GameConfig.SPEED_PLUS_DEFAULT;
+         if(!this.camera)
+         {
+            return;
+         }
+         this.camera.focus([param1],false,GameCamera.FOCUS_OWNER_BISHA);
+         this.camera.setZoom(3.5);
+         this.camera.tweenSpd = _loc2_;
+      }
+      
+      /**
+       * 更新聚焦对象（3.9 官方 GameStage.updateCameraFocus）。
+       * 换人 / 增员后调用：把 _cameraFocus 整个换掉并把倍率拉回 2。
+       */
+      public function updateCameraFocus(param1:Array) : void
+      {
+         var _loc2_:int = GameConfig.CAMERA_TWEEN_SPD / GameConfig.SPEED_PLUS_DEFAULT;
+         if(!this.camera || !param1)
+         {
+            return;
+         }
+         this._cameraFocus = param1;
+         this.camera.focus(param1,false,GameCamera.FOCUS_OWNER_ENGINE);
+         this.camera.setZoom(this._cameraDefaultZoom);
+         this.camera.tweenSpd = _loc2_;
+      }
+      
+      /**
+       * 特效收尾时的镜头恢复（endBisha / endWanKai 调用）。
+       *
+       * 「endBisha = 取消镜头」是角色包的通用约定 —— 人物包在回到站立的第一帧就会调它，
+       * 用来把之前自己摆的特写收回去（例：赛马娘 东海帝王 的 frame1 就无条件调 endBisha）。
+       * 所以这里必须真的执行恢复，不能挂在 cancelJustRenderAnimate()==true 上：
+       * 那个判据在「第二次调用」时必然 false，恢复动作会被整段吞掉，
+       * 镜头就永久停在特写目标上（这正是原来的 bug）。
+       *
+       * 例外：开场 / KO / 胜利这些引擎主动摆的镜头（owner = FOCUS_OWNER_ENGINE）
+       * 不在这里动，它们由各自的流程收尾。
+       */
+      public function cameraResumeByEffect() : void
       {
          if(!this.camera)
          {
             return;
          }
-         this.camera.focus([param1]);
-         this.camera.setZoom(3.5);
-         this.camera.tweenSpd = 2.5 / GameConfig.SPEED_PLUS_DEFAULT;
+         if(this.camera.focusOwner == GameCamera.FOCUS_OWNER_ENGINE)
+         {
+            return;
+         }
+         this.cameraResume();
       }
       
       public function cameraResume() : void
       {
+         var _loc2_:int = GameConfig.CAMERA_TWEEN_SPD / GameConfig.SPEED_PLUS_DEFAULT;
          // 2026-10-21：镜头在 initFight -> initCamera 里才创建，而人物包的帧脚本可能在
          // addFighter 阶段就调到 endBisha() -> cameraResume()。这里兜一层，别再让外部人物包
          // 把整个 buildGame 打断。
@@ -297,8 +438,19 @@ package net.play5d.game.bvn.state
          {
             return;
          }
-         this.camera.focus(this._cameraFocus);
-         this.camera.tweenSpd = 2.5 / GameConfig.SPEED_PLUS_DEFAULT;
+         // _cameraFocus 在 initFight 之前是 null，focus(null) 会在镜头里 #1009
+         if(!this._cameraFocus)
+         {
+            this._cameraFocus = [];
+         }
+         this.camera.focus(this._cameraFocus,false,GameCamera.FOCUS_OWNER_ENGINE);
+         // 单人视角（对手已离场/单人关卡）下 renderTwo 不会跑，autoZoom 也就不接管，
+         // 只恢复 focus 的话画面仍然怼在特写倍率上，看起来像没恢复。
+         if(this._cameraFocus.length < 2)
+         {
+            this.camera.setZoom(this._cameraDefaultZoom);
+         }
+         this.camera.tweenSpd = _loc2_;
       }
       
       private function initCamera() : void
@@ -325,11 +477,73 @@ package net.play5d.game.bvn.state
          this.camera.setX(-_loc3_);
          this.camera.setY(-_loc4_);
          this.camera.updateNow();
+         this._cameraDefaultZoom = _loc2_;
+         // 看门狗随镜头一起建、一起废。黑幕探针用方法引用，EffectCtrl 还没 initlize 时返回 false。
+         if(Boolean(this._cameraFocusWatch))
+         {
+            this._cameraFocusWatch.destory();
+         }
+         this._cameraFocusWatch = new GameCameraFocusWatch(this.camera,this.cameraResume,this.probeBlackBack);
+         // 镜头门面（3.9 移植）
+         if(Boolean(this.cameraCtrler))
+         {
+            this.cameraCtrler.destory();
+         }
+         this.cameraCtrler = new GameCameraCtrler(this.camera);
+         // 角色是在镜头创建之前建好的，这里把镜头回填给它们的 cameraCtrler
+         this.bindCameraToFighters();
+      }
+      
+      /**
+       * 把镜头实例回填给场上角色的 FighterCameraCtrler（3.9 移植）。
+       * 角色在 addFighter 阶段就建好了，那时 initCamera 还没跑，镜头还不存在。
+       */
+      private function bindCameraToFighters() : void
+      {
+         var _loc1_:IGameSprite = null;
+         for each(_loc1_ in this._gameSprites)
+         {
+            try
+            {
+               if(_loc1_ is FighterMain)
+               {
+                  var _loc2_:FighterCtrler = (_loc1_ as FighterMain).getCtrler();
+                  if(Boolean(_loc2_) && Boolean(_loc2_.getCameraCtrler()))
+                  {
+                     _loc2_.getCameraCtrler().setCamera(this.camera);
+                  }
+               }
+            }
+            catch(e:Error)
+            {
+            }
+         }
+      }
+      
+      private function probeBlackBack() : Boolean
+      {
+         if(this.bishaBlackProbe == null)
+         {
+            return false;
+         }
+         try
+         {
+            return Boolean(this.bishaBlackProbe());
+         }
+         catch(e:Error)
+         {
+            return false;
+         }
       }
       
       public function render() : void
       {
          var _loc1_:Rectangle = null;
+         // 镜头看门狗必须先于 camera.render()：撤销动作改的是 focus 数组，同一帧就能生效
+         if(Boolean(this._cameraFocusWatch))
+         {
+            this._cameraFocusWatch.tick();
+         }
          if(Boolean(this.camera))
          {
             this.camera.render();
@@ -394,8 +608,19 @@ package net.play5d.game.bvn.state
             this._gameLayer.removeChildren();
             this._gameLayer = null;
          }
+         if(Boolean(this._cameraFocusWatch))
+         {
+            this._cameraFocusWatch.destory();
+            this._cameraFocusWatch = null;
+         }
+         if(Boolean(this.cameraCtrler))
+         {
+            this.cameraCtrler.destory();
+            this.cameraCtrler = null;
+         }
          if(Boolean(this.camera))
          {
+            this.camera.destory();
             this.camera = null;
          }
          if(Boolean(this.gameUI))

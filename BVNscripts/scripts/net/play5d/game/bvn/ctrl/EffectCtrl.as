@@ -541,6 +541,19 @@ package net.play5d.game.bvn.ctrl
          this.doEffectVO(_loc6_,_loc7_,_loc8_,_loc9_,param4);
       }
       
+      /**
+       * 拼招弹开的冲击特效。第一版不新增资源：复用防御火花。
+       * 将来若定义 clash 特效 id，在这里换 lookup 即可 —— 结算不依赖特效存在。
+       */
+      public function doClashEffect(param1:HitVO, param2:Rectangle, param3:int = 1) : void
+      {
+         if(param1 == null || param2 == null)
+         {
+            return;
+         }
+         this.doDefenseEffect(param1,param2,param3);
+      }
+      
       public function doSteelHitEffect(param1:HitVO, param2:Rectangle, param3:IGameSprite) : void
       {
          var _loc4_:EffectVO = null;

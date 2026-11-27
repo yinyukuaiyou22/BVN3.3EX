@@ -92,6 +92,14 @@
 
        private static var _frameCounter:int = 0;
 
+      // 2026-11-13：未捕获异常去重限流（角色包每帧抛错的止血阀）。
+      // 角色包帧脚本里裸名读 $attacker_ctrler 之类，挂在 ENTER_FRAME 上就会每帧抛 #1065；
+      // 旧实现逐条 getStackTrace + 入队 + appendText，真机直接被堆栈刷屏拖死。
+      private static var _ucSeen:Object = {};      // key(堆栈首行) -> true
+      private static var _ucSuppressed:int = 0;    // 本刷新窗口内被抑制的条数
+      private static const UC_KEY_CAP:int = 64;    // 去重表上限，防止无界增长
+      private static const MAX_LOG_CHARS:int = 120000;  // 面板文本历史上限，超出砍头
+
        // 批次6.8：标签过滤系统 — null = 不启用过滤（全部通过）；Object = 仅允许指定 tag 通过
        // 用法：Debugger.setTagFilter("SelectStage", "SetBtn", "Menu") 只输出这几个标签的 log
        private static var _enabledTags:Object = null;
@@ -126,6 +134,12 @@
        * 常态日志（共享池重置、后备就绪、switch、freeze start/end、切出无敌）不受此开关影响。
        */
       public static var DIAG_TAG:Boolean = false;
+      
+      /**
+       * 拼招（对拼裁决）逐帧诊断开关，默认关。
+       * 打开后输出每次接触的帧号/起手帧/面长与最终裁决；常开的低频判据【拼招】不受此开关控制。
+       */
+      public static var DIAG_CLASH:Boolean = false;
 
       // 批次 6.14：构建版本号（防止看串日志 / 排查"日志与 SWF 不匹配"）
       // 规范：<项目>-<批次>-<日期>-<时间>。
@@ -135,7 +149,7 @@
       // - 时间：HHMM 格式（每次编译手动或脚本更新）
       // 调用方：build.bat 可在编译前用 sed 替换 @BUILD_TAG@ 占位符。
       // 读取方：bvn_debug.log 第一行（=== BVN Debug Log ===）之后第二行即为 BUILD 行。
-      public static const BUILD_TAG:String = "BVN-3.3EX-batch6.14-2026-11-21-1842";
+      public static const BUILD_TAG:String = "BVN-3.3EX-batch6.14-2026-11-27-1328";
 
       private static var _scale:Number = 1.0;
 
@@ -1074,6 +1088,18 @@
                _fileLogBuffer += line;
             }
             _logQueue.length = 0;
+            // 2026-11-13：面板文本历史上限。角色包每帧刷错时 TextField 会无界增长，
+            // 手机上光是排版就能把帧率拖垮。超限后按整行砍头。
+            if(_logTf != null && _logTf.length > MAX_LOG_CHARS)
+            {
+               var cut:int = _logTf.length - MAX_LOG_CHARS;
+               var tailNl:int = _logTf.text.indexOf("\n",cut);
+               if(tailNl > 0)
+               {
+                  cut = tailNl + 1;
+               }
+               _logTf.replaceText(0,cut,"");
+            }
             // Only auto-scroll to bottom if user is not currently dragging
             if(!_logDragging && _logTf.textHeight > LOG_HEIGHT)
             {
@@ -1100,6 +1126,12 @@
                _lastPerfTimer = getTimer();
             }
          }
+         // 2026-11-13：被抑制的重复异常，每个刷新窗口汇报一次条数
+         if(_ucSuppressed > 0 && _frameCounter >= FLUSH_INTERVAL)
+         {
+            _queueLog("[UNCAUGHT] 已抑制 " + _ucSuppressed + " 条重复异常（同一根因只详记首次）",true);
+            _ucSuppressed = 0;
+         }
          if(_frameCounter >= FLUSH_INTERVAL)
          {
             _frameCounter = 0;
@@ -1119,14 +1151,43 @@
       
       private static function _onUncaughtError(e:UncaughtErrorEvent) : void
       {
+         var msg:String = "";
          if(e.error is Error)
          {
-            var msg:String = (e.error as Error).getStackTrace();
+            msg = (e.error as Error).getStackTrace();
          }
-         else
+         else if(e.error != null)
          {
             msg = e.error.toString();
          }
+         if(msg == null || msg == "")
+         {
+            msg = "null";
+         }
+         // 2026-11-13：去重 + 限流。判据取「堆栈首行 + 首帧」，同一根因只详记一次，
+         // 其余只计数，由 _onEnterFrame 每个刷新窗口汇报一行（不再逐条刷）。
+         var sig:String = msg;
+         var nl:int = sig.indexOf("\n");
+         if(nl >= 0)
+         {
+            sig = sig.substring(0,nl);
+         }
+         if(_ucSeen[sig] == true)
+         {
+            ++_ucSuppressed;
+            return;
+         }
+         var keyCount:int = 0;
+         for(var k:String in _ucSeen)
+         {
+            ++keyCount;
+         }
+         if(keyCount >= UC_KEY_CAP)
+         {
+            ++_ucSuppressed;
+            return;
+         }
+         _ucSeen[sig] = true;
          _queueLog("[UNCAUGHT] " + msg,true);
       }
    }
