@@ -12,9 +12,14 @@ package net.play5d.game.bvn.fighter.ctrler
    import net.play5d.game.bvn.interfaces.IGameSprite;
 
    /**
-    * 鎷兼嫑瑁佸喅鍣紙2026-11-27锛屾柟妗堣 doc/clash/plan.md锛夈€?    *
-    * 鍙鏁板€笺€佷笉纰版樉绀哄璞°€佷笉鏀圭姸鎬侊細杈撳叆涓や晶鍛戒腑 VO 涓庣簿鐏碉紝杈撳嚭銆孉 璧?/ B 璧?/ 鍚屾椂 / 涓嶇畻鎷兼嫑銆嶃€?    * 浼樺厛绾ф槸鍥涚骇瀛楀吀搴忥細閲嶅嚮 > 鍑诲€?> 闈㈤暱 > 鍚庡嚭锛涘叏骞虫墠鍒ゅ悓鏃讹紙鍙屾柟寮瑰紑锛夈€?    *
-    * 涓轰粈涔堜笉鍦?beHit 閲屽垽锛氬厛搴旂敤鐨勪竴鏂瑰凡缁忔妸瀵规墜鎵撹繘鍙楀嚮骞剁疆 isAllowBeHit=false锛?    * 浜嬪悗鎷垮埌鐨勭姸鎬佸凡琚薄鏌撱€傚敮涓€姝ｇ‘鐨勭獥鍙ｆ槸 checkHit 閲屻€屼袱鍚戦兘绠楀畬銆佸皻鏈簲鐢ㄣ€嶄箣闂淬€?    */
+    * 拼招裁决器（2026-11-27，方案见 doc/clash/plan.md）。
+    *
+    * 只读数值、不碰显示对象、不改状态：输入两侧命中 VO 与精灵，输出「A 赢 / B 赢 / 同时 / 不算拼招」。
+    * 优先级是四级字典序：重击 > 击倒 > 面长 > 后出；全平才判同时（双方弹开）。
+    *
+    * 为什么不在 beHit 里判：先应用的一方已经把对手打进受击并置 isAllowBeHit=false，
+    * 事后拿到的状态已被污染。唯一正确的窗口是 checkHit 里「两向都算完、尚未应用」之间。
+    */
    public class ClashResolver
    {
       private static var _i:ClashResolver;
@@ -39,7 +44,9 @@ package net.play5d.game.bvn.fighter.ctrler
       }
 
       /**
-       * 瑁佸喅鍏ュ彛銆俻aram5 / param6 鍒嗗埆鏄?A 鎵?B銆丅 鎵?A 鐨勪氦闆嗙煩褰€?       * 杩斿洖 null = 涓嶇畻鎷兼嫑锛堝紑鍏冲叧銆佹湁涓€鏂逛笉鍚堟牸銆乷wner 瑙ｆ瀽涓嶅嚭瑙掕壊锛夈€?       */
+       * 裁决入口。param5 / param6 分别是 A 打 B、B 打 A 的交集矩形。
+       * 返回 null = 不算拼招（开关关、有一方不合格、owner 解析不出角色）。
+       */
       public function judge(param1:HitVO, param2:IGameSprite, param3:HitVO, param4:IGameSprite, param5:Rectangle, param6:Rectangle) : ClashVerdictVO
       {
          if(!this.isEnabled())
@@ -60,31 +67,31 @@ package net.play5d.game.bvn.fighter.ctrler
          var _loc10_:int = HitType.isHeavy(param3.hitType) ? 1 : 0;
          if(_loc9_ != _loc10_)
          {
-            return this.make(_loc9_ > _loc10_ ? ClashVerdictVO.WIN_A : ClashVerdictVO.WIN_B,"閲嶅嚮",param1,param2,param3,param4,_loc7_,_loc8_,param5,param6);
+            return this.make(_loc9_ > _loc10_ ? ClashVerdictVO.WIN_A : ClashVerdictVO.WIN_B,"重击",param1,param2,param3,param4,_loc7_,_loc8_,param5,param6);
          }
          var _loc11_:int = param1.hurtType == 1 ? 1 : 0;
          var _loc12_:int = param3.hurtType == 1 ? 1 : 0;
          if(_loc11_ != _loc12_)
          {
-            return this.make(_loc11_ > _loc12_ ? ClashVerdictVO.WIN_A : ClashVerdictVO.WIN_B,"鍑诲€?,param1,param2,param3,param4,_loc7_,_loc8_,param5,param6);
+            return this.make(_loc11_ > _loc12_ ? ClashVerdictVO.WIN_A : ClashVerdictVO.WIN_B,"击倒",param1,param2,param3,param4,_loc7_,_loc8_,param5,param6);
          }
          var _loc13_:Number = this.reach(param1,_loc7_);
          var _loc14_:Number = this.reach(param3,_loc8_);
          if(Math.abs(_loc13_ - _loc14_) > GameConfig.CLASH_REACH_EPS)
          {
-            return this.make(_loc13_ > _loc14_ ? ClashVerdictVO.WIN_A : ClashVerdictVO.WIN_B,"闈㈤暱",param1,param2,param3,param4,_loc7_,_loc8_,param5,param6);
+            return this.make(_loc13_ > _loc14_ ? ClashVerdictVO.WIN_A : ClashVerdictVO.WIN_B,"面长",param1,param2,param3,param4,_loc7_,_loc8_,param5,param6);
          }
          var _loc15_:Number = _loc7_.getActionStartFrame() - this.sideLag(_loc7_);
          var _loc16_:Number = _loc8_.getActionStartFrame() - this.sideLag(_loc8_);
          var _loc17_:int = this.simWindowFrames();
          if(Math.abs(_loc15_ - _loc16_) > _loc17_)
          {
-            return this.make(_loc15_ > _loc16_ ? ClashVerdictVO.WIN_A : ClashVerdictVO.WIN_B,"鍚庡嚭",param1,param2,param3,param4,_loc7_,_loc8_,param5,param6);
+            return this.make(_loc15_ > _loc16_ ? ClashVerdictVO.WIN_A : ClashVerdictVO.WIN_B,"后出",param1,param2,param3,param4,_loc7_,_loc8_,param5,param6);
          }
-         return this.make(ClashVerdictVO.TIE,"鍚屾椂",param1,param2,param3,param4,_loc7_,_loc8_,param5,param6);
+         return this.make(ClashVerdictVO.TIE,"同时",param1,param2,param3,param4,_loc7_,_loc8_,param5,param6);
       }
 
-      /** 鍙銆岃鑹叉湰浜虹殑杩戣韩鍒ゅ畾銆嶄笌鏀诲嚮浣撳弬涓庯紱蹇呮潃/鎶撳彇/瀛愬脊/杈呭姪涓€寰嬩笉绠楁嫾鎷涖€?*/
+      /** 只让「角色本人的近身判定」与攻击体参与；必杀/抓取/子弹/辅助一律不算拼招。 */
       private function eligible(param1:HitVO, param2:FighterMain) : Boolean
       {
          if(param1 == null || param2 == null)
@@ -112,7 +119,7 @@ package net.play5d.game.bvn.fighter.ctrler
          return null;
       }
 
-      /** 闈㈤暱锛氬懡涓灛闂存敾鍑荤洅鍦ㄦ湞鍚戜笂鐨勫娌垮埌瑙掕壊鏍圭殑妯悜璺濈銆傞敋鐐瑰繀椤绘槸瑙掕壊鏍癸紝涓嶆槸鏀诲嚮浣撱€?*/
+      /** 面长：命中瞬间攻击盒在朝向上的外沿到角色根的横向距离。锚点必须是角色根，不是攻击体。 */
       private function reach(param1:HitVO, param2:FighterMain) : Number
       {
          var _loc3_:Rectangle = param1.currentArea;
@@ -135,7 +142,7 @@ package net.play5d.game.bvn.fighter.ctrler
          return 0;
       }
 
-      /** 鍚屾椂绐楀彛鎸夋绉掓姌绠楋細60fps鈮? 甯с€?0fps=0 甯э紙浣庣敾璐ㄤ笌 LAN 閮戒細鍘嬪埌 30fps锛夈€?*/
+      /** 同时窗口按毫秒折算：60fps≈1 帧、30fps=0 帧（低画质与 LAN 都会压到 30fps）。 */
       private function simWindowFrames() : int
       {
          var _loc1_:Number = GameConfig.FPS_GAME;

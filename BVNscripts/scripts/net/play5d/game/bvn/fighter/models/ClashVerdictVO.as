@@ -5,8 +5,9 @@ package net.play5d.game.bvn.fighter.models
    import net.play5d.game.bvn.interfaces.IGameSprite;
 
    /**
-    * 鎷兼嫑瑁佸喅缁撴灉锛?026-11-27锛夈€傜函鏁版嵁锛氬彧甯﹀垽瀹氱粨璁轰笌鐢ㄤ簬鏃ュ織/鐗规晥鐨勬暟鍊煎揩鐓э紝
-    * 涓嶆寔鏈夐€昏緫锛屼篃涓嶆敼浠讳綍鐘舵€?鈥斺€?搴旂敤鐢?GameMainLogicCtrler.applyClash 璐熻矗銆?    */
+    * 拼招裁决结果（2026-11-27）。纯数据：只带判定结论与用于日志/特效的数值快照，
+    * 不持有逻辑，也不改任何状态 —— 应用由 GameMainLogicCtrler.applyClash 负责。
+    */
    public class ClashVerdictVO
    {
       public static const WIN_A:int = 1;
@@ -29,7 +30,7 @@ package net.play5d.game.bvn.fighter.models
       public var loserHitVO:HitVO;
       public var rect:Rectangle;
 
-      /** 鏃ュ織蹇収锛氶潰闀夸笌鎶樼畻鍚庣殑璧锋墜甯э紙鍚瘡渚у亸绉伙級 */
+      /** 日志快照：面长与折算后的起手帧（含每侧偏移） */
       public var reachA:Number = 0;
       public var reachB:Number = 0;
       public var startA:Number = 0;
