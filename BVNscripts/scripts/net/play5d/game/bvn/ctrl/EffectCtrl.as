@@ -115,6 +115,8 @@ package net.play5d.game.bvn.ctrl
       
       public function destory() : void
       {
+         // 退场也清一次：回主菜单 / 切场时没人会再调 idle，hold 会留在单例上。
+         this.resetShake();
          if(Boolean(this._manager))
          {
             this._manager.destory();
@@ -259,13 +261,15 @@ package net.play5d.game.bvn.ctrl
            this.freezeEnabled = true;
            if(Boolean(this._gameStage))
            {
-              this.endShake();
+              this.resetShake();
            }
            this.slowDownResume();
         }
       
       public function initlize(param1:GameState, param2:Sprite) : void
       {
+         // 新一局开场先全量复位震屏，杜绝上一局残留的 hold 跟着新舞台继续抖。
+         this.resetShake();
          this._manager = new EffectManager();
          this._gameStage = param1;
          this._effectLayer = param2;
@@ -804,12 +808,41 @@ package net.play5d.game.bvn.ctrl
          this._shakeHoldY = param2;
       }
       
+      /**
+       * 结束「持续震动」（startShake 那一档）。只清 hold 与舞台坐标，保留一次性的衰减抖动（shake）——
+       * 角色 idle/doAction/受击都会走这里，不能顺手把别人刚打出来的命中震屏也掐掉。
+       */
       public function endShake() : void
       {
          this._shakeHoldX = 0;
          this._shakeHoldY = 0;
-         this._gameStage.x = 0;
-         this._gameStage.y = 0;
+         if(Boolean(this._gameStage))
+         {
+            this._gameStage.x = 0;
+            this._gameStage.y = 0;
+         }
+      }
+      
+      /**
+       * 全量复位（2026-11-27）：开场 / 退场 / 局内重开用。hold、pow、frame、lose 全清。
+       * 背景：角色包用 startShake(5,5) 做持续震动，没走到 idle 就退出战斗时 hold 会留在单例上，
+       * 下一局换上新 _gameStage 就继续抖；destory 原来只把 _gameStage 置空、不清理。
+       */
+      public function resetShake() : void
+      {
+         this._shakeHoldX = 0;
+         this._shakeHoldY = 0;
+         this._shakePowX = 0;
+         this._shakePowY = 0;
+         this._shakeFrameX = 0;
+         this._shakeFrameY = 0;
+         this._shakeLoseX = 0;
+         this._shakeLoseY = 0;
+         if(Boolean(this._gameStage))
+         {
+            this._gameStage.x = 0;
+            this._gameStage.y = 0;
+         }
       }
       
       public function shake(param1:Number = 0, param2:Number = 3, param3:int = 500) : void
