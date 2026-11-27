@@ -77,7 +77,8 @@ doc/
 │   ├── decisions-2026-10-30.md     反修决策：封输入 / 残影清理 / 先发顺序（D1~D5）
 │   └── progress.md                 执行台账（改过的文件、跑过的命令、偏差与待验项）
 ├── clash/                        拼招机制（对拼裁决）
-│   └── plan.md                     方案：四级字典序 / 打防 / 全技能纽带 / 2P 一帧补偿（未实现）
+│   ├── plan.md                     方案：四级字典序 / 打防 / 全技能纽带 / 2P 一帧补偿
+│   └── progress.md                 实现记录：改了哪些文件、验证到哪、实机验收清单
 ├── adr/                          架构决策记录（原 docs/adr/ 并入）
 │   ├── README.md
 │   └── ADR-001-单页窗口与翻页交互.md
@@ -118,7 +119,7 @@ doc/
 | **改主菜单排版 / 二级菜单摆位 / 菜单条目与跳转** | [`menu-layout-decisions.md`](menu-layout-decisions.md)（D1~D14，含被否决方案）。**改动点只有两处**：条目与二级子项 = `GameInterfaceManager.getGameMenu()`；label→页面 = `MenuBtnGroup.getFucByLabel()`。旧 PC 菜单（`GameInterface.getDefaultMenu()` 静态表）已废弃 |
 | **选人/加载界面视频（黑底、不循环、第二次没画面）** | [decisions-select-video.md](decisions-select-video.md)（D1~D5：25s 上限、进选人释放视频槽、循环、翻页兼容兜底） |
 | **换人模式（TAG）：辅助键换人 / 共享血池 / 空中时停换人** | [`tag-mode/proposal.md`](tag-mode/proposal.md) → [`tag-mode/plan.md`](tag-mode/plan.md) → [`tag-mode/progress.md`](tag-mode/progress.md) |
-| **拼招（对拼裁决）：重击>击倒>面长>后出 / 同时出弹开 / 赢家全技能纽带 / 输家吃打防** | [`clash/plan.md`](clash/plan.md)（方案，未实现；含 16 条实现难点、逐文件改动清单、2P 实测探针） |
+| **拼招（对拼裁决）：重击>击倒>面长>后出 / 同时出弹开 / 赢家全技能纽带 / 输家吃打防** | [`clash/plan.md`](clash/plan.md)（方案：16 条难点、改动清单、2P 探针）→ [`clash/progress.md`](clash/progress.md)（实现记录，2026-11-27，待实机验收） |
 | 选人界面翻页 / 单页窗口决策 | [`adr/ADR-001-单页窗口与翻页交互.md`](adr/ADR-001-单页窗口与翻页交互.md)、[`plans/2026-09-07-选人界面工具-单页窗口与翻页.md`](plans/2026-09-07-选人界面工具-单页窗口与翻页.md) |
 | **外部包挂滤镜没效果 / 时停变黑白屏 / 角色凭空消失** | [`gpu-filter-proxy.md`](gpu-filter-proxy.md)：§2 实测事实、§3 架构、§5 参数、§6 踩坑、**附录 A 改动履历**、**附录 B 12 条错误经验** |
 | 哪个角色还没进精简包 / 包体怎么凑 | [`未入包角色清单.md`](未入包角色清单.md)（2026-11-01 基准：352 个 / 5612 MB 未入包，含作者与体积） |
